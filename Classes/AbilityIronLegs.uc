@@ -1,0 +1,47 @@
+class AbilityIronLegs extends RPGAbility;
+
+var config float MaxFallSpeedBonus, MomentumReduction;
+
+replication
+{
+	reliable if(Role == Role_Authority)
+		MaxFallSpeedBonus, MomentumReduction;
+}
+
+function ModifyPawn(Pawn Other)
+{
+	Super.ModifyPawn(Other);
+	Other.MaxFallSpeed = Other.default.MaxFallSpeed * (1.0 + MaxFallSpeedBonus * float(AbilityLevel));
+}
+
+function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+{
+	if (Injured == Instigator)
+		return;
+
+	if (bOwnedByInstigator)
+		return;
+	else
+		Momentum = Momentum - ((Momentum * MomentumReduction) * AbilityLevel);
+}
+
+simulated function string DescriptionText()
+{
+	return repl(
+		repl(Super.DescriptionText(), "$1", class'Util'.static.FormatPercent(MaxFallSpeedBonus)),
+		"$2", class'Util'.static.FormatPercent(MomentumReduction));
+}
+
+defaultproperties
+{
+	AbilityName="Iron Legs"
+	Description="Reduces falling damage by $1 per level and any momentum taken by $2 per level."
+	StartingCost=5
+	CostAddPerLevel=5
+	MaxLevel=5
+	MaxFallSpeedBonus=0.200000
+	MomentumReduction=0.200000
+	RequiredAbilities(0)=(AbilityClass=class'AbilityHealthBonus',Level=3)
+	ForbiddenAbilities(0)=(AbilityClass=class'AbilityCounterShove',Level=1)
+	ForbiddenAbilities(1)=(AbilityClass=class'AbilityChute',Level=1)
+}

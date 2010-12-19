@@ -1,0 +1,201 @@
+TEST:
+- Fix GameStats?
+- Stats
+
+DONE 1.61:
+- Added configurable list of weapon classes that can't have modifiers
+- Added Turret Constructor artifact
+- Added Turret Control Center ability
+- Added Construction ability
+- Added Shield weapons
+- International localization file
+- Added Bouncy weapons
+- Added xloc Ammo ability
+- German localization file
+- Artifact message localization
+- Full OLTeamGames support
+
+DONE Update 5:
+- Fix Loaded Medic description
+- Bouncy Projectiles no longer bounce off blocking volumes
+- New way to transfer ability data to the client
+
+DONE Update 4:
+- Fix Null Entropy
+- Fixed possible Team Booster exploit
+- Fixed screen shaking upon very high damage
+- Fix artifact order entry not being saved if the artifact is not available on the server
+- Fix Assault warping QF loss
+- Matrix no longer affects translocator beacons by default
+- Fix Ultima / Ejector seat
+- Fix Shields Up! client transfer
+- Bots can now use Mega Blast, Poison Blast, Freeze Bomb, Healing Blast, Decoy
+- Bots prefer Matrix upon Flak or Rocket damage
+- Added support for the {OVGY} Revival Combo
+- Enhanced magic maker should no longer generate a weapon you already have (magic AND weapon type)
+
+DONE Update 3:
+- Fixed Loaded Weapons not giving you RPG versions of certain weapons
+- Fixed XP for damage
+- Fixed ejector seat
+- Fixed Aura
+- Magic Nullifying weapons now nullify Matrix
+- New cheat: "mutate ammo"
+- Added RPGTimer in RPGWeapon for timed effects
+
+Localization TODO:
+- AbilityTurretsMax
+- AbilityConstruction
+- TurretSummonMenu
+- AbCategoryEngineer
+- ArtifactMakeSelectedMagicWeapon
+- MagicWeaponMenu
+
+Documentation TODO:
+- German translation
+- ArtifactMakeSelectedMagicWeapon
+- Stats
+- AbilityTurretsMax
+- OLTeamGames
+
+Release Config TODO:
+- AbCategoryEngineer
+- AbilityTurretsMax
+- AbilityConstruction
+- MutTitanRPG.MaxTurrets
+- MutTitanRPG.DisallowModifiersFor
+- WeaponMatrix.bAffectsTranslocator
+- ArtifactTurretSummon
+- WeaponBounce
+- WeaponShieldRegen
+
+TODO (1.61):
+- Fix friendly monster kills
+- Use ArrayCount(Array)
+- Fix Reflection reflecting shots by teammates (healing)
+- Fix Healing Blast not healing if you move into a vehicle
+- MagicWeaponMenu
+- AbilityConstruction
+- AbilityTurretControlCenter
+
+- AbilityLooter
+- Make icon for turret summon
+- Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
+- Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
+- Ammo system for artifacts
+- Do compatibility tests
+
+- Knockback should knock out turrets
+- Turret construction artifact
+
+- Disallow multiple connections with same name and GUID
+
+- Selection menu for the magic weapon maker (+ default option)
+
+- Golden modifier (effect?)
+
+- Fix FriendlyMonsterEffect when teleporting
+- Fix drone color when entering a vehicle (for other players)
+- Fix drone location replication
+- Improve drone stuck detection
+
+- Find a way to realize vehicle second seat healing
+
+DONE (1.60):
+- Fixed blasts not going off if you enter a vehicle
+- You can now gain XP for damage that friendly monster do
+- Improved Null Entropy code
+- Team Booster now grants experience
+- Changed Reflection chance calculation
+- New ability alias system that allows abilities from external packages
+- The Adrenaline display is drawn in Assault when the objective list isn't
+- TitanPlayerController is only used if another mod doesn't replace the original xPlayer
+- Removed TitanPawn class for higher compatibility
+- Generic BonusPerLevel variable for weapon modifiers
+- Fixed a remaining artifact scrolling issue
+- Improved game-type specific settings
+- Improved Vampiric / Emo weapon code
+- Fixed artifact manager adrenaline spawning.
+- Magic Nullifying now makes you immune to Piercing weapons.
+- Remove TitanRPG resource package, resources are now imported into the main package
+- Removed Necromancy from TitanRPG
+- Added recognition of ComboNecro in RPGGameStats (EXP_Resurrection)
+- Several RPG menu improvements
+- Improved player levels menu (sorted by level and exp, team colored)
+- Fixed RPG HUD not showing after reconnects
+- Fixed Vehicle Hack not removing the target vehicle's overlay when the hacking process is canceled
+- Improved Stealth bar client-side simulation (smoother)
+- Self-healing now always gives at least 1 health (provided you are within the limit)
+- Changed ability system to "instanced" and improved ability code using new possibilities
+- Removed Medic awareness
+- Fixed summoning charm pickup drawscale
+- Added Conjuration, Monster Herder and Monster Intelligence abilities
+- Fixed weapon modifier artifacts on xloc / shield
+
+DONE (1.51 build 27):
+- Fixed numerous "Accessed None"s
+- "RPGStatsMenu" command has been re-introduced and can be bound in the Keys tab in the settings
+- Improved GUI code
+- Added Summoning Charm with monster selection GUI
+- Bots and players with auto-taunt no longer yell at you ("Same Team!") if you heal them
+- Fixed TitanBot Invasion compatibility
+- Introduced global XP gain scale in game settings
+- Improved projectile modification code
+- Added Matrix weapon modifier
+- Fixed magic weapon identification
+- Stealth weapon damage bonus
+- The correct weapon is now used to apply a magic effect when dealing damage
+
+DONE (1.51 build 26):
+- Fixed Score Assist not giving any points (only adrenaline and experience)
+- You now get at least 1 experience for destroying an enemy vehicle.
+
+DONE (1.51 build 25):
+- Fixed artifact order problems
+- Summoned monster now die when their master dies
+
+DONE (1.51 build 24):
+- Fixed exploit
+
+DONE (1.51 build 21):
+- Experience for vehicle repairing is now shared
+- Double Modifier shouldn't work on modifier-less weapons anymore (e.g. Medic)
+- New button to remove a character from the "My Builds" list
+- Added RPG keybinding menu in the settings
+
+DONE (1.51 build 20):
+- Added Parachute ability
+- Experience for repairing vehicles (if damaged by enemies)
+- Stealth firing doesn't make you visible immediately
+- Customizable artifact order (RPG Menu)
+
+DONE (1.51 build 16 to 18):
+- Fixed bugs concerning weapon re-selection after respawning
+
+DONE (1.51 build 15):
+- Fixed Stealth bug
+- Fixed Denial not saving your weapon if you die in a vehicle
+- Integrated NetKActor from GoodKarma by Jonathan Zepp for possible future use
+- Added keybinding ID for Teleporter
+- Make Imposter message not kick you
+- Made unmodifiable weapons unmodifiable using artifacts
+
+DONE (1.51 build 14):
+- Fixed and improved some cheats
+- Fixed RPGGetArtifact
+- Improved Stealth weapon UI
+- Changed artifact manager to only spawn adrenaline if there's not enough on the map already
+- Protection artifact protects against Ultima
+
+DONE (1.51 build 12):
+- Fixed last selected artifact restoration???
+- Fixed Reflection power operator (^ instead of **, ie it was XOR...)
+- Delayed artifacts (weapon makers, teleport) can now be canceled (no adrenaline repay!)
+
+DONE (1.51 build 11):
+- Fixed GetWeapon to work better when having multiple weapons of the same type
+- Colored speed trail at max QF
+- All Denial-saveable weapons are now saved if you change teams (no matter if you have denial)
+- Fixed artifact use delay not sent to client when picking up a dropped artifact
+- Denial also saves your weapon if you suicided
+- Rebuild button (500 xp or lose level)

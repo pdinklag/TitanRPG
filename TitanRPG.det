@@ -1,0 +1,1009 @@
+[AbCategoryAdren]
+AbilityName="Adrenalin"
+Description="Fähigkeiten, die Adrenalin und Adrenalin verbrauchende Artefakte betreffen."
+
+[AbCategoryDamage]
+AbilityName="Schaden"
+Description="Fähigkeiten, die das Zufügen und Einstecken von Schaden betreffen."
+
+[AbCategoryHealth]
+AbilityName="Gesundheit"
+Description="Fähigkeiten, die die Gesundheit betreffen."
+
+[AbCategoryMedic]
+AbilityName="Sanitäter"
+Description="Fähigkeiten, die Sanitäter betreffen."
+
+[AbCategoryMisc]
+AbilityName="Verschiedenes"
+Description="Fähigkeiten, die nicht in die anderen Kategorien passen."
+
+[AbCategoryMonsters]
+AbilityName="Monster"
+Description="Fähigkeiten, die beschworene Monster betreffen."
+
+[AbCategoryMovement]
+AbilityName="Bewegung"
+Description="Fähigkeiten, die die Fortbewegung zu Fuß betreffen."
+
+[AbCategorySpecial]
+AbilityName="Speizial"
+Description="Spezialfähgikeiten."
+
+[AbCategoryVehicles]
+AbilityName="Fahrzeuge"
+Description="Fähigkeiten, die Fahrzeuge betreffen."
+
+[AbCategoryWeapons]
+AbilityName="Waffen"
+Description="Fähigkeiten, die Waffen betreffen."
+
+[AbilityAdrenalineMaster]
+AbilityName="Adrenaline Master"
+
+[AbilityAdrenalineMax]
+AbilityName="Adrenalin-Container"
+StatName="Max Adrenalin Bonus"
+Description="Erhöht Ihre maximale Adrenalinmenge um $1 je Level.|Combols können immer noch mit 100 Adrenalin aktiviert werden."
+
+[AbilityAdrenalineRegen]
+AbilityName="Adrenalin-Tropf"
+Description="Ihr Adrenalin erhöht sich automatisch mit der Zeit."
+LevelDescription=("Level 1 erhöht Ihr Adrenalin alle 3 Sekunden um 1.","Level 2 erhöht Ihr Adrenalin alle 2 Sekunden um 1.","Level 3 erhöht Ihr Adrenalin jede Sekunde um 1.")
+
+[AbilityAdrenalineSurge]
+AbilityName="Adrenalin-Spritze"
+Description="Mit jedem Level dieser Fähigkeit erhalten sie $1 mehr Adrenalin für das Töten von Gegnern."
+
+[AbilityAirmaster]
+AbilityName="Meister der Lüfte"
+StatName="Luftkontrolle Bonus"
+Description="Erhöht Ihre Kontrolle in der Luft um $1 je Level."
+
+[AbilityAmmoMax]
+AbilityName="Arsenal"
+StatName="Max Mun Bonus"
+Description="Erhöht Ihre maximale Munition für alle Waffen (außer Superwaffen) um $1 je Level."
+
+[AbilityAmmoRegen]
+AbilityName="Munitionslieferung"
+Description="Je Level wird alle $3 Sekunden Ihre Munition für alle Waffen (ausgenommen Superwaffen und Translocator) um $1 (bzw. mindestens $2) aufgeladen."
+
+[AbilityAura]
+AbilityName="Heilende Aura"
+Description="Heilt nahe Teamkameraden um $1 je Level je Sekunde."
+
+[AbilityAwareness]
+AbilityName="Erkenntnis"
+Description="Informiert Sie über den Gesundheitsstatus Ihrer Gegner mittels einer Leiste über ihren Köpfen."
+LevelDescription=("Level 1 zeigt einen farbigen Indikator (grün, gelb, oder rot).","Level 2 zeigt eine farbige Gesundheits- und eine Schildleiste.")
+
+[AbilityBoostDodging]
+AbilityName="Boost-Dodging"
+Description="Erlaubt Ihnen, das Boost-Dodging aus UT2003 zu verwenden."
+
+[AbilityCautiousness]
+AbilityName="Vorsicht"
+StatName="Selbstschaden-Reduktion"
+Description="Verringert Selbstschaden um $1 je Level."
+
+[AbilityChute]
+AbilityName="Fallschirm"
+Description="Gibt Ihnen einen Fallschirm, den Sie öffnen können, wenn Sie tief fallen."
+
+[AbilityComboSuperSpeed]
+AbilityName="Super-Geschwindigkeit"
+Description="Ersetzt die Geschwindigkeits-Combo durch Super-Geschwindigkeit, welche Sie $1 schneller macht und eine farbige Spur hinterlässt."
+
+[AbilityComboTeamBooster]
+AbilityName="Team-Booster"
+Description="Ersetzt die Booster-Combo durch Team-Booster, welche alle Teamkameraden heilt und Ihnen dafür Erfahrungspunkte bringt".
+
+[AbilityConjuration]
+MonsterPreText=", können Sie"
+MonsterPostText=" heraufbeschwören."
+AbilityName="Beschwörung"
+Description="Beim Einstieg erhalten Sie das Monster-Beschwörungs-Artefakt.|Jedes Level dieser Fähigkeit erlaubt Ihnen, mächtigere Monster heraufzubeschwören."
+
+[AbilityCounterShove]
+AbilityName="Konter-Stoß"
+Description="Wenn Sie von einem Gegner getroffen werden, wird 75% des Stoßes je Level auf diesen zurückprojeziert (400% auf Level 5).|Konter-Stöße oder Rache werden nicht gekontert."
+
+[AbilityDamageBalance]
+AbilityName="Schadens-Balance"
+Description="Erhöht allen Schaden, den Sie anrichten, und verringert allen Schaden, den Sie einstecken, um $1 je Level"
+
+[AbilityDamageBonus]
+AbilityName="Schadens-Bonus"
+Description="Erhöht allen Schaden, den Sie anrichten, um $1 je Level."
+
+[AbilityDamageReduction]
+AbilityName="Schadens-Reduktion"
+Description="Verringert allen Schaden, den Sie einstecken, um $1 je Level."
+
+[AbilityDenial]
+AbilityName="Verweigerung"
+LevelDescription=("Level 1 dieser Fähigkeit hindert Sie daran, Ihre Waffe beim Tode an den Gegner zu verlieren.","Level 2 erlaubt es Ihnen, mit der Waffe wiedereinzusteigen, mit der Sie gestorben sind (es sei denn, Sie sind in einem Fahrzeug gestorben oder hatten eine Superwaffe).","Level 3 rettet Ihre Waffe auch, wenn Sie in einem Fahrzeug gestorben sind.","Wenn Sie die Artefakt-Ladung besitzen, können Sie Level 4 kaufen, womit Sie immer alle Waffen behalten, wenn Sie sterben.")
+
+[AbilityDenial_TC0X]
+LevelDescription=("Level 1 dieser Fähigkeit hindert Sie daran, Ihre Waffe beim Tode an den Gegner zu verlieren.","Level 2 erlaubt es Ihnen, mit der Waffe wiedereinzusteigen, mit der Sie gestorben sind.","Wenn Sie die Artefakt-Ladung besitzen, können Sie Level 3 kaufen, womit Sie immer alle Waffen behalten, wenn Sie sterben.","Wenn Sie die Artefakt-Ladung besitzen, können Sie Level 4 kaufen, womit Sie immer alle Waffen behalten, wenn Sie sterben.")
+
+[AbilityDodgeSpeed]
+AbilityName="Schnelles Ausweichen"
+StatName="Ausweich-Bonus"
+Description="Erhöht Ihre Ausweich-Geschwindigkeit um $1 je Level (die Höhe dabei um $2 je Level)."
+
+[AbilityDrones]
+AbilityName="Drohnen"
+Description="Beim Einstieg erhalten Sie je Level eine weitere Drohne, welche Sie heilt und Gegner angreift."
+
+[AbilityEnergyLeech]
+AbilityName="Adrenalin-Sauger"
+Description="Wenn Sie einem Gegner Schaden zufügen, erhalten Sie $1 des Schadens je Level als Adrenalin."
+
+[AbilityEnhancedBalance]
+AbilityName="Fortgeschr. Schadens-Balance"
+Description="Erhöht allen Schaden, den Sie anrichten, und verringert allen Schaden, den Sie einstecken, um $1 je Level"
+
+[AbilityEnhancedDamage]
+AbilityName="Fortgeschr. Schadens-Bonus"
+Description="Erhöht allen Schaden, den Sie anrichten, um $1 je Level."
+
+[AbilityEnhancedReduction]
+AbilityName="Fortgeschr. Schadens-Reduktion"
+Description="Verringert allen Schaden, den Sie einstecken, um $1 je Level."
+
+[AbilityExpHealing]
+AbilityName="Erfahrene Heilung"
+Description="Gibt Ihnen $1 mehr Erfahrungspunkte je Level für das Heilen von Teamkameraden.
+
+[AbilityGhost]
+AbilityName="Geist"
+Description="Einmal je Leben, wenn Sie getötet werden, verwandeln Sie sich in einen körperlosen Geist und werden an einen anderen Ort geführt, von dem aus Sie ohne zu sterben wiedereinsteigen."
+
+[AbilityHealthBonus]
+AbilityName="Gesundheit"
+StatName="Gesundheits-Bonus"
+Description="Erhöht Ihre Start-Gesundheit und Ihre maximale Gesundheit um $1 je Level."
+
+[AbilityHotwheels]
+AbilityName="Brennende Reifen"
+Description="Erhöht die Geschwindigkeit in bereiften Fahrzeugen um $1 je Level."
+
+[AbilityIronLegs]
+AbilityName="Eiserne Beine"
+Description="Verringert allen Fallschaden um $1 je Level und verringert Stöße durch gegnerisches Feuer um $2 je Level."
+
+[AbilityJumpZ]
+AbilityName="Super-Sprung"
+StatName="Sprunghöhen-Bonus"
+Description="Erhöht Ihre Sprunghöhe um $1 je Level."
+
+[AbilityLoadedArtifacts]
+AbilityName="Artefakt-Ladung"
+Description="Beim Einstieg erhalten Sie Artefakte."
+
+[AbilityLoadedMedic]
+AbilityName="Sanitäter"
+Description="Gibt Ihnen Boni was das Heilen von Teamkameraden betrifft."
+LevelDescription=("Auf Level 1 können Sie Teamkameraden um +$1 über deren Start-Gesundheit heilen.","Auf Level 2 können Sie Teamkameraden um +$2 über deren Start-Gesundheit heilen.","Auf Level 3 können Sie Teamkameraden um +$3 über deren Start-Gesundheit heilen.")
+
+[AbilityLoadedVehicles]
+AbilityName="Fahrzeug-Werkzeugkasten"
+Description="Gibt Ihnen nützliche Werkzeuge für Fahrzeuge."
+LevelDescription=(,"Auf Level 2 erhalten Sie beim Einstieg die Reparatur-Link Gun.")
+
+[AbilityLoadedWeapons]
+AbilityName="Waffen-Ladung"
+Description="Sie erhalten Waffen beim Einstieg:"
+LevelDescription=(,,"Auf Level 3 sind alle Waffen modifiziert.","Auf Level 4 erhalten alle Waffen einen positiven Modifikator.","Auf Level 5 erhalten alle Waffen ein Modifikator von +4 oder höher.","Auf Level 6 erhalten alle Waffen den maximalen Modifikator.")
+
+[AbilityLoadedWeapons_TC0X]
+LevelDescription=(,,"Auf Level 3 sind alle Waffen modifiziert.","Auf Level 4 erhalten alle Waffen einen positiven Modifikator.","Auf Level 5 erhalten alle Waffen den maximalen Modifikator.")
+
+[AbilityMonsterHealth]
+AbilityName="Monster-Gesundheit"
+Description="Erhöht die Gesundheit Ihrer beschworenen Monster um $1 je Level."
+
+[AbilityMonsterSkill]
+AbilityName="Monster-Intelligenz"
+Description="Erhöht die Intelligenz (Schwierigkeitsgrad) Ihrer beschworenen Monster mit jedem Level."
+
+[AbilityMonstersMax]
+AbilityName="Monster-Hirte"
+Description="Jedes Level erlaubt Ihnen das Heraufbeschwören eines zusätzlichen Monsters."
+
+[AbilityMultiJump]
+AbilityName="Multi-Sprung"
+Description="Erhöht die Anzahl der kombinierten Sprünge, die Sie ausführen können, um einen je Level (also z.B. Dreifach-Sprung, Vierfach-Sprung etc)."
+
+[AbilityRegen]
+AbilityName="Regenerierung"
+Description="Heilt 1 Gesundheit pro Sekunde je Level.|Heilt nicht über Ihre Start-Gesundheit hinaus."
+
+[AbilityRetaliation]
+AbilityName="Rache"
+Description="Wenn ein Gegner Ihnen Schaden zufügt, wird diesem $1 des Schadens je Level zugeführt. Dies gilt nicht für Schaden durch deren Rache-Fähigkeit."
+
+[AbilityShieldRegen]
+AbilityName="Schild-Regenerierung"
+Description="Regeneriert $1 Schild pro Sekunde je Level bis zu $2-mal des Fähigkeiten-Levels, vorausgesetzt Sie haben kürzlich keinen Schaden eingesteckt. Ihr Schild startet beim Einstieg beim $3-fachen Ihres Levels."
+
+[AbilityShieldStrength]
+AbilityName="Schild"
+StatName="Max Schild Bonus"
+Description="Erhöht Ihren maximalen Schild um $1 je Level."
+
+[AbilitySmartHealing]
+AbilityName="Geschickte Heilung"
+Description="Heilende Items heilen Sie um $1 mehr je Level."
+
+[AbilitySniper]
+AbilityName="Scharfschütze"
+LevelDescription=("Level 1: Beim Einstieg erhalten Sie die Sniper Rifle.","Level 2: Beim Einstieg erhalten Sie die Sniper Rifle der Tarnung.")
+
+[AbilitySpeed]
+AbilityName="Geschwindigkeit"
+StatName="Geschwindigkeits-Bonus"
+Description="Erhöht Ihre Geschwindigkeit zu Fuß in allen Umgebungen um $1 je Level."
+
+[AbilitySpeedSwitcher]
+AbilityName="Schneller Wechsel"
+Description="Mit jedem Level dieser Fähigkeit wechseln Sie Waffen um $1 schneller."
+
+[AbilityTransAmmo]
+AbilityName="Translocator-Munition"
+Description="Erhöht die Munition Ihres Translocators."
+
+[AbilityTransTossForce]
+AbilityName="Verbesserter Translocator"
+Description="Erhöht die Wurfweite Ihres Translocators mit jedem Level."
+
+[AbilityUltima]
+AbilityName="Ultima"
+Description="Wenn Sie sterben und im selben Leben mindestens einen Gegner getötet haben, lösen Sie eine große Explosion aus.|Auf Level 1 geschieht dies nach 4 Sekunden, mit jedem Level verringert sich diese Dauer um eine Sekunde."
+
+[AbilityUltimaShield]
+AbilityName="Ultima-Schild"
+Description="Beschützt Sie und Ihre Translocator-Scheibe vor Ultima-Explosionen."
+
+[AbilityVampire]
+AbsoluteCapText=" oder maximal +$4"
+AbilityName="Vampir"
+Description="Wenn Sie einem Gegner Schaden zufügen, erhalten Sie $1 des Schadens je Level als Gesundheit (bis zu ihrer Start-Gesundheit + $2$3). Selbstschaden zählt hierbei nicht."
+
+[AbilityVehicleArmor]
+MaxBonusText=" (bis zu einem maximalen Bonus von $3)"
+AbilityName="Fahrzeug-Panzer"
+Description="Erhöht die Panzerung Ihrer Fahrzeuge um $1 je Level$2."
+
+[AbilityVehicleEject]
+AbilityName="Schleudersitz"
+Description="Rettet Sie aus Ihrem Fahrzeug, bevor dieses zerstört wird."
+LevelDescription=("Level 1 rettet Sie nur aus dem Fahrersitz.","Level 2 rettet Sie auch aus anderen Sitzen sowie aus Geschütztürmen.")
+
+[AbilityVehicleLock]
+AbilityName="Fahrzeug-Schloss"
+Description="Wenn Sie ein Fahrzeug verlassen, wird dieses für Ihr Team abgeschlossen, so dass Gegner es nicht stehlen können."
+
+[AbilityVehicleRegen]
+AbilityName="Fahrzeug-Regenerierung"
+Description="Repariert Ihre Fahrzeuge um $1 pro Sekunde je Level, maximumal um $2 je Level.|Repariert nicht über die Start-Panzerung hinaus."
+
+[AbilityVehicleSpeed]
+DescriptionAmendment=", abhängig vom Typ des Fahrzeugs"
+AbilityName="Fahrzeug-Geschwindigkeit"
+StatName="Fahrzeug-Geschwindigkeits-Bonus"
+Description="Erhöht die Geschwindigkeit Ihrer Fahrzeuge um $1 je Level$2."
+
+[AbilityVehicleVampire]
+AbilityName="Fahrzeug-Vampir"
+Description="Wenn Sie einem Gegner mit einem Fahrzeug oder Geschützturm Schaden zufügen, erhalten Sie $1 des Schadens je Level als Gesundheit (bis zu ihrer Start-Gesundheit + $2$3). Selbstschaden zählt hierbei nicht."
+
+[AbilityWeaponSpeed]
+AbilityName="Schnelles Feuer"
+StatName="Feuerrate-Bonus"
+Description="Erhöht die Feuerrate aller Waffen um $1 je Level."
+
+[AbilityWheeledVehicleStunts]
+AbilityName="Stunt-Fahrzeuge"
+Description="Mit dieser Fähigkeiten können Sie mit bereiften Fahrzeugen springen. Halten Sie die Ducken-Taste, um aufzuladen, und lassen Sie sie los zum Springen. Sie erhalten außerdem mehr Luftkontrolle mit den Fahrzeugen. Jedes Level steigert den Effekt."
+
+[ArtifactChute]
+MsgOnlyIfFalling="Sie können den Fallschirm nur öffnen, wenn Sie fallen."
+Description="Öffnet einen Fallschirm für eine sanfte Landung."
+ItemName="Fallschirm"
+
+[ArtifactDecoy]
+OnlyInVehicleText="Der Köder kann nur aus dem Fahrersitz eines Fahrzeugs abgefeuert werden."
+OnlyOneAtATimeText="Sie können nur einen Köder zu einem Zeitpunkt abfeuern."
+Description="Lenkt eingehende AVRiL-Raketen ab."
+ItemName="Köder"
+
+[ArtifactDoubleModifier]
+MsgUnableToModify="Modifikation der Waffe nicht möglich."
+Description="Verdoppelt den Modifikator Ihrer Waffe."
+ItemName="Doppel-Modifikator"
+
+[ArtifactEnhancedMakeMagicWeapon]
+Description="Legt einen seltenen Modifikator auf Ihre Waffe."
+ItemName="Verbesseter Modifikator"
+
+[ArtifactFlight]
+Description="Lässt Sie fliegen."
+ItemName="Flug"
+
+[ArtifactFreezeBomb]
+Description="Macht nahe Gegner unbeweglich."
+ItemName="Eisbombe"
+
+[ArtifactHealingBlast]
+Description="Heilt nahe Teamkameraden."
+ItemName="Heil-Explosion"
+
+[ArtifactInvulnerability]
+Description="Macht Sie unverwundbar."
+ItemName="Unverwundbarkeit"
+
+[ArtifactLight]
+Description="Beleuchtet Ihre nahe Umwelt."
+ItemName="Licht"
+
+[ArtifactLightningRod]
+NotWithTransMessage="Sie können den Gewittersturm nicht zusammen mit dem Translocator verwenden."
+Description="Schießt Blitze auf nahe Gegner."
+ItemName="Gewittersturm"
+
+[ArtifactMagnet]
+OnlySolidGroundText="Sie müssen sich auf festem Boden befinden."
+Description="Lässt Sie an Wänden entlanggehen."
+ItemName="Magnet"
+
+[ArtifactMakeMagicWeapon]
+Description="Modifiziert Ihre Waffe zufällig."
+ItemName="Modifikator"
+
+[ArtifactMakeSuperHealer]
+Description="Macht Ihre Waffe zu einer Sani-Waffe."
+ItemName="Sani-Modifikator"
+
+[ArtifactMaxModifier]
+MsgUnableToModify="Maximieren nicht möglich."
+MsgAlreadyMaxed="Your weapon is already at or higher than MAX magic."
+Description="Maximiert den Modifikator Ihrer Waffe."
+ItemName="Max-Modifikator"
+
+[ArtifactMegaBlast]
+Description="Erzeugt ein großes BUMM."
+ItemName="Mega-Explosion"
+
+[ArtifactMonsterSummon]
+Description="Beschwört ein freundliches Monster Ihrer Wahl."
+ItemName="Beschwörungs-Zauber"
+
+[ArtifactMonsterSummonBase]
+NoMoreMonstersText="Sie können momentan keine weiteren Monster beschwören."
+CouldNotSpawnText="Monster konnte nicht beschwört werden - Adrenalin zurückerstattet."
+
+[ArtifactPickupDecoy]
+PickupMessage="Sie haben den Köder!"
+
+[ArtifactPickupFlight]
+PickupMessage="Sie haben das Flug-Artefakt!"
+
+[ArtifactPickupFreezeBomb]
+PickupMessage="Sie haben die Eisbombe!"
+
+[ArtifactPickupHealingBlast]
+PickupMessage="Sie haben die Heil-Explosion!"
+
+[ArtifactPickupInvulnerability]
+PickupMessage="Sie haben die Kugel der Unverwundbarkeit!"
+
+[ArtifactPickupLightningRod]
+PickupMessage="Sie haben den Gewittersturm!"
+
+[ArtifactPickupMagnet]
+PickupMessage="Sie haben den Magneten!"
+
+[ArtifactPickupMakeMagicWeapon]
+PickupMessage="Sie haben den Modifikator!"
+
+[ArtifactPickupMegaBlast]
+PickupMessage="Sie haben die Mega-Explosion!"
+
+[ArtifactPickupMonsterSummon]
+PickupMessage="Sie haben den Beschwörungs-Zauber!"
+
+[ArtifactPickupPoisonBlast]
+PickupMessage="Sie haben die Giftbombe!"
+
+[ArtifactPickupProtection]
+PickupMessage="Sie haben das Schutz-Artefakt!"
+
+[ArtifactPickupRepulsion]
+PickupMessage="Sie haben die Abstoßung!"
+
+[ArtifactPickupSelfDestruct]
+PickupMessage="Sie haben die Selbstzerstörung!"
+
+[ArtifactPickupTeleport]
+PickupMessage="Sie haben den Teleporter!"
+
+[ArtifactPickupTripleDamage]
+PickupMessage="Sie haben das Dreifach-Schaden-Artefakt!"
+
+[ArtifactPickupTurretSummon]
+PickupMessage="Sie haben den Geschützturm-Konstruktor!"
+
+[ArtifactPickupVehicleBoost]
+PickupMessage="Sie haben den Nitro-Boost!"
+
+[ArtifactPlusOneModifier]
+Description="Erhöht den Modifikator Ihrer Waffe um 1."
+ItemName="Modifikator +1"
+
+[ArtifactPlusTwoModifier]
+Description="Erhöht den Modifikator Ihrer Waffe um 2."
+ItemName="Modifikator +2"
+
+[ArtifactPlusXModifier]
+MsgMustBeMaxed="Ihr Waffenmodifikator muss maximal sein."
+MsgAlreadyHigher="Ihr Waffenmodifikator ist bereits über dem Maximum."
+MsgUnableToModify="Modifikation der Waffe nicht möglich."
+
+[ArtifactPoisonBlast]
+Description="Vergiftet nahe Gegner."
+ItemName="Giftbombe"
+
+[ArtifactProtection]
+NotWithFlagMessage="Sie können den Schutz nicht verwenden, während Sie $1 tragen."
+FlagText="die Flagge"
+BallText="den Ball"
+Description="Verringert allen eingehenden Schaden."
+ItemName="Schutz"
+
+[ArtifactRepulsion]
+Description="Stößt nahe Gegner von Ihnen weg."
+ItemName="Abstoßung"
+
+[ArtifactSelfDestruct]
+OnlyInVehicleText="Die Selbstzerstöung kann nur auf dem Fahrersitz eines Fahrzeugs aktiviert werden."
+AlreadyActiveText="Selbstzerstörung wurde bereits aktiviert."
+TeamMembersText="Sie können Ihr Fahrzeug nicht zerstören wenn noch Teamkameraden darin sitzen."
+ItemName="Selbstzerstörung"
+
+[ArtifactTeleport]
+Description="Teleportiert Sie zu einem zufälligen Startpunkt."
+ItemName="Teleporter"
+
+[ArtifactTripleDamage]
+Description="Sie verursachen dreimal so viel Schaden als gewöhnlich."
+ItemName="Dreifacher Schaden"
+
+[ArtifactTurretSummon]
+Description="Konstruiert einen Geschützturm."
+ItemName="Geschützturm-Konstruktor"
+
+[ArtifactTurretSummonBase]
+NoMoreTurretsText="Sie können momentan keine weiteren Geschützttürme bauen."
+CouldNotSpawnText="Geschütztturm konnte nicht gebaut werden - Adrenalin zurückerstattet."
+
+[ArtifactVehicleBoost]
+MsgRestriction="Der Nitro-Boost kann nur in bereiften Fahrzeugen verwendet werden."
+Description="Beschleunigt Ihr Fahrzeug enorm."
+ItemName="Nitro-Boost"
+
+[ArtifactVehicleHack]
+AlreadyHackingText="Sie hacken bereits ein Fahrzeug!"
+NoVehicleText="Es befindet sich kein verschlossenes Fahrzeug in Ihrer Nähe."
+UnlockingText="Öffne $1..."
+UnlockedText="$1 geöffnet!"
+FailedText="Sie haben sich vom Fahrzeug entfernt!"
+Description="Öffnet ein verschlossenes Fahrzeug."
+ItemName="Fahrzeug-Hack"
+
+[ArtifactWeaponMaker]
+MsgUnableToGenerate="Modifikation der Waffe nicht möglich."
+MsgAlreadyConstructing="Modifiziere bereits eine Waffe."
+MsgBroken="Das Artefakt wurde zerstört."
+
+[ComboDrone]
+ExecMessage="Drohne!"
+
+[ComboDroneMessage]
+NoMoreDronesText="Sie können keine weiteren Drohnen mehr besitzen!"
+
+[ComboSuperSpeed]
+ExecMessage="Super-Geschwindigkeit!"
+
+[ComboTeamBooster]
+ExecMessage="Team-Booster!"
+
+[DamTypeCounterShove]
+DeathString="%k flog durch %os Konter-Stoß davon."
+
+[DamTypeDronePlasma]
+DeathString="%o wurde von %ks Drohne frittiert."
+FemaleSuicide="%o hat ihre Drohne wütend gemacht."
+MaleSuicide="%o hat seine Drohne wütend gemacht."
+
+[DamTypeEmo]
+MaleSuicides[0]="%o wurde zu emotional."
+MaleSuicides[1]="%o wurde alles zu viel."
+MaleSuicides[2]="%o konnte es nicht mehr ertragen."
+FemaleSuicides[0]="%o wurde zu emotional."
+FemaleSuicides[1]="%o wurde alles zu viel."
+FemaleSuicides[2]="%o konnte es nicht mehr ertragen."
+
+[DamTypeFatality]
+DeathString="%o wurde von einem Admin FATALISIERT."
+FemaleSuicide="%o wurde von einem Admin FATALISIERT."
+MaleSuicide="%o wurde von einem Admin FATALISIERT."
+
+[DamTypeLightningRod]
+DeathString="%o wurde von %ks Blitz getroffen."
+FemaleSuicide="%o ging beim Gewitter baden."
+MaleSuicide="%o ging beim Gewitter baden."
+
+[DamTypeMegaExplosion]
+DeathString="%o wurde von %ks Mega-Explosion PULVERISIERT!"
+FemaleSuicide="%o wurde PULVERISIERT!"
+MaleSuicide="%o wurde PULVERISIERT!"
+
+[DamTypePoison]
+DeathString="%o konnte kein Mittel gegen %ks Gift finden."
+FemaleSuicide="%o hat sich selbst vergiftet."
+MaleSuicide="%o hat sich selbst vergiftet."
+
+[DamTypeRadiation]
+DeathString="%o wurde von %k radioaktiv verseucht."
+FemaleSuicide="%o hat ihren Geiger-Zähler ignoriert."
+MaleSuicide="%o hat seinen Geiger-Zähler ignoriert."
+
+[DamTypeRetaliation]
+DeathString="%o durfte %ks Rache spüren."
+
+[DamTypeSelfDestruct]
+DeathString="%o wurde Opfer von %ks selbstzerstörendem Fahrzeug."
+FemaleSuicide="%o war nicht schnell genug, aus ihrem selbstzerstörendem Fahrzeug zu fliehen..."
+MaleSuicide="%o war nicht schnell genug, aus ihrem selbstzerstörendem Fahrzeug zu fliehen..."
+
+[DamTypeTitanUltima]
+DeathString="%o wurde von %ks Ultima PULVERISIERT!"
+FemaleSuicide="%o wurde PULVERISIERT!"
+MaleSuicide="%o wurde PULVERISIERT!"
+
+[DamTypeUltima]
+DeathString="%o wurde von %ks Ultima PULVERISIERT!"
+FemaleSuicide="%o wurde PULVERISIERT!"
+MaleSuicide="%o wurde PULVERISIERT!"
+
+[DisgraceMessage]
+DeathMessage="Blamage!"
+
+[DummyWeaponCounterShove]
+ItemName="Konter-Stoß"
+
+[DummyWeaponDrone]
+ItemName="Drohne"
+
+[DummyWeaponEmo]
+ItemName="Emo"
+
+[DummyWeaponLightningRod]
+ItemName="Gewittersturm"
+
+[DummyWeaponMegaBlast]
+ItemName="Mega-Explosion"
+
+[DummyWeaponMonster]
+ItemName="Beschwörtes Monster"
+
+[DummyWeaponPoison]
+ItemName="Gift"
+
+[DummyWeaponRetaliation]
+ItemName="Rache"
+
+[DummyWeaponSelfDestruct]
+ItemName="Selbstzerstörung"
+
+[DummyWeaponUltima]
+ItemName="Ultima"
+
+[EagleEyeMessage]
+DeathMessage="Adlerauge!"
+
+[FreezeConditionMessage]
+FreezeMessage="Sie sind eingefroren!"
+
+[FriendlyMonsterKillerMessage]
+YourMonsterKilled="Ihr Monster tötete"
+
+[GainLevelMessage]
+LevelString=" ist nun auf Level "
+SomeoneString=" jemand "
+
+[HealedConditionMessage]
+HealedMessage="$1 hat Sie geheilt!"
+HealedSelfMessage="Sie haben sich geheilt!"
+
+[IdentifyMessage]
+IdentifyString="Ihre Waffe ist"
+PickupString="Sie haben"
+
+[KnockbackConditionMessage]
+KnockbackMessage="Stoß"
+
+[MonsterSummonMenu]
+WindowTitle="Wählen Sie ein Monster aus"
+ListTitle="Monster"
+ListHint="Wählen Sie ein Monster aus."
+
+[MutTitanRPG]
+SecondTextSingular="Sekunde"
+SecondTextPlural="Sekunden"
+FriendlyName="TitanRPG 1.60 Update 3"
+Description="Eine vereinheitlichte und schwer verbesserte Version von UT2004RPG und DruidsRPG, mit vielen neuen Inhalten, Support für viele Spieltypen und vielen behobenen Fehlern."
+
+[NullEntropyConditionMessage]
+NullEntropyMessage="Null-Entropie"
+
+[PoisonConditionMessage]
+PoisonMessage="Sie sind vergiftet!"
+
+[RPGAbility]
+AndText="und"
+OrText="oder"
+ReqPreText="Sie benötigen mindestens"
+ReqPostText="um diese Fähigkeit zu kaufen."
+ForbPreText="Sie können nicht diese Fähgikeit und"
+ForbPostText="gleichzeitig besitzen."
+CostPerLevelText="Kosten (je Level):"
+MaxLevelText="Max Level"
+ReqLevelText="Level"
+AtLevelText="Auf Level"
+GrantPreText=", erhalten Sie beim Einstieg"
+GrantPostText="."
+
+[RPGAbilityCategory]
+AbilityName="Kategorie"
+Description="Beschreibung der Kategorie"
+
+[RPGArtifact]
+MSG_Text_Adrenaline="Für dieses Artefakt benötigen Sie $1 Adrenalin."
+MSG_Text_UseDelay="Dieses Artefakt kann in $1 aktiviert werden."
+MSG_Text_Expired="Sie haben kein Adrenalin mehr."
+MSG_Text_NotInVehicle="Sie können dieses Artefakt nicht in einem Fahrzeug verwenden."
+
+[RPGImposterMessageWindow]
+WindowTitle="Name bereits vergeben"
+ImposterText="Entschuldigung, Ihr Name wird auf diesem Server bereits verwendet.|Dies ist ein Rollenspiel-Server und jeder Charakter muss einen eindeutigen Namen haben.||Bitte wählen Sie einen anderen Namen und verbinden Sie sich erneut, ansonsten wird Ihr Fortschritt nicht gespeichert."
+ImposterBackground.Caption="Name bereits vergeben"
+OkButton.Caption="OK"
+
+[RPGInteraction]
+LevelText="Level:"
+ArtifactTutorialText="Sie haben ein Artfakt eingesammelt!|Drücken Sie $1, um es zu bentuzen, oder $2 and $3 um zu wechseln."
+
+[RPGMenu]
+Panels=((Caption="Charakter",Hint="Sehen Sie Informationen über Ihren Charakter."),(Caption="Stats",Hint="Verteilen Sie Stat-Punkte."),(Caption="Fähigkeiten",Hint="Kaufen Sie Fähigkeiten."),(Caption="Levels",Hint="Sehen Sie sich die Level der anderen Spieler an."),(Caption="Optionen",Hint="Passen Sie TitanRPG-Features an."))
+WindowTitle="TitanRPG-Menü"
+
+[RPGMenu_Abilities]
+Text_Buy="Kaufen"
+Text_BuyX="Kaufen: $1"
+Text_Level="Level"
+Text_Stats="Stats"
+Text_CantBuy="Nicht verfügbar"
+Text_Requirements="Nicht verfügbar"
+Text_AlreadyMax="Bereits max."
+Text_Max="(MAX)"
+Text_Forbidden="Nicht erlaubt"
+Text_DoNotHaveThisYet="---"
+Text_StatsAvailable="Verfügbare Stat-Punkte:"
+Text_Intro="Wählen Sie eine Fähigkeit aus und erhalten Sie hier weitere Informationen."
+Text_Description="Beschreibung"
+lstAbilities_.ColumnHeadings=("Fähigkeit","Sie haben","Kosten")
+sbAbilities_.Caption="Fähigkeiten"
+
+[RPGMenu_Artifacts]
+NotAvailableText="Unbekannt:"
+NotAvailableTitle="Unbekannt
+NotAvailableDesc="Dieses Artefakt existiert auf diesem Server nicht."
+CustomWeaponCrosshair.Caption="Immer zeigen"
+CustomWeaponCrosshair.Hint="Falls aktiviert, wird dieses Artefakt auch dann angezeigt, wenn Sie es nicht haben."
+ShowAllChk.Caption="Immer alle Artefakte zeigen"
+ShowAllChk.Hint="Aktiviert 'Immer zeigen' für alle Artefakte."
+WeaponPrefWeapDown.Hint="Artefakt nacht unten verschieben."
+WeaponPrefWeapList.Hint="Artefakt-Reihenfolge auswählen."
+WeaponPrefWeapUp.Hint="Artefakt nach oben verschieben."
+sbArtifactOrder_.Caption="Reihenfolge"
+sbGlobalSettings_.Caption="Globale Optionen"
+
+[RPGMenu_Character]
+Rebuild_Caption="Erneuern"
+Rebuild_Hint="Erlaubt Ihnen, Ihren Charakter gegen einige Erfahrungspunkte wieder neu zusammenzustellen."
+Text_CharInfo="Informationen:"
+Text_Name="Name:"
+Text_Level="Level:"
+Text_Experience="Erfahrung:"
+Text_StatPoints="Stat-Punkte:"
+Text_Stats="Stats:"
+Text_Abilities="Fähigkeiten:"
+Text_Disabled="DEAKTIVIERT"
+btRemove_.Caption="-"
+btRemove_.Hint="Entfernt den ausgewählten Charakter aus der Liste."
+btReset_.Caption="Löschen"
+btReset_.Hint="Löscht Ihren Charakter. Dies kann NICHT rückgängig gemacht werden."
+btSwitch_.Caption="Wechseln"
+btSwitch_.Hint="Wechselt zum ausgewählten Charakter, ohne neu verbinden zu müssen."
+cmbMyBuilds_.Caption="Meine Charaktere:"
+cmbMyBuilds_.Hint="Liste aller Charaktere, die Sie in TitanRPG verwendet haben."
+lstAbilities_.ColumnHeadings=("Schlüssel","Wert")
+sbAbilities_.Caption="Charakterinformationen"
+
+[RPGMenu_ControlBinder]
+SelectText="$1 auswählen"
+ActivateText="$1 aktivieren"
+BindingLabel[0]="Allgemein"
+BindingLabel[1]="RPG-Menü öffnen"
+BindingLabel[2]="Artefakte"
+BindingLabel[3]="Gewähltes Artefakt aktivieren"
+BindingLabel[4]="Nächstes Artefakt"
+BindingLabel[5]="Vorheriges Artefakt"
+BindingLabel[6]="Artefakt wegwerfen"
+ArtifactSelectionHeader="Artefakt-Auswahl"
+ArtifactActivationHeader="Artefakte aktivieren"
+Headings[0]="Aktion"
+PageCaption="RPG-Tasten konfigurieren"
+
+[RPGMenu_PlayerLevels]
+lstAbilities_.ColumnHeadings=("Spieler","Level")
+sbAbilities_.Caption="Spieler-Level"
+
+[RPGMenu_Settings]
+chkArtifactInfo_.Caption="Artefakt-Namen zeigen"
+chkArtifactInfo_.Hint="Wenn aktiviert, wird der Name des Artefakts beim Auswählen angezeigt (wie bei Waffen)."
+chkClassicArtifactSelection_.Caption="Nur ein Artefakt zeigen"
+chkClassicArtifactSelection_.Hint="Wenn aktiviert, wird nur das momentan gewählte Artefakt angezeigt, wie in alten RPG-Versionen."
+chkExpBar_.Caption="Erfahrungsleiste zeigen"
+chkExpBar_.Hint="Wenn aktiviert, wird die Erfahrungsleiste angezeigt."
+chkWeaponExtra_.Caption="Extra-Info zeigen"
+chkWeaponExtra_.Hint="Wenn aktiviert, wird unter dem Waffen- oder Artefakt-Namen eine kurze Beschreibung angezeigt."
+sbCustomize_.Caption="TitanRPG-Optionen"
+slExpBarX_.Caption="Erfahrungsleiste X"
+slExpBarX_.Hint="Bestimmt die X-Position der Erfahrungsleiste."
+slExpBarY_.Caption="Erfahrungsleiste Y"
+slExpBarY_.Hint="Bestimmt die Y-Position der Erfahrungsleiste."
+slExpGain_.Caption="Erfahrungs-Gewinn Anzeigedauer"
+slExpGain_.Hint="Bestimmt, wie lang der Erfahrungs-Gewinn unter der Leiste angezeigt wird. 0 bedeutet niemals, 21 bedeutet das gesamte Spiel lang."
+slIconScale_.Caption="Artefakt-Symbolgröße"
+slIconScale_.Hint="Bestimme die Größe der Artefakt-Symbole."
+slIconsPerRow_.Caption="Artefakt-Symbole pro Spalte"
+slIconsPerRow_.Hint="Bestimmt, wie viele Symbole in eine Spalte passen."
+slIconsX_.Caption="Artefakt-Symbole X"
+slIconsX_.Hint="Bestimmt die X-Position der Artefakt-Symbole."
+slIconsY_.Caption="Artefakt-Symbole Y"
+slIconsY_.Hint="Bestimmt die Y-Position der Artefakt-Symbole."
+
+[RPGMenu_SettingsMaster]
+Panels=((Caption="Hud",Hint="Ändern Sie TitanRPG-Hud-Einstellungen."),(Caption="Artefakte",Hint="Ändern Sie die Reihenfolge der Artefakte."),(Caption="Tasten",Hint="Konfigurieren Sie RPG-relevante Tasten."))
+
+[RPGMenu_Stats]
+Text_Max="(MAX)"
+Text_StatsAvailable="Verfügbare Stat-Punte:"
+btBuy_.Caption="+"
+ebAmount_.Caption="Menge"
+ebAmount_.Hint="Menge an Levels, die Sie kaufen möchten"
+lstAbilities_.ColumnHeadings=("Stat","Sie haben")
+sbAbilities_.Caption="Verfügbare Stats"
+
+[RPGPlayerReplicationInfo]
+GameRestartingText="Sorry, you cannot perform the desired action once the endgame voting has begun."
+ImposterText="Sorry, your name is already used on this server.|This is a roleplaying game server and every character has a unique name.||Please choose a different name and come back."
+LevelUpText="You have leveled up!|Head to the TitanRPG menu (press L) to buy new abilities."
+IntroText="Press L to open the TitanRPG menu."
+SuicidePenaltyWarningText="You are about to receive a penalty|for repeatedly suiciding!"
+SuicidePenaltyText="You have received a suicide penalty for $1 respawns!"
+
+[RPGRebuildConfirmationWindow]
+WindowTitle="Charakter erneuen"
+Text_Rebuild="Sie erneuern $1.|Dies kostet $2 Erfahrung oder maximal $3 Level.|SIND SIE SICHER?"
+NoButton.Caption="Nein"
+YesButton.Caption="Ja"
+sbConfirm_.Caption="Erneuern bestätigen"
+
+[RPGResetConfirmationWindow]
+WindowTitle="Charakter löschen"
+Text_Reset="Sie löschen $1.|Diese Aktion kann NICHT rückgängig gemacht werden.|SIE VERLIEREN IHR LEVEL UND IHRE FÄHGIKEITEN!|SIND SIE SICHER?"
+NoButton.Caption="Nein"
+YesButton.Caption="Ja"
+sbConfirm_.Caption="Löschen bestätigen"
+
+[RPGSelectionMenu]
+ItemsList.Hint="Auswählen"
+ListBG.Caption="Verfügbar"
+OkButton.Caption="OK"
+PreviewBG.Caption="Vorschau"
+
+[RPGSwitchConfirmationWindow]
+WindowTitle="Charakter wechseln"
+Text_Switch="Sind Sie sicher, dass sie zu $1 wechseln möchten?|$2 wird automatisch gespeichert."
+NoButton.Caption="Nein"
+YesButton.Caption="Ja"
+sbConfirm_.Caption="Wechsel bestätigen"
+
+[RPGWeapon]
+PatternPos="$W"
+PatternNeg="$W"
+DamageBonusText="$1 Schaden"
+
+[RebuildMessage]
+RebuildString="hat seinen Charakter erneuert!"
+SomeoneString="Jemand"
+
+[SelfDestructInv]
+ActivationText="Selbstzerstörung in T minus $1..."
+
+[TeamBoosterMessage]
+MessageText="Team-Booster von $1!"
+
+[VehicleMagic]
+MagicName="Unbekannter Modifikator"
+
+[VehicleMagicNullEntropy]
+NameSuffix=" der Null-Entropie"
+MagicName="Null-Entropie"
+
+[VehicleMagicSpeed]
+NameSuffix=" der Geschwindigkeit"
+MagicName="Geschwindigkeit"
+
+[VehicleMagicSturdy]
+NameSuffix=" der Standhaftigkeit"
+MagicName="Standhaftigkeit"
+
+[WeaponArmorPiercing]
+PatternPos="Panzerknacker-$W"
+DamageBonusText="$1 Schaden gegen Fahrzeuge"
+
+[WeaponBounce]
+PatternPos="Flummi-$W"
+PatternNeg="Flummi-$W"
+
+[WeaponDamage]
+PatternPos="$W mit erhöhtem Schaden"
+PatternNeg="$W mit reduziertem Schaden"
+
+[WeaponEnergy]
+AdrenBonusText="$1 Adrenalin"
+PatternPos="Energie-$W"
+PatternNeg="$W der Schwäche"
+
+[WeaponFeather]
+FeatherText="$1 Sprunghöhe, $2 Fallschaden"
+PatternPos="Feder-$W"
+PatternNeg="Schwergewichts-$W"
+
+[WeaponForce]
+ProjSpeedText="$1 Projektil-Geschwindigkeit"
+PatternPos="Impuls-$W"
+PatternNeg="Zeitlupen-$W"
+
+[WeaponFreeze]
+FreezeText="verlangsamt Gegner um $1"
+PatternPos="Eis-$W"
+
+[WeaponHealer]
+HealText="$1 Heilung"
+PatternPos="Heil-$W"
+
+[WeaponInfSturdy]
+PatternPos="$W der Unendlichen Standhaftigkeit"
+
+[WeaponInfinity]
+InfAmmoText="unendlich Mun"
+PatternPos="$W der Unendlichkeit"
+PatternNeg="$W der Unendlichkeit"
+
+[WeaponKnockback]
+KnockbackText="stößt Gegner davon"
+PatternPos="Stoß-$W"
+
+[WeaponLightningConduction]
+LCText="$1 weniger Blitz-Schaden"
+PatternPos="Blitzableiter-$W"
+
+[WeaponLuck]
+LuckText="erzeugt nützliche Items"
+MisfortuneText="zerstört nahe Items"
+PatternPos="$W des Glücks"
+PatternNeg="$W des Unglücks"
+
+[WeaponMagicNullifier]
+MagicNullText="hebt negative Effekte auf"
+PatternPos="$W der Aufhebung"
+
+[WeaponMatrix]
+MatrixText="verlangsamt gegnerische Projektile um $1"
+PatternPos="Matrix-$W"
+
+[WeaponNullEntropy]
+NullEntropyText="macht Gegner unbeweglich"
+PatternPos="Null-Entropie-$W"
+
+[WeaponPenetrating]
+PenetratingText="feuert durch Gegner"
+PatternPos="Penetrations-$W"
+PatternNeg="Penetrations-$W"
+
+[WeaponPiercing]
+PiercingText="durchstößt Schild"
+PatternPos="Durchstoß-$W"
+PatternNeg="Durchstoß-$W"
+
+[WeaponPoison]
+PoisonText="vergiftet Gegner"
+PatternPos="Gift-$W"
+
+[WeaponProtection]
+DRText="$1 Schadensreduktion"
+ProtectionText="Ultima-Schild, Schutz gegen sofortigen Tod"
+PatternPos="$W des Schutzes"
+PatternNeg="$W des Schadens"
+
+[WeaponQuickfoot]
+QFText="Geschwindigkeit"
+PatternPos="$W der Geschwindigkeit"
+PatternNeg="$W der Lähmnung"
+
+[WeaponRage]
+RageText="Selbstschaden"
+PatternPos="$W des Zorns"
+
+[WeaponReflection]
+ReflectionText="$1 Reflektions-Chance"
+PatternPos="Spiegel-$W"
+
+[WeaponRepair]
+RepairText="$1 Fahrzeug-Reparatur"
+PatternPos="Reparatur-$W"
+
+[WeaponRetaliation]
+RetalText="$1 Schadens-Erwiderung"
+PatternPos="$W der Rache"
+
+[WeaponShieldRegen]
+ShieldText="Schild-Regenerierung"
+PatternPos="Schild-$W"
+
+[WeaponSpam]
+SpamText="$1 Feuerrate"
+PatternPos="SPAM-$W"
+PatternNeg="$W des Versagens"
+
+[WeaponStealth]
+StealthText="Schalldämpfer, Tarnung nach $1 Sekunden ducken"
+StealthBonusText="Tarnungs-Bonus x$1!"
+PatternPos="$W der Tarnung"
+
+[WeaponSturdy]
+SturdinessText="Standhaftigkeit"
+PatternPos="$W der Standhaftigkeit"
+PatternNeg="$W der Standhaftigkeit"
+
+[WeaponSuperHealer]
+MedicText="verbessert"
+PatternPos="Sanitäter-$W"
+
+[WeaponVampire]
+VampireText="$1 Selbstheilung für Schaden"
+EmoText="$1 Selbstschaden"
+PatternPos="Vampir-$W"
+PatternNeg="Emo-$W"
+
+[WeaponVorpal]
+VorpalText="Chance auf sofortiges Töten"
+PatternPos="$W des Todes"
