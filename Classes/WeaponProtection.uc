@@ -63,7 +63,7 @@ simulated function string GetWeaponNameExtra()
 defaultproperties
 {
 	ProtectionSound=Sound'<? echo($packageName); ?>.SoundEffects.Protection' //Sound'WeaponSounds.Misc.instagib_rifleshot'
-	ProtectionSoundVol=4.00
+	ProtectionSoundVol=6.00
 	DRText="$1 dmg reduction"
 	ProtectionText="Ultima Shield, instant kill protection"
 	DamageBonus=0.025000

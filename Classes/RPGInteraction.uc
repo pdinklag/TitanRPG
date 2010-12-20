@@ -40,8 +40,10 @@ var Color HintColor;
 
 var localized string ArtifactTutorialText;
 
-var float SummonedIconSize;
-var Color SummonedIconOverlay;
+var Material StatusIconBorderMaterial;
+var float StatusIconBorderMaterialU, StatusIconBorderMaterialV, StatusIconBorderMaterialUL, StatusIconBorderMaterialVL;
+var float StatusIconIconSize, StatusIconIconInnerScale;
+var Color StatusIconIconOverlay;
 var Material MonsterIcon, TurretIcon;
 
 event Initialized()
@@ -232,23 +234,41 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	}
 }
 
-function float DrawSummoned(Canvas Canvas, Material Icon, float XL, float YL, float Size, int Num, int Max)
+function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float Size, optional int Num, optional int Max)
 {
 	local string Text;
 	local float YLSmall, XLSmall;
+	local float IconSize;
 
 	Canvas.SetPos(XL, YL);
 	Canvas.Style = 5;
-	Canvas.DrawColor = SummonedIconOverlay;
-	Canvas.DrawTile(Icon, Size, Size, 0, 0, Icon.MaterialUSize(), Icon.MaterialVSize());
-	
-	Text = Num $ "/" $ Max;
-	Canvas.TextSize(Text, XLSmall, YLSmall);
-	Canvas.SetPos(XL + (Size - XLSmall) * 0.5, YL + (Size - YLSmall) * 0.5);
 	Canvas.DrawColor = WhiteColor;
-	Canvas.DrawText(Text);
+	Canvas.DrawTile(
+		StatusIconBorderMaterial,
+		Size, Size,
+		StatusIconBorderMaterialU, StatusIconBorderMaterialV,
+		StatusIconBorderMaterialUL, StatusIconBorderMaterialVL
+	);
 	
-	return Size + 1;
+	IconSize = Size * StatusIconIconInnerScale;
+	
+	Canvas.SetPos(XL + (Size - IconSize) * 0.5, YL + (Size - IconSize) * 0.5);
+	Canvas.Style = 5;
+	Canvas.DrawColor = StatusIconIconOverlay;
+	Canvas.DrawTile(Icon, IconSize, IconSize, 0, 0, Icon.MaterialUSize(), Icon.MaterialVSize());
+	
+	if(Num != 0)
+	{
+		if(Max != 0)
+			Text = Num $ "/" $ Max;
+		else
+			Text = string(Num);
+		
+		Canvas.TextSize(Text, XLSmall, YLSmall);
+		Canvas.SetPos(XL + (Size - XLSmall) * 0.5, 1 + YL + (Size - YLSmall) * 0.5);
+		Canvas.DrawColor = WhiteColor;
+		Canvas.DrawText(Text);
+	}
 }
 
 function PostRender(Canvas Canvas)
@@ -290,7 +310,7 @@ function PostRender(Canvas Canvas)
 	HUD = HudCDeathmatch(ViewportOwner.Actor.myHUD);
 	if(HUD == None || HUD.bHideHUD || HUD.bShowScoreboard || HUD.bShowLocalStats)
 		return;
-		
+
 	if(HUD.IsA('HUD_Assault') && !HUD_Assault(HUD).ShouldShowObjectiveBoard())
 		DrawAdrenaline(Canvas, HUD);
 
@@ -370,8 +390,11 @@ function PostRender(Canvas Canvas)
 		Canvas.FontScaleY = tY;
 	}
 	
-	//Summoned Monsters and Turrets
-	if(!Settings.bHideSummoned && (RPRI.NumMonsters > 0 || RPRI.NumTurrets > 0))
+	//Status
+	if(
+		!Settings.bHideStatusIcon && (RPRI.NumMonsters > 0 || RPRI.NumTurrets > 0) &&
+		(!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard())
+	)
 	{
 		Canvas.Style = 5;
 		Canvas.DrawColor = WhiteColor;
@@ -381,14 +404,24 @@ function PostRender(Canvas Canvas)
 		Canvas.FontScaleX *= 0.75;
 		Canvas.FontScaleY *= 0.75;
 	
-		YL = Canvas.ClipY * 0.75;
-		XL = Canvas.ClipX - SummonedIconSize - 3;
+		Scale = StatusIconIconSize * Canvas.ClipX / 640.0;
+	
+		YL = Canvas.ClipY * 0.07;
+		XL = Canvas.ClipX - Scale;
 		
 		if(RPRI.NumMonsters > 0)
-			XL -= DrawSummoned(Canvas, MonsterIcon, XL, YL, SummonedIconSize, RPRI.NumMonsters, RPRI.MaxMonsters);
+		{
+			DrawStatusIcon(Canvas, MonsterIcon, XL, YL, Scale, RPRI.NumMonsters, RPRI.MaxMonsters);
+			XL -= Scale;
+		}
 		
 		if(RPRI.NumTurrets > 0)
-			XL -= DrawSummoned(Canvas, TurretIcon, XL, YL, SummonedIconSize, RPRI.NumTurrets, RPRI.MaxTurrets);
+		{	
+			DrawStatusIcon(Canvas, TurretIcon, XL, YL, Scale, RPRI.NumTurrets, RPRI.MaxTurrets);
+			XL -= Scale;
+		}
+		
+		//TODO: icons for special items (active artifacts? jump boots? invisibility? combos?)
 		
 		Canvas.FontScaleX = tX;
 		Canvas.FontScaleY = tY;
@@ -396,7 +429,7 @@ function PostRender(Canvas Canvas)
 
 	//Hint
 	Canvas.Style = 5; //STY_Alpha
-	if(Hint.Length > 0 && HintTimer > TimeSeconds)
+	if(Hint.Length > 0 && HintTimer > TimeSeconds && (!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard()))
 	{
 		Canvas.DrawColor = HintColor;
 		
@@ -416,7 +449,7 @@ function PostRender(Canvas Canvas)
 	if(!RPRI.bGameEnded) //from here on, only if there's still a game going on... should reduce the crashes ~pd
 	{
 		if(Settings.bClassicArtifactSelection)
-		{	
+		{
 			A = RPGArtifact(P.SelectedItem);
 			if(A != None)
 			{
@@ -451,29 +484,6 @@ function PostRender(Canvas Canvas)
 		}
 		else
 		{
-			/*
-			bHasArtifacts = false;
-			
-			if(Settings.bShowAllArtifacts)
-			{
-				Artifacts = RPRI.AllArtifacts;
-				A = RPGArtifact(P.SelectedItem);
-				bHasArtifacts = (A != None);
-			}
-			else
-			{
-				for(Inv = P.Inventory; Inv != None; Inv = Inv.Inventory)
-				{
-					A = RPGArtifact(Inv);
-					if(A != None)
-					{
-						bHasArtifacts = true;
-						Artifacts[Artifacts.Length] = A.class;
-					}
-				}
-			}
-			*/
-			
 			//the scale is relative to a 640x480 resolution - adapt it to current
 			YL = ArtifactBorderMaterialVL * (ArtifactBorderMaterialTextureScale * Canvas.ClipY / 480.0);
 			x = Min(Settings.IconsPerRow, Artifacts.Length);
@@ -699,6 +709,12 @@ exec function RPGActivateArtifact(string ArtifactID)
 		RPRI.ServerActivateArtifact(ArtifactID);
 }
 
+exec function DestroyTurrets()
+{
+	if(RPRI != None)
+		RPRI.ServerDestroyTurrets();
+}
+
 event NotifyLevelChange()
 {
 	//close stats menu if it's open
@@ -749,9 +765,16 @@ defaultproperties
 	HUDTintTeam(1)=(R=0,G=25,B=100,A=100)
 	HUDTintTeam(2)=(R=0,G=100,B=0,A=100)
 	HUDTintTeam(3)=(R=100,G=75,B=0,A=100)
-	//Summoned stuff
-	SummonedIconSize=32
-	SummonedIconOverlay=(R=192,G=192,B=192,A=192)
+	//StatusIcon stuff
+	StatusIconBorderMaterial=Texture'HudContent.Generic.HUD'
+	StatusIconBorderMaterialU=119
+	StatusIconBorderMaterialV=257
+	StatusIconBorderMaterialUL=55
+	StatusIconBorderMaterialVL=55
+	StatusIconIconSize=29
+	StatusIconIconInnerScale=0.75
+	StatusIconIconOverlay=(R=192,G=192,B=192,A=192)
+	//Status icons
 	MonsterIcon=Texture'<? echo($packageName); ?>.ArtifactIcons.MonsterSummon'
 	TurretIcon=Texture'<? echo($packageName); ?>.ArtifactIcons.TurretSummon'
 	//
@@ -762,10 +785,10 @@ defaultproperties
 	ArtifactTutorialText="You have collected a magic artifact!|Press $1 to use it or press $2 and $3 to browse|if you have multiple artifacts."
 	ArtifactBorderMaterial=Texture'HudContent.Generic.HUD'
 	ArtifactBorderMaterialTextureScale=0.53
-	ArtifactBorderMaterialU=0.000000
-	ArtifactBorderMaterialV=39.000000
-	ArtifactBorderMaterialUL=95.000000
-	ArtifactBorderMaterialVL=54.000000
-	ArtifactIconInnerScale=0.750000
-	ArtifactHighlightIndention=0.150000
+	ArtifactBorderMaterialU=0
+	ArtifactBorderMaterialV=39
+	ArtifactBorderMaterialUL=95
+	ArtifactBorderMaterialVL=54
+	ArtifactIconInnerScale=0.67
+	ArtifactHighlightIndention=0.15
 }

@@ -731,38 +731,36 @@ function DriverLeftVehicle(Vehicle V, Pawn P)
 	//Disable any vehicle magic -pd
 	VM = class'VehicleMagic'.static.FindFor(V);
 	if(VM != None)
-	{
 		VM.Destroy();
-	}
 
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
-	if (RPRI != None)
+	if(RPRI != None)
 		RPRI.DriverLeftVehicle(V, P);
 
 	//move all artifacts from vehicle to driver
-	for (Inv = V.Inventory; Inv != None; Inv = Inv.Inventory)
-		if (RPGArtifact(Inv) != None)
+	for(Inv = V.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(RPGArtifact(Inv) != None)
 			MyArtifacts[MyArtifacts.length] = RPGArtifact(Inv);
+	}
 
-	//hack - temporarily give the vehicle its Controller back because RPGArtifact::Activate() needs it
-	V.Controller = P.Controller;
-	for (i = 0; i < MyArtifacts.length; i++)
+	for(i = 0; i < MyArtifacts.length; i++)
 	{
 		if(MyArtifacts[i].bActive)
 		{
-			//turn it off first
+			//hack - temporarily give the vehicle its Controller back because RPGArtifact::Activate() needs it
+			V.Controller = P.Controller;
 			MyArtifacts[i].ActivatedTime = 0.f; //force it to allow deactivation
 			MyArtifacts[i].Activate();
+			V.Controller = None;
 		}
 		
-		if (MyArtifacts[i] == V.SelectedItem)
+		if(MyArtifacts[i] == V.SelectedItem)
 			P.SelectedItem = MyArtifacts[i];
-			
+
 		V.DeleteInventory(MyArtifacts[i]);
-		
 		MyArtifacts[i].GiveTo(P);
 	}
-	V.Controller = None;
 
 	Super.DriverLeftVehicle(V, P);
 }
@@ -953,6 +951,7 @@ function Mutate(string MutateString, PlayerController Sender)
 	local Emitter E;
 	local Actor Spawned;
 	local bool bFlag;
+	local Inventory Inv;
 	local FileLog FLog;
 	
 	bIsAdmin = Sender.PlayerReplicationInfo.bAdmin;
@@ -1316,6 +1315,14 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 			}
 		}
+	}
+	else if(MutateString ~= "inventory" && Sender.Pawn != None)
+	{
+		Log("Inventory of" @ Sender.Pawn $ ":", 'TitanRPG');
+		for(Inv = Sender.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+			Log("-" @ Inv, 'TitanRPG');
+
+		Log("", 'TitanRPG');
 	}
 
 	Super.Mutate(MutateString, Sender);

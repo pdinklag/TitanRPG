@@ -4,7 +4,7 @@ class ArtifactTurretSummonBase extends RPGDelayedUseArtifact
 const MSG_NoMoreTurrets = 0x1000;
 const MSG_CouldNotSpawn = 0x1001;
 
-const MAX_FLOOR_DISTANCE = 256.0f;
+const MAX_FLOOR_DISTANCE = 512.0f;
 
 var config class<Vehicle> TurretType;
 var localized string NoMoreTurretsText, CouldNotSpawnText;
@@ -69,17 +69,41 @@ function bool CanActivate()
 function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 {
 	local RPGPlayerReplicationInfo RPRI;
+	local RPGTurretController C;
 	local Vehicle V;
-	local vector SpawnLoc, HitNormal;
+	local vector SpawnLoc, HitLocation, HitNormal;
+	local vector Dir;
+	local Actor Floor;
 	
-	SpawnLoc = Instigator.Location + 5.f * vector(Instigator.Rotation) * (Instigator.CollisionRadius + TurretClass.default.CollisionRadius);
+	Dir = vector(Instigator.Rotation);
+	Dir.Z = 0;
 	
-	//Find floor
-	if(Trace(SpawnLoc, HitNormal, SpawnLoc, SpawnLoc - MAX_FLOOR_DISTANCE * vect(0, 0, 1), false) != None)
-		V = Spawn(TurretClass,,, SpawnLoc, Instigator.Rotation);
+	SpawnLoc = Instigator.Location + 5.f * Normal(Dir) * (Instigator.CollisionRadius + TurretClass.default.CollisionRadius);
+	
+	V = Spawn(TurretClass,,, SpawnLoc + vect(0, 0, 256));
+	
+	Floor = V.Trace(HitLocation, HitNormal, V.Location - MAX_FLOOR_DISTANCE * vect(0, 0, 1), V.Location, false);
+	if(Floor != None)
+	{
+		if(V.IsA('ASTurret') && ASTurret(V).TurretBase != None)
+			HitLocation.Z += 0.5 * ASTurret(V).TurretBase.DrawScale * ASTurret(V).TurretBase.CollisionHeight;
+		
+		V.SetLocation(HitLocation);
+	}
+	else
+	{
+		V.Destroy();
+	}
 	
 	if(V != None)
 	{
+		if(V.Controller != None)
+			V.Controller.Destroy();
+		
+		C = Spawn(class'RPGTurretController');
+		C.Master = Instigator.Controller;
+		C.Possess(V);
+	
 		V.Instigator = Instigator;
 		V.SetTeamNum(Instigator.Controller.GetTeamNum());
 		V.bTeamLocked = false;
@@ -88,7 +112,12 @@ function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 			V.EntryRadius = FMax(FMax(300.0, V.EntryRadius), 2.0 * V.CollisionRadius);
 		
 		if(V.IsA('ASVehicle_Sentinel'))
+		{
 			ASVehicle_Sentinel(V).bSpawnCampProtection = true;
+		
+			C.GotoState('Sleeping');
+			C.Awake();
+		}
 
 		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 		if(RPRI != None)

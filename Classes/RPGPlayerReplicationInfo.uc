@@ -126,7 +126,8 @@ replication
 		ServerBuyAbility, ServerNoteActivity,
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
 		ServerClearArtifactOrder, ServerAddArtifactOrderEntry, ServerSortArtifacts,
-		ServerGetArtifact, ServerActivateArtifact; //moved from TitanPlayerController for better compatibility
+		ServerGetArtifact, ServerActivateArtifact, //moved from TitanPlayerController for better compatibility
+		ServerDestroyTurrets;
 }
 
 static function RPGPlayerReplicationInfo CreateFor(Controller C)
@@ -905,6 +906,26 @@ function AddTurret(Vehicle T)
 		if(Abilities[i].bAllowed)
 			Abilities[i].ModifyTurret(T, Controller.Pawn);
 	}
+}
+
+function ServerDestroyTurrets()
+{
+	while(Turrets.Length > 0)
+	{
+		if(Turrets[0] != None)
+		{
+			if(Turrets[0].Driver != None)
+				Turrets[0].KDriverLeave(true);
+			
+			if(Turrets[0].Controller != None && !Turrets[0].Controller.IsA('PlayerController'))
+				Turrets[0].Controller.Destroy();
+			
+			Turrets[0].Destroy();
+		}
+		
+		Turrets.Remove(0, 1);
+	}
+	NumTurrets = 0;
 }
 
 function ModifyVehicleFireRate(Vehicle V, float Modifier)
