@@ -2,53 +2,11 @@ TEST:
 - Fix GameStats?
 - Stats
 
-DONE 1.61:
-- Added display for summoned monsters / turrets in the top right corner of the screen (generally: status)
-- Added configurable list of weapon classes that can't have modifiers
-- Added Turret Constructor artifact
-- Added Turret Control Center ability
-- Added Construction ability
-- Added Shield weapons
-- International localization file
-- Added Bouncy weapons
-- Added xloc Ammo ability
-- German localization file
-- Artifact message localization
-- Full OLTeamGames support
-- Stats
-
-Localization TODO:
-- AbilityTurretsMax
-- AbilityConstruction
-- TurretSummonMenu
-- AbCategoryEngineer
-- ArtifactMakeSelectedMagicWeapon
-- MagicWeaponMenu
-
-Documentation TODO:
-- German translation
-- ArtifactMakeSelectedMagicWeapon
-- Stats
-- AbilityTurretsMax
-- OLTeamGames
-
-Release Config TODO:
-- AbCategoryEngineer
-- AbilityTurretsMax
-- AbilityConstruction
-- MutTitanRPG.MaxTurrets
-- MutTitanRPG.DisallowModifiersFor
-- WeaponMatrix.bAffectsTranslocator
-- ArtifactTurretSummon
-- WeaponBounce
-- WeaponShieldRegen
-
 TODO (1.61):
 - Fix Artifacts getting lost when leaving a link turret
 
 - Fix friendly monster / turret kills
 - Use ArrayCount(Array)
-- Fix Reflection reflecting shots by teammates (healing) ?
 - Fix Healing Blast not healing if you move into a vehicle
 - MagicWeaponMenu
 
@@ -71,7 +29,51 @@ TODO (1.61):
 - Fix drone location replication
 - Improve drone stuck detection
 
-- Find a way to realize vehicle second seat healing
+Localization TODO:
+- TurretKillerMessage
+- AbilityTurretsMax
+- AbilityConstruction
+- TurretSummonMenu
+- AbCategoryEngineer
+- ArtifactMakeSelectedMagicWeapon
+- MagicWeaponMenu
+
+Documentation TODO:
+- German translation
+- ArtifactMakeSelectedMagicWeapon
+- Stats
+- AbilityTurretsMax
+- OLTeamGames
+- ArtifactTurretSummonBase
+- EXP_TurretKill
+
+Release Config TODO:
+- EXP_TurretKill
+- AbCategoryEngineer
+- AbilityTurretsMax
+- AbilityConstruction
+- MutTitanRPG.MaxTurrets
+- MutTitanRPG.DisallowModifiersFor
+- WeaponMatrix.bAffectsTranslocator
+- ArtifactTurretSummon
+- WeaponBounce
+- WeaponShieldRegen
+- ArtifactTurretSummonBase
+
+DONE 1.61:
+- Added display for summoned monsters / turrets in the top right corner of the screen (generally: status)
+- Added configurable list of weapon classes that can't have modifiers
+- Added Turret Constructor artifact
+- Added Turret Control Center ability
+- Added Construction ability
+- Added Shield weapons
+- International localization file
+- Added Bouncy weapons
+- Added xloc Ammo ability
+- German localization file
+- Artifact message localization
+- Full OLTeamGames support
+- Stats
 
 DONE (1.60.42)
 - Fix Loaded Medic description
@@ -199,3 +201,8 @@ DONE (1.51 build 11):
 - Fixed artifact use delay not sent to client when picking up a dropped artifact
 - Denial also saves your weapon if you suicided
 - Rebuild button (500 xp or lose level)
+
+Not fixable:
+- Reflection reflects teammates' healing fire (CheckReflect has no info on what hit the player)
+- Healing passengers in secondary vehicle seats will not work if there is no driver (NetDamage is never invoked)
+- Passive abilities (e.g. Iron Legs) in secondary vehicle seats will not work if there is no driver (NetDamage is never invoked)

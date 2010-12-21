@@ -6,6 +6,10 @@ struct TurretTypeStruct
 	var int Level;
 	var class<Vehicle> TurretClass;
 	var int Cost;
+	
+	//Preview
+	var StaticMesh StaticMesh;
+	var float DrawScale;
 };
 var config array<TurretTypeStruct> TurretTypes;
 
@@ -28,11 +32,14 @@ simulated event PreBeginPlay()
 	if(ShouldReplicateInfo())
 	{
 		TurretTypesRepl = Spawn(class'ReplicatedArray', Owner);
+		TurretTypesRepl.Length = TurretTypes.Length;
 		for(i = 0; i < TurretTypes.Length; i++)
 		{
 			TurretTypesRepl.ObjectArray[i] = TurretTypes[i].TurretClass;
 			TurretTypesRepl.IntArray[i] = TurretTypes[i].Level;
 			TurretTypesRepl.IntArray[i + TurretTypes.Length] = TurretTypes[i].Cost;
+			TurretTypesRepl.ObjectArray[i + TurretTypes.Length] = TurretTypes[i].StaticMesh;
+			TurretTypesRepl.FloatArray[i] = TurretTypes[i].DrawScale;
 		}
 		TurretTypesRepl.Replicate();
 	}
@@ -47,12 +54,14 @@ simulated event PostNetReceive()
 
 	if(Role < ROLE_Authority && TurretTypesRepl != None)
 	{
-		TurretTypes.Length = TurretTypesRepl.ObjectArray.Length;
+		TurretTypes.Length = TurretTypesRepl.Length;
 		for(i = 0; i < TurretTypes.Length; i++)
 		{
 			T.TurretClass = class<Vehicle>(TurretTypesRepl.ObjectArray[i]);
 			T.Level = TurretTypesRepl.IntArray[i];
 			T.Cost = TurretTypesRepl.IntArray[i + TurretTypes.Length];
+			T.StaticMesh = StaticMesh(TurretTypesRepl.ObjectArray[i + TurretTypes.Length]);
+			T.DrawScale = TurretTypesRepl.FloatArray[i];
 			TurretTypes[i] = T;
 		}
 		
@@ -90,6 +99,8 @@ function ModifyPawn(Pawn Other)
 			{
 				ArtifactTurret.TurretClass = TurretTypes[i].TurretClass;
 				ArtifactTurret.Cost = TurretTypes[i].Cost;
+				ArtifactTurret.StaticMesh = TurretTypes[i].StaticMesh;
+				ArtifactTurret.DrawScale = TurretTypes[i].DrawScale;
 				
 				Artifact.TurretTypes[Artifact.TurretTypes.Length] = ArtifactTurret;
 			}
@@ -148,10 +159,10 @@ defaultproperties
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=3
-	TurretTypes(0)=(Level=1,TurretClass=class'UT2k4AssaultFull.ASTurret_BallTurret',Cost=25)
-	TurretTypes(1)=(Level=2,TurretClass=class'UT2k4Assault.ASTurret_Minigun',Cost=25)
-	TurretTypes(2)=(Level=2,TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=50)
-	TurretTypes(3)=(Level=3,TurretClass=class'UT2k4AssaultFull.ASTurret_LinkTurret',Cost=75)
+	TurretTypes(0)=(Level=1,TurretClass=class'UT2k4AssaultFull.ASTurret_BallTurret',Cost=25,StaticMesh=StaticMesh'AS_Weapons_SM.ASTurret_Editor',DrawScale=1.00)
+	TurretTypes(1)=(Level=2,TurretClass=class'UT2k4Assault.ASTurret_Minigun',Cost=25,StaticMesh=StaticMesh'AS_Weapons_SM.Turret.ASMinigun_Editor',DrawScale=0.125)
+	TurretTypes(2)=(Level=2,TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=50,StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor',DrawScale=0.125)
+	TurretTypes(3)=(Level=3,TurretClass=class'UT2k4AssaultFull.ASTurret_LinkTurret',Cost=75,StaticMesh=StaticMesh'AS_Weapons_SM.LinkTurret_STATIC',DrawScale=0.0625)
 
 	TurretPreText=", you can construct the"
 	TurretPostText="."

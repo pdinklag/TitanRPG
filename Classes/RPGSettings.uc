@@ -2,7 +2,7 @@ class RPGSettings extends Object
 	config(TitanRPGSettings)
 	PerObjectConfig;
 
-var config bool bHideWeaponExtra, bHideArtifactName, bHideExpGain, bHideHints, bHideExpBar, bHideSummoned;
+var config bool bHideWeaponExtra, bHideArtifactName, bHideExpGain, bHideHints, bHideExpBar, bHideStatusIcon;
 var config bool bClassicArtifactSelection;
 var config int IconsPerRow;
 var config float IconScale, IconsX, IconsY, IconClassicY, ExpBarX, ExpBarY;
@@ -19,7 +19,7 @@ defaultproperties
 	bHideArtifactName=False
 	bHideExpGain=False
 	bHideHints=False
-	bHideSummoned=False
+	bHideStatusIcon=False
 	IconsPerRow=10
 	IconScale=1.000000
 	IconsX=0.0

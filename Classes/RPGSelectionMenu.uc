@@ -4,7 +4,9 @@
 	- Turret Builder
 	- Magic Weapon Maker X
 */
-class RPGSelectionMenu extends FloatingWindow abstract;
+class RPGSelectionMenu extends FloatingWindow
+	abstract
+	config(TitanRPGSettings);
 
 var Pawn Instigator;
 var RPGArtifact Artifact;
@@ -127,8 +129,14 @@ function InternalDraw(Canvas Canvas)
 	local vector CamPos, X, Y, Z, WX, WY, WZ;
 	local rotator CamRot;
 
-	if(SpinnyItem == None || SpinnyItem.Mesh == None)
+	if(
+		SpinnyItem == None ||
+		(SpinnyItem.DrawType == DT_Mesh && SpinnyItem.Mesh == None) ||
+		(SpinnyItem.DrawType == DT_StaticMesh && SpinnyItem.StaticMesh == None)
+	)
+	{
 		return;
+	}
 
 	Canvas.GetCameraLocation(CamPos, CamRot);
 	GetAxes(CamRot, X, Y, Z);
@@ -163,6 +171,7 @@ function InternalDraw(Canvas Canvas)
 		true,
 		90.0
 	);
+		
 	SpinnyItem.bHidden = true;
 }
 

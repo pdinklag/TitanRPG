@@ -188,6 +188,14 @@ function ScoreKill(Controller Killer, Controller Killed)
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyMonsterController(Killer).Master);
 			bShare = false;
 		}
+		else if(Killer.IsA('RPGTurretController'))
+		{
+			class'RPGGameStats'.static.RegisterWeaponKill(
+				RPGTurretController(Killer).Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
+			
+			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(RPGTurretController(Killer).Master);
+			bShare = false;
+		}
 		else
 		{
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
@@ -203,18 +211,60 @@ function ScoreKill(Controller Killer, Controller Killed)
 			}
 
 			if(bShare)
-				ShareExperience(RPRI, 1.0);
+				ShareExperience(RPRI, class'RPGGameStats'.default.EXP_Frag);
 			else
-				RPRI.AwardExperience(1.0);
+				RPRI.AwardExperience(class'RPGGameStats'.default.EXP_Frag);
 		}
 		
 		return;
 	}
 	
-	//get Killer RPRI
 	if(Killer == None)
 		return;
 	
+	//if a summoned monster did the kill, award exp and score to master
+	if(Killer.IsA('FriendlyMonsterController'))
+	{
+		Master = FriendlyMonsterController(Killer).Master;
+		if(Master != None)
+		{
+			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
+			if(KillerRPRI != None)
+			{
+				KillerRPRI.AwardExperience(class'RPGGameStats'.default.EXP_FriendlyMonsterKill);
+				Master.PlayerReplicationInfo.Score += 1;
+			}
+			
+			if(Master.IsA('PlayerController'))
+				PlayerController(Master).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
+			
+			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
+		}
+		return;
+	}
+	
+	//same for constructed turrets
+	if(Killer.IsA('RPGTurretController'))
+	{
+		Master = RPGTurretController(Killer).Master;
+		if(Master != None)
+		{
+			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
+			if(KillerRPRI != None)
+			{
+				KillerRPRI.AwardExperience(class'RPGGameStats'.default.EXP_TurretKill);
+				Master.PlayerReplicationInfo.Score += 1;
+			}
+			
+			if(Master.IsA('PlayerController'))
+				PlayerController(Master).ReceiveLocalizedMessage(class'TurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
+			
+			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
+		}
+		return;
+	}
+	
+	//get Killer RPRI
 	KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
 	if(KillerRPRI == None)
 	{
@@ -245,27 +295,6 @@ function ScoreKill(Controller Killer, Controller Killed)
 		Killer.SameTeamAs(Killed)
 	)
 	{
-		return;
-	}
-
-	//if a summoned monster did the kill, award exp and score to master
-	if(Killer.IsA('FriendlyMonsterController'))
-	{
-		Master = FriendlyMonsterController(Killer).Master;
-		if(Master != None)
-		{
-			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
-			if(KillerRPRI != None)
-			{
-				KillerRPRI.AwardExperience(class'RPGGameStats'.default.EXP_FriendlyMonsterKill);
-				Master.PlayerReplicationInfo.Score += 1;
-			}
-			
-			if(Master.IsA('PlayerController'))
-				PlayerController(Master).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
-			
-			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
-		}
 		return;
 	}
 
@@ -519,7 +548,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 	}
 	
-	if(Monster(injured) == None && InjuredRPRI == None)
+	if(Monster(injured) == None && TurretController(InjuredController) == None && InjuredRPRI == None)
 	{
 		//This should never happen
 		Warn("InjuredRPRI not found for " $ injured.GetHumanReadableName() $ " (" $ injured $ ")");

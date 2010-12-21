@@ -7,6 +7,8 @@ class ReplicatedArray extends ReplicationInfo;
 
 const CHUNK_SIZE_MAX = 16;
 
+var int Length;
+
 <?
 	foreach($types as $type)
 	{
@@ -30,6 +32,7 @@ replication
 		ServerDestroy;
 
 	reliable if(Role == ROLE_Authority)
+		Length,
 		<?
 			$first = true;
 			foreach($types as $type)

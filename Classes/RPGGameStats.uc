@@ -27,7 +27,7 @@ var config float EXP_MultiKill[7];
 var config float EXP_Resurrection; //resurrection using the Necromancy combo
 
 //Handled externally
-var config float EXP_HeadShot, EXP_EndSpree, EXP_DamagePowercore, EXP_Win, EXP_FriendlyMonsterKill;
+var config float EXP_HeadShot, EXP_EndSpree, EXP_DamagePowercore, EXP_Win, EXP_FriendlyMonsterKill, EXP_TurretKill;
 var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
 var config float EXP_Assist;
 var config float EXP_Healing; //default damage multiplier for healing teammates (LM will scale this)
@@ -593,6 +593,7 @@ defaultproperties
 	EXP_DamagePowercore=0.50 //experience for 1% damage
 	EXP_Win=30.000000
 	EXP_FriendlyMonsterKill=1.00 //kill by a summoned monster
+	EXP_TurretKill=1.00 //kill by a constructed turret
 	
 	EXP_VehicleRepair=0.005 //experience for repairing one "health point"
 	

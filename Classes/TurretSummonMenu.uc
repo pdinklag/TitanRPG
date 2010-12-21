@@ -41,14 +41,31 @@ function SelectItem()
 		if(lstItems.List.Index >= 0)
 		{
 			SelectedTurret = ArtifactTurretSummon(Artifact).TurretTypes[lstItems.List.Index].TurretClass;
-			SpinnyItem.LinkMesh(SelectedTurret.default.Mesh);
 			
-			SpinnyItem.Skins.Length = SelectedTurret.default.Skins.Length;
-			for(i = 0; i < SelectedTurret.default.Skins.Length; i++)
-				SpinnyItem.Skins[i] = SelectedTurret.default.Skins[i];
+			if(ArtifactTurretSummon(Artifact).TurretTypes[lstItems.List.Index].StaticMesh != None)
+			{
+				SpinnyItem.SetDrawType(DT_StaticMesh);
+				SpinnyItem.SetStaticMesh(ArtifactTurretSummon(Artifact).TurretTypes[lstItems.List.Index].StaticMesh);
+				
+				if(ArtifactTurretSummon(Artifact).TurretTypes[lstItems.List.Index].DrawScale > 0)
+					SpinnyItem.SetDrawScale(ArtifactTurretSummon(Artifact).TurretTypes[lstItems.List.Index].DrawScale);
+				else
+					SpinnyItem.SetDrawScale(SelectedTurret.default.DrawScale);
+			}
+			else
+			{
+				SpinnyItem.SetDrawType(DT_Mesh);
+				SpinnyItem.LinkMesh(SelectedTurret.default.Mesh);
+				SpinnyItem.SetDrawScale(SelectedTurret.default.DrawScale);
+				
+				SpinnyItem.Skins.Length = SelectedTurret.default.Skins.Length;
+				for(i = 0; i < SelectedTurret.default.Skins.Length; i++)
+					SpinnyItem.Skins[i] = SelectedTurret.default.Skins[i];
+			}
 		}
 		else
 		{
+			SpinnyItem.SetDrawType(DT_Mesh);
 			SpinnyItem.LinkMesh(None);
 		}
 	}
@@ -73,6 +90,6 @@ defaultproperties
 	ListTitle="Turrets"
 	ListHint="Select a turret to construct"
 
-	SpinnyItemOffset=(X=80,Y=0,Z=0)
+	SpinnyItemOffset=(X=80,Y=-5,Z=-5)
 	SpinnyItemRotation=(Pitch=0,Yaw=36864,Roll=0)
 }

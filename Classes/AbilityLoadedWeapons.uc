@@ -26,6 +26,7 @@ simulated event PreBeginPlay()
 	if(ShouldReplicateInfo())
 	{
 		WeaponsRepl = Spawn(class'ReplicatedArray', Owner);
+		WeaponsRepl.Length = Weapons.Length;
 		for(i = 0; i < Weapons.Length; i++)
 		{
 			WeaponsRepl.ObjectArray[i] = Weapons[i].WeaponClass;
@@ -44,7 +45,7 @@ simulated event PostNetReceive()
 
 	if(Role < ROLE_Authority && WeaponsRepl != None)
 	{
-		Weapons.Length = WeaponsRepl.ObjectArray.Length;
+		Weapons.Length = WeaponsRepl.Length;
 		for(i = 0; i < Weapons.Length; i++)
 		{
 			W.WeaponClass = class<Weapon>(WeaponsRepl.ObjectArray[i]);

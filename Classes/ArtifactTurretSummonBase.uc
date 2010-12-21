@@ -6,6 +6,13 @@ const MSG_CouldNotSpawn = 0x1001;
 
 const MAX_FLOOR_DISTANCE = 512.0f;
 
+struct ZAdjustStruct
+{
+	var class<Vehicle> TurretClass;
+	var float Z;
+};
+var config array<ZAdjustStruct> ZAdjust;
+
 var config class<Vehicle> TurretType;
 var localized string NoMoreTurretsText, CouldNotSpawnText;
 
@@ -74,6 +81,7 @@ function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 	local vector SpawnLoc, HitLocation, HitNormal;
 	local vector Dir;
 	local Actor Floor;
+	local int i;
 	
 	Dir = vector(Instigator.Rotation);
 	Dir.Z = 0;
@@ -85,8 +93,14 @@ function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 	Floor = V.Trace(HitLocation, HitNormal, V.Location - MAX_FLOOR_DISTANCE * vect(0, 0, 1), V.Location, false);
 	if(Floor != None)
 	{
-		if(V.IsA('ASTurret') && ASTurret(V).TurretBase != None)
-			HitLocation.Z += 0.5 * ASTurret(V).TurretBase.DrawScale * ASTurret(V).TurretBase.CollisionHeight;
+		for(i = 0; i < ZAdjust.Length; i++)
+		{
+			if(TurretClass == ZAdjust[i].TurretClass)
+			{
+				HitLocation.Z += V.DrawScale * ZAdjust[i].Z;
+				break;
+			}
+		}
 		
 		V.SetLocation(HitLocation);
 	}
@@ -134,4 +148,9 @@ defaultproperties
 	bAllowInVehicle=False
 	UseDelay=30
 	MinActivationTime=1.000000
+	ZAdjust(0)=(TurretClass=class'ASVehicle_Sentinel_Floor',Z=150)
+	ZAdjust(1)=(TurretClass=class'ASTurret_Minigun',Z=94)
+	ZAdjust(2)=(TurretClass=class'ASTurret_BallTurret',Z=25)
+	ZAdjust(3)=(TurretClass=class'ASTurret_LinkTurret',Z=325)
+	ZAdjust(4)=(TurretClass=class'ASTurret_IonCannon',Z=600)
 }

@@ -91,6 +91,7 @@ simulated event PreBeginPlay()
 		if(RequiredAbilities.Length > 0)
 		{
 			RequiredRepl = Spawn(class'ReplicatedArray', Owner);
+			RequiredRepl.Length = RequiredAbilities.Length;
 			for(i = 0; i < RequiredAbilities.Length; i++)
 			{
 				RequiredRepl.ObjectArray[i] = RequiredAbilities[i].AbilityClass;
@@ -103,6 +104,7 @@ simulated event PreBeginPlay()
 		if(ForbiddenAbilities.Length > 0)
 		{
 			ForbiddenRepl = Spawn(class'ReplicatedArray', Owner);
+			ForbiddenRepl.Length = ForbiddenAbilities.Length;
 			for(i = 0; i < ForbiddenAbilities.Length; i++)
 			{
 				ForbiddenRepl.ObjectArray[i] = ForbiddenAbilities[i].AbilityClass;
@@ -115,6 +117,7 @@ simulated event PreBeginPlay()
 		if(GrantItem.Length > 0)
 		{
 			ItemsRepl = Spawn(class'ReplicatedArray', Owner);
+			ItemsRepl.Length = GrantItem.Length;
 			for(i = 0; i < GrantItem.Length; i++)
 			{
 				ItemsRepl.ObjectArray[i] = GrantItem[i].InventoryClass;
@@ -127,6 +130,7 @@ simulated event PreBeginPlay()
 		if(bUseLevelCost)
 		{
 			LevelCostRepl = Spawn(class'ReplicatedArray', Owner);
+			LevelCostRepl.Length = LevelCost.Length;
 			for(i = 0; i < LevelCost.Length; i++)
 				LevelCostRepl.IntArray[i] = LevelCost[i];
 			
@@ -152,7 +156,7 @@ simulated event PostNetReceive()
 		//Required
 		if(RequiredRepl != None)
 		{
-			RequiredAbilities.Length = RequiredRepl.ObjectArray.Length;
+			RequiredAbilities.Length = RequiredRepl.Length;
 			for(i = 0; i < RequiredAbilities.Length; i++)
 			{
 				A.AbilityClass = class<RPGAbility>(RequiredRepl.ObjectArray[i]);
@@ -166,7 +170,7 @@ simulated event PostNetReceive()
 		//Forbidden
 		if(ForbiddenRepl != None)
 		{
-			ForbiddenAbilities.Length = ForbiddenRepl.ObjectArray.Length;
+			ForbiddenAbilities.Length = ForbiddenRepl.Length;
 			for(i = 0; i < ForbiddenAbilities.Length; i++)
 			{
 				A.AbilityClass = class<RPGAbility>(ForbiddenRepl.ObjectArray[i]);
@@ -180,7 +184,7 @@ simulated event PostNetReceive()
 		//Items
 		if(ItemsRepl != None)
 		{
-			GrantItem.Length = ItemsRepl.ObjectArray.Length;
+			GrantItem.Length = ItemsRepl.Length;
 			for(i = 0; i < GrantItem.Length; i++)
 			{
 				Grant.InventoryClass = class<Inventory>(ItemsRepl.ObjectArray[i]);
@@ -194,7 +198,7 @@ simulated event PostNetReceive()
 		//LevelCost
 		if(LevelCostRepl != None)
 		{
-			LevelCost.Length = LevelCostRepl.IntArray.Length;
+			LevelCost.Length = LevelCostRepl.Length;
 			for(i = 0; i < LevelCost.Length; i++)
 				LevelCost[i] = LevelCostRepl.IntArray[i];
 

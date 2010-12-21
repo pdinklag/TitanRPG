@@ -4,6 +4,10 @@ struct TurretTypeStruct
 {
 	var class<Vehicle> TurretClass;
 	var int Cost;
+	
+	//Preview
+	var StaticMesh StaticMesh;
+	var float DrawScale;
 };
 var config array<TurretTypeStruct> TurretTypes;
 
@@ -135,5 +139,5 @@ defaultproperties
 	HudColor=(B=160,G=160,R=160)
 	CostPerSec=10
 	UseDelay=0
-	TurretTypes(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=10);
+	TurretTypes(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=10,StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor',DrawScale=0.5);
 }

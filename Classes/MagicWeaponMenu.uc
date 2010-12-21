@@ -8,7 +8,7 @@ var localized string ListTitle, ListHint;
 
 function Timer()
 {
-	SpinnyItemRotation.Yaw += 1000;
+	SpinnyItemRotation.Yaw += 2048;
 
 	Super.Timer();
 }
@@ -25,6 +25,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function InitFor(RPGArtifact A)
 {
+	local class<Pickup> PickupClass;
+
 	if(A.Instigator.Weapon.IsA('RPGWeapon'))
 		WeaponType = RPGWeapon(A.Instigator.Weapon).ModifiedWeapon.class;
 	else
@@ -37,8 +39,11 @@ function InitFor(RPGArtifact A)
 	
 	if(SpinnyItem != None)
 	{
-		SpinnyItem.LinkMesh(WeaponType.default.AttachmentClass.default.Mesh);
-		SpinnyItem.SetDrawScale(WeaponType.default.AttachmentClass.default.DrawScale);
+		PickupClass = WeaponType.default.PickupClass;
+	
+		SpinnyItem.SetDrawType(DT_StaticMesh);
+		SpinnyItem.SetStaticMesh(PickupClass.default.StaticMesh);
+		SpinnyItem.SetDrawScale(PickupClass.default.DrawScale);
 	}
 }
 
@@ -59,6 +64,8 @@ function int GetDefaultItemIndex()
 
 function SelectItem()
 {
+	local int i;
+
 	if(SpinnyItem != None)
 		SpinnyItem.SetOverlayMaterial(Available[lstItems.List.Index].default.OverlayMaterial, 100000, true);
 }
@@ -76,6 +83,6 @@ defaultproperties
 	ListTitle="Weapon Modifiers"
 	ListHint="Select a Weapon Modifier"
 
-	SpinnyItemOffset=(X=75,Y=0,Z=0)
+	SpinnyItemOffset=(X=80,Y=0,Z=0)
 	SpinnyItemRotation=(Pitch=0,Yaw=0,Roll=0)
 }
