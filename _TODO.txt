@@ -46,6 +46,8 @@ Documentation TODO:
 - OLTeamGames
 - ArtifactTurretSummonBase
 - EXP_TurretKill
+- KillTurrets
+- KillMonsters
 
 Release Config TODO:
 - EXP_TurretKill

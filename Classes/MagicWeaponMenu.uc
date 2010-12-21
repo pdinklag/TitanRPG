@@ -3,24 +3,11 @@ class MagicWeaponMenu extends RPGSelectionMenu;
 var class<Weapon> WeaponType;
 var array<class<RPGWeapon> > Available;
 
-var localized string WindowTitle;
-var localized string ListTitle, ListHint;
-
 function Timer()
 {
 	SpinnyItemRotation.Yaw += 2048;
 
 	Super.Timer();
-}
-
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-	Super.InitComponent(MyController, MyOwner);
-	
-	t_WindowTitle.SetCaption(WindowTitle);
-	
-	sbList.Caption = ListTitle;
-	lstItems.Hint = ListHint;
 }
 
 function InitFor(RPGArtifact A)
@@ -64,8 +51,6 @@ function int GetDefaultItemIndex()
 
 function SelectItem()
 {
-	local int i;
-
 	if(SpinnyItem != None)
 		SpinnyItem.SetOverlayMaterial(Available[lstItems.List.Index].default.OverlayMaterial, 100000, true);
 }
@@ -78,6 +63,8 @@ function bool OKClicked(GUIComponent Sender)
 
 defaultproperties
 {
+	OKText="Enchant"
+
 	WindowTitle="Pick Weapon Modifier"
 	
 	ListTitle="Weapon Modifiers"

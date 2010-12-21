@@ -20,6 +20,10 @@ var vector SpinnyItemOffset;
 var rotator SpinnyItemRotation;
 var bool bFixedRotation;
 
+var localized string WindowTitle;
+var localized string ListTitle, ListHint;
+var localized string OKText;
+
 static function RPGSelectionMenu ShowFor(RPGArtifact A)
 {
 	local RPGSelectionMenu Menu;
@@ -43,6 +47,13 @@ static function RPGSelectionMenu ShowFor(RPGArtifact A)
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
 	Super.InitComponent(MyController, MyOwner);
+
+	btOK.Caption = OKText;
+	
+	t_WindowTitle.SetCaption(WindowTitle);
+	
+	sbList.Caption = ListTitle;
+	lstItems.Hint = ListHint;
 }
 
 function InitFor(RPGArtifact A)
@@ -175,6 +186,23 @@ function InternalDraw(Canvas Canvas)
 	SpinnyItem.bHidden = true;
 }
 
+function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
+{
+	local string Temp;
+
+	Temp = PlayerOwner().ConsoleCommand("KEYNAME" @ iKey);
+	Temp = PlayerOwner().ConsoleCommand("KEYBINDING" @ Temp);
+	
+	//activate item equals a click on OK
+	if(Temp ~= "ActivateItem")
+	{
+		OKClicked(None);
+		return true;
+	}
+
+	return false;
+}
+
 //abstract - override in subclasses
 function bool OKClicked(GUIComponent Sender)
 {
@@ -210,7 +238,7 @@ defaultproperties
 	sbList=GUISectionBackground'ListBG'
 	
 	Begin Object Class=GUIButton Name=OKButton
-		Caption="Summon"
+		Caption="OK"
 		WinWidth=0.506902
 		WinHeight=0.087200
 		WinLeft=0.469923
@@ -226,7 +254,6 @@ defaultproperties
 		WinLeft=0.052921
 		WinTop=0.192202
 		bVisibleWhenEmpty=true
-		Hint="Select an item"
 		OnChange=InternalOnChange
 		RenderWeight=0.51
 		StyleName="NoBackground"
@@ -240,6 +267,7 @@ defaultproperties
 	bPersistent=True
     bAllowedAsLast=True
 	
+	OnKeyEvent=InternalOnKeyEvent
 	OnRendered=InternalDraw
 	
 	WinLeft=0.20
@@ -250,5 +278,7 @@ defaultproperties
 	SpinnyItemOffset=(X=80,Y=0,Z=0)
 	SpinnyItemRotation=(Pitch=0,Yaw=36864,Roll=0)
 	bFixedRotation=True
+	
+	OKText="OK"
 }
 

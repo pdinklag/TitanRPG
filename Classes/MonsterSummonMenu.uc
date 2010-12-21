@@ -1,8 +1,5 @@
 class MonsterSummonMenu extends RPGSelectionMenu;
 
-var localized string WindowTitle;
-var localized string ListTitle, ListHint;
-
 static function name GetMonsterIdleAnim(class<Monster> MonsterClass, Actor RefActor)
 {
 	if(RefActor.HasAnim(MonsterClass.default.IdleRestAnim))
@@ -13,16 +10,6 @@ static function name GetMonsterIdleAnim(class<Monster> MonsterClass, Actor RefAc
 		return 'Fly';
 	else
 		return 'Idle_Rest';
-}
-
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-	Super.InitComponent(MyController, MyOwner);
-	
-	t_WindowTitle.SetCaption(WindowTitle);
-	
-	sbList.Caption = ListTitle;
-	lstItems.Hint = ListHint;
 }
 
 function int GetNumItems()
@@ -83,6 +70,8 @@ function bool OKClicked(GUIComponent Sender)
 
 defaultproperties
 {
+	OKText="Summon"
+
 	WindowTitle="Pick Monster to summon"
 	
 	ListTitle="Monsters"

@@ -628,7 +628,7 @@ function ModifyPlayer(Pawn Other)
 	RPRI.ModifyPlayer(Other);
 
 	//Spawn drones
-	if(StartingDrones < MaxDrones)
+	if(StartingDrones > MaxDrones)
 		Warn("StartingDrones exceeds MaxDrones!");
 
 	for(x = 0; x < StartingDrones; x++)

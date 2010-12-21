@@ -127,7 +127,7 @@ replication
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
 		ServerClearArtifactOrder, ServerAddArtifactOrderEntry, ServerSortArtifacts,
 		ServerGetArtifact, ServerActivateArtifact, //moved from TitanPlayerController for better compatibility
-		ServerDestroyTurrets;
+		ServerDestroyTurrets, ServerKillMonsters;
 }
 
 static function RPGPlayerReplicationInfo CreateFor(Controller C)
@@ -892,6 +892,18 @@ function AddMonster(Monster M)
 		if(Abilities[i].bAllowed)
 			Abilities[i].ModifyMonster(M, Controller.Pawn);
 	}
+}
+
+function ServerKillMonsters()
+{
+	while(Monsters.Length > 0)
+	{
+		if(Monsters[0] != None)
+			Monsters[0].Suicide();
+		
+		Monsters.Remove(0, 1);
+	}
+	NumMonsters = 0;
 }
 
 function AddTurret(Vehicle T)

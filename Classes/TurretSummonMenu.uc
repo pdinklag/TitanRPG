@@ -1,18 +1,5 @@
 class TurretSummonMenu extends RPGSelectionMenu;
 
-var localized string WindowTitle;
-var localized string ListTitle, ListHint;
-
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-	Super.InitComponent(MyController, MyOwner);
-	
-	t_WindowTitle.SetCaption(WindowTitle);
-	
-	sbList.Caption = ListTitle;
-	lstItems.Hint = ListHint;
-}
-
 function int GetNumItems()
 {
 	return ArtifactTurretSummon(Artifact).TurretTypes.Length;
@@ -85,6 +72,8 @@ function bool OKClicked(GUIComponent Sender)
 
 defaultproperties
 {
+	OKText="Construct"
+
 	WindowTitle="Pick Turret to construct"
 	
 	ListTitle="Turrets"

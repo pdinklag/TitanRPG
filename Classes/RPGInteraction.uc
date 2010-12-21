@@ -709,7 +709,13 @@ exec function RPGActivateArtifact(string ArtifactID)
 		RPRI.ServerActivateArtifact(ArtifactID);
 }
 
-exec function DestroyTurrets()
+exec function KillMonsters()
+{
+	if(RPRI != None)
+		RPRI.ServerKillMonsters();
+}
+
+exec function KillTurrets()
 {
 	if(RPRI != None)
 		RPRI.ServerDestroyTurrets();
@@ -773,10 +779,10 @@ defaultproperties
 	StatusIconBorderMaterialVL=55
 	StatusIconIconSize=29
 	StatusIconIconInnerScale=0.75
-	StatusIconIconOverlay=(R=192,G=192,B=192,A=192)
+	StatusIconIconOverlay=(R=255,G=255,B=255,A=128)
 	//Status icons
-	MonsterIcon=Texture'<? echo($packageName); ?>.ArtifactIcons.MonsterSummon'
-	TurretIcon=Texture'<? echo($packageName); ?>.ArtifactIcons.TurretSummon'
+	MonsterIcon=Texture'<? echo($packageName); ?>.StatusIcons.Monster'
+	TurretIcon=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
 	//
 	DisabledOverlay=(R=0,G=0,B=0,A=150)
 	LevelText="Level:"

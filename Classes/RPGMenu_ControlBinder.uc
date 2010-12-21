@@ -93,6 +93,12 @@ defaultproperties
 	BindingLabel(5)="Previous Artifact"
 	Bindings(6)=(KeyLabel="Throw Artifact",Alias="TossArtifact")
 	BindingLabel(6)="Throw Artifact"
+	Bindings(7)=(bIsSectionLabel=true,KeyLabel="Summoned")
+	BindingLabel(7)="Summoned"
+	Bindings(8)=(KeyLabel="Kill Monsters",Alias="KillMonsters")
+	BindingLabel(8)="Kill Monsters"
+	Bindings(9)=(KeyLabel="Destroy Turrets",Alias="KillTurrets")
+	BindingLabel(9)="Destroy Turrets"
 	
 	//Bindings(5)=(bIsSectionLabel=true,KeyLabel="Artifact Selection")
 	//BindingLabel(5)="Artifact Selection"

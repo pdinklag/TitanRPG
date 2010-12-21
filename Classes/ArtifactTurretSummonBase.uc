@@ -150,7 +150,7 @@ defaultproperties
 	MinActivationTime=1.000000
 	ZAdjust(0)=(TurretClass=class'ASVehicle_Sentinel_Floor',Z=150)
 	ZAdjust(1)=(TurretClass=class'ASTurret_Minigun',Z=94)
-	ZAdjust(2)=(TurretClass=class'ASTurret_BallTurret',Z=25)
-	ZAdjust(3)=(TurretClass=class'ASTurret_LinkTurret',Z=325)
+	ZAdjust(2)=(TurretClass=class'ASTurret_BallTurret',Z=5)
+	ZAdjust(3)=(TurretClass=class'ASTurret_LinkTurret',Z=350)
 	ZAdjust(4)=(TurretClass=class'ASTurret_IonCannon',Z=600)
 }
