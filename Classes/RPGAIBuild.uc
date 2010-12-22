@@ -65,7 +65,7 @@ function Build(RPGPlayerReplicationInfo RPRI)
 		}
 	
 		Action = BuildActions[RPRI.AIBuildAction];
-		BuyAbility = RPRI.GetAbility(class'MutTitanRPG'.default.Instance.ResolveAbility(Action.BuyAbility));
+		BuyAbility = RPRI.GetAbility(class'MutTitanRPG'.static.Instance(RPRI.Level).ResolveAbility(Action.BuyAbility));
 		if(BuyAbility != None)
 		{
 			Cost = BuyAbility.Cost();

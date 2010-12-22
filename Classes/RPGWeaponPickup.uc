@@ -181,7 +181,7 @@ function Inventory SpawnCopy( pawn Other )
 	}
 	
 	if (NewWeaponClass == None)
-		NewWeaponClass = class'MutTitanRPG'.default.Instance.GetRandomWeaponModifier(class<Weapon>(InventoryType), Other);
+		NewWeaponClass = class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(class<Weapon>(InventoryType), Other);
 
 	Copy = spawn(NewWeaponClass,Other,,,rot(0,0,0));
 	
@@ -192,7 +192,7 @@ function Inventory SpawnCopy( pawn Other )
 		
 	RPGWeapon(Copy).SetModifiedWeapon(
 		Weapon(spawn(InventoryType,Other,,,rot(0,0,0))),
-		((bDropped && OldWeapon != None && OldWeapon.bIdentified) || class'MutTitanRPG'.default.Instance.GameSettings.bNoUnidentified));
+		((bDropped && OldWeapon != None && OldWeapon.bIdentified) || class'MutTitanRPG'.static.Instance(Level).GameSettings.bNoUnidentified));
 
 	Copy.GiveTo(Other, self);
 

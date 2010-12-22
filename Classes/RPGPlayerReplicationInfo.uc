@@ -220,7 +220,7 @@ simulated event BeginPlay()
 		
 		Log("RPRI.BeginPlay for" @ PRI.PlayerName, 'TitanRPG');
 
-		RPGMut = class'MutTitanRPG'.default.Instance;
+		RPGMut = class'MutTitanRPG'.static.Instance(Level);
 		if(RPGMut == None)
 		{
 			Warn("TitanRPG mutator no longer available - cancelling!");
@@ -247,10 +247,6 @@ simulated event BeginPlay()
 			{
 				data.LV = RPGMut.StartingLevel;
 				data.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (data.LV - 1);
-				
-				data.DC.D = Level.Day;
-				data.DC.M = Level.Month;
-				data.DC.Y = Level.Year;
 				
 				if(RPGMut.Levels.Length > data.LV)
 					data.XN = RPGMut.Levels[data.LV];
@@ -302,11 +298,7 @@ simulated event BeginPlay()
 		
 			AIBuild.Build(Self);
 		}
-		
-		data.LS.D = Level.Day;
-		data.LS.M = Level.Month;
-		data.LS.Y = Level.Year;
-		
+
 		//Inform others
 		PlayerLevel = Spawn(class'RPGPlayerLevelInfo');
 		PlayerLevel.PRI = PRI;
@@ -1312,6 +1304,8 @@ function SaveData()
 
 	DataObject.AA = AIBuildAction;
 	DataObject.SaveConfig();
+	
+	Log("Saved" @ RPGName, 'TitanRPG');
 }
 
 defaultproperties

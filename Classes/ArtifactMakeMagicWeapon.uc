@@ -20,7 +20,7 @@ function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn
 	local MutTitanRPG RPGMut;
 	local int x, Chance;
 	
-	RPGMut = class'MutTitanRPG'.default.Instance;
+	RPGMut = class'MutTitanRPG'.static.Instance(Level);
 
 	Chance = Rand(RPGMut.TotalModifierChance);
 	for (x = 0; x < RPGMut.WeaponModifiers.Length; x++)

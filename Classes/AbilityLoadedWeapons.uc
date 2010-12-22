@@ -128,7 +128,7 @@ static function GiveWeapon(Pawn Other, class<Weapon> WeaponClass, int AbilityLev
 	if(Other.IsA('Monster'))
 		return;
 	
-	RPGMut = class'MutTitanRPG'.default.Instance;
+	RPGMut = class'MutTitanRPG'.static.Instance(Other.Level);
 	
 	newWeapon = Other.spawn(WeaponClass, Other,,, rot(0,0,0));
 	

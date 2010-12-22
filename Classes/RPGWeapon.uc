@@ -1607,7 +1607,7 @@ simulated function int MaxAmmo(int mode)
 
 simulated function FillToInitialAmmo()
 {
-	if(!class'MutTitanRPG'.default.Instance.IsSuperWeaponAmmo(AmmoClass[0]))
+	if(!class'MutTitanRPG'.static.Instance(Level).IsSuperWeaponAmmo(AmmoClass[0]))
 	{
 		ModifiedWeapon.FillToInitialAmmo();
 
@@ -1630,7 +1630,7 @@ simulated function FillToInitialAmmo()
 				Ammo[1].AmmoAmount = Max(Ammo[1].AmmoAmount,Ammo[1].default.InitialAmount * (1.0 + 0.01 * HolderRPRI.AmmoMax));
 		}
 	}
-	else if(class'MutTitanRPG'.default.Instance.bAllowSuperWeaponReplenish)
+	else if(class'MutTitanRPG'.static.Instance(Level).bAllowSuperWeaponReplenish)
 	{
 		ModifiedWeapon.FillToInitialAmmo();
 		if(bNoAmmoInstances)

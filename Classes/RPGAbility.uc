@@ -81,7 +81,7 @@ simulated event PreBeginPlay()
 		StatName = AbilityName;
 
 	if(Role == ROLE_Authority)
-		bAllowed = class'MutTitanRPG'.default.Instance.GameSettings.AllowAbility(Self.class);
+		bAllowed = class'MutTitanRPG'.static.Instance(Level).GameSettings.AllowAbility(Self.class);
 	
 	Super.PreBeginPlay();
 	

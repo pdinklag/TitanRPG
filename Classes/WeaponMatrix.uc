@@ -15,7 +15,7 @@ simulated event WeaponTick(float dt)
 
 	Super.WeaponTick(dt);
 	
-	if(Role == ROLE_Authority && Instigator.Controller != None)
+	if(Role == ROLE_Authority && Instigator != None && Instigator.Controller != None)
 	{
 		Multiplier = FMax(0.1f, 1.0f - BonusPerLevel * float(Modifier));
 	

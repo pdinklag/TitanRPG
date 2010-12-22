@@ -734,8 +734,8 @@ event NotifyLevelChange()
 		//Save player data (standalone/listen servers only)
 		if(RPRI.Level.Game != None)
 		{
-			if(class'MutTitanRPG'.default.Instance != None)
-				class'MutTitanRPG'.default.Instance.SaveData();
+			if(class'MutTitanRPG'.static.Instance(RPRI.Level) != None)
+				class'MutTitanRPG'.static.Instance(RPRI.Level).SaveData();
 		}
 	}
 

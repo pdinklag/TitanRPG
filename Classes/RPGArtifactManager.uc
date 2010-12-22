@@ -33,25 +33,6 @@ event PostBeginPlay()
 
 	Super.PostBeginPlay();
 
-	x = 0;
-	while(x < AvailableArtifacts.length)
-	{
-		if(AvailableArtifacts[x].ArtifactClass == None ||
-			!class'MutTitanRPG'.default.Instance.GameSettings.AllowArtifact(AvailableArtifacts[x].ArtifactClass))
-		{
-			AvailableArtifacts.Remove(x, 1);
-		}
-		else if(AvailableArtifacts[x].ArtifactClass.default.PickupClass == None)
-		{
-			Warn(AvailableArtifacts[x].ArtifactClass $ " does not have a pickup class assigned!");
-			AvailableArtifacts.Remove(x, 1);
-		}
-		else
-		{
-			x++;
-		}
-	}
-	
 	if(AdreanlineSpawnAmount > 0)
 	{
 		//Count how many adrenaline pickups are already on the map
@@ -92,6 +73,30 @@ event PostBeginPlay()
 	else
 	{
 		Destroy();
+	}
+}
+
+function Initialize(MutTitanRPG RPGMut)
+{
+	local int x;
+
+	x = 0;
+	while(x < AvailableArtifacts.length)
+	{
+		if(AvailableArtifacts[x].ArtifactClass == None ||
+			!RPGMut.GameSettings.AllowArtifact(AvailableArtifacts[x].ArtifactClass))
+		{
+			AvailableArtifacts.Remove(x, 1);
+		}
+		else if(AvailableArtifacts[x].ArtifactClass.default.PickupClass == None)
+		{
+			Warn(AvailableArtifacts[x].ArtifactClass $ " does not have a pickup class assigned!");
+			AvailableArtifacts.Remove(x, 1);
+		}
+		else
+		{
+			x++;
+		}
 	}
 }
 

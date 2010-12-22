@@ -4,7 +4,7 @@ class RPGShieldGun extends ShieldGun
 
 simulated event PreBeginPlay()
 {
-	if(Role == ROLE_Authority && class'MutTitanRPG'.default.Instance.bOLTeamGames)
+	if(Role == ROLE_Authority && class'MutTitanRPG'.static.Instance(Level).bOLTeamGames)
 		AttachmentClass = class<InventoryAttachment>(DynamicLoadObject("OLTeamGames.OLTeamsShieldAttachment", class'Class'));
 
 	Super.PreBeginPlay();

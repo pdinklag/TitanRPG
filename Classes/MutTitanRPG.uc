@@ -4,8 +4,8 @@ class MutTitanRPG extends Mutator
 //Import resources
 #exec OBJ LOAD FILE=Resources/TitanRPG_rc.u PACKAGE=<? echo($packageName); ?>
 
-//Global
-var MutTitanRPG Instance;
+//Helper to find out about the "loop"
+var int InstanceID;
 
 //Saving
 var config array<string> IgnoreNameTag;
@@ -76,6 +76,19 @@ var RPGAssistInfo RedInfo, BlueInfo;
 var bool bAddedAssistInfo;
 var bool bGameStarted;
 
+//Instance
+static final function MutTitanRPG Instance(LevelInfo Level)
+{
+	local Mutator Mut;
+	
+	for(Mut = Level.Game.BaseMutator; Mut != None; Mut = Mut.NextMutator)
+	{
+		if(Mut.IsA('MutTitanRPG'))
+			return MutTitanRPG(Mut);
+	}
+	return None;
+}
+
 //returns true if the specified ammo belongs to a weapon that we consider a superweapon
 final function bool IsSuperWeaponAmmo(class<Ammunition> AmmoClass)
 {
@@ -139,10 +152,18 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 
 event PreBeginPlay()
 {
+	local Instance Instance;
 	local int i, x;
 	local DruidsOldWeaponHolder WeaponHolder;
 
-	default.Instance = Self;
+	Instance = new(None, "TitanRPG") class'Instance';
+	InstanceID = Instance.ID;
+	
+	Log("DEBUG: Mutator loaded - Instance ID is" @ InstanceID);
+	
+	Instance.ID++;
+	Instance.SaveConfig();
+	Instance = None;
 
 	if(Role == ROLE_Authority && Level.Game.ResetCountDown == 2)
 	{
@@ -220,7 +241,7 @@ event PostBeginPlay()
 
 	//Artifacts
 	if(GameSettings.bAllowArtifacts)
-		Spawn(class'RPGArtifactManager');
+		Spawn(class'RPGArtifactManager').Initialize(Self);
 	
 	//Save
 	if(SaveDuringGameInterval > 0)
@@ -281,147 +302,152 @@ function string GetInventoryClassOverride(string InventoryClassName)
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
-	local int x, i;
-	local FakeMonsterWeapon w;
-	local RPGWeaponPickup p;
+	local int i;
+	local RPGWeaponPickup RPGPickup;
 	local WeaponLocker Locker;
 	local RPGWeaponLocker RPGLocker;
-	local Weapon Weap;
-	local UnrealPawn UPawn;
+	local Weapon W;
+	local string ClassName, NewClassName;
 
 	if(Other == None)
 		return true;
 	
-	//Game settings
-	if(Other.IsA('RPGArtifact') &&
-		!GameSettings.AllowArtifact(class<RPGArtifact>(Other.class))
-	)
+	//Disbale artifacts (game settings)
+	if(Other.IsA('RPGArtifact') && !GameSettings.AllowArtifact(class<RPGArtifact>(Other.class)))
 	{
     	bSuperRelevant = 0;
 		return false;
     }
 	
-	if(Other.IsA('RPGArtifactPickup') && 
-		!GameSettings.AllowArtifact(class<RPGArtifact>(RPGArtifactPickup(Other).InventoryType))
-	)
+	if(Other.IsA('RPGArtifactPickup') && !GameSettings.AllowArtifact(class<RPGArtifact>(RPGArtifactPickup(Other).InventoryType)))
 	{
     	bSuperRelevant = 0;
 		return false;
     }
 	
-	//Required Equipments
-	UPawn = UnrealPawn(Other);
-	if(UPawn != None)
+	//Required Equipment
+	if(Other.IsA('UnrealPawn'))
 	{
 		for(i = 0; i < 16; i++)
-			UPawn.RequiredEquipment[i] = Level.Game.BaseMutator.GetInventoryClassOverride(UPawn.RequiredEquipment[i]);
+			UnrealPawn(Other).RequiredEquipment[i] = GetInventoryClassOverride(UnrealPawn(Other).RequiredEquipment[i]);
+		
+		return true;
 	}
 	
-	if(xBombFlag(Other) != None)
+	//Ball Launcher
+	if(Other.IsA('xBombFlag'))
+	{
 		xBombFlag(Other).BombLauncherClassName = "<? echo($packageName); ?>.RPGBallLauncher";
-
-	//hack to allow players to pick up above normal ammo from inital ammo pickup;
-	//MaxAmmo will be set to a good value later by the player's RPGStatsInv
-	if(Ammunition(Other) != None && ShieldAmmo(Other) == None)
-		Ammunition(Other).MaxAmmo = 999;
-
-	if(GameSettings.WeaponModifierChance > 0)
-	{
-		if(WeaponLocker(Other) != None && RPGWeaponLocker(Other) == None)
-		{
-			Locker = WeaponLocker(Other);
-			RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponLocker"));
-			if (RPGLocker != None)
-			{
-				RPGLocker.SetLocation(Locker.Location);
-				RPGLocker.ReplacedLocker = Locker;
-				Locker.GotoState('Disabled');
-			}
-			for (x = 0; x < Locker.Weapons.length; x++)
-			{
-				if(Locker.Weapons[x].WeaponClass == class'LinkGun' || string(Locker.Weapons[x].WeaponClass.Name) ~= "OLTeamsLinkGun")
-					Locker.Weapons[x].WeaponClass = class'RPGLinkGun';
-				else if (Locker.Weapons[x].WeaponClass == class'RocketLauncher')
-					Locker.Weapons[x].WeaponClass = class'RPGRocketLauncher';
-			}
-		}
-
-		// don't affect the translocator because it breaks bots
-		if (WeaponPickup(Other) != None &&
-			TransPickup(Other) == None &&
-			RPGWeaponPickup(Other) == None)
-		{
-			p = RPGWeaponPickup(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponPickup"));
-			if(p != None)
-			{
-				p.FindPickupBase();
-				p.GetPropertiesFrom(class<WeaponPickup>(Other.Class));
-			}
-			return false;
-		}
-
-		if (xWeaponBase(Other) != None)
-		{
-			if (xWeaponBase(Other).WeaponType == class'LinkGun' || string(xWeaponBase(Other).WeaponType.Name) ~= "OLTeamsLinkGun")
-				xWeaponBase(Other).WeaponType = class'RPGLinkGun';
-			else if (xWeaponBase(Other).WeaponType == class'RocketLauncher')
-				xWeaponBase(Other).WeaponType = class'RPGRocketLauncher';
-		}
-		else
-		{
-			Weap = Weapon(Other);
-			if (Weap != None)
-			{
-				for (x = 0; x < Weap.NUM_FIRE_MODES; x++)
-				{
-					if (Weap.FireModeClass[x] == class'PainterFire')
-						Weap.FireModeClass[x] = class'RPGPainterFire';
-					else if (Weap.FireModeClass[x] == class'ONSPainterFire')
-						Weap.FireModeClass[x] = class'RPGONSPainterFire';
-					else if (Weap.FireModeClass[x] == class'ONSAVRiLFire')
-						Weap.FireModeClass[x] = class'RPGONSAVRiLFire';
-				}
-			}
-		}
-	}
-	else if (Weapon(Other) != None)
-	{
-		// need ammo instances for Max Ammo stat to work without magic weapons
-		// I hate this but I couldn't think of a better way
-		Weapon(Other).bNoAmmoInstances = false;
+		return true;
 	}
 	
-	// Replace the WeaponFire.
-	Weap = Weapon(Other);
-	if(Weap != None)
+	//Max ammo hack (will be overridden by the RPRI)
+	if(Other.IsA('Ammunition') && !Other.IsA('ShieldAmmo'))
 	{
-		for(i = 0; i < Weap.NUM_FIRE_MODES; i++)
+		Ammunition(Other).MaxAmmo = 999;
+		return true;
+	}
+	
+	//Replace weapon pickup
+	if(Other.IsA('WeaponPickup') && !Other.IsA('RPGWeaponPickup') && !Other.IsA('TransPickup'))
+	{
+		RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponPickup"));
+		if(RPGPickup != None)
 		{
-			//Trans force
-			if(Weap.FireModeClass[i] == class'TransFire' || string(Weap.FireModeClass[i].Name) ~= "OLTeamsTransFire")
-				Weap.FireModeClass[i] = class'RPGTransFire';
+			RPGPickup.FindPickupBase();
+			RPGPickup.GetPropertiesFrom(class<WeaponPickup>(Other.class));
 		}
+		return false;
 	}
-
-	//Give monsters a fake weapon
-	if (Monster(Other) != None)
+	
+	//Replace weapon locker (TODO: only if magic weapon chance > 0 ???)
+	if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
 	{
-		Pawn(Other).HealthMax = Pawn(Other).Health;
-		w = spawn(class'FakeMonsterWeapon',Other,,,rot(0,0,0));
-		w.GiveTo(Pawn(Other));
-	}
+		Locker = WeaponLocker(Other);
+		RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponLocker"));
+		
+		if(RPGLocker != None)
+		{
+			RPGLocker.SetLocation(Locker.Location);
+			RPGLocker.ReplacedLocker = Locker;
+			Locker.GotoState('Disabled');
+		}
 
-	//force adrenaline on if artifacts enabled
-	if(
-		Controller(Other) != None &&
-		class'RPGArtifactManager'.default.SpawnDelay > 0 &&
-		class'RPGArtifactManager'.default.MaxArtifacts > 0 &&
-		class'RPGArtifactManager'.default.AvailableArtifacts.Length > 0
-	)
+		for(i = 0; i < Locker.Weapons.length; i++)
+		{
+			if(Locker.Weapons[i].WeaponClass != None)
+			{
+				ClassName = String(Locker.Weapons[i].WeaponClass);
+				NewClassName = GetInventoryClassOverride(ClassName);
+				
+				if(!(NewClassName ~= ClassName))
+					Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+			}
+		}
+		return true;
+	}
+	
+	//Replace weapon base weapons
+	if(Other.IsA('xWeaponBase'))
 	{
-		Controller(Other).bAdrenalineEnabled = true;
+		ClassName = string(xWeaponBase(Other).WeaponType);
+		NewClassName = GetInventoryClassOverride(ClassName);
+		
+		if(!(NewClassName ~= ClassName))
+			xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+		
+		return true;
 	}
-
+	
+	//Weapon
+	if(Other.IsA('Weapon'))
+	{
+		W = Weapon(Other);
+	
+		//WeaponFire
+		for(i = 0; i < W.NUM_FIRE_MODES; i++)
+		{
+			if(W.FireModeClass[i] != None)
+			{
+				if(W.FireModeClass[i] == class'PainterFire')
+					W.FireModeClass[i] = class'RPGPainterFire';
+				else if (W.FireModeClass[i] == class'ONSPainterFire')
+					W.FireModeClass[i] = class'RPGONSPainterFire';
+				else if (W.FireModeClass[i] == class'ONSAVRiLFire')
+					W.FireModeClass[i] = class'RPGONSAVRiLFire';
+				else if(W.FireModeClass[i] == class'TransFire' || string(W.FireModeClass[i]) ~= "OLTeamGames.OLTeamsTransFire")
+					W.FireModeClass[i] = class'RPGTransFire';
+			}
+		}
+		
+		//Hack for AmmoMax (from UT2004RPG, not sure exactly what this is needed for)
+		if(GameSettings.WeaponModifierChance <= 0)
+			W.bNoAmmoInstances = false;
+		
+		return true;
+	}
+	
+	//Monster fake weapon (for NetDamage to be called)
+	if(Other.IsA('Monster'))
+	{
+		Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
+		return true;
+	}
+	
+	//Force adrenaline on if artifacts are enabled
+	if(Other.IsA('Controller'))
+	{
+		if(
+			class'RPGArtifactManager'.default.SpawnDelay > 0 &&
+			class'RPGArtifactManager'.default.MaxArtifacts > 0 &&
+			class'RPGArtifactManager'.default.AvailableArtifacts.Length > 0
+		)
+		{
+			Controller(Other).bAdrenalineEnabled = true;
+		}
+		return true;
+	}
+	
 	return true;
 }
 
@@ -635,26 +661,18 @@ function ModifyPlayer(Pawn Other)
 		class'Drone'.static.SpawnFor(Other);
 }
 
-function DoStatistics(RPGPlayerReplicationInfo RPRI)
-{
-	//aww...
-}
-
 function EndGame()
 {
 	local Controller C;
 	local RPGPlayerReplicationInfo RPRI;
 	
-	for (C = Level.ControllerList; C != None; C = C.NextController)
+	for(C = Level.ControllerList; C != None; C = C.NextController)
 	{
 		if(C.bIsPlayer && C.PlayerReplicationInfo != None)
 		{
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
 			if(RPRI != None)
-			{
 				RPRI.GameEnded();
-				DoStatistics(RPRI);
-			}
 		}
 	}
 	
@@ -831,16 +849,14 @@ function NotifyLogout(Controller Exiting)
 {
 	local RPGPlayerReplicationInfo RPRI;
 	
-	if (Level.Game.bGameRestarted)
+	if(Level.Game.bGameRestarted)
 		return;
 
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Exiting);
 	if(RPRI == None)
 		return;
-	
+
 	RPRI.SaveData();
-	
-	DoStatistics(RPRI);
 	RPRI.Destroy();
 }
 
@@ -855,7 +871,7 @@ function SaveData()
 	local Controller C;
 	local RPGPlayerReplicationInfo RPRI;
 
-	for (C = Level.ControllerList; C != None; C = C.NextController)
+	for(C = Level.ControllerList; C != None; C = C.NextController)
 	{
 		if(C.bIsPlayer)
 		{
@@ -882,8 +898,6 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 		return;
 
 	RPRI.SaveData();
-
-	DoStatistics(RPRI);
 
 	if(PRI.PlayerName != NewBuild && PlayerController(C) != None)
 		RPRI.ClientSetName(NewBuild);
@@ -918,13 +932,40 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 
 function ServerTraveling(string URL, bool bItems)
 {
+	local LoopDetection A, B;
+	local int TravelTimeDiff;
+
+	Log("DEBUG: ServerTraveling" @ URL @ " - Instance ID is" @ InstanceID, 'TitanRPG'); 
+	
+	A = new(None, "TitanRPG") class'LoopDetection';
+	B = new(None, "Temp") class'LoopDetection';
+	B.FromCurrent(Level);
+	
+	if(A.IsInfoValid())
+	{
+		TravelTimeDiff = B.ToSeconds() - A.ToSeconds();
+		Log("DEBUG: Last travel was" @ TravelTimeDiff @ " seconds ago.", 'TitanRPG');
+		
+		if(TravelTimeDiff < 5)
+			Log("=> LOOP DETECTED (Testing)", 'TitanRPG');
+	}
+	
+	A.LastTravel = B.LastTravel;
+	A.SaveConfig();
+	
+	A = None;
+	B = None;
+
 	//Save data again, as people might have bought something after the game ended
 	SaveData();
 	
-	if(default.Instance == Self)
-		default.Instance = None; //removing static reference to fix WebAdmin not unbinding
-	
 	Super.ServerTraveling(URL, bItems);
+}
+
+event Destroyed()
+{
+	Log("DEBUG: Mutator destroyed - Instance ID is" @ InstanceID, 'TitanRPG');
+	Super.Destroyed();
 }
 
 function Mutate(string MutateString, PlayerController Sender)
@@ -1022,6 +1063,13 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 			}
 		}
+	}
+	
+	if(bIsSuperAdmin && Left(MutateString, Len("travel")) ~= "travel")
+	{
+		desc = class'Util'.static.Trim(Mid(MutateString, Len("travel")));
+		Level.ServerTravel(desc $ "?Game=XGame.xVehicleCTFGame?Mutator=TitanRPG.MutTitanRPG", false);
+		return;
 	}
 
 	//cheats

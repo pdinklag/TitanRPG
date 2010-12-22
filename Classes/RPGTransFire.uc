@@ -29,7 +29,7 @@ function Projectile SpawnProjectile(Vector Start, Rotator Dir)
 	}
 	
 	if(TransBeacon != None)
-		TransBeacon.Velocity *= class'MutTitanRPG'.default.Instance.GameSettings.TransTossForceScale * TossForceScale;
+		TransBeacon.Velocity *= class'MutTitanRPG'.static.Instance(Level).GameSettings.TransTossForceScale * TossForceScale;
 	
     return TransBeacon;
 }

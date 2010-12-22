@@ -15,7 +15,7 @@ simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
 	
-	RPGMut = class'MutTitanRPG'.default.Instance;
+	RPGMut = class'MutTitanRPG'.static.Instance(Level);
 }
 
 function ModifyPawn(Pawn Other)

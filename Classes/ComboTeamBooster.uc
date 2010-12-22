@@ -14,31 +14,46 @@ function StartEffect(xPawn P)
 	
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
 	
+	//Find teammates
 	i = 0;
 	for(C = Level.ControllerList; C != None; C = C.NextController)
 	{
 		if(C.SameTeamAs(P.Controller) && C.Pawn != None)
 		{
-			Controllers[i] = C;
-			Other = C.Pawn;
-
-			if(Other.IsA('Vehicle'))
-				Other = Vehicle(Other).Driver;
-			
-			if(Other != None)
+			//Check whether this player has an active team booster
+			if(Other.IsA('xPawn') && ComboTeamBooster(xPawn(Other).CurrentCombo) != None)
 			{
-				Pawns[i] = Other;
-				Effects[i] = Spawn(class'TeamBoosterEffect', Other,, Other.Location, Other.Rotation);
+				//TODO: Message
+				Destroy();
+				return;
 			}
-			
-			i++;
-			
-			//Show the message for all team members
-			if(Other != None && Other != P && P.PlayerReplicationInfo != None)
-				Other.ReceiveLocalizedMessage(class'TeamBoosterMessage', , P.PlayerReplicationInfo, , Self.class);
+			else
+			{
+				Controllers[i++] = C;
+			}
 		}
 	}
+	
+	//Spawn effects
+	for(i = 0; i < Controllers.Length; i++)
+	{
+		Other = Controllers[i].Pawn;
+		
+		if(Other.IsA('Vehicle'))
+			Other = Vehicle(Other).Driver;
 
+		if(Other != None)
+		{
+			Pawns[i] = Other;
+			Effects[i] = Spawn(class'TeamBoosterEffect', Other,, Other.Location, Other.Rotation);
+		}
+	
+		//Show the message for all team members
+		if(Other != None && Other != P && P.PlayerReplicationInfo != None)
+			Other.ReceiveLocalizedMessage(class'TeamBoosterMessage', , P.PlayerReplicationInfo, , Self.class);
+	}
+
+	//Go
 	SetTimer(0.9, true);
 	Timer();
 }

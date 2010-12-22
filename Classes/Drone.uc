@@ -74,7 +74,7 @@ static function Drone SpawnFor(Pawn Other)
 					Num++;
 			}
 			
-			if(Num >= class'MutTitanRPG'.default.Instance.MaxDrones)
+			if(Num >= class'MutTitanRPG'.static.Instance(Other.Level).MaxDrones)
 				return None;
 		}
 		D = Other.Spawn(class'Drone', Other,, Other.Location + vect(0, -32, 64), Other.Rotation);
