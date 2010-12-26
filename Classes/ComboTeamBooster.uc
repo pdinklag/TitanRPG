@@ -23,7 +23,11 @@ function StartEffect(xPawn P)
 			//Check whether this player has an active team booster
 			if(Other.IsA('xPawn') && ComboTeamBooster(xPawn(Other).CurrentCombo) != None)
 			{
-				//TODO: Message
+				P.ReceiveLocalizedMessage(class'TeamBoosterMessage', 1, Other.PlayerReplicationInfo, , Self.class);
+				
+				if(P.Controller.IsA('PlayerController'))
+					PlayerController(P.Controller).ClientPlaySound(Sound'WeaponSounds.BSeekLost1');
+				
 				Destroy();
 				return;
 			}
@@ -50,7 +54,7 @@ function StartEffect(xPawn P)
 	
 		//Show the message for all team members
 		if(Other != None && Other != P && P.PlayerReplicationInfo != None)
-			Other.ReceiveLocalizedMessage(class'TeamBoosterMessage', , P.PlayerReplicationInfo, , Self.class);
+			Other.ReceiveLocalizedMessage(class'TeamBoosterMessage', 0, P.PlayerReplicationInfo, , Self.class);
 	}
 
 	//Go

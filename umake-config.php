@@ -1,8 +1,8 @@
 <?
-	$versionName = "1.60.43";
+	$versionName = "1.60.44";
 	$productName = "TitanRPG $versionName";
 	
-	$packageName = "TitanRPG";
+	$packageName = "TitanRPG160";
 	
 	$deleteAfterCompile = true;
 ?>
