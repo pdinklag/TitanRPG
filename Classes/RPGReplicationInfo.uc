@@ -19,12 +19,6 @@ static function RPGReplicationInfo Get(LevelInfo Level)
 		return RRI;
 }
 
-simulated event Destroyed()
-{
-	Log("RPGReplicationInfo Destroyed");
-	Super.Destroyed();
-}
-
 defaultproperties
 {
 }

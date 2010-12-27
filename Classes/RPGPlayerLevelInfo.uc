@@ -26,25 +26,6 @@ static function RPGPlayerLevelInfo GetFor(PlayerReplicationInfo OwnerPRI)
 	return None;
 }
 
-simulated event PostBeginPlay()
-{
-	Super.PostBeginPlay();
-	
-	if(Role == ROLE_Authority)
-		SetTimer(2.0f, true);
-}
-
-function Timer()
-{
-	local RPGPlayerLevelInfo PLI;
-
-	foreach DynamicActors(class'RPGPlayerLevelInfo', PLI)
-	{
-		if(PLI.PRI == None)
-			PLI.Destroy();
-	}
-}
-
 defaultproperties
 {
 }

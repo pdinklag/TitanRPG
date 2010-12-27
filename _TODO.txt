@@ -3,6 +3,8 @@ TEST:
 - Stats
 
 TODO (1.61):
+- Replace FriendlyMonsterEffect by interaction features
+
 - Limit Team Booster to one per team at a time
 - Fix Artifacts getting lost when leaving a link turret
 

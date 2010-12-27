@@ -3,8 +3,6 @@ class FriendlyMonsterController extends MonsterController;
 
 var Controller Master;
 
-var FriendlyMonsterEffect Effect;
-
 var TeamInfo Team;
 
 var float MasterFollowDistance;
@@ -27,11 +25,6 @@ function SetMaster(Controller NewMaster)
 {
 	Master = NewMaster;
 	Team = Master.PlayerReplicationInfo.Team;
-
-	Effect = Pawn.Spawn(class'FriendlyMonsterEffect', Pawn);
-	Effect.TeamNum = GetTeamNum();
-	Effect.SetBase(Pawn);
-	Effect.Initialize();
 }
 
 simulated function int GetTeamNum()
@@ -254,14 +247,6 @@ function NotifyKilled(Controller Killer, Controller Killed, pawn KilledPawn)
 		Enemy = None;
 		FindNewEnemy();
 	}
-}
-
-function Destroyed()
-{
-	if(Effect != None)
-		Effect.Destroy();
-
-	Super.Destroyed();
 }
 
 state RestFormation

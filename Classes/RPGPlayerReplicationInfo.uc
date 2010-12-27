@@ -19,9 +19,6 @@ var array<OldRPGWeaponInfo> OldRPGWeapons;
 var RPGAIBuild AIBuild;
 var int AIBuildAction;
 
-var bool bPlayerLevelsSent;
-var int SendAbilityConfig;
-
 var RPGPlayerLevelInfo PlayerLevel;
 
 //Weapon and Artifact Restoration
@@ -306,8 +303,6 @@ simulated event BeginPlay()
 		PlayerLevel.Experience = Experience;
 		PlayerLevel.ExpNeeded = NeededExp;
 	}
-	
-	Log("RPGPlayerReplicationInfo for" @ RPGName);
 }
 
 simulated event Destroyed()
