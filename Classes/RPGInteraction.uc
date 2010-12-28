@@ -234,7 +234,7 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	}
 }
 
-function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float Size, optional int Num, optional int Max)
+function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float SizeX, float SizeY, optional int Num, optional int Max)
 {
 	local string Text;
 	local float YLSmall, XLSmall;
@@ -245,14 +245,14 @@ function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float 
 	Canvas.DrawColor = WhiteColor;
 	Canvas.DrawTile(
 		StatusIconBorderMaterial,
-		Size, Size,
+		SizeX, SizeY,
 		StatusIconBorderMaterialU, StatusIconBorderMaterialV,
 		StatusIconBorderMaterialUL, StatusIconBorderMaterialVL
 	);
 	
-	IconSize = Size * StatusIconIconInnerScale;
+	IconSize = FMin(SizeX, SizeY) * StatusIconIconInnerScale;
 	
-	Canvas.SetPos(XL + (Size - IconSize) * 0.5, YL + (Size - IconSize) * 0.5);
+	Canvas.SetPos(XL + (SizeX - IconSize) * 0.5, YL + (SizeY - IconSize) * 0.5);
 	Canvas.Style = 5;
 	Canvas.DrawColor = StatusIconIconOverlay;
 	Canvas.DrawTile(Icon, IconSize, IconSize, 0, 0, Icon.MaterialUSize(), Icon.MaterialVSize());
@@ -265,7 +265,7 @@ function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float 
 			Text = string(Num);
 		
 		Canvas.TextSize(Text, XLSmall, YLSmall);
-		Canvas.SetPos(XL + (Size - XLSmall) * 0.5, 1 + YL + (Size - YLSmall) * 0.5);
+		Canvas.SetPos(XL + (SizeX - XLSmall) * 0.5, 1 + YL + (SizeY - YLSmall) * 0.5);
 		Canvas.DrawColor = WhiteColor;
 		Canvas.DrawText(Text);
 	}
@@ -404,21 +404,22 @@ function PostRender(Canvas Canvas)
 		Canvas.FontScaleX *= 0.75;
 		Canvas.FontScaleY *= 0.75;
 	
-		Scale = StatusIconIconSize * Canvas.ClipX / 640.0;
+		xX = StatusIconIconSize * Canvas.ClipX / 640.0;
+		xY = StatusIconIconSize * Canvas.ClipY / 480.0;
 	
 		YL = Canvas.ClipY * 0.07;
-		XL = Canvas.ClipX - Scale;
+		XL = Canvas.ClipX - xX;
 		
 		if(RPRI.NumMonsters > 0)
 		{
-			DrawStatusIcon(Canvas, MonsterIcon, XL, YL, Scale, RPRI.NumMonsters, RPRI.MaxMonsters);
-			XL -= Scale;
+			DrawStatusIcon(Canvas, MonsterIcon, XL, YL, xX, xY, RPRI.NumMonsters, RPRI.MaxMonsters);
+			XL -= xX;
 		}
 		
 		if(RPRI.NumTurrets > 0)
 		{	
-			DrawStatusIcon(Canvas, TurretIcon, XL, YL, Scale, RPRI.NumTurrets, RPRI.MaxTurrets);
-			XL -= Scale;
+			DrawStatusIcon(Canvas, TurretIcon, XL, YL, xX, xY, RPRI.NumTurrets, RPRI.MaxTurrets);
+			XL -= xX;
 		}
 		
 		//TODO: icons for special items (active artifacts? jump boots? invisibility? combos?)
