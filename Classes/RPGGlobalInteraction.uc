@@ -19,19 +19,19 @@ function bool ActorVisible(Canvas C, Actor A)
 	return A.FastTrace(A.Location, CameraLocation);
 }
 
-function DrawOwnerIcon(Canvas C, float X, float Y, Material Icon, string OwnerName)
+function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spacing, Material Icon, string OwnerName)
 {
 	local float W, XL, YL;
 
 	C.TextSize(OwnerName, XL, YL);
-	W = XL + IconSize + IconTextSpacing;
+	W = XL + Size + Spacing;
 	
 	C.Style = 5;
 
-	C.SetPos(X - W * 0.5, Y - IconSize * 0.5);
+	C.SetPos(X - W * 0.5, Y - Size * 0.5);
 	C.DrawTile(
 		Icon,
-		IconSize, IconSize,
+		Size, Size,
 		0, 0,
 		Icon.MaterialUSize(),
 		Icon.MaterialVSize()
@@ -45,17 +45,26 @@ function PostRender(Canvas C)
 {
 	local PlayerController PC;
 	local Actor RefActor;
-	local float MaxDist;
+	local float MaxDist, AdjustedSize, AdjustedSpacing;
 	local vector ScreenPos;
 	local FriendlyPawnReplicationInfo FPRI;
 	local Material Icon;
+	local HudCDeathmatch HUD;
 	
 	if(ViewportOwner.GUIController.bActive)
 		return;
-	
+		
 	PC = ViewportOwner.Actor;
 	if(PC == None || PC.PlayerReplicationInfo == None)
 		return;
+
+	HUD = HudCDeathmatch(ViewportOwner.Actor.myHUD);
+	if(HUD == None)
+		return;
+	
+	C.Font = HUD.GetMediumFontFor(C);
+	C.FontScaleX = 0.5f;
+	C.FontScaleY = 0.5f;
 
 	if(PC.IsA('OLTeamPlayerController'))
 		MaxDist = float(PC.GetPropertyText("OLTeamBeaconPlayerInfoMaxDist"));
@@ -68,6 +77,9 @@ function PostRender(Canvas C)
 		RefActor = PC.Pawn;
 	else
 		RefActor = PC;
+
+	AdjustedSize = IconSize * C.ClipX / 640.0f;
+	AdjustedSpacing = IconTextSpacing * C.ClipX / 640.0f;
 	
 	foreach PC.DynamicActors(class'FriendlyPawnReplicationInfo', FPRI)
 	{
@@ -86,10 +98,16 @@ function PostRender(Canvas C)
 				else
 					C.DrawColor = class'RPGInteraction'.default.WhiteColor;
 				
-				DrawOwnerIcon(C, ScreenPos.X, ScreenPos.Y, Icon, FPRI.Master.PlayerName);
+				DrawOwnerIcon(C, ScreenPos.X, ScreenPos.Y, AdjustedSize, AdjustedSpacing, Icon, FPRI.Master.PlayerName);
 			}
 		}
 	}
+	
+	//reset
+	C.DrawColor = C.default.DrawColor;
+	C.Font = C.default.Font;
+	C.FontScaleX = C.default.FontScaleX;
+	C.FontScaleY = C.default.FontScaleY;
 }
 
 event NotifyLevelChange()
