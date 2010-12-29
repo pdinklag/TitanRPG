@@ -1,4 +1,4 @@
-class TurretKillerMessage extends xKillerMessagePlus;
+class FriendlyTurretKillerMessage extends xKillerMessagePlus;
 
 var localized string YourTurretKilled;
 

@@ -21,6 +21,7 @@ function StartEffect(xPawn P)
 		if(C.SameTeamAs(P.Controller) && C.Pawn != None)
 		{
 			//Check whether this player has an active team booster
+			Other = C.Pawn;
 			if(Other.IsA('xPawn') && ComboTeamBooster(xPawn(Other).CurrentCombo) != None)
 			{
 				P.ReceiveLocalizedMessage(class'TeamBoosterMessage', 1, Other.PlayerReplicationInfo, , Self.class);

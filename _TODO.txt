@@ -3,21 +3,18 @@ TEST:
 - Stats
 
 TODO (1.61):
-- Replace FriendlyMonsterEffect by interaction features
-
 - Limit Team Booster to one per team at a time
 - Fix Artifacts getting lost when leaving a link turret
 
-- Fix friendly monster / turret kills
 - Use ArrayCount(Array)
 - Fix Healing Blast not healing if you move into a vehicle
-- MagicWeaponMenu
 
 - AbilityLooter
+
 - Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
 - Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
+
 - Ammo system for artifacts
-- Do compatibility tests
 
 - Knockback should knock out turrets
 
@@ -25,12 +22,8 @@ TODO (1.61):
 
 - Selection menu for the magic weapon maker (+ default option)
 
-- Golden modifier (effect?)
-
-- Fix FriendlyMonsterEffect when teleporting
 - Fix drone color when entering a vehicle (for other players)
 - Fix drone location replication
-- Improve drone stuck detection
 
 Localization TODO:
 - TurretKillerMessage
@@ -66,6 +59,8 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Fix friendly monster / turret kills
+- Added team colored indicator to summoned monsters /
 - Added display for summoned monsters / turrets in the top right corner of the screen (generally: status)
 - Added configurable list of weapon classes that can't have modifiers
 - Added Turret Constructor artifact

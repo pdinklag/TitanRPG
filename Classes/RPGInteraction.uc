@@ -16,7 +16,6 @@ var Color EXPBarColor, DisabledOverlay, RedColor, WhiteColor;
 var Color HUDColorTeam[4], HUDTintTeam[4];
 var localized string LevelText;
 
-var Material ArrowMaterial;
 var Material ArtifactBorderMaterial;
 var float 
 	ArtifactBorderMaterialTextureScale,
@@ -787,7 +786,6 @@ defaultproperties
 	//
 	DisabledOverlay=(R=0,G=0,B=0,A=150)
 	LevelText="Level:"
-	ArrowMaterial=Texture'2K4Menus.Controls.arrowLeft_d'
 	bVisible=True
 	ArtifactTutorialText="You have collected a magic artifact!|Press $1 to use it or press $2 and $3 to browse|if you have multiple artifacts."
 	ArtifactBorderMaterial=Texture'HudContent.Generic.HUD'

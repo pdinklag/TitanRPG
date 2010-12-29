@@ -4,9 +4,6 @@ class MutTitanRPG extends Mutator
 //Import resources
 #exec OBJ LOAD FILE=Resources/TitanRPG_rc.u PACKAGE=<? echo($packageName); ?>
 
-//Helper to find out about the "loop"
-var int InstanceID;
-
 //Saving
 var config array<string> IgnoreNameTag;
 
@@ -81,10 +78,13 @@ static final function MutTitanRPG Instance(LevelInfo Level)
 {
 	local Mutator Mut;
 	
-	for(Mut = Level.Game.BaseMutator; Mut != None; Mut = Mut.NextMutator)
+	if(Level.Game != None)
 	{
-		if(Mut.IsA('MutTitanRPG'))
-			return MutTitanRPG(Mut);
+		for(Mut = Level.Game.BaseMutator; Mut != None; Mut = Mut.NextMutator)
+		{
+			if(Mut.IsA('MutTitanRPG'))
+				return MutTitanRPG(Mut);
+		}
 	}
 	return None;
 }
@@ -152,18 +152,8 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 
 event PreBeginPlay()
 {
-	local Instance Instance;
 	local int i, x;
 	local DruidsOldWeaponHolder WeaponHolder;
-
-	Instance = new(None, "TitanRPG") class'Instance';
-	InstanceID = Instance.ID;
-	
-	Log("DEBUG: Mutator loaded - Instance ID is" @ InstanceID);
-	
-	Instance.ID++;
-	Instance.SaveConfig();
-	Instance = None;
 
 	if(Role == ROLE_Authority && Level.Game.ResetCountDown == 2)
 	{
@@ -932,11 +922,13 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 
 function ServerTraveling(string URL, bool bItems)
 {
+	local int i;
 	local LoopDetection A, B;
+	local FileLog FLog;
+	local Object X;
+	local array<Object> Ref;
 	local int TravelTimeDiff;
 
-	Log("DEBUG: ServerTraveling" @ URL @ " - Instance ID is" @ InstanceID, 'TitanRPG'); 
-	
 	A = new(None, "TitanRPG") class'LoopDetection';
 	B = new(None, "Temp") class'LoopDetection';
 	B.FromCurrent(Level);
@@ -944,10 +936,44 @@ function ServerTraveling(string URL, bool bItems)
 	if(A.IsInfoValid())
 	{
 		TravelTimeDiff = B.ToSeconds() - A.ToSeconds();
-		Log("DEBUG: Last travel was" @ TravelTimeDiff @ " seconds ago.", 'TitanRPG');
+		Log("DEBUG: Last travel was" @ TravelTimeDiff @ "seconds ago.", 'TitanRPG');
 		
 		if(TravelTimeDiff < 5)
-			Log("=> LOOP DETECTED (Testing)", 'TitanRPG');
+		{
+			Log("=> LOOP DETECTED", 'TitanRPG');
+			
+			Log("");
+			Log("DEBUG: Testing file output to 'loop.log'...", 'TitanRPG');
+			FLog = Spawn(class'FileLog');
+			FLog.OpenLog("loop.log",, true);
+			FLog.Logf("Testing file output - if this file is not in UserLogs, something's seriously wrong...");
+			FLog.CloseLog();
+			FLog.Destroy();
+			Flog = None;
+			
+			Log("");
+			Log("DEBUG: Trying to obtain an object from an unused package (class'OLTeamGames.OLTeamGame')...", 'TitanRPG');
+			X = DynamicLoadObject("OLTeamGames.OLTeamGame", class'Class');
+			Log("-> X =" @ X, 'TitanRPG');
+			
+			Log("");
+			Log("DEBUG: Listing all objects referencing me (" $ Self $ ")...", 'TitanRPG');
+			GetReferencers(Self, Ref);
+			for(i = 0; i < Ref.Length; i++)
+				Log(i @ Ref[i]);
+			
+			Log("");
+			Log("DEBUG: Listing ALL objects...", 'TitanRPG');
+			i = 0;
+			foreach AllObjects(class'Object',  X)
+				Log(string(i++) @ X);
+			
+			Log("");
+			Log("Causing an infinite loop to crash the server...", 'TitanRPG');
+			while(true)
+			{
+			}
+		}
 	}
 	
 	A.LastTravel = B.LastTravel;
@@ -960,12 +986,6 @@ function ServerTraveling(string URL, bool bItems)
 	SaveData();
 	
 	Super.ServerTraveling(URL, bItems);
-}
-
-event Destroyed()
-{
-	Log("DEBUG: Mutator destroyed - Instance ID is" @ InstanceID, 'TitanRPG');
-	Super.Destroyed();
 }
 
 function Mutate(string MutateString, PlayerController Sender)

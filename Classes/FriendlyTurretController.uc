@@ -1,13 +1,29 @@
 /*
 	Code base taken from mcgRPG - original author unknown.
 */
-class RPGTurretController extends ASSentinelController;
+class FriendlyTurretController extends ASSentinelController;
 
 var Controller Master; //player who spawned this turret
+
+var FriendlyPawnReplicationInfo FPRI;
+
+event PostBeginPlay()
+{
+	Super.PostBeginPlay();
+	FPRI = Spawn(class'FriendlyPawnReplicationInfo');
+}
+
+function SetMaster(Controller NewMaster)
+{
+	Master = NewMaster;
+	FPRI.Master = Master.PlayerReplicationInfo;
+}
 
 function Possess(Pawn aPawn)
 {
 	Super(TurretController).Possess(aPawn);
+
+	FPRI.Pawn = aPawn;
 
 	if(IsSpawnCampProtecting())
 	{

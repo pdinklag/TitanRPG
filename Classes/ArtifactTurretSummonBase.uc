@@ -76,7 +76,7 @@ function bool CanActivate()
 function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 {
 	local RPGPlayerReplicationInfo RPRI;
-	local RPGTurretController C;
+	local FriendlyTurretController C;
 	local Vehicle V;
 	local vector SpawnLoc, HitLocation, HitNormal;
 	local vector Dir;
@@ -114,8 +114,8 @@ function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 		if(V.Controller != None)
 			V.Controller.Destroy();
 		
-		C = Spawn(class'RPGTurretController');
-		C.Master = Instigator.Controller;
+		C = Spawn(class'FriendlyTurretController');
+		C.SetMaster(Instigator.Controller);
 		C.Possess(V);
 	
 		V.Instigator = Instigator;

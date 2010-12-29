@@ -406,7 +406,7 @@ simulated function ClientSetup()
 	{
 		Interaction = RPGInteraction(
 			PlayerController(Controller).Player.InteractionMaster.AddInteraction(
-				"<? echo($packageName); ?>.RPGInteraction", PlayerController(Controller).Player));
+				string(class'RPGInteraction'), PlayerController(Controller).Player));
 	}
 	
 	if(Interaction != None)

@@ -188,12 +188,12 @@ function ScoreKill(Controller Killer, Controller Killed)
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyMonsterController(Killer).Master);
 			bShare = false;
 		}
-		else if(Killer.IsA('RPGTurretController'))
+		else if(Killer.IsA('FriendlyTurretController'))
 		{
 			class'RPGGameStats'.static.RegisterWeaponKill(
-				RPGTurretController(Killer).Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
+				FriendlyTurretController(Killer).Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
 			
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(RPGTurretController(Killer).Master);
+			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyTurretController(Killer).Master);
 			bShare = false;
 		}
 		else
@@ -244,9 +244,9 @@ function ScoreKill(Controller Killer, Controller Killed)
 	}
 	
 	//same for constructed turrets
-	if(Killer.IsA('RPGTurretController'))
+	if(Killer.IsA('FriendlyTurretController'))
 	{
-		Master = RPGTurretController(Killer).Master;
+		Master = FriendlyTurretController(Killer).Master;
 		if(Master != None)
 		{
 			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
@@ -257,7 +257,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 			}
 			
 			if(Master.IsA('PlayerController'))
-				PlayerController(Master).ReceiveLocalizedMessage(class'TurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
+				PlayerController(Master).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
 			
 			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
 		}

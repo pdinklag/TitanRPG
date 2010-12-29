@@ -7,6 +7,14 @@ var TeamInfo Team;
 
 var float MasterFollowDistance;
 
+var FriendlyPawnReplicationInfo FPRI;
+
+event PostBeginPlay()
+{
+	Super.PostBeginPlay();
+	FPRI = Spawn(class'FriendlyPawnReplicationInfo');
+}
+
 function Possess(Pawn aPawn)
 {
 	Super(ScriptedController).Possess(aPawn);
@@ -17,6 +25,8 @@ function Possess(Pawn aPawn)
 
 	if(Pawn.Physics == PHYS_Walking)
 		Pawn.SetPhysics(PHYS_Falling);
+	
+	FPRI.Pawn = aPawn;
 
 	Enable('NotifyBump');
 }
@@ -25,6 +35,8 @@ function SetMaster(Controller NewMaster)
 {
 	Master = NewMaster;
 	Team = Master.PlayerReplicationInfo.Team;
+	
+	FPRI.Master = Master.PlayerReplicationInfo;
 }
 
 simulated function int GetTeamNum()
