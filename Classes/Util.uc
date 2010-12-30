@@ -312,6 +312,7 @@ static function SetVehicleOverlay(Vehicle V, Material Mat, float Duration, bool 
 {
 	local int i;
 	local ONSVehicle OV;
+	local ASTurret AT;
 
 	if(ONSWeaponPawn(V) != None)
 		V = ONSWeaponPawn(V).VehicleBase;
@@ -324,6 +325,16 @@ static function SetVehicleOverlay(Vehicle V, Material Mat, float Duration, bool 
 		
 		for(i = 0; i < OV.WeaponPawns.Length; i++)
 			class'SyncOverlayMaterial'.static.Sync(OV.WeaponPawns[i].Gun, Mat, Duration, bOverride);
+	}
+	
+	AT = ASTurret(V);
+	if(AT != None)
+	{
+		if(AT.TurretBase != None)
+			class'SyncOverlayMaterial'.static.Sync(AT.TurretBase, Mat, Duration, bOverride);
+
+		if(AT.TurretSwivel != None)
+			class'SyncOverlayMaterial'.static.Sync(AT.TurretSwivel, Mat, Duration, bOverride);
 	}
 	
 	class'SyncOverlayMaterial'.static.Sync(V, Mat, Duration, bOverride);

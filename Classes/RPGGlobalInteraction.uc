@@ -50,10 +50,7 @@ function PostRender(Canvas C)
 	local FriendlyPawnReplicationInfo FPRI;
 	local Material Icon;
 	local HudCDeathmatch HUD;
-	
-	if(ViewportOwner.GUIController.bActive)
-		return;
-		
+
 	PC = ViewportOwner.Actor;
 	if(PC == None || PC.PlayerReplicationInfo == None)
 		return;

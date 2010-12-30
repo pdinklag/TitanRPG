@@ -134,6 +134,8 @@ function InternalOnChange(GUIComponent Sender)
 			RPGMenu.RPRI.Interaction.Settings.bHideHints = !chkHints.IsChecked();
 			break;
 	}
+	
+	RPGMenu.RPRI.Interaction.bUpdateCanvas = true;
 }
 
 defaultproperties

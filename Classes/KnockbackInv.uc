@@ -33,7 +33,13 @@ event Tick(float dt)
 	}
 }
 
-function Destroyed()
+function Timer()
+{
+	if(PawnOwner.Physics != PHYS_Hovering && PawnOwner.Physics != PHYS_Falling)
+		Destroy();
+}
+
+event Destroyed()
 {
 	if(PawnOwner == None)
 		return;
@@ -41,13 +47,7 @@ function Destroyed()
 	if(PawnOwner.Physics != PHYS_Walking && PawnOwner.Physics != PHYS_Falling) //still going?
 		PawnOwner.setPhysics(PHYS_Falling);
 
-	super.destroyed();
-}
-
-function Timer()
-{
-	if(PawnOwner.Physics != PHYS_Hovering && PawnOwner.Physics != PHYS_Falling)
-		Destroy();
+	Super.Destroyed();
 }
 
 defaultproperties

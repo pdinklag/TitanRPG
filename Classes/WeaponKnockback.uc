@@ -9,6 +9,7 @@ var localized string KnockbackText;
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local KnockbackInv Inv;
+	local TurretKnockoutInv TInv;
 	local Vector newLocation;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
@@ -21,8 +22,18 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 		if(Victim == None)
 			return;
+		
+		if(Victim.IsA('ASTurret'))
+		{
+			TInv = TurretKnockoutInv(Victim.FindInventoryType(class'TurretKnockoutInv'));
+			if(TInv == None)
+				TInv = TurretKnockoutInv(class'Util'.static.GiveInventory(Victim, class'TurretKnockoutInv'));
+			
+			TInv.Start(Modifier);
+			return;
+		}
 
-		if(Vehicle(Victim) != None && Vehicle(Victim).bDefensive)
+		if(Victim.IsA('Vehicle') && Vehicle(Victim).bDefensive)
 			return;
 		
 		if(WeaponMagicNullifier(Victim.Weapon) != None)

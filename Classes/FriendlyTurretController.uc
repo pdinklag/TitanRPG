@@ -19,6 +19,14 @@ function SetMaster(Controller NewMaster)
 	FPRI.Master = Master.PlayerReplicationInfo;
 }
 
+simulated function int GetTeamNum()
+{
+	if(Master.PlayerReplicationInfo != None && Master.PlayerReplicationInfo.Team != None)
+		return Master.PlayerReplicationInfo.Team.TeamIndex;
+	else
+		return 255;
+}
+
 function Possess(Pawn aPawn)
 {
 	Super(TurretController).Possess(aPawn);
@@ -43,6 +51,12 @@ event Tick(float dt)
 {
     local Pawn P;
     local Controller C;
+	
+	if(!SameTeamAs(Master))
+	{
+		Destroy();
+		return;
+	}
 	
     if(Pawn == None || Pawn.Controller != Self || Pawn.bPendingDelete)
     {

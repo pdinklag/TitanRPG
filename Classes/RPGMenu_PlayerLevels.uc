@@ -14,7 +14,7 @@ var automated GUISectionBackground sbAbilities, sbDesc;
 var automated GUIMultiColumnListBox lstAbilities;
 var automated GUIMultiColumnList Abilities;
 
-var Color RedTextColor, BlueTextColor;
+var Color TeamTextColor[4];
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -30,18 +30,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function ModifyStyle(GUIStyles DStyle, int Team)
 {
-	local Color Color;
 	local int i;
 
-	if(Team == 0 || Team == 1)
+	if(Team >= 0 && Team < 4)
 	{
-		if(Team == 0)
-			Color = RedTextColor;
-		else if(Team == 1)
-			Color = BlueTextColor;
-
 		for(i = 0; i < 5; i++)
-			DStyle.FontColors[i] = Color;
+			DStyle.FontColors[i] = TeamTextColor[Team];
 	}
 }
 
@@ -155,8 +149,10 @@ event Free()
 
 defaultproperties
 {
-	RedTextColor=(R=255,G=128,B=128,A=255)
-	BlueTextColor=(R=128,G=128,B=255,A=255)
+	TeamTextColor(0)=(R=255,G=128,B=128,A=255)
+	TeamTextColor(1)=(R=128,G=128,B=255,A=255)
+	TeamTextColor(2)=(R=128,G=255,B=128,A=255)
+	TeamTextColor(3)=(R=255,G=255,B=128,A=255)
 
 	Begin Object Class=AltSectionBackground Name=sbAbilities_
 		Caption="Player levels"

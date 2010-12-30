@@ -3,8 +3,6 @@ class FriendlyMonsterController extends MonsterController;
 
 var Controller Master;
 
-var TeamInfo Team;
-
 var float MasterFollowDistance;
 
 var FriendlyPawnReplicationInfo FPRI;
@@ -34,15 +32,13 @@ function Possess(Pawn aPawn)
 function SetMaster(Controller NewMaster)
 {
 	Master = NewMaster;
-	Team = Master.PlayerReplicationInfo.Team;
-	
 	FPRI.Master = Master.PlayerReplicationInfo;
 }
 
 simulated function int GetTeamNum()
 {
-	if(Team != None)
-		return Team.TeamIndex;
+	if(Master.PlayerReplicationInfo != None && Master.PlayerReplicationInfo.Team != None)
+		return Master.PlayerReplicationInfo.Team.TeamIndex;
 	else
 		return 255;
 }
@@ -168,14 +164,14 @@ event Tick(float dt)
 {
 	Super.Tick(dt);
 	
-	//if we don't have a master or it switched teams, then we should die
+	//if I don't have a master or it switched teams, I should die
 	if(
 		Master == None ||
 		Master.Pawn == None || 
 		Master.Pawn.Health <= 0 ||
 		Master.PlayerReplicationInfo == None ||
 		Master.PlayerReplicationInfo.bOnlySpectator ||
-		Master.PlayerReplicationInfo.Team != Team
+		!SameTeamAs(Master)
 	)
 	{
 		Pawn.Suicide();

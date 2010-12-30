@@ -1,5 +1,15 @@
 class RPGInteraction extends Interaction;
 
+struct Vec2
+{
+	var float X, Y;
+};
+
+struct Rect
+{
+	var float X, Y, W, H;
+};
+
 var RPGPlayerReplicationInfo RPRI;
 
 var RPGSettings Settings;
@@ -9,18 +19,17 @@ var float TimeSeconds;
 
 var bool bMenuEnabled; //false as long as server settings were not yet received
 
+var bool bUpdateCanvas;
+
 var bool bDefaultBindings, bDefaultArtifactBindings; //use default keybinds because user didn't set any
 var float LastLevelMessageTime;
-var Font TextFont;
 var Color EXPBarColor, DisabledOverlay, RedColor, WhiteColor;
 var Color HUDColorTeam[4], HUDTintTeam[4];
 var localized string LevelText;
 
 var Material ArtifactBorderMaterial;
-var float 
-	ArtifactBorderMaterialTextureScale,
-	ArtifactBorderMaterialU, ArtifactBorderMaterialV, ArtifactBorderMaterialUL, ArtifactBorderMaterialVL,
-	ArtifactHighlightIndention;
+var Rect ArtifactBorderMaterialRect;
+var float ArtifactBorderMaterialTextureScale, ArtifactHighlightIndention;
 var float ArtifactIconInnerScale;
 
 var string LastWeaponExtra;
@@ -39,11 +48,19 @@ var Color HintColor;
 
 var localized string ArtifactTutorialText;
 
+//Status icon
 var Material StatusIconBorderMaterial;
-var float StatusIconBorderMaterialU, StatusIconBorderMaterialV, StatusIconBorderMaterialUL, StatusIconBorderMaterialVL;
-var float StatusIconIconSize, StatusIconIconInnerScale;
-var Color StatusIconIconOverlay;
+var Rect StatusIconBorderMaterialRect;
+var Vec2 StatusIconSize;
+var float StatusIconInnerScale;
+var Color StatusIconOverlay;
 var Material MonsterIcon, TurretIcon;
+
+//Pre-calculated values for PostRender - updated if the canvas size or settings changed
+var Vec2 CanvasSize, FontScale, ArtifactIconPos, StatusIconPos;
+var Rect ExpBarRect;
+var Font TextFont;
+var float ArtifactIconSize;
 
 event Initialized()
 {
@@ -194,9 +211,9 @@ function Color GetHUDTeamTint(HudCDeathmatch HUD)
 		return HUDTintTeam[1];
 }
 
-function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas, HudCDeathmatch HUD, float tX, float tY, float Size, optional bool bSelected)
+function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas, HudCDeathmatch HUD, float X, float Y, float Size, optional bool bSelected)
 {
-	local int x;
+	local int Time;
 	local float XL, YL;
 
 	Canvas.Style = 5;
@@ -206,8 +223,14 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	else
 		Canvas.DrawColor = GetHUDTeamColor(HUD);
 	
-	Canvas.SetPos(tX, tY);
-	Canvas.DrawTile(ArtifactBorderMaterial, Size, Size, ArtifactBorderMaterialU, ArtifactBorderMaterialV, ArtifactBorderMaterialUL, ArtifactBorderMaterialVL);
+	Canvas.SetPos(X, Y);
+	Canvas.DrawTile(
+		ArtifactBorderMaterial, 
+		Size, Size, 
+		ArtifactBorderMaterialRect.X,
+		ArtifactBorderMaterialRect.Y,
+		ArtifactBorderMaterialRect.W,
+		ArtifactBorderMaterialRect.H);
 	
 	if(AClass.default.IconMaterial != None)
 	{
@@ -218,42 +241,42 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 		else
 			Canvas.DrawColor = WhiteColor;
 		
-		Canvas.SetPos(tX + Size * 0.5 * (1.0 - ArtifactIconInnerScale), tY + Size * 0.5 * (1.0 - ArtifactIconInnerScale));
+		Canvas.SetPos(X + Size * 0.5 * (1.0 - ArtifactIconInnerScale), Y + Size * 0.5 * (1.0 - ArtifactIconInnerScale));
 		Canvas.DrawTile(AClass.default.IconMaterial, Size * ArtifactIconInnerScale, Size * ArtifactIconInnerScale, 0, 0, AClass.default.IconMaterial.MaterialUSize(), AClass.default.IconMaterial.MaterialVSize());
 	}
 	
 	if(A != None && TimeSeconds < A.NextUseTime)
 	{
-		x = int(A.NextUseTime - TimeSeconds) + 1;
+		Time = int(A.NextUseTime - TimeSeconds) + 1;
 		
 		Canvas.DrawColor = WhiteColor;
-		Canvas.TextSize(string(x), XL, YL);
-		Canvas.SetPos(tX + (Size - XL) * 0.5, tY + (Size - YL) * 0.5);
-		Canvas.DrawText(string(x));
+		Canvas.TextSize(string(Time), XL, YL);
+		Canvas.SetPos(X + (Size - XL) * 0.5, Y + (Size - YL) * 0.5);
+		Canvas.DrawText(string(Time));
 	}
 }
 
-function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float SizeX, float SizeY, optional int Num, optional int Max)
+function DrawStatusIcon(Canvas Canvas, Material Icon, float X, float Y, float SizeX, float SizeY, optional int Num, optional int Max)
 {
 	local string Text;
-	local float YLSmall, XLSmall;
+	local float XL, YL;
 	local float IconSize;
 
-	Canvas.SetPos(XL, YL);
 	Canvas.Style = 5;
+
+	Canvas.SetPos(X, Y);
 	Canvas.DrawColor = WhiteColor;
 	Canvas.DrawTile(
 		StatusIconBorderMaterial,
 		SizeX, SizeY,
-		StatusIconBorderMaterialU, StatusIconBorderMaterialV,
-		StatusIconBorderMaterialUL, StatusIconBorderMaterialVL
+		StatusIconBorderMaterialRect.X, StatusIconBorderMaterialRect.Y,
+		StatusIconBorderMaterialRect.W, StatusIconBorderMaterialRect.H
 	);
 	
-	IconSize = FMin(SizeX, SizeY) * StatusIconIconInnerScale;
+	IconSize = FMin(SizeX, SizeY) * StatusIconInnerScale;
 	
-	Canvas.SetPos(XL + (SizeX - IconSize) * 0.5, YL + (SizeY - IconSize) * 0.5);
-	Canvas.Style = 5;
-	Canvas.DrawColor = StatusIconIconOverlay;
+	Canvas.SetPos(X + (SizeX - IconSize) * 0.5, Y + (SizeY - IconSize) * 0.5);
+	Canvas.DrawColor = StatusIconOverlay;
 	Canvas.DrawTile(Icon, IconSize, IconSize, 0, 0, Icon.MaterialUSize(), Icon.MaterialVSize());
 	
 	if(Num != 0)
@@ -263,25 +286,62 @@ function DrawStatusIcon(Canvas Canvas, Material Icon, float XL, float YL, float 
 		else
 			Text = string(Num);
 		
-		Canvas.TextSize(Text, XLSmall, YLSmall);
-		Canvas.SetPos(XL + (SizeX - XLSmall) * 0.5, 1 + YL + (SizeY - YLSmall) * 0.5);
+		Canvas.TextSize(Text, XL, YL);
+		Canvas.SetPos(X + (SizeX - XL) * 0.5, Y + (SizeY - YL) * 0.5 + 1);
 		Canvas.DrawColor = WhiteColor;
 		Canvas.DrawText(Text);
 	}
 }
 
+function UpdateCanvas(Canvas Canvas)
+{
+	local float XL, YL;
+
+	CanvasSize.X = Canvas.ClipX;
+	CanvasSize.Y = Canvas.ClipY;
+	
+	FontScale.X = Canvas.ClipX / 1024.0f;
+	FontScale.Y = Canvas.ClipY / 768.0f;
+	
+	Canvas.FontScaleX = FontScale.X;
+	Canvas.FontScaleY = FontScale.Y;
+	
+	Canvas.TextSize(LevelText @ "000", XL, YL);
+	
+	ExpBarRect.X = Canvas.ClipX * Settings.ExpBarX;
+	ExpBarRect.Y = Canvas.ClipY * Settings.ExpBarY;
+	ExpBarRect.W = FMax(XL + 9.0f * FontScale.X, 135.0f * FontScale.X);
+	ExpBarRect.H = Canvas.ClipY / 48.0f;
+
+	StatusIconSize.X = default.StatusIconSize.X * Canvas.ClipX / 640.0f;
+	StatusIconSize.Y = default.StatusIconSize.Y * Canvas.ClipY / 480.0f;
+	
+	StatusIconPos.X = Canvas.ClipX - StatusIconSize.X;
+	StatusIconPos.Y = Canvas.ClipY * 0.07f;
+	
+	ArtifactIconPos.X = Canvas.ClipX * Settings.IconsX;
+	
+	if(Settings.bClassicArtifactSelection)
+		ArtifactIconPos.Y = Canvas.ClipY * Settings.IconClassicY;
+	else
+		ArtifactIconPos.Y = Canvas.ClipY * Settings.IconsY;
+	
+	ArtifactIconSize = 
+		ArtifactBorderMaterialRect.Y * (ArtifactBorderMaterialTextureScale * Canvas.ClipY / 480.0f) * Settings.IconScale;
+}
+
 function PostRender(Canvas Canvas)
 {
-	local float XL, YL, XLSmall, YLSmall, EXPBarX, EXPBarY, EXPBarW, EXPBarH;
-	local float tX, tY, xX, xY, Scale;
-	local int i, x, row;
-	local Pawn P;
-	local RPGArtifact A;
+	local float XL, YL, X, Y, CurrentX, CurrentY, Size, Fade;
+	local int i, Row;
+	local string Text;
+	
 	local array<class<RPGArtifact> > Artifacts;
 	local class<RPGArtifact> AClass;
+	local RPGArtifact A;
+	local Pawn P;
+	
 	local HudCDeathmatch HUD;
-	local float Fade;
-	local string Extra;
 	
 	if(ViewportOwner == None || ViewportOwner.Actor == None)
 		return;
@@ -316,193 +376,181 @@ function PostRender(Canvas Canvas)
 	if(TextFont != None)
 		Canvas.Font = TextFont;
 	
-	Canvas.FontScaleX = Canvas.ClipX / 1024.f;
-	Canvas.FontScaleY = Canvas.ClipY / 768.f;
+	if(bUpdateCanvas || CanvasSize.X != Canvas.ClipX || CanvasSize.Y != Canvas.ClipY)
+		UpdateCanvas(Canvas);
+	
+	Canvas.FontScaleX = FontScale.X;
+	Canvas.FontScaleY = FontScale.Y;
 
 	Canvas.TextSize(LevelText @ RPRI.RPGLevel, XL, YL);
+	
+	Canvas.Style = 5; //STY_Alpha
+	
+	//Draw exp bar
 	if(!Settings.bHideExpBar && RPRI.NeededExp > 0)
 	{
-		//increase size of the display if necessary for really high levels
-		XL = FMax(XL + 9.f * Canvas.FontScaleX, 135.f * Canvas.FontScaleX);
-		Canvas.Style = 5; //STY_Alpha
+		//Progress
 		Canvas.DrawColor = EXPBarColor;
+		Canvas.SetPos(ExpBarRect.X, ExpBarRect.Y);
 		
-		EXPBarX = Canvas.ClipX * Settings.ExpBarX;
-		EXPBarY = Canvas.ClipY * Settings.ExpBarY;
-		ExpBarW = XL;
-		ExpBarH = Canvas.ClipY / 48.f;
-		Canvas.SetPos(EXPBarX, EXPBarY);
+		XL = RPRI.Experience / RPRI.NeededExp;
+		Canvas.DrawTile(
+			Material'InterfaceContent.Hud.SkinA',
+			ExpBarRect.W * XL,
+			15.0f * Canvas.FontScaleY,
+			836, 454, -386 * XL, 36);
 		
-		Canvas.DrawTile(Material'InterfaceContent.Hud.SkinA', XL * RPRI.Experience / RPRI.NeededExp, 15.0 * Canvas.FontScaleY, 836, 454, -386 * RPRI.Experience / RPRI.NeededExp, 36);
+		//Tint
 		Canvas.DrawColor = GetHUDTeamTint(HUD);
+		Canvas.SetPos(ExpBarRect.X, ExpBarRect.Y);
+		Canvas.DrawTile(Material'InterfaceContent.Hud.SkinA', ExpBarRect.W, ExpBarRect.H * 0.9375f, 836, 454, -386, 36);
 		
-		Canvas.SetPos(EXPBarX, EXPBarY);
-		Canvas.DrawTile(Material'InterfaceContent.Hud.SkinA', ExpBarW, ExpBarH * 0.9375, 836, 454, -386, 36);
+		//Border
 		Canvas.DrawColor = WhiteColor;
-		Canvas.SetPos(EXPBarX, EXPBarY);
-		Canvas.DrawTile(Material'InterfaceContent.Hud.SkinA', ExpBarW, ExpBarH, 836, 415, -386, 38);
+		Canvas.SetPos(ExpBarRect.X, ExpBarRect.Y);
+		Canvas.DrawTile(Material'InterfaceContent.Hud.SkinA', ExpBarRect.W, ExpBarRect.H, 836, 415, -386, 38);
 
-		Canvas.Style = 2; //STY_Normal
-		Canvas.DrawColor = WhiteColor;
-		Canvas.TextSize(LevelText @ RPRI.RPGLevel, xX, xY);
-		Canvas.SetPos(EXPBarX + ExpBarW * 0.5 - xX * 0.5, ExpBarY - xY);
-		Canvas.DrawText(LevelText @ RPRI.RPGLevel);
+		//Level Text
+		Text = LevelText @ RPRI.RPGLevel;
+		Canvas.TextSize(Text, XL, YL);
+		Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y - YL);
+		Canvas.DrawText(Text);
 		
-		tX = Canvas.FontScaleX;
-		tY = Canvas.FontScaleY;
-		
+		//Experience Text
 		Canvas.FontScaleX *= 0.75;
 		Canvas.FontScaleY *= 0.75;
 		
-		Canvas.TextSize(int(RPRI.Experience) $ "/" $ RPRI.NeededExp, XLSmall, YLSmall);
-		Canvas.SetPos(ExpBarX + ExpBarW * 0.5 - XLSmall * 0.5, ExpBarY + ExpBarH * 0.5 - YLSmall * 0.5 + 1);
-		Canvas.DrawText(int(RPRI.Experience) $ "/" $ RPRI.NeededExp);
+		Text = int(RPRI.Experience) $ "/" $ RPRI.NeededExp;
+		Canvas.TextSize(Text, XL, YL);
+		Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y + 0.5 * (ExpBarRect.H - YL) + 1);
+		Canvas.DrawText(Text);
 		
-		Canvas.Style = 5; //STY_Alpha
+		//Experience Gain
 		if(!Settings.bHideExpGain && Settings.ExpGainDuration > 0 &&
 			(Settings.ExpGainDuration >= ExpGainDurationForever || ExpGainTimer > TimeSeconds))
 		{
 			if(ExpGain >= 0)
 			{
-				Extra = "+" $ class'Util'.static.FormatFloat(ExpGain);
+				Text = "+" $ class'Util'.static.FormatFloat(ExpGain);
 				Canvas.DrawColor = WhiteColor;
 			}
 			else
 			{
-				Extra = class'Util'.static.FormatFloat(ExpGain);
+				Text = class'Util'.static.FormatFloat(ExpGain);
 				Canvas.DrawColor = RedColor;
 			}
 			
 			if(Settings.ExpGainDuration < ExpGainDurationForever)
 			{
 				Fade = ExpGainTimer - TimeSeconds;
-				if (Fade <= 1)
+				if(Fade <= 1.0f)
 					Canvas.DrawColor.A = 255 * Fade;
 			}
 
-			Canvas.TextSize(Extra, XLSmall, YLSmall);
-			Canvas.SetPos(ExpBarX + ExpBarW * 0.5 - XLSmall * 0.5, ExpBarY + ExpBarH + 1);
-			Canvas.DrawText(Extra);
+			Canvas.TextSize(Text, XL, YL);
+			Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y + 0.5 * (ExpBarRect.H - YL) + 1);
+			Canvas.DrawText(Text);
 		}
 		
-		Canvas.FontScaleX = tX;
-		Canvas.FontScaleY = tY;
+		//Reset
+		Canvas.FontScaleX = FontScale.X;
+		Canvas.FontScaleY = FontScale.Y;
 	}
 	
-	//Status
+	//Draw status icons
 	if(
 		!Settings.bHideStatusIcon && (RPRI.NumMonsters > 0 || RPRI.NumTurrets > 0) &&
 		(!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard())
 	)
 	{
-		Canvas.Style = 5;
-		Canvas.DrawColor = WhiteColor;
-	
-		tX = Canvas.FontScaleX;
-		tY = Canvas.FontScaleY;
-		Canvas.FontScaleX *= 0.75;
-		Canvas.FontScaleY *= 0.75;
-	
-		xX = StatusIconIconSize * Canvas.ClipX / 640.0;
-		xY = StatusIconIconSize * Canvas.ClipY / 480.0;
-	
-		YL = Canvas.ClipY * 0.07;
-		XL = Canvas.ClipX - xX;
+		Canvas.FontScaleX *= 0.75f;
+		Canvas.FontScaleY *= 0.75f;
+
+		X = StatusIconPos.X;
+		Y = StatusIconPos.Y;
 		
 		if(RPRI.NumMonsters > 0)
 		{
-			DrawStatusIcon(Canvas, MonsterIcon, XL, YL, xX, xY, RPRI.NumMonsters, RPRI.MaxMonsters);
-			XL -= xX;
+			DrawStatusIcon(Canvas, MonsterIcon, X, Y, StatusIconSize.X, StatusIconSize.Y, RPRI.NumMonsters, RPRI.MaxMonsters);
+			X -= StatusIconSize.X;
 		}
 		
 		if(RPRI.NumTurrets > 0)
 		{	
-			DrawStatusIcon(Canvas, TurretIcon, XL, YL, xX, xY, RPRI.NumTurrets, RPRI.MaxTurrets);
-			XL -= xX;
+			DrawStatusIcon(Canvas, TurretIcon, X, Y, StatusIconSize.X, StatusIconSize.Y, RPRI.NumTurrets, RPRI.MaxTurrets);
+			X -= StatusIconSize.X;
 		}
 		
-		//TODO: icons for special items (active artifacts? jump boots? invisibility? combos?)
-		
-		Canvas.FontScaleX = tX;
-		Canvas.FontScaleY = tY;
+		//Reset
+		Canvas.FontScaleX = FontScale.X;
+		Canvas.FontScaleY = FontScale.Y;
 	}
 
-	//Hint
-	Canvas.Style = 5; //STY_Alpha
+	//Draw hints
 	if(Hint.Length > 0 && HintTimer > TimeSeconds && (!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard()))
 	{
 		Canvas.DrawColor = HintColor;
 		
 		Fade = HintTimer - TimeSeconds;
-		if (Fade <= 1)
+		if(Fade <= 1.0f)
 			Canvas.DrawColor.A = 255 * Fade;
 		
-		Canvas.TextSize(Hint[0], Fade, tY);
+		Y = Canvas.ClipY * 0.1f;
 		for(i = 0; i < Hint.Length; i++)
 		{
-			Canvas.TextSize(Hint[i], tX, Fade); //Fade is used as a dummy here, we only want XL
-			Canvas.SetPos(Canvas.ClipX - tX - 1, Canvas.ClipY * 0.1 + tY * i);
-			Canvas.DrawText(Hint[i], true);
+			Canvas.TextSize(Hint[i], XL, YL);
+			Canvas.SetPos(Canvas.ClipX - XL - 1, Y);
+			Canvas.DrawText(Hint[i]);
+			
+			Y += YL;
 		}
 	}
 
-	if(!RPRI.bGameEnded) //from here on, only if there's still a game going on... should reduce the crashes ~pd
+	//From here on, only if there's still a game going on... should reduce the crashes
+	if(!RPRI.bGameEnded) 
 	{
+		//Draw artifacts
 		if(Settings.bClassicArtifactSelection)
 		{
+			//Classic Selection
 			A = RPGArtifact(P.SelectedItem);
 			if(A != None)
 			{
-				YL *= Settings.IconScale;
-		
-				tX = Canvas.ClipX * Settings.IconsX;
-				tY = Canvas.ClipY * Settings.IconClassicY;
-			
 				//Name
-				Canvas.Style = 5; //STY_Alpha
-				Canvas.DrawColor = WhiteColor;
-				Canvas.StrLen(A.ItemName, xX, xY);
+				Canvas.TextSize(A.ItemName, XL, YL);
 				
-				if(Settings.IconsX > 0.85)
-					xX = tX + YL * 2 - xX;
-				else if(Settings.IconsX < 0.15)
-					xX = tX;
+				if(Settings.IconsX > 0.85f)
+					X = ArtifactIconPos.X + ArtifactIconSize - XL;
+				else if(Settings.IconsX < 0.15f)
+					X = ArtifactIconPos.X;
 				else
-					xX = tX + YL - xX * 0.5;
+					X = ArtifactIconPos.X + ArtifactIconSize - XL * 0.5f;
 					
-				if(Settings.IconClassicY < 0.25)
-					xY = tY + YL * 2 + 1;
+				if(Settings.IconClassicY < 0.25f)
+					Y = ArtifactIconPos.Y + ArtifactIconSize + 1;
 				else
-					xY = tY - xY - 1;
+					Y = ArtifactIconPos.Y - YL - 1;
 				
-				Canvas.SetPos(xX, xY);
+				Canvas.DrawColor = WhiteColor;
+				Canvas.SetPos(X, Y);
 				Canvas.DrawText(A.ItemName);
 				
 				//Icon
-				DrawArtifactBox(A.class, A, Canvas, HUD, tX, tY, YL * 2);
+				DrawArtifactBox(
+					A.class, A, Canvas, HUD, ArtifactIconPos.X, ArtifactIconPos.Y, ArtifactIconSize);
 			}
 		}
 		else
 		{
-			//the scale is relative to a 640x480 resolution - adapt it to current
-			YL = ArtifactBorderMaterialVL * (ArtifactBorderMaterialTextureScale * Canvas.ClipY / 480.0);
-			x = Min(Settings.IconsPerRow, Artifacts.Length);
+			Size = ArtifactIconSize;
 			
-			Scale = 1.f;
-			
-			if(x > 10)
-				Scale /= float(x) / 10.f;
+			i = Min(Settings.IconsPerRow, Artifacts.Length);
+			if(i > 10)
+				Size /= float(i) / 10.f;
 
-			Scale *= Settings.IconScale;
-			
-			YL *= Scale;
-			Canvas.FontScaleX *= Scale * 1.5f;
-			Canvas.FontScaleY *= Scale * 1.5f;
-			
-			xX = Canvas.ClipX * Settings.IconsX;
-			xY = Canvas.ClipY * Settings.IconsY;
-			
-			tY = xY;
+			CurrentX = ArtifactIconPos.X;
+			CurrentY = ArtifactIconPos.Y;
+
 			for(i = 0; i < RPRI.ArtifactOrder.Length; i++)
 			{
 				AClass = RPRI.ArtifactOrder[i].ArtifactClass;
@@ -510,42 +558,42 @@ function PostRender(Canvas Canvas)
 				
 				if(AClass != None && (A != None || RPRI.ArtifactOrder[i].bShowAlways))
 				{
-					if(++row > Settings.IconsPerRow)
+					if(++Row > Settings.IconsPerRow)
 					{
-						row = 1;
+						Row = 1;
 						
-						xX += (1.f + ArtifactHighlightIndention) * YL;
-						tY = xY;
+						CurrentX += (1.f + ArtifactHighlightIndention) * Size;
+						CurrentY = ArtifactIconPos.Y;
 					}
 				
-					tX = xX;
-				
+					X = CurrentX;
+					Y = CurrentY;
+					
 					if(A != None && A == P.SelectedItem)
 					{
 						if(Settings.IconsPerRow > 1)
 						{
 							if(Settings.IconsX > 0.85)
-								tX -= ArtifactHighlightIndention * YL;
+								X -= ArtifactHighlightIndention * Size;
 							else if(Settings.IconsX < 0.15)
-								tX += ArtifactHighlightIndention * YL;
+								X += ArtifactHighlightIndention * Size;
 						}
 						else
 						{
 							if(Settings.IconsY > 0.75)
-								tY -= ArtifactHighlightIndention * YL;
+								Y -= ArtifactHighlightIndention * Size;
 							else if(Settings.IconsY < 0.25)
-								tY += ArtifactHighlightIndention * YL;
+								Y += ArtifactHighlightIndention * Size;
 						}
 					}
 					
-					DrawArtifactBox(AClass, A, Canvas, HUD, tX, tY, YL, A != None && A == P.SelectedItem);
-					tY += YL;
+					DrawArtifactBox(AClass, A, Canvas, HUD, X, Y, Size, A != None && A == P.SelectedItem);
+					CurrentY += Size;
 				}
 			}
 		}
 		
-		//display artifact name and info as well as the weapon extra info! -pd
-		//if both artifact and weapon info should be drawn, only display the latest information
+		//Solve Weapon extra / Artiface name conflict
 		if(!Settings.bHideArtifactName && !HUD.bHideWeaponName &&
 			HUD.WeaponDrawTimer > TimeSeconds &&
 			ArtifactDrawTimer > TimeSeconds)
@@ -562,26 +610,27 @@ function PostRender(Canvas Canvas)
 			Canvas.Font = HUD.GetMediumFontFor(Canvas);
 			Canvas.FontScaleX = Canvas.default.FontScaleX;
 			Canvas.FontScaleY = Canvas.default.FontScaleY;
-			Canvas.DrawColor = ArtifactDrawColor;
-
-			Canvas.Style = 5; //STY_Alpha
+			
 			Fade = ArtifactDrawTimer - TimeSeconds;
-			if (Fade <= 1)
+			if(Fade <= 1.0f)
 				Canvas.DrawColor.A = 255 * Fade;
-				
-			Canvas.Strlen(LastSelItemName, XL, YL);
-			Canvas.SetPos((Canvas.ClipX / 2) - (XL / 2), Canvas.ClipY * 0.8 - YL);
+	
+			Canvas.TextSize(LastSelItemName, XL, YL);
+			
+			Canvas.DrawColor = ArtifactDrawColor;
+			Canvas.SetPos((Canvas.ClipX - XL) * 0.5f, Canvas.ClipY * 0.8f - YL);
 			Canvas.DrawText(LastSelItemName);
 			
+			//Artifact extra
 			if(!Settings.bHideWeaponExtra)
 			{
 				if(LastSelExtra != "")
 				{
-					Canvas.FontScaleX = Canvas.default.FontScaleX * 0.6;
-					Canvas.FontScaleY = Canvas.default.FontScaleY * 0.6;
+					Canvas.FontScaleX = Canvas.default.FontScaleX * 0.6f;
+					Canvas.FontScaleY = Canvas.default.FontScaleY * 0.6f;
 				
-					Canvas.Strlen(LastSelExtra, XL, YL);
-					Canvas.SetPos((Canvas.ClipX / 2) - (XL / 2), Canvas.ClipY * 0.8);
+					Canvas.TextSize(LastSelExtra, XL, YL);
+					Canvas.SetPos((Canvas.ClipX - XL) * 0.5f, Canvas.ClipY * 0.8f);
 					Canvas.DrawText(LastSelExtra);
 				}
 			}
@@ -590,21 +639,22 @@ function PostRender(Canvas Canvas)
 		{
 			if(!Settings.bHideWeaponExtra && !HUD.bHideWeaponName)
 			{
+				//Draw weapon extra
 				if(LastWeaponExtra != "" && HUD.WeaponDrawTimer > TimeSeconds)
 				{
 					Canvas.Font = HUD.GetMediumFontFor(Canvas);
 					Canvas.FontScaleX = Canvas.default.FontScaleX * 0.6;
 					Canvas.FontScaleY = Canvas.default.FontScaleY * 0.6;
-					Canvas.DrawColor = HUD.WeaponDrawColor;
-
-					Canvas.Style = 5; //STY_Alpha
+					
 					Fade = HUD.WeaponDrawTimer - TimeSeconds;
 
-					if (Fade <= 1)
+					if(Fade <= 1.0f)
 						Canvas.DrawColor.A = 255 * Fade;
 
-					Canvas.Strlen(LastWeaponExtra, XL, YL);
-					Canvas.SetPos((Canvas.ClipX / 2) - (XL / 2), Canvas.ClipY * 0.8);
+					Canvas.TextSize(LastWeaponExtra, XL, YL);
+					
+					Canvas.DrawColor = HUD.WeaponDrawColor;
+					Canvas.SetPos((Canvas.ClipX - XL) * 0.5f, Canvas.ClipY * 0.8f);
 					Canvas.DrawText(LastWeaponExtra);
 				}
 				
@@ -618,7 +668,7 @@ function PostRender(Canvas Canvas)
 			}
 		}
 
-		//get newest artifact
+		//Get newest artifact
 		if(!Settings.bHideArtifactName &&
 			RPGArtifact(P.SelectedItem) != None &&
 			P.SelectedItem.class != LastSelectedArtifact)
@@ -639,7 +689,8 @@ function PostRender(Canvas Canvas)
 		}
 	}
 
-	Canvas.DrawColor = WhiteColor;
+	//Reset
+	Canvas.DrawColor = Canvas.default.DrawColor;
 	Canvas.Font = Canvas.default.Font;
 	Canvas.FontScaleX = Canvas.default.FontScaleX;
 	Canvas.FontScaleY = Canvas.default.FontScaleY;
@@ -752,7 +803,7 @@ function Remove()
 }
 
 defaultproperties
-{	
+{
 	ExpGainDurationForever=21.0 //this or higher means forever
 	HintDuration=5.000000
 	HintColor=(R=255,G=128,B=0,A=255)
@@ -773,13 +824,10 @@ defaultproperties
 	HUDTintTeam(3)=(R=100,G=75,B=0,A=100)
 	//StatusIcon stuff
 	StatusIconBorderMaterial=Texture'HudContent.Generic.HUD'
-	StatusIconBorderMaterialU=119
-	StatusIconBorderMaterialV=257
-	StatusIconBorderMaterialUL=55
-	StatusIconBorderMaterialVL=55
-	StatusIconIconSize=29
-	StatusIconIconInnerScale=0.75
-	StatusIconIconOverlay=(R=255,G=255,B=255,A=128)
+	StatusIconBorderMaterialRect=(X=119,Y=257,W=55,H=55)
+	StatusIconSize=(X=29,Y=29)
+	StatusIconInnerScale=0.75
+	StatusIconOverlay=(R=255,G=255,B=255,A=128)
 	//Status icons
 	MonsterIcon=Texture'<? echo($packageName); ?>.StatusIcons.Monster'
 	TurretIcon=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
@@ -790,10 +838,7 @@ defaultproperties
 	ArtifactTutorialText="You have collected a magic artifact!|Press $1 to use it or press $2 and $3 to browse|if you have multiple artifacts."
 	ArtifactBorderMaterial=Texture'HudContent.Generic.HUD'
 	ArtifactBorderMaterialTextureScale=0.53
-	ArtifactBorderMaterialU=0
-	ArtifactBorderMaterialV=39
-	ArtifactBorderMaterialUL=95
-	ArtifactBorderMaterialVL=54
+	ArtifactBorderMaterialRect=(X=0,Y=39,W=95,H=54)
 	ArtifactIconInnerScale=0.67
 	ArtifactHighlightIndention=0.15
 }

@@ -2,28 +2,30 @@ TEST:
 - Fix GameStats?
 - Stats
 
+TODO (XT Config):
+- ColoredSpeedTrailLevel=8
+
 TODO (1.61):
 - Limit Team Booster to one per team at a time
+
 - Fix Artifacts getting lost when leaving a link turret
-
-- Use ArrayCount(Array)
-- Fix Healing Blast not healing if you move into a vehicle
-
-- AbilityLooter
+- Knockback should knock out turrets
+- Selection menu for the magic weapon maker
+- Favorite item in RPGSelectionMenu
 
 - Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
 - Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
 
-- Ammo system for artifacts
-
-- Knockback should knock out turrets
-
-- Disallow multiple connections with same name and GUID
-
-- Selection menu for the magic weapon maker (+ default option)
-
 - Fix drone color when entering a vehicle (for other players)
 - Fix drone location replication
+
+- Find more uses for status icons
+- Fix Healing Blast not healing if you move into a vehicle
+- Ammo system for artifacts
+- AbilityLooter
+
+- Disallow multiple connections with same name and GUID
+- Use ArrayCount(Array)
 
 Localization TODO:
 - TurretKillerMessage
@@ -44,6 +46,7 @@ Documentation TODO:
 - EXP_TurretKill
 - KillTurrets
 - KillMonsters
+- RPGSelectionMenu
 
 Release Config TODO:
 - EXP_TurretKill
@@ -59,6 +62,7 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Improved HUD code
 - Fix friendly monster / turret kills
 - Added team colored indicator to summoned monsters /
 - Added display for summoned monsters / turrets in the top right corner of the screen (generally: status)
