@@ -134,6 +134,7 @@ function StopEffect(xPawn P)
 
 defaultproperties
 {
+	Duration=20
     ExecMessage="Team Booster!"
     ComboAnnouncementName=Booster
     keys(0)=2

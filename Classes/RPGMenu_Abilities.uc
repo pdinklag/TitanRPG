@@ -136,10 +136,9 @@ function InitMenu()
 	SelectAbility();
 }
 
-event Free()
+function CloseMenu()
 {
 	AbilityInfos.Length = 0;
-	Super.Free();
 }
 
 function SelectAbility()

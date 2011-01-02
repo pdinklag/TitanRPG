@@ -24,7 +24,7 @@ var bool bUpdateCanvas;
 var bool bDefaultBindings, bDefaultArtifactBindings; //use default keybinds because user didn't set any
 var float LastLevelMessageTime;
 var Color EXPBarColor, DisabledOverlay, RedColor, WhiteColor;
-var Color HUDColorTeam[4], HUDTintTeam[4];
+var Color HUDColorTeam[4];
 var localized string LevelText;
 
 var Material ArtifactBorderMaterial;
@@ -194,6 +194,8 @@ function Color GetHUDTeamColor(HudCDeathmatch HUD)
 	local int TeamIndex;
 	TeamIndex = GetHUDTeamIndex(HUD);
 
+	if(HUD.bUsingCustomHUDColor)
+		return HUD.CustomHUDColor;
 	if(TeamIndex >= 0 && TeamIndex <= 3)
 		return HUDColorTeam[TeamIndex];
 	else
@@ -202,26 +204,30 @@ function Color GetHUDTeamColor(HudCDeathmatch HUD)
 
 function Color GetHUDTeamTint(HudCDeathmatch HUD)
 {
-	local int TeamIndex;
-	TeamIndex = GetHUDTeamIndex(HUD);
-
-	if(TeamIndex >= 0 && TeamIndex <= 3)
-		return HUDTintTeam[TeamIndex];
-	else
-		return HUDTintTeam[1];
+	local Color Color;
+	
+	Color = GetHUDTeamColor(HUD);
+	Color.R /= 2;
+	Color.G /= 2;
+	Color.B /= 2;
+	Color.A = 100;
+	
+	return Color;
 }
 
 function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas, HudCDeathmatch HUD, float X, float Y, float Size, optional bool bSelected)
 {
 	local int Time;
 	local float XL, YL;
+	local Color HUDColor;
 
 	Canvas.Style = 5;
+	HUDColor = GetHUDTeamColor(HUD);
 	
 	if(A != None && bSelected)
 		Canvas.DrawColor = HUD.HudColorHighlight;
 	else
-		Canvas.DrawColor = GetHUDTeamColor(HUD);
+		Canvas.DrawColor = HUDColor;
 	
 	Canvas.SetPos(X, Y);
 	Canvas.DrawTile(
@@ -235,7 +241,7 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	if(AClass.default.IconMaterial != None)
 	{
 		if(A != None && A.bActive)
-			Canvas.DrawColor = GetHUDTeamColor(HUD);
+			Canvas.DrawColor = HUDColor;
 		else if(A == None || TimeSeconds < A.NextUseTime)
 			Canvas.DrawColor = DisabledOverlay;
 		else
@@ -448,7 +454,7 @@ function PostRender(Canvas Canvas)
 			}
 
 			Canvas.TextSize(Text, XL, YL);
-			Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y + 0.5 * (ExpBarRect.H - YL) + 1);
+			Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y + ExpBarRect.H + 1);
 			Canvas.DrawText(Text);
 		}
 		
@@ -774,20 +780,12 @@ exec function KillTurrets()
 
 event NotifyLevelChange()
 {
-	//close stats menu if it's open
 	FindRPRI();
 	
-	if(RPRI != None)
+	if(RPRI != None && RPRI.Level.Game != None)
 	{
-		if(RPRI.Menu != None)
-			GUIController(ViewportOwner.GUIController).RemoveMenu(RPRI.Menu);
-
-		//Save player data (standalone/listen servers only)
-		if(RPRI.Level.Game != None)
-		{
-			if(class'MutTitanRPG'.static.Instance(RPRI.Level) != None)
-				class'MutTitanRPG'.static.Instance(RPRI.Level).SaveData();
-		}
+		if(class'MutTitanRPG'.static.Instance(RPRI.Level) != None)
+			class'MutTitanRPG'.static.Instance(RPRI.Level).SaveData();
 	}
 
 	Remove();
@@ -795,6 +793,9 @@ event NotifyLevelChange()
 
 function Remove()
 {
+	if(RPRI.Menu != None)
+		GUIController(ViewportOwner.GUIController).RemoveMenu(RPRI.Menu);
+
 	RPRI = None;
 	Settings = None;
 	CharSettings = None;
@@ -817,11 +818,6 @@ defaultproperties
 	HUDColorTeam(1)=(R=50,G=64,B=200,A=255)
 	HUDColorTeam(2)=(R=0,G=200,B=0,A=255)
 	HUDColorTeam(3)=(R=200,G=200,B=0,A=255)
-	//EXP Bar Tints
-	HUDTintTeam(0)=(R=100,G=0,B=0,A=100)
-	HUDTintTeam(1)=(R=0,G=25,B=100,A=100)
-	HUDTintTeam(2)=(R=0,G=100,B=0,A=100)
-	HUDTintTeam(3)=(R=100,G=75,B=0,A=100)
 	//StatusIcon stuff
 	StatusIconBorderMaterial=Texture'HudContent.Generic.HUD'
 	StatusIconBorderMaterialRect=(X=119,Y=257,W=55,H=55)

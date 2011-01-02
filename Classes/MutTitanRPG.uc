@@ -936,9 +936,9 @@ function ServerTraveling(string URL, bool bItems)
 	if(A.IsInfoValid())
 	{
 		TravelTimeDiff = B.ToSeconds() - A.ToSeconds();
-		Log("DEBUG: Last travel was" @ TravelTimeDiff @ "seconds ago.", 'TitanRPG');
+		Log("DEBUG: Last travel was" @ TravelTimeDiff @ "seconds ago (" $ A.Format() $ ").", 'TitanRPG');
 		
-		if(TravelTimeDiff < 5)
+		if(TravelTimeDiff < 5 && TravelTimeDiff > 0)
 		{
 			Log("=> LOOP DETECTED", 'TitanRPG');
 			

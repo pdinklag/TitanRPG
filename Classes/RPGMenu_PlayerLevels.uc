@@ -89,6 +89,7 @@ function InitMenu()
 function CloseMenu()
 {
 	KillTimer();
+	AbilityInfos.Length = 0;
 }
 
 function Timer()
@@ -139,12 +140,6 @@ function bool AbilitySelected(GUIComponent Sender)
 {
 	Abilities.InternalOnClick(Sender);
 	return true;
-}
-
-event Free()
-{
-	AbilityInfos.Length = 0;
-	Super.Free();
 }
 
 defaultproperties

@@ -229,10 +229,9 @@ function BuildSelected(GUIComponent Sender)
 	}
 }
 
-event Free()
+function CloseMenu()
 {
 	AbilityInfos.Length = 0;
-	Super.Free();
 }
 
 defaultproperties

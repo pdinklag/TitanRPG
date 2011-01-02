@@ -1,6 +1,7 @@
 TEST:
 - Fix GameStats?
 - Stats
+- Fix client side crashes due to RPG Menu
 
 TODO (XT Config):
 - ColoredSpeedTrailLevel=8

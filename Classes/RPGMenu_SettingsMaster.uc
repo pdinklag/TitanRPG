@@ -36,12 +36,8 @@ function CloseMenu()
 
 	for(i = 0; i < Tabs.Controls.Length; i++)
 		RPGMenu_TabPage(Tabs.Controls[i]).CloseMenu();
-}
-
-event Free()
-{
+	
 	RPRI = None;
-	Super.Free();
 }
 
 defaultproperties

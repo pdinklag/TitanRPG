@@ -90,10 +90,9 @@ function InitMenu()
 	SelectAbility();
 }
 
-event Free()
+function CloseMenu()
 {
 	Stats.Length = 0;
-	Super.Free();
 }
 
 function SelectAbility()

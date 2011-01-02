@@ -12,8 +12,10 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 event Free()
 {
-	RPGMenu = None;
+	Log(Self @ "Free");
+
 	Super.Free();
+	RPGMenu = None;
 }
 
 defaultproperties
