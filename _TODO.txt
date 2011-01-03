@@ -1,4 +1,7 @@
 TEST:
+- Fix Monster owner name disappearing
+
+- Remove "you went away" message from successful vehicle hack
 - Fix GameStats?
 - Stats
 - Fix client side crashes due to RPG Menu
