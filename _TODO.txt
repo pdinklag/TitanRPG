@@ -1,27 +1,26 @@
 TEST:
-- Fix Monster owner name disappearing
-
-- Remove "you went away" message from successful vehicle hack
 - Fix GameStats?
 - Stats
+
+- Limit Team Booster to one per team at a time
 - Fix client side crashes due to RPG Menu
+- Fix Monster owner name disappearing
+- Remove "you went away" message from successful vehicle hack
+- Knockback should knock out turrets
 
 TODO (XT Config):
 - ColoredSpeedTrailLevel=8
 
 TODO (1.61):
-- Limit Team Booster to one per team at a time
+- Fix drone location replication
 
 - Fix Artifacts getting lost when leaving a link turret
-- Knockback should knock out turrets
+
 - Selection menu for the magic weapon maker
 - Favorite item in RPGSelectionMenu
 
 - Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
 - Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
-
-- Fix drone color when entering a vehicle (for other players)
-- Fix drone location replication
 
 - Find more uses for status icons
 - Fix Healing Blast not healing if you move into a vehicle
@@ -41,6 +40,7 @@ Localization TODO:
 - MagicWeaponMenu
 
 Documentation TODO:
+- Drone
 - German translation
 - ArtifactMakeSelectedMagicWeapon
 - Stats

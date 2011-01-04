@@ -115,13 +115,14 @@ state Activated
 	
 	event Tick(float dt)
 	{
-		Super.Tick(dt);
-		
 		if(VSize(Instigator.Location - V.Location) > MaxRunningRadius)
 		{
 			Msg(MSG_Failed);
 			GotoState('');
+			return;
 		}
+	
+		Super.Tick(dt);
 	}
 
 	function DoEffect()

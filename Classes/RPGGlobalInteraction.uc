@@ -5,7 +5,7 @@ class RPGGlobalInteraction extends Interaction;
 
 var float IconSize, IconTextSpacing;
 
-function bool ActorVisible(Canvas C, Actor A)
+static function bool IsPawnVisible(Canvas C, FriendlyPawnReplicationInfo FPRI)
 {
 	local vector CameraLocation, CamDir;
 	local rotator CameraRotation;
@@ -13,13 +13,13 @@ function bool ActorVisible(Canvas C, Actor A)
 	C.GetCameraLocation(CameraLocation, CameraRotation);
 	CamDir = vector(CameraRotation);
 
-	if((A.Location - CameraLocation) dot CamDir < 0)
+	if((FPRI.PawnLocation - CameraLocation) dot CamDir < 0)
 		return false;
 	
-	return A.FastTrace(A.Location, CameraLocation);
+	return FPRI.FastTrace(FPRI.PawnLocation, CameraLocation);
 }
 
-function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spacing, Material Icon, string OwnerName)
+static function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spacing, Material Icon, string OwnerName)
 {
 	local float W, XL, YL;
 
@@ -37,7 +37,7 @@ function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spacing, Ma
 		Icon.MaterialVSize()
 	);
 
-	C.SetPos(X - W * 0.5 + IconSize + IconTextSpacing, Y - YL * 0.5);
+	C.SetPos(X - W * 0.5 + Size + Spacing, Y - YL * 0.5);
 	C.DrawText(OwnerName);
 }
 
@@ -80,14 +80,14 @@ function PostRender(Canvas C)
 	
 	foreach PC.DynamicActors(class'FriendlyPawnReplicationInfo', FPRI)
 	{
-		if(VSize(FPRI.Pawn.Location - RefActor.Location) < MaxDist && ActorVisible(C, FPRI.Pawn))
+		if(VSize(FPRI.PawnLocation - RefActor.Location) < MaxDist && IsPawnVisible(C, FPRI))
 		{
-			ScreenPos = C.WorldToScreen(FPRI.Pawn.Location + FPRI.Pawn.CollisionHeight * vect(0, 0, 1));
+			ScreenPos = C.WorldToScreen(FPRI.PawnLocation + FPRI.PawnClass.default.CollisionHeight * vect(0, 0, 1));
 			if(ScreenPos.X >= 0 && ScreenPos.X < C.SizeX && ScreenPos.Y >= 0 || ScreenPos.Y < C.SizeY)
 			{
-				if(FPRI.Pawn.IsA('Monster'))
+				if(ClassIsChildOf(FPRI.PawnClass, class'Monster'))
 					Icon = class'RPGInteraction'.default.MonsterIcon;
-				else if(FPRI.Pawn.IsA('ASTurret'))
+				if(ClassIsChildOf(FPRI.PawnClass, class'ASTurret'))
 					Icon = class'RPGInteraction'.default.TurretIcon;
 			
 				if(FPRI.Master.Team != None)

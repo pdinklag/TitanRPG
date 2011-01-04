@@ -45,7 +45,7 @@ var float ResetPawnDistance, ResetTime, LastResetCheckTime, LostTime;
 
 replication
 {
-	reliable if (bNetInitial && Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && bNetInitial)
 		protPawn, HealPerSec, ShotDelay, TargetDelay, ProjDamage, curOsc, shootCounter, targetCounter, orbitHeight;
 		
 	reliable if(Role == ROLE_Authority)
@@ -77,6 +77,7 @@ static function Drone SpawnFor(Pawn Other)
 			if(Num >= class'MutTitanRPG'.static.Instance(Other.Level).MaxDrones)
 				return None;
 		}
+		
 		D = Other.Spawn(class'Drone', Other,, Other.Location + vect(0, -32, 64), Other.Rotation);
 		D.protPawn = Other;
 		D.ProjDamage = default.ProjDamage;
@@ -383,7 +384,6 @@ defaultproperties
 	Physics=PHYS_Projectile
 	RemoteRole=ROLE_SimulatedProxy
 	AmbientSound=Sound'WeaponSounds.LinkGun.LinkGunProjectile'
-	LifeSpan=9999.000000
 	DrawScale=2.500000
 	bUnlit=True
 	bDisturbFluidSurface=True
