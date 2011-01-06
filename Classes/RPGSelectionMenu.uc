@@ -224,7 +224,7 @@ function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
 		Log("KEYBINDING ->" @ Temp, 'DEBUG');
 		
 		//ActivateItem equals a click on OK
-		if(Temp ~= "ActivateItem")
+		if(Temp ~= "ActivateItem" || Temp ~= "InventoryActivate")
 		{
 			OKClicked(None);
 			return true;
