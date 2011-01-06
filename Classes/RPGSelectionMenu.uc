@@ -1,5 +1,5 @@
 /*
-	Base class for selection menus, mainly used for artifacts:
+	Base class for selection menus, used for e.g.:
 	- Summoning Charm
 	- Turret Builder
 	- Magic Weapon Maker X
@@ -15,6 +15,8 @@ var automated GUISectionBackground sbList, sbPreview;
 var automated GUIListBox lstItems;
 var automated GUIButton btOK;
 
+var automated moCheckBox chFavorite;
+
 var SpinnyWeap SpinnyItem; // MUST be set to null when you leave the window
 var vector SpinnyItemOffset;
 var rotator SpinnyItemRotation;
@@ -23,6 +25,8 @@ var bool bFixedRotation;
 var localized string WindowTitle;
 var localized string ListTitle, ListHint;
 var localized string OKText;
+
+var config int Favorite;
 
 static function RPGSelectionMenu ShowFor(RPGArtifact A)
 {
@@ -42,6 +46,14 @@ static function RPGSelectionMenu ShowFor(RPGArtifact A)
 		}
 	}
 	return None;
+}
+
+function int DefaultItem()
+{
+	if(Favorite >= 0 && Favorite < GetNumItems())
+		return Favorite;
+	else
+		return GetDefaultItemIndex();
 }
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -64,13 +76,13 @@ function InitFor(RPGArtifact A)
 	Instigator = A.Instigator;
 
 	//Setup and fill list
-	lstItems.List.bNotify = False;
+	lstItems.List.bNotify = false;
 	lstItems.List.Clear();
 	
 	for(i = 0; i < GetNumItems(); i++)
 		lstItems.List.Add(GetItem(i));
 
-	//Spawn spinny monster actor
+	//Spawn spinny actor
 	if(SpinnyItem == None)
 		SpinnyItem = PlayerOwner().Spawn(class'XInterface.SpinnyWeap');
 	
@@ -81,11 +93,16 @@ function InitFor(RPGArtifact A)
     SpinnyItem.bPlayRandomAnims = false;
 
 	// Start with first item on list selected
-	lstItems.List.SetIndex(Max(0, GetDefaultItemIndex()));
-	lstItems.List.bNotify = True;
+	lstItems.List.SetIndex(Max(0, DefaultItem()));
+	lstItems.List.bNotify = true;
+
+	chFavorite.bIgnoreChange = true;
+	chFavorite.Checked(lstItems.List.Index == Favorite);
+	chFavorite.bIgnoreChange = false;
+	
 	SelectItem();
 	
-	SetTimer(0.1f, true);
+	SetTimer(0.05f, true);
 }
 
 function Timer()
@@ -124,7 +141,13 @@ event Free()
 function InternalOnChange(GUIComponent Sender)
 {
 	if(Sender == lstItems)
+	{
+		chFavorite.bIgnoreChange = true;
+		chFavorite.Checked(lstItems.List.Index == Favorite);
+		chFavorite.bIgnoreChange = false;
+		
 		SelectItem();
+	}
 }
 
 static function rotator GetRelativeRotation(rotator Rotation, rotator BaseRotation)
@@ -189,18 +212,35 @@ function InternalDraw(Canvas Canvas)
 function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
 {
 	local string Temp;
-
-	Temp = PlayerOwner().ConsoleCommand("KEYNAME" @ iKey);
-	Temp = PlayerOwner().ConsoleCommand("KEYBINDING" @ Temp);
 	
-	//activate item equals a click on OK
-	if(Temp ~= "ActivateItem")
+	if(State == 1)
 	{
-		OKClicked(None);
-		return true;
-	}
+		Log(Self @ "InternalOnKeyEvent" @ iKey @ State @ Delta, 'DEBUG');
 
+		Temp = PlayerOwner().ConsoleCommand("KEYNAME" @ iKey);
+		Log("KEYNAME ->" @ Temp, 'DEBUG');
+		
+		Temp = PlayerOwner().ConsoleCommand("KEYBINDING" @ Temp);
+		Log("KEYBINDING ->" @ Temp, 'DEBUG');
+		
+		//ActivateItem equals a click on OK
+		if(Temp ~= "ActivateItem")
+		{
+			OKClicked(None);
+			return true;
+		}
+	}
 	return false;
+}
+
+function ChangeFav(GUIComponent Sender)
+{
+	if(chFavorite.IsChecked())
+		Favorite = lstItems.List.Index;
+	else
+		Favorite = -1;
+	
+	SaveConfig();
 }
 
 //abstract - override in subclasses
@@ -219,6 +259,8 @@ function SelectItem(); //called when an item gets selected
 
 defaultproperties
 {
+	Favorite=-1
+
 	Begin Object class=AltSectionBackground Name=PreviewBG
 		WinWidth=0.503124
 		WinHeight=0.765326
@@ -247,6 +289,17 @@ defaultproperties
 		OnKeyEvent=OKButton.InternalOnKeyEvent
 	End Object
 	btOK=GUIButton'OKButton'
+	
+	Begin Object Class=moCheckBox Name=FavButton
+		Caption="Favorite"
+		Hint="If checked, the selected item is your favorite item. It will be automatically selected whenever you open this menu."
+		WinWidth=0.213021
+		WinHeight=0.050000
+		WinLeft=0.245833
+		WinTop=0.877709
+		OnChange=ChangeFav
+	End Object
+	chFavorite=moCheckBox'FavButton'
 	
 	Begin Object Class=GUIListBox Name=ItemsList
 		WinWidth=0.390421

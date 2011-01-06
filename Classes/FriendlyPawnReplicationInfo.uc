@@ -38,5 +38,5 @@ simulated event Tick(float dt)
 
 defaultproperties
 {
-	NetUpdateFrequency=1.00
+	NetUpdateFrequency=16.00
 }

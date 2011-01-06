@@ -415,8 +415,6 @@ simulated function ModeTick(float dt)
 							{	
 								Healable.Damage = Max(0, Healable.Damage - AdjustedDamage);
 								
-								//Log("XP for vehicle repair:" @ string(float(AdjustedDamage) * class'RPGGameStats'.default.EXP_VehicleRepair));
-								
 								class'RPGRules'.static.ShareExperience(
 									RPRI,
 									float(AdjustedDamage) * class'RPGGameStats'.default.EXP_VehicleRepair);

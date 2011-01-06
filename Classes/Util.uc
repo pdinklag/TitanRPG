@@ -370,7 +370,7 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 	HitStatStr = PRI.GetPropertyText(HitStatName);
 	HitStat = DynamicLoadObject(HitStatStr, class'Object', true);
 	
-	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat);
+	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat, 'TitanRPG');
 }
 
 defaultproperties

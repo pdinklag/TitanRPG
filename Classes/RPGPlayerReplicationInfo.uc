@@ -144,7 +144,6 @@ static function RPGPlayerReplicationInfo CreateFor(Controller C)
 		return None;
 	}
 
-	Log("Creating an RPRI for " @ C @ "(" $ C.GetHumanReadableName() $ ")");
 	RPRI = C.Spawn(class'RPGPlayerReplicationInfo', C);
 	RPRI.NextReplicationInfo = PRI.CustomReplicationInfo;
 	PRI.CustomReplicationInfo = RPRI;
@@ -215,8 +214,6 @@ simulated event BeginPlay()
 		Controller = Controller(Owner);
 		PRI = Controller.PlayerReplicationInfo;
 		
-		Log("RPRI.BeginPlay for" @ PRI.PlayerName, 'TitanRPG');
-
 		RPGMut = class'MutTitanRPG'.static.Instance(Level);
 		if(RPGMut == None)
 		{
@@ -605,7 +602,6 @@ simulated event Tick(float dt)
 	
 	if(Controller == None)
 	{
-		Log("Destroyed RPRI for" @ RPGName, 'TitanRPG');
 		Destroy();
 		return;
 	}

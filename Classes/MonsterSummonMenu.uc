@@ -78,5 +78,5 @@ defaultproperties
 	ListHint="Select a monster to summon"
 
 	SpinnyItemOffset=(X=80,Y=0,Z=0)
-	SpinnyItemRotation=(Pitch=0,Yaw=36864,Roll=0)
+	SpinnyItemRotation=(Pitch=-2048,Yaw=36864,Roll=0)
 }

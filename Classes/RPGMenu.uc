@@ -76,8 +76,6 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 event Free()
 {
-	Log(Self @ "Free");
-
 	Super.Free();
 	RPRI = None;
 }

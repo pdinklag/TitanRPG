@@ -942,7 +942,7 @@ function ServerTraveling(string URL, bool bItems)
 		{
 			Log("=> LOOP DETECTED", 'TitanRPG');
 			
-			Log("");
+			Log("", 'TitanRPG');
 			Log("DEBUG: Testing file output to 'loop.log'...", 'TitanRPG');
 			FLog = Spawn(class'FileLog');
 			FLog.OpenLog("loop.log",, true);
@@ -951,24 +951,24 @@ function ServerTraveling(string URL, bool bItems)
 			FLog.Destroy();
 			Flog = None;
 			
-			Log("");
+			Log("", 'TitanRPG');
 			Log("DEBUG: Trying to obtain an object from an unused package (class'OLTeamGames.OLTeamGame')...", 'TitanRPG');
 			X = DynamicLoadObject("OLTeamGames.OLTeamGame", class'Class');
 			Log("-> X =" @ X, 'TitanRPG');
 			
-			Log("");
+			Log("", 'TitanRPG');
 			Log("DEBUG: Listing all objects referencing me (" $ Self $ ")...", 'TitanRPG');
 			GetReferencers(Self, Ref);
 			for(i = 0; i < Ref.Length; i++)
 				Log(i @ Ref[i]);
 			
-			Log("");
+			Log("", 'TitanRPG');
 			Log("DEBUG: Listing ALL objects...", 'TitanRPG');
 			i = 0;
 			foreach AllObjects(class'Object',  X)
 				Log(string(i++) @ X);
 			
-			Log("");
+			Log("", 'TitanRPG');
 			Log("Causing an infinite loop to crash the server...", 'TitanRPG');
 			while(true)
 			{

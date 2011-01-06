@@ -1,6 +1,7 @@
 TEST:
 - Fix GameStats?
 - Stats
+- RPG Selection menu double click
 
 - Limit Team Booster to one per team at a time
 - Fix client side crashes due to RPG Menu
@@ -8,16 +9,15 @@ TEST:
 - Remove "you went away" message from successful vehicle hack
 - Knockback should knock out turrets
 
+- Selection menu for the magic weapon maker
+
 TODO (XT Config):
 - ColoredSpeedTrailLevel=8
 
-TODO (1.61):
-- Fix drone location replication
+TODO (1.61)
 
 - Fix Artifacts getting lost when leaving a link turret
-
-- Selection menu for the magic weapon maker
-- Favorite item in RPGSelectionMenu
+- Fix drone location replication (-> rewrite drones?)
 
 - Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
 - Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
@@ -66,6 +66,7 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Favorite item in RPGSelectionMenu
 - Improved HUD code
 - Fix friendly monster / turret kills
 - Added team colored indicator to summoned monsters /

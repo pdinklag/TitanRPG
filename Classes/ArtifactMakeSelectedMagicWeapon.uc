@@ -1,14 +1,52 @@
 class ArtifactMakeSelectedMagicWeapon extends ArtifactWeaponMaker;
 
 var class<RPGWeapon> PickedWeapon;
+var ReplicatedArray Available;
 
 replication
 {
+	reliable if(Role == ROLE_Authority && bNetInitial)
+		Available;
+
 	reliable if(Role == ROLE_Authority)
 		ClientShowMenu;
 	
 	reliable if(Role < ROLE_Authority)
 		ServerPickWeapon;
+}
+
+simulated event PostBeginPlay()
+{
+	local int i;
+	local MutTitanRPG RPGMut;
+
+	Super.PostBeginPlay();
+
+	if(Role == ROLE_Authority)
+	{
+		RPGMut = class'MutTitanRPG'.static.Instance(Level);
+		
+		Available = Spawn(class'ReplicatedArray');
+		Available.Length = RPGMut.WeaponModifiers.Length;
+		
+		for(i = 0; i < Available.Length; i++)
+			Available.ObjectArray[i] = RPGMut.WeaponModifiers[i].WeaponClass;
+	}	
+}
+
+function GiveTo(Pawn Other, optional Pickup Pickup)
+{
+	Super.GiveTo(Other, Pickup);
+	
+	if(PlayerController(Other.Controller) != None)
+	{
+		Available.SetOwner(Other.Controller);
+		Available.Replicate();
+	}
+	else
+	{
+		Available.SetOwner(None);
+	}
 }
 
 function ServerPickWeapon(class<RPGWeapon> RW)
@@ -60,9 +98,17 @@ state Activated
 	}
 }
 
+simulated event Destroyed()
+{
+	if(Available != None)
+		Available.Destroy();
+	
+	Super.Destroyed();
+}
+
 defaultproperties
 {
-	PickedWeapon = None;
+	PickedWeapon=None
 
 	bCanBreak=False
 	bAvoidRepetition=False

@@ -55,7 +55,6 @@ simulated function string DescriptionText()
 	
 	Text = Super.DescriptionText();
 	
-	Log("LevelCap.Length =" @ LevelCap.Length);
 	for(i = 0; i < LevelCap.Length; i++)
 		Text = repl(Text, "$" $ string(i + 1), string(LevelCap[i]));
 	
