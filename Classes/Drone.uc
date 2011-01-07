@@ -6,12 +6,13 @@ class Drone extends Actor
 var Pawn PawnOwner;
 
 //Simulated
-var float OrbitAngle, AngularSpeed, OrbitMaxDist;
+var float OrbitMaxDist;
 
 //Replication
 var PlayerReplicationInfo OwnerPRI;
 var byte Team;
 var vector PawnLocation;
+var rotator PawnRotation;
 
 //Client
 var byte CurrentTeam;
@@ -21,15 +22,20 @@ var ColoredTrail Trail;
 var Material TeamSkin[4];
 var Color TeamTrailColor[4], DefaultTrailColor;
 
+var float BackInOrbitDistance;
+
 var config float OrbitDist, OrbitHeight;
-var config float Speed, OrbitTime;
+var config float Speed;
 
 replication
 {
+	reliable if(Role == ROLE_Authority)
+		ClientSync;
+
 	reliable if(Role == ROLE_Authority && bNetDirty)
-		PawnLocation, Team,
+		PawnLocation, PawnRotation, Team,
 		OrbitDist, OrbitHeight,
-		Speed, OrbitTime;
+		Speed;
 }
 
 static function Drone SpawnFor(Pawn Other)
@@ -46,7 +52,7 @@ static function Drone SpawnFor(Pawn Other)
 	Drone = Other.Spawn(
 		class'Drone',
 		Other,,
-		Other.Location + default.OrbitDist * vect(1, 0, 0) + default.OrbitHeight * vect(0, 0, 1),
+		Other.Location + (Other.CollisionHeight + default.CollisionHeight) * vect(0, 0, 1),
 		Other.Rotation);
 
 	if(RPRI != None)
@@ -89,9 +95,8 @@ simulated event PostNetBeginPlay()
 	if(Level.NetMode != NM_DedicatedServer)
 		ChangedTeam();
 	
-	OrbitMaxDist = 1.25f * VSize(OrbitDist * vect(1, 0, 0) + OrbitHeight * vect(0, 0, 1));
-	AngularSpeed = -2.0f * Pi / OrbitTime;
-	
+	OrbitMaxDist = 1.33f * VSize(OrbitDist * vect(1, 0, 0) + OrbitHeight * vect(0, 0, 1));
+
 	GotoState('Orbiting');
 }
 
@@ -123,6 +128,7 @@ simulated event Tick(float dt)
 		else
 		{
 			PawnLocation = PawnOwner.Location;
+			PawnRotation = PawnOwner.Rotation;
 		}
 		
 		if(OwnerPRI != None && OwnerPRI.Team != None)
@@ -135,14 +141,31 @@ simulated event Tick(float dt)
 		ChangedTeam();
 }
 
-simulated function SetMoveTarget(vector MoveTarget)
+simulated function SetDirection(vector Dir)
 {
-	local vector MoveDelta;
+	Velocity = Speed * Normal(Dir);
+	SetRotation(rotator(Dir)); //TODO: unless there is a firing target
+}
 
-	MoveDelta = MoveTarget - Location;
-	
-	Velocity = Speed * Normal(MoveDelta);
-	SetRotation(rotator(MoveDelta)); //TODO: unless there is a firing target
+function Sync()
+{
+	if(Level.NetMode != NM_Standalone)
+		ClientSync(Location, GetStateName());
+}
+
+simulated function ClientSync(vector ServerLocation, name ServerState)
+{
+	if(Role < ROLE_Authority)
+	{
+		SetLocation(ServerLocation);
+		GotoState(ServerState);
+	}
+}
+
+simulated function vector Flatten(vector v)
+{
+	v.Z = 0;
+	return v;
 }
 
 //Orbit around the player
@@ -150,25 +173,34 @@ state Orbiting
 {
 	simulated function BeginState()
 	{
-		OrbitAngle = ACos(Normal(Location - PawnLocation) dot vect(1, 0, 0));
-		Log(Self @ "begin orbiting, OrbitAngle =" @ OrbitAngle);
+		Log(Self @ "Orbiting");
+	
+		if(Role == ROLE_Authority)
+			Sync();
 	}
-
+	
 	simulated event Tick(float dt)
 	{
+		local float Dist;
+		local vector X, Y, Z;
+	
 		Global.Tick(dt);
 		
+		Dist = VSize(Location - PawnLocation);
 		if(VSize(Location - PawnLocation) <= OrbitMaxDist)
 		{
-			SetMoveTarget(
-				PawnLocation +
-				Cos(OrbitAngle) * OrbitDist * vect(1, 0, 0) +
-				Sin(OrbitAngle) * OrbitDist * vect(0, 1, 0) +
-				OrbitHeight * vect(0, 0, 1));
+			GetAxes(rotator(Flatten(PawnLocation - Location)), X, Y, Z);
 			
-			OrbitAngle += AngularSpeed;
+			if(Dist < OrbitDist)
+				Y -= X;
+			else
+				Y += X;
+			
+			//Y.Z = (PawnLocation.Z + OrbitHeight) - Location.Z;
+			
+			SetDirection(Y);
 		}
-		else
+		else if(Role == ROLE_Authority)
 		{
 			GotoState('Following');
 		}
@@ -180,29 +212,33 @@ state Following
 {
 	simulated function BeginState()
 	{
-		Log(Self @ "begin following");
+		Log(Self @ "Following");
+	
+		if(Role == ROLE_Authority)
+			Sync();
+	}
+
+	//find tangent point on the circle PawnLocation/OrbitDist
+	simulated function vector CalculateMoveTarget()
+	{
+		local vector X, Y, Z;
+		
+		GetAxes(rotator(Flatten(PawnLocation - Location)), X, Y, Z);
+		return PawnLocation + OrbitDist * Y + OrbitHeight * vect(0, 0, 1);
 	}
 
 	simulated event Tick(float dt)
 	{
-		local vector FlatDir;
-	
 		Global.Tick(dt);
-		
-		FlatDir = Normal(Location - PawnLocation);
-		FlatDir.Z = 0;
-		
+
 		if(VSize(Location - PawnLocation) > OrbitMaxDist)
-		{	
-			SetMoveTarget(
-				PawnLocation +
-				OrbitDist * FlatDir +
-				OrbitHeight * vect(0, 0, 1));
-		}
-		else
-		{
+			SetDirection(CalculateMoveTarget() - Location);
+		else if(Role == ROLE_Authority)
 			GotoState('Orbiting');
-		}
+	}
+
+	simulated function EndState()
+	{
 	}
 }
 
@@ -216,12 +252,11 @@ simulated event Destroyed()
 
 defaultproperties
 {
-	OrbitDist=200.0f;
+	OrbitDist=128.0f;
 	OrbitHeight=32.0f;
 
 	Speed=200.0f //movement speed
-	OrbitTime=2.0f //2 seconds for one orbit
-
+	
 	Team=255
 
 	DrawType=DT_StaticMesh
