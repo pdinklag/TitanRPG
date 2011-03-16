@@ -107,6 +107,8 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 {
 	local float xp;
 
+	Log("AwardEXPForDamage" @ InstigatedBy @ InstRPRI @ injured @ Damage);
+
 	if(
 		InstigatedBy != Injured.Controller &&
 		InstRPRI != None &&
@@ -114,11 +116,11 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 		injured.Controller != None &&
 		!injured.Controller.IsA('FriendlyMonsterController')
 	)
-	{	
+	{
 		Damage = FMin(Damage, injured.Health);
 		xp = RPGMut.GameSettings.ExpForDamageScale * (Damage / injured.HealthMax) * float(Monster(injured).ScoringValue);
 
-		if(xp > 0.f)
+		if(xp > 0)
 		{
 			if(InstigatedBy.IsA('FriendlyMonsterController'))
 				InstRPRI.AwardExperience(xp);
@@ -332,7 +334,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local RPGPlayerReplicationInfo InjuredRPRI, InstRPRI, RPRI;
-	local int x, MonsterLevel;
+	local int x;
 	local bool bZeroDamage;
 	local Controller InjuredController, InstigatorController;
 	local ONSVehicle V;
@@ -534,9 +536,6 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		Log("DEBUG: InjuredRPRI = " $ InjuredRPRI);
 	}
 	
-	if(default.bDamageLog)
-		Log("DEBUG: MonsterLevel = " $ MonsterLevel);
-
 	if(Monster(instigatedBy) == None && InstRPRI == None)
 	{
 		//This should never happen
@@ -704,23 +703,19 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	}
 	else
 	{
-		//TODO: grant exp for damage done by friendly monsters to master?
-	
 		//retrieve actual damage
 		Damage = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		
-		//clamp xp award
-		x = Min(injured.Health, Damage); //can't damage more than injured has health left...
-	
+		//xp for damage
 		if(InstRPRI != None)
 		{
-			AwardEXPForDamage(InstigatorController, InstRPRI, injured, x);
+			AwardEXPForDamage(InstigatorController, InstRPRI, injured, Damage);
 		}
 		else if(InstigatorController.IsA('FriendlyMonsterController'))
 		{
 			InstRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyMonsterController(InstigatorController).Master);
 			if(InstRPRI != None)
-				AwardEXPForDamage(InstigatorController, InstRPRI, injured, x);
+				AwardEXPForDamage(InstigatorController, InstRPRI, injured, Damage);
 		}
 
 		return Damage;

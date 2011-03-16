@@ -10,7 +10,7 @@ class RPGLinkFire extends LinkFire;
 event ModeDoFire()
 {
 	//TAM support
-    if(Level.Game.IsA('Team_GameBase') && !LinkGun(Weapon).Linking)
+    if(Level.Game != None && Level.Game.IsA('Team_GameBase') && !LinkGun(Weapon).Linking)
 		class'Util'.static.IncreaseTAMWeaponFireStats(Weapon.Instigator.PlayerReplicationInfo, "Link", "Secondary");
 
     Super.ModeDoFire();

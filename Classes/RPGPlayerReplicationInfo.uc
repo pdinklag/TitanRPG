@@ -1131,6 +1131,27 @@ function ServerRebuildData()
 	}
 }
 
+function SetLevel(int NewLevel)
+{
+	Log(PRI.PlayerName $ " - SETLEVEL" @ NewLevel $ "!", 'TitanRPG');
+	
+	DataObject.LV = NewLevel;
+	DataObject.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (NewLevel - 1);
+	DataObject.XN = RPGMut.Levels[NewLevel];
+	DataObject.XP = 0;
+	DataObject.AB.Length = 0;
+	DataObject.AL.Length = 0;
+	DataObject.SaveConfig();
+	
+	Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', NewLevel, PRI);
+	
+	Controller.Adrenaline = 0;
+	if(Controller.Pawn != None)
+		Controller.Pawn.Suicide();
+	
+	Destroy();
+}
+
 function ServerActivateArtifact(string ArtifactID)
 {
 	local Inventory Inv;

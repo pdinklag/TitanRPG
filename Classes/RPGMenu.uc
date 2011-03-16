@@ -33,6 +33,9 @@ function InitFor(RPGPlayerReplicationInfo Whom)
 
 	RPRI = Whom;
 	
+	if(RPRI.Level.NetMode == NM_Standalone)
+		RPRI.Level.Game.SetPause(true, PlayerController(RPRI.Controller));	
+	
 	for(i = 0; i < RPRI.AllAbilities.Length; i++)
 	{
 		if(RPRI.AllAbilities[i].bIsStat)
@@ -70,6 +73,9 @@ event Closed(GUIComponent Sender, bool bCancelled)
 		RPRI.Interaction.CharSettings.SaveConfig();
 		RPRI.Menu = None;
 	}
+	
+	if(RPRI.Level.NetMode == NM_Standalone)
+		RPRI.Level.Game.SetPause(false, PlayerController(RPRI.Controller));
 
 	Super.Closed(Sender, bCancelled);
 }

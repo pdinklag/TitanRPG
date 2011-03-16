@@ -6,7 +6,7 @@ class Drone extends Actor
 var Pawn PawnOwner;
 
 //Simulated
-var float OrbitMaxDist;
+var float AngularSpeed, OrbitYaw, OrbitWobble;
 
 //Replication
 var PlayerReplicationInfo OwnerPRI;
@@ -22,20 +22,30 @@ var ColoredTrail Trail;
 var Material TeamSkin[4];
 var Color TeamTrailColor[4], DefaultTrailColor;
 
-var float BackInOrbitDistance;
+var float OrbitOuterTreshold, OrbitInnerTreshold;
+var float SyncInterval, SyncTreshold;
 
-var config float OrbitDist, OrbitHeight;
+var float OrbitHeight;
+
+var config float OrbitRadius, OrbitHeightMin, OrbitHeightMax, OrbitWobbleZ, OrbitWobbleSpeed;
 var config float Speed;
+
+const RAD_TO_ROT = 10430.378350f; //32768 / Pi
 
 replication
 {
 	reliable if(Role == ROLE_Authority)
 		ClientSync;
+	
+	reliable if(Role == ROLE_Authority && bNetInitial)
+		Speed,
+		OrbitRadius, OrbitHeight, OrbitWobbleZ, OrbitWobbleSpeed, OrbitInnerTreshold, OrbitOuterTreshold;
 
-	reliable if(Role == ROLE_Authority && bNetDirty)
-		PawnLocation, PawnRotation, Team,
-		OrbitDist, OrbitHeight,
-		Speed;
+	unreliable if(Role == ROLE_Authority && bNetDirty)
+		PawnLocation, PawnRotation, Team;
+	
+	unreliable if(Role == ROLE_Authority && IsInState('Orbiting'))
+		OrbitYaw, OrbitWobble;
 }
 
 static function Drone SpawnFor(Pawn Other)
@@ -78,6 +88,11 @@ simulated event PostBeginPlay()
 			Team = OwnerPRI.Team.TeamIndex;
 		else
 			Team = 255;
+		
+		OrbitHeight = OrbitHeightMin + FRand() * (OrbitHeightMax - OrbitHeightMin);
+		OrbitWobble = FRand() * Pi;
+		
+		SetTimer(SyncInterval, true);
 	}
 	
 	if(Level.NetMode != NM_DedicatedServer)
@@ -95,7 +110,7 @@ simulated event PostNetBeginPlay()
 	if(Level.NetMode != NM_DedicatedServer)
 		ChangedTeam();
 	
-	OrbitMaxDist = 1.33f * VSize(OrbitDist * vect(1, 0, 0) + OrbitHeight * vect(0, 0, 1));
+	AngularSpeed = (Speed / OrbitRadius) * RAD_TO_ROT;
 
 	GotoState('Orbiting');
 }
@@ -144,7 +159,12 @@ simulated event Tick(float dt)
 simulated function SetDirection(vector Dir)
 {
 	Velocity = Speed * Normal(Dir);
-	SetRotation(rotator(Dir)); //TODO: unless there is a firing target
+	SetRotation(rotator(Flatten(Dir))); //TODO: unless there is a firing target
+}
+
+function Timer()
+{
+	Sync();
 }
 
 function Sync()
@@ -157,10 +177,18 @@ simulated function ClientSync(vector ServerLocation, name ServerState)
 {
 	if(Role < ROLE_Authority)
 	{
-		SetLocation(ServerLocation);
-		GotoState(ServerState);
+		if(!IsInState(ServerState))
+			GotoState(ServerState);
+
+		if(Abs(VSize(Location - PawnLocation) / VSize(ServerLocation - PawnLocation)) >= SyncTreshold)
+		{
+			SetLocation(ServerLocation);
+			StateUpdateLocation();
+		}
 	}
 }
+
+simulated function StateUpdateLocation();
 
 simulated function vector Flatten(vector v)
 {
@@ -171,9 +199,17 @@ simulated function vector Flatten(vector v)
 //Orbit around the player
 state Orbiting
 {
+	simulated function StateUpdateLocation()
+	{
+		local rotator r;
+	
+		r = rotator(Flatten(Location - PawnLocation));
+		OrbitYaw = r.Yaw;
+	}
+
 	simulated function BeginState()
 	{
-		Log(Self @ "Orbiting");
+		StateUpdateLocation();
 	
 		if(Role == ROLE_Authority)
 			Sync();
@@ -181,24 +217,24 @@ state Orbiting
 	
 	simulated event Tick(float dt)
 	{
-		local float Dist;
-		local vector X, Y, Z;
-	
+		local float Dist, OutOfOrbit, Z;
+		local vector MoveTarget;
+		
 		Global.Tick(dt);
 		
-		Dist = VSize(Location - PawnLocation);
-		if(VSize(Location - PawnLocation) <= OrbitMaxDist)
+		Dist = VSize(Flatten(Location - PawnLocation));
+		OutOfOrbit = Dist / OrbitRadius;
+		
+		if(OutOfOrbit < OrbitOuterTreshold)
 		{
-			GetAxes(rotator(Flatten(PawnLocation - Location)), X, Y, Z);
+			OrbitYaw += AngularSpeed * dt;
+			OrbitWobble += OrbitWobbleSpeed * dt;
 			
-			if(Dist < OrbitDist)
-				Y -= X;
-			else
-				Y += X;
-			
-			//Y.Z = (PawnLocation.Z + OrbitHeight) - Location.Z;
-			
-			SetDirection(Y);
+			MoveTarget =
+				PawnLocation + OrbitRadius * vector(OrbitYaw * rot(0, 1, 0)) +
+				(OrbitHeight + OrbitWobbleZ * Sin(OrbitWobble)) * vect(0, 0, 1);
+
+			SetDirection(MoveTarget - Location);
 		}
 		else if(Role == ROLE_Authority)
 		{
@@ -212,29 +248,34 @@ state Following
 {
 	simulated function BeginState()
 	{
-		Log(Self @ "Following");
-	
 		if(Role == ROLE_Authority)
 			Sync();
 	}
 
-	//find tangent point on the circle PawnLocation/OrbitDist
-	simulated function vector CalculateMoveTarget()
+	//find tangent
+	simulated function vector CalculateMoveDir()
 	{
-		local vector X, Y, Z;
-		
-		GetAxes(rotator(Flatten(PawnLocation - Location)), X, Y, Z);
-		return PawnLocation + OrbitDist * Y + OrbitHeight * vect(0, 0, 1);
+		local vector d;
+	
+		d = Flatten(PawnLocation - Location);
+		return 
+			(d >> (rot(0, -1, 0) * RAD_TO_ROT * ASin(OrbitRadius / VSize(d)))) +
+			(PawnLocation.Z + OrbitHeight - Location.Z) * vect(0, 0, 1);
 	}
 
 	simulated event Tick(float dt)
 	{
 		Global.Tick(dt);
-
-		if(VSize(Location - PawnLocation) > OrbitMaxDist)
-			SetDirection(CalculateMoveTarget() - Location);
+		
+		if(VSize(Flatten(PawnLocation - Location)) > OrbitRadius * OrbitOuterTreshold)
+		{
+			SetDirection(CalculateMoveDir());
+		}
 		else if(Role == ROLE_Authority)
+		{
+			OrbitWobble = 0.0f;
 			GotoState('Orbiting');
+		}
 	}
 
 	simulated function EndState()
@@ -252,10 +293,20 @@ simulated event Destroyed()
 
 defaultproperties
 {
-	OrbitDist=128.0f;
-	OrbitHeight=32.0f;
+	OrbitWobbleZ=16.00
+	OrbitWobbleSpeed=3.141593 // Pi
 
-	Speed=200.0f //movement speed
+	OrbitOuterTreshold=1.025
+	OrbitInnerTreshold=0.95
+	
+	SyncInterval=2.0
+	SyncTreshold=0.05
+
+	OrbitRadius=96.00
+	OrbitHeightMin=0.00
+	OrbitHeightMax=40.00
+
+	Speed=300.00 //movement speed
 	
 	Team=255
 

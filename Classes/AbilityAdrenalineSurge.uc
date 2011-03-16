@@ -5,9 +5,9 @@ function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
 	if(!bOwnedByKiller)
 		return;
 
-	if (Killed.Level.Game.IsA('Invasion') && Killed.Pawn != None && Killed.Pawn.IsA('Monster'))
+	if(Level.Game.IsA('Invasion') && Killed.Pawn != None && Killed.Pawn.IsA('Monster'))
 	{
-		Killer.AwardAdrenaline(float(Killed.Pawn.GetPropertyText("ScoringValue")) * default.BonusPerLevel * AbilityLevel);
+		Killer.AwardAdrenaline(Monster(Killed.Pawn).ScoringValue * BonusPerLevel * AbilityLevel);
 		return;
 	}
 
@@ -17,10 +17,10 @@ function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
 		return;	//no bonus for team kills or suicides
 
 	if (UnrealPlayer(Killer) != None && UnrealPlayer(Killer).MultiKillLevel > 0)
-		Killer.AwardAdrenaline(Deathmatch(Killer.Level.Game).ADR_MajorKill * default.BonusPerLevel * AbilityLevel);
+		Killer.AwardAdrenaline(Deathmatch(Killer.Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
 
 	if (UnrealPawn(Killed.Pawn) != None && UnrealPawn(Killed.Pawn).spree > 4)
-		Killer.AwardAdrenaline(Deathmatch(Killer.Level.Game).ADR_MajorKill * default.BonusPerLevel * AbilityLevel);
+		Killer.AwardAdrenaline(Deathmatch(Killer.Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
 
 	if ( Killer.PlayerReplicationInfo.Kills == 1 && TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo) != None
 	     && TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo).bFirstBlood )

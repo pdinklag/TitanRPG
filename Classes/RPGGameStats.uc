@@ -40,6 +40,8 @@ var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage
 var GameStats ActualGameStats;
 
 //Necromancy check queue
+var config array<string> ResurrectionCombos;
+
 struct NecroCheckStruct
 {
 	var RPGPlayerReplicationInfo RPRI;
@@ -434,6 +436,19 @@ function KillEvent(string Killtype, PlayerReplicationInfo Killer, PlayerReplicat
 		RegisterWeaponKill(Killer, Victim, WeaponClass);
 }
 
+static function bool IsResurrectionCombo(string ComboName)
+{
+	local int i;
+	
+	for(i = 0; i < default.ResurrectionCombos.Length; i++)
+	{
+		if(InStr(ComboName, default.ResurrectionCombos[i]) >= 0)
+			return true;
+	}
+	
+	return false;
+}
+
 function SpecialEvent(PlayerReplicationInfo Who, string Desc)
 {
 	/*
@@ -478,7 +493,7 @@ function SpecialEvent(PlayerReplicationInfo Who, string Desc)
 	{
 		x = EXP_TranslocateGib;
 	}
-	else if(InStr(Desc, "ComboNecro") >= 0 || InStr(Desc, "ComboRevival") >= 0)
+	else if(IsResurrectionCombo(Desc))
 	{
 		N.RPRI = RPRI;
 		N.OldComboCount = TeamPlayerReplicationInfo(RPRI.PRI).Combos[4];
@@ -610,4 +625,8 @@ defaultproperties
 	EXP_FlakMonkey=10.00;
 	EXP_RoadRampage=10.00;
 	EXP_Hatrick=10.00;
+	
+	//Resurrection
+	ResurrectionCombos(0)="ComboNecro"
+	ResurrectionCombos(1)="ComboRevival"
 }

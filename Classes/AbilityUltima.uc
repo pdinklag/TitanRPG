@@ -20,6 +20,7 @@ function ModifyPawn(Pawn Other)
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
 	local Pawn P;
+	local UltimaCharger UC;
 	local AbilityVehicleEject EjectorSeat;
 
 	if(bAlreadyPrevented)
@@ -43,7 +44,17 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 		P = Vehicle(P).Driver;
 
 	if(Killed.Location.Z > Killed.Region.Zone.KillZ && KillCount > 0)
-		Killed.Spawn(class'UltimaCharger', Killed.Controller).SetChargeTime(BaseDelay - float(AbilityLevel));
+	{
+		UC = Killed.Spawn(class'UltimaCharger', Killed.Controller,, Killed.Location);
+		if(UC != None)
+		{
+			UC.SetChargeTime(BaseDelay - float(AbilityLevel));
+		}
+		else
+		{
+			Log("Failed to spawn Ultima charger for" @ Killed.GetHumanReadableName());
+		}
+	}
 
 	return false;
 }
@@ -64,7 +75,14 @@ function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
 		P = Vehicle(P).Driver;
 
 	if(bOwnedByKiller && (Killed.Pawn == None || (Killed.Pawn.HitDamageType != class'DamTypeTitanUltima' && Killed.Pawn.HitDamageType != class'DamTypeUltima')))
+	{
 		KillCount++;
+		Log("Ultima activated for" @ Killer.GetHumanReadableName());
+	}
+	else
+	{
+		Log("Ultima not activated for" @ Killer.GetHumanReadableName() @ "- Killed.Pawn =" @ Killed.Pawn);
+	}
 }
 
 defaultproperties

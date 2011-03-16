@@ -318,6 +318,10 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Required Equipment
 	if(Other.IsA('UnrealPawn'))
 	{
+		//Monster fake weapon (for NetDamage to be called)
+		if(Other.IsA('Monster'))
+			Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
+	
 		for(i = 0; i < 16; i++)
 			UnrealPawn(Other).RequiredEquipment[i] = GetInventoryClassOverride(UnrealPawn(Other).RequiredEquipment[i]);
 		
@@ -414,13 +418,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		if(GameSettings.WeaponModifierChance <= 0)
 			W.bNoAmmoInstances = false;
 		
-		return true;
-	}
-	
-	//Monster fake weapon (for NetDamage to be called)
-	if(Other.IsA('Monster'))
-	{
-		Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
 		return true;
 	}
 	
@@ -567,6 +564,41 @@ function RPGPlayerReplicationInfo CheckRPRI(Controller C)
 	return RPRI;
 }
 
+function ReplaceBotController(Pawn Other)
+{
+	//TODO: how???
+
+	/*
+	local Controller OldController;
+	local UnrealTeamInfo Team;
+	local string RosterEntry;
+	local Bot Bot;
+	local DeathMatch Game;
+
+	Game = DeathMatch(Level.Game);
+	OldController = Other.Controller;
+	
+	if(OldController.IsA('RPGBot'))
+		return;
+	
+	Log("Replacing bot for" @ OldController.GetHumanReadableName() $ ", old controller class is" @ string(OldController.class), 'TitanRPG');
+	
+	Team = UnrealTeamInfo(Other.PlayerReplicationInfo.Team);
+	RosterEntry = Other.PlayerReplicationInfo.PlayerName;
+	
+	OldController.UnPossess();
+	//OldController.Destroy();
+	
+	Bot = Spawn(class'RPGBot');
+	Game.AdjustedDifficulty += 2;
+	Game.InitializeBot(Bot, Team, class'xRosterEntry'.static.CreateRosterEntryCharacter(RosterEntry));
+	Game.AdjustedDifficulty -= 2;
+	Bot.bInitLifeMessage = true;
+	
+	Bot.Possess(Other);
+	*/
+}
+
 function ModifyPlayer(Pawn Other)
 {
 	local RPGPlayerReplicationInfo RPRI;
@@ -580,7 +612,11 @@ function ModifyPlayer(Pawn Other)
 
 	if(Other.Controller == None || !Other.Controller.bIsPlayer)
 		return;
-		
+	
+	//Invasion forces a specific bot class, so we need to replace it afterwards
+	if(!Other.Controller.IsA('RPGBot') && (Other.Controller.IsA('InvasionBot') || Other.Controller.IsA('InvasionProBot')))
+		ReplaceBotController(Other);
+	
 	RPRI = CheckRPRI(Other.Controller);
 	if(RPRI == None)
 	{
@@ -990,8 +1026,8 @@ function ServerTraveling(string URL, bool bItems)
 
 function Mutate(string MutateString, PlayerController Sender)
 {
+	local array<string> Args;
 	local bool bIsAdmin, bIsSuperAdmin;
-	local string desc;
 	local int i, x;
 	local Weapon OldWeapon, Copy;
 	local class<RPGWeapon> NewWeaponClass;
@@ -1013,7 +1049,8 @@ function Mutate(string MutateString, PlayerController Sender)
 	local Actor Spawned;
 	local bool bFlag;
 	local Inventory Inv;
-	local FileLog FLog;
+	local bool bAll;
+	local string Game;
 	
 	bIsAdmin = Sender.PlayerReplicationInfo.bAdmin;
 	bIsSuperAdmin = false;
@@ -1028,369 +1065,366 @@ function Mutate(string MutateString, PlayerController Sender)
 		}
 	}
 	
-	//admin tools
-	if(bIsAdmin || bIsSuperAdmin)
+	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Sender);
+	Split(MutateString, " ", Args);
+	
+	if(Args.Length > 0)
 	{
-		if(MutateString ~= "damagelog")
+		//admin tools
+		if(bIsAdmin || bIsSuperAdmin)
 		{
-			class'RPGRules'.default.bDamageLog = !class'RPGRules'.default.bDamageLog;
-			
-			if(class'RPGRules'.default.bDamageLog)
-				Sender.ClientMessage("Damage log is ON!");
-			else
-				Sender.ClientMessage("Damage log is OFF!");
-		}
-		else if(MutateString ~= "countflogs")
-		{
-			Sender.ClientMessage("Counting FileLog actors...");
-			
-			x = 0;
-			foreach AllActors(class'FileLog', FLog)
+			if(Args[0] ~= "damagelog")
 			{
-				Sender.ClientMessage("-" @ FLog);
-				x++;
+				class'RPGRules'.default.bDamageLog = !class'RPGRules'.default.bDamageLog;
+				
+				if(class'RPGRules'.default.bDamageLog)
+					Sender.ClientMessage("Damage log is ON!");
+				else
+					Sender.ClientMessage("Damage log is OFF!");
 			}
-			
-			Sender.ClientMessage(x @ "FileLog actors detected");
+			else if(Args[0] ~= "save")
+			{
+				Log(Sender.PlayerReplicationInfo.PlayerName $ " has forced a save!", 'TitanRPG');
+				SaveData();
+				return;
+			}
+			else if(Args[0] ~= "fatality" && Args.Length > 1)
+			{
+				bAll = (Args[1] ~= "all");
+				
+				for(C = Level.ControllerList; C != None; C = C.NextController)
+				{
+					if(C.Pawn != None && (bFlag || Args[1] ~= C.GetHumanReadableName()))
+					{
+						E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
+						
+						if(Level.NetMode == NM_DedicatedServer)
+							E.LifeSpan = 0.7;
+						
+						C.Pawn.PlaySound(Sound'WeaponSounds.redeemer_explosionsound');
+						C.Pawn.MakeNoise(1.0);
+						C.Pawn.Died(None, class'DamTypeFatality', Location);
+						
+						if(PlayerController(C) != None)
+							PlayerController(C).ClientMessage("FATALITY!");
+					}
+				}
+			}
 		}
-		else if(MutateString ~= "save")
+		
+		if(bIsSuperAdmin && Args[0] ~= "travel" && Args.Length > 1)
 		{
-			//useful if the server has to be shut down
-			Log(Sender.PlayerReplicationInfo.PlayerName $ " has forced a save!", 'TitanRPG');
-			SaveData();
+			if(Args.Length > 2)
+				Game = Args[2];
+			else
+				Game = string(Level.Game.class);
+			
+			Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=TitanRPG.MutTitanRPG", false);
 			return;
 		}
-		else if(Left(MutateString, Len("fatality")) ~= "fatality")
+
+		//cheats
+		if(bAllowCheats || bIsSuperAdmin || Level.NetMode == NM_Standalone)
 		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("fatality")));
-			bFlag = (desc ~= "all");
-			
-			for(C = Level.ControllerList; C != None; C = C.NextController)
+			if(Args[0] ~= "summon" && Args.Length > 1)
 			{
-				if(C.Pawn != None && (bFlag || desc ~= C.GetHumanReadableName()))
+				ActorClass = class<Actor>(DynamicLoadObject(Args[1], class'Class'));
+				if(ActorClass != None)
 				{
-					E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
-					
-					if(Level.NetMode == NM_DedicatedServer)
-						E.LifeSpan = 0.7;
-					
-					C.Pawn.PlaySound(Sound'WeaponSounds.redeemer_explosionsound');
-					C.Pawn.MakeNoise(1.0);
-					C.Pawn.Died(None, class'DamTypeFatality', Location);
-					
-					if(PlayerController(C) != None)
-						PlayerController(C).ClientMessage("FATALITY!");
-				}
-			}
-		}
-	}
-	
-	if(bIsSuperAdmin && Left(MutateString, Len("travel")) ~= "travel")
-	{
-		desc = class'Util'.static.Trim(Mid(MutateString, Len("travel")));
-		Level.ServerTravel(desc $ "?Game=XGame.xVehicleCTFGame?Mutator=TitanRPG.MutTitanRPG", false);
-		return;
-	}
-
-	//cheats
-	if(bAllowCheats || bIsSuperAdmin || Level.NetMode == NM_Standalone)
-	{
-		if(Left(MutateString, Len("summon")) ~= "summon")
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("summon")));
-			
-			ActorClass = class<Actor>(DynamicLoadObject(desc, class'Class'));
-			if(ActorClass != None)
-			{
-				if(Sender.Pawn != None)
-				{
-					Rotate = Sender.Pawn.Rotation;
-				
-					Loc = 
-						Sender.Pawn.Location + 
-						vector(Rotate) * 
-						1.5f * (ActorClass.default.CollisionRadius + Sender.Pawn.CollisionRadius);
-					
-					Loc.Z = Sender.Pawn.Location.Z + ActorClass.default.CollisionHeight;
-				}
-				else
-				{
-					//spectating
-					Rotate = Sender.Rotation;
-					Loc = Sender.Location;
-				}
-
-				Spawned = Spawn(ActorClass, None, '', Loc, Rotate);
-				
-				if(Vehicle(Spawned) != None)
-					Vehicle(Spawned).bTeamLocked = false;
-				
-				if(Spawned != None)
-					Sender.ClientMessage("Spawned a " $ ActorClass);
-				else
-					Sender.ClientMessage("Failed to spawn a " $ ActorClass);
-			}
-			else
-			{
-				Sender.ClientMessage("Class " $ desc $ " not found!");
-			}
-		}
-		else if(Sender.Pawn != None && MutateString ~= "invis")
-		{
-			if(Sender.Pawn.DrawType == DT_None)
-			{
-				Sender.Pawn.SetDrawType(DT_Mesh);
-				Sender.ClientMessage("You are no longer invisible");
-			}
-			else
-			{
-				Sender.Pawn.SetDrawType(DT_None);
-				Sender.ClientMessage("You are now INVISIBLE");
-			}
-		}
-		else if(MutateString ~= "god")
-		{
-			Sender.bGodMode = !Sender.bGodMode;
-		
-			if(Sender.bGodMode)
-				Sender.ClientMessage("God mode is ON!");
-			else
-				Sender.ClientMessage("God mode is OFF!");
-		}
-		else if(Sender.Pawn != None && MutateString ~= "ruler")
-		{
-			foreach AllActors(class'NavigationPoint', N)
-			{
-				if(N.IsA('ONSPowerCore'))
-					N.Bump(Sender.Pawn);
-			}
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("make")) ~= "make")
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("make")));
-
-			if(desc ~= "None")
-				NewWeaponClass = class'RPGWeapon';
-			else
-				NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("<? echo($packageName); ?>.Weapon" $ desc, class'Class'));
-
-			if(NewWeaponClass != None)
-			{
-				OldWeapon = Sender.Pawn.Weapon;
-				if(OldWeapon == None)
-					return;
-
-				if(OldWeapon.isA('RPGWeapon'))
-					OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
-				else
-					OldWeaponClass = OldWeapon.class;
-
-				Copy = Spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
-				if(Copy == None)
-					return;
-
-				RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Sender);
-				if (RPRI != None)
-				{
-					for (x = 0; x < RPRI.OldRPGWeapons.length; x++)
+					if(Sender.Pawn != None)
 					{
-						if(oldWeapon == RPRI.OldRPGWeapons[x].Weapon)
+						Rotate = Sender.Pawn.Rotation;
+					
+						Loc = 
+							Sender.Pawn.Location + 
+							vector(Rotate) * 
+							1.5f * (ActorClass.default.CollisionRadius + Sender.Pawn.CollisionRadius);
+						
+						Loc.Z = Sender.Pawn.Location.Z + ActorClass.default.CollisionHeight;
+					}
+					else
+					{
+						//spectating
+						Rotate = Sender.Rotation;
+						Loc = Sender.Location;
+					}
+
+					Spawned = Spawn(ActorClass, None, '', Loc, Rotate);
+					
+					if(Vehicle(Spawned) != None)
+						Vehicle(Spawned).bTeamLocked = false;
+					
+					if(Spawned != None)
+						Sender.ClientMessage("Spawned a " $ ActorClass);
+					else
+						Sender.ClientMessage("Failed to spawn a " $ ActorClass);
+				}
+				else
+				{
+					Sender.ClientMessage("Class " $ Args[1] $ " not found!");
+				}
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "invis")
+			{
+				if(Sender.Pawn.DrawType == DT_None)
+				{
+					Sender.Pawn.SetDrawType(DT_Mesh);
+					Sender.ClientMessage("You are no longer invisible");
+				}
+				else
+				{
+					Sender.Pawn.SetDrawType(DT_None);
+					Sender.ClientMessage("You are now INVISIBLE");
+				}
+				return;
+			}
+			else if(Args[0] ~= "xp" && Args.Length > 0 && RPRI != None)
+			{
+				RPRI.Experience = float(Args[1]);
+			}
+			else if(Args[0] ~= "level" && Args.Length > 0 && RPRI != None)
+			{
+				RPRI.SetLevel(int(Args[1]));
+			}
+			else if(Args[0] ~= "god")
+			{
+				Sender.bGodMode = !Sender.bGodMode;
+			
+				if(Sender.bGodMode)
+					Sender.ClientMessage("God mode is ON!");
+				else
+					Sender.ClientMessage("God mode is OFF!");
+				
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "ruler")
+			{
+				foreach AllActors(class'NavigationPoint', N)
+				{
+					if(N.IsA('ONSPowerCore'))
+						N.Bump(Sender.Pawn);
+				}
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "make" && Args.Length > 1)
+			{
+				if(Args[1] ~= "None")
+					NewWeaponClass = class'RPGWeapon';
+				else
+					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("<? echo($packageName); ?>.Weapon" $ Args[1], class'Class'));
+
+				if(NewWeaponClass != None)
+				{
+					OldWeapon = Sender.Pawn.Weapon;
+					if(OldWeapon == None)
+						return;
+
+					if(OldWeapon.IsA('RPGWeapon'))
+						OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
+					else
+						OldWeaponClass = OldWeapon.class;
+
+					Copy = Spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
+					if(Copy == None)
+						return;
+
+					if (RPRI != None)
+					{
+						for (x = 0; x < RPRI.OldRPGWeapons.length; x++)
 						{
-							RPRI.OldRPGWeapons.Remove(x, 1);
-							break;
+							if(oldWeapon == RPRI.OldRPGWeapons[x].Weapon)
+							{
+								RPRI.OldRPGWeapons.Remove(x, 1);
+								break;
+							}
 						}
 					}
-				}
 
-				if(RPGWeapon(Copy) == None)
-					return;
+					if(RPGWeapon(Copy) == None)
+						return;
 
-				//try to generate a positive weapon.
-				for(x = 0; x < 50; x++)
-				{
-					RPGWeapon(Copy).Generate(None);
-					if(RPGWeapon(Copy).Modifier > -1)
-						break;
-				}
-
-				RPGWeapon(Copy).SetModifiedWeapon(Spawn(OldWeaponClass, Sender.Pawn,,, rot(0,0,0)), true);
-
-				OldWeapon.DetachFromPawn(Sender.Pawn);
-				if(OldWeapon.isA('RPGWeapon'))
-				{
-					RPGWeapon(OldWeapon).ModifiedWeapon.Destroy();
-					RPGWeapon(OldWeapon).ModifiedWeapon = None;
-				}
-				OldWeapon.Destroy();
-				Copy.GiveTo(Sender.Pawn);
-				RPGWeapon(Copy).Identify(true);
-			}
-			else
-			{
-				Log("CHEAT: Weapon class " $ desc $ " not found!", 'TitanRPG');
-			}
-			return;
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("mod")) ~= "mod")
-		{
-			x = int(class'Util'.static.Trim(Mid(MutateString, Len("make"))));
-			if(RPGWeapon(Sender.Pawn.Weapon) != None)
-			{
-				RPGWeapon(Sender.Pawn.Weapon).SetModifier(x);
-				RPGWeapon(Sender.Pawn.Weapon).Identify(true);
-			}
-
-			return;
-		}
-		else if(Sender.Pawn != None && MutateString ~= "artifacts")
-		{
-			for(x = 0; x < Artifacts.Length; x++)
-				class'Util'.static.GiveInventory(Sender.Pawn, Artifacts[x]);
-
-			return;
-		}
-		else if(Sender.Pawn != None && MutateString ~= "ammo")
-		{
-			if(Sender.Pawn.Weapon != None)
-				Sender.Pawn.Weapon.SuperMaxOutAmmo();
-
-			return;
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("artifact")) ~= "artifact")
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("artifact")));
-			
-			ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact" $ desc, class'Class'));
-			if(ArtifactClass != None)
-				class'Util'.static.GiveInventory(Sender.Pawn, ArtifactClass);
-			else
-				Log("CHEAT: Artifact class " $ desc $ " not found!", 'TitanRPG');
-		
-			return;
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("vm")) ~= "vm" && Vehicle(Sender.Pawn) != None)
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("vm")));
-			
-			VMClass = class<VehicleMagic>(DynamicLoadObject("<? echo($packageName); ?>.VehicleMagic" $ desc, class'Class'));
-			if(VMClass != None)
-				VMClass.static.ApplyTo(Vehicle(Sender.Pawn));
-			else
-				Log("CHEAT: Vehicle magic class " $ desc $ " not found!", 'TitanRPG');
-		
-			return;
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("adren")) ~= "adren")
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("adren")));
-			Sender.Adrenaline = Max(0, int(desc));
-			return;
-		}
-		else if(Sender.Pawn != None && Left(MutateString, Len("health")) ~= "health")
-		{
-			desc = class'Util'.static.Trim(Mid(MutateString, Len("health")));
-			Sender.Pawn.Health = Max(1, int(desc));
-			return;
-		}
-	}
-	
-	//anyone
-	if(MutateString ~= "weaponinfo")
-	{
-		if(Sender.Pawn != None && Sender.Pawn.Weapon != None)
-		{
-			W = Sender.Pawn.Weapon;
-			
-			Log("WeaponInfo:", 'TitanRPG');
-			Log("Class = " $ W.class, 'TitanRPG');
-			
-			if(W.IsA('RPGWeapon'))
-			{
-				W = RPGWeapon(W).ModifiedWeapon;
-				Log("Actual class: " $ W.class, 'TitanRPG');
-			}
-			
-			Log("InventoryGroup = " $ W.InventoryGroup, 'TitanRPG');
-			Log("", 'TitanRPG');
-		
-			for(i = 0; i < 2; i++)
-			{
-				WF = W.GetFireMode(i);
-				if(WF != None)
-				{
-					Log("WeaponFire[" $ i $ "] = " $ WF.class, 'TitanRPG');
-					Log("AmmoClass = " $ WF.AmmoClass, 'TitanRPG');
-					if(InstantFire(WF) != None)
+					//try to generate a positive weapon.
+					for(x = 0; x < 50; x++)
 					{
-						Log("DamageType = "$ InstantFire(WF).DamageType, 'TitanRPG');
+						RPGWeapon(Copy).Generate(None);
+						if(RPGWeapon(Copy).Modifier > -1)
+							break;
 					}
-					else if(ProjectileFire(WF) != None)
+
+					RPGWeapon(Copy).SetModifiedWeapon(Spawn(OldWeaponClass, Sender.Pawn,,, rot(0,0,0)), true);
+
+					OldWeapon.DetachFromPawn(Sender.Pawn);
+					if(OldWeapon.isA('RPGWeapon'))
 					{
-						Log("ProjectileClass = " $WF.ProjectileClass, 'TitanRPG');
-						Log("DamageType = " $WF.ProjectileClass.default.MyDamageType, 'TitanRPG');
+						RPGWeapon(OldWeapon).ModifiedWeapon.Destroy();
+						RPGWeapon(OldWeapon).ModifiedWeapon = None;
 					}
-					Log("", 'TitanRPG');			
+					OldWeapon.Destroy();
+					Copy.GiveTo(Sender.Pawn);
+					RPGWeapon(Copy).Identify(true);
 				}
+				else
+				{
+					Sender.ClientMessage("Weapon class '" $ Args[1] $ "' not found!");
+				}
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "mod" && Args.Length > 1)
+			{
+				if(RPGWeapon(Sender.Pawn.Weapon) != None)
+				{
+					RPGWeapon(Sender.Pawn.Weapon).SetModifier(int(Args[1]));
+					RPGWeapon(Sender.Pawn.Weapon).Identify(true);
+				}
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "ammo")
+			{
+				for(Inv = Sender.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+				{
+					if(Inv.IsA('Weapon'))
+						Weapon(Inv).SuperMaxOutAmmo();
+				}
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "artifacts")
+			{
+				for(x = 0; x < Artifacts.Length; x++)
+					class'Util'.static.GiveInventory(Sender.Pawn, Artifacts[x]);
+
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "artifact" && Args.Length > 1)
+			{
+				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact" $ Args[1], class'Class'));
+				if(ArtifactClass != None)
+					class'Util'.static.GiveInventory(Sender.Pawn, ArtifactClass);
+				else
+					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
+			
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "vm" && Args.Length > 1)
+			{
+				VMClass = class<VehicleMagic>(DynamicLoadObject("<? echo($packageName); ?>.VehicleMagic" $ Args[1], class'Class'));
+				if(VMClass != None)
+					VMClass.static.ApplyTo(Vehicle(Sender.Pawn));
+				else
+					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
+			
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "adren" && Args.Length > 1)
+			{
+				Sender.Adrenaline = Max(0, int(Args[1]));
+				return;
+			}
+			else if(Sender.Pawn != None && Args[0] ~= "health" && Args.Length > 1)
+			{
+				Sender.Pawn.Health = Max(1, int(Args[1]));
+				return;
 			}
 		}
-	}
-	else if(MutateString ~= "vehicleinfo")
-	{
-		V = Vehicle(Sender.Pawn);
-		if(V != None)
-		{
-			Log("VehicleInfo:", 'TitanRPG');
-			Log("Class = " $ V.class, 'TitanRPG');
-			Log("HealthMax = " $ V.HealthMax, 'TitanRPG');
-			Log("", 'TitanRPG');
 		
-			OV = ONSVehicle(V);
-			if(OV != None)
+		//anyone
+		if(Args[0] ~= "weaponinfo")
+		{
+			if(Sender.Pawn != None && Sender.Pawn.Weapon != None)
 			{
-				for(i = 0; i < OV.DriverWeapons.length; i++)
+				W = Sender.Pawn.Weapon;
+				
+				Log("WeaponInfo:", 'TitanRPG');
+				Log("Class = " $ W.class, 'TitanRPG');
+				
+				if(W.IsA('RPGWeapon'))
 				{
-					Log("DriverWeapons[" $ i $ "] = " $ OV.DriverWeapons[i].WeaponClass, 'TitanRPG');
-					Log("DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.DamageType, 'TitanRPG');
-					
-					Log("ProjectileClass = " $ OV.DriverWeapons[i].WeaponClass.default.ProjectileClass, 'TitanRPG');
-					if(OV.DriverWeapons[i].WeaponClass.default.ProjectileClass != None)
-						Log("ProjectileClass - DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.ProjectileClass.default.MyDamageType, 'TitanRPG');
-						
-					Log("AltFireProjectileClass = " $ OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass, 'TitanRPG');
-					if(OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass != None)
-						Log("AltFireProjectileClass - DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass.default.MyDamageType, 'TitanRPG');
-						
-					Log("", 'TitanRPG');
+					W = RPGWeapon(W).ModifiedWeapon;
+					Log("Actual class: " $ W.class, 'TitanRPG');
 				}
 				
-				for(i = 0; i < OV.PassengerWeapons.length; i++)
+				Log("InventoryGroup = " $ W.InventoryGroup, 'TitanRPG');
+				Log("", 'TitanRPG');
+			
+				for(i = 0; i < 2; i++)
 				{
-					OWP = OV.PassengerWeapons[i].WeaponPawnClass;
-					Log("WeaponPawns[" $ i $ "] = " $ OWP, 'TitanRPG');
-
-					Log("GunClass = " $ OWP.default.GunClass, 'TitanRPG');
-					Log("DamageType = " $ OWP.default.GunClass.default.DamageType, 'TitanRPG');
-				
-					Log("ProjectileClass = " $ OWP.default.GunClass.default.ProjectileClass, 'TitanRPG');
-					if(OWP.default.GunClass.default.ProjectileClass != None)
-						Log("ProjectileClass - DamageType = " $ OWP.default.GunClass.default.ProjectileClass.default.MyDamageType, 'TitanRPG');
-					
-					Log("AltFireProjectileClass = " $ OWP.default.GunClass.default.AltFireProjectileClass, 'TitanRPG');
-					if(OWP.default.GunClass.default.AltFireProjectileClass != None)
-						Log("AltFireProjectileClass - DamageType = " $ OWP.default.GunClass.default.AltFireProjectileClass.default.MyDamageType, 'TitanRPG');
-					
-					Log("", 'TitanRPG');
+					WF = W.GetFireMode(i);
+					if(WF != None)
+					{
+						Log("WeaponFire[" $ i $ "] = " $ WF.class, 'TitanRPG');
+						Log("AmmoClass = " $ WF.AmmoClass, 'TitanRPG');
+						if(InstantFire(WF) != None)
+						{
+							Log("DamageType = "$ InstantFire(WF).DamageType, 'TitanRPG');
+						}
+						else if(ProjectileFire(WF) != None)
+						{
+							Log("ProjectileClass = " $WF.ProjectileClass, 'TitanRPG');
+							Log("DamageType = " $WF.ProjectileClass.default.MyDamageType, 'TitanRPG');
+						}
+						Log("", 'TitanRPG');			
+					}
 				}
 			}
 		}
-	}
-	else if(MutateString ~= "inventory" && Sender.Pawn != None)
-	{
-		Log("Inventory of" @ Sender.Pawn $ ":", 'TitanRPG');
-		for(Inv = Sender.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
-			Log("-" @ Inv, 'TitanRPG');
+		else if(Args[0] ~= "vehicleinfo")
+		{
+			V = Vehicle(Sender.Pawn);
+			if(V != None)
+			{
+				Log("VehicleInfo:", 'TitanRPG');
+				Log("Class = " $ V.class, 'TitanRPG');
+				Log("HealthMax = " $ V.HealthMax, 'TitanRPG');
+				Log("", 'TitanRPG');
+			
+				OV = ONSVehicle(V);
+				if(OV != None)
+				{
+					for(i = 0; i < OV.DriverWeapons.length; i++)
+					{
+						Log("DriverWeapons[" $ i $ "] = " $ OV.DriverWeapons[i].WeaponClass, 'TitanRPG');
+						Log("DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.DamageType, 'TitanRPG');
+						
+						Log("ProjectileClass = " $ OV.DriverWeapons[i].WeaponClass.default.ProjectileClass, 'TitanRPG');
+						if(OV.DriverWeapons[i].WeaponClass.default.ProjectileClass != None)
+							Log("ProjectileClass - DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.ProjectileClass.default.MyDamageType, 'TitanRPG');
+							
+						Log("AltFireProjectileClass = " $ OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass, 'TitanRPG');
+						if(OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass != None)
+							Log("AltFireProjectileClass - DamageType = " $ OV.DriverWeapons[i].WeaponClass.default.AltFireProjectileClass.default.MyDamageType, 'TitanRPG');
+							
+						Log("", 'TitanRPG');
+					}
+					
+					for(i = 0; i < OV.PassengerWeapons.length; i++)
+					{
+						OWP = OV.PassengerWeapons[i].WeaponPawnClass;
+						Log("WeaponPawns[" $ i $ "] = " $ OWP, 'TitanRPG');
 
-		Log("", 'TitanRPG');
+						Log("GunClass = " $ OWP.default.GunClass, 'TitanRPG');
+						Log("DamageType = " $ OWP.default.GunClass.default.DamageType, 'TitanRPG');
+					
+						Log("ProjectileClass = " $ OWP.default.GunClass.default.ProjectileClass, 'TitanRPG');
+						if(OWP.default.GunClass.default.ProjectileClass != None)
+							Log("ProjectileClass - DamageType = " $ OWP.default.GunClass.default.ProjectileClass.default.MyDamageType, 'TitanRPG');
+						
+						Log("AltFireProjectileClass = " $ OWP.default.GunClass.default.AltFireProjectileClass, 'TitanRPG');
+						if(OWP.default.GunClass.default.AltFireProjectileClass != None)
+							Log("AltFireProjectileClass - DamageType = " $ OWP.default.GunClass.default.AltFireProjectileClass.default.MyDamageType, 'TitanRPG');
+						
+						Log("", 'TitanRPG');
+					}
+				}
+			}
+		}
+		else if(Args[0] ~= "inventory" && Sender.Pawn != None)
+		{
+			Log("Inventory of" @ Sender.Pawn $ ":", 'TitanRPG');
+			for(Inv = Sender.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+				Log("-" @ Inv, 'TitanRPG');
+
+			Log("", 'TitanRPG');
+		}
 	}
 
 	Super.Mutate(MutateString, Sender);

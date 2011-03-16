@@ -29,7 +29,8 @@ var localized string LevelText;
 
 var Material ArtifactBorderMaterial;
 var Rect ArtifactBorderMaterialRect;
-var float ArtifactBorderMaterialTextureScale, ArtifactHighlightIndention;
+var float ArtifactBorderSize;
+var float ArtifactHighlightIndention;
 var float ArtifactIconInnerScale;
 
 var string LastWeaponExtra;
@@ -332,8 +333,7 @@ function UpdateCanvas(Canvas Canvas)
 	else
 		ArtifactIconPos.Y = Canvas.ClipY * Settings.IconsY;
 	
-	ArtifactIconSize = 
-		ArtifactBorderMaterialRect.Y * (ArtifactBorderMaterialTextureScale * Canvas.ClipY / 480.0f) * Settings.IconScale;
+	ArtifactIconSize = ArtifactBorderSize * Settings.IconScale * (Canvas.ClipY / 768.0f);
 }
 
 function PostRender(Canvas Canvas)
@@ -833,7 +833,7 @@ defaultproperties
 	bVisible=True
 	ArtifactTutorialText="You have collected a magic artifact!|Press $1 to use it or press $2 and $3 to browse|if you have multiple artifacts."
 	ArtifactBorderMaterial=Texture'HudContent.Generic.HUD'
-	ArtifactBorderMaterialTextureScale=0.53
+	ArtifactBorderSize=48
 	ArtifactBorderMaterialRect=(X=0,Y=39,W=95,H=54)
 	ArtifactIconInnerScale=0.67
 	ArtifactHighlightIndention=0.15

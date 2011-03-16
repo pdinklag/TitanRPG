@@ -68,6 +68,8 @@ function PostRender(Canvas C)
 	else
 		MaxDist = PC.TeamBeaconPlayerInfoMaxDist;
 	
+	MaxDist *= 2.0f;
+	
 	if(PC.ViewTarget != None)
 		RefActor = PC.ViewTarget;
 	else if(PC.Pawn != None)
