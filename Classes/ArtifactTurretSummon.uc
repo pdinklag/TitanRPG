@@ -138,6 +138,6 @@ defaultproperties
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.TurretSummon'
 	HudColor=(B=160,G=160,R=160)
 	CostPerSec=10
-	UseDelay=0
+	Cooldown=0
 	TurretTypes(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=100,StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor',DrawScale=0.125)
 }

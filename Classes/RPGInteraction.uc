@@ -475,6 +475,8 @@ function PostRender(Canvas Canvas)
 		X = StatusIconPos.X;
 		Y = StatusIconPos.Y;
 		
+		//TODO: Status icon for drones, ejector seat
+		
 		if(RPRI.NumMonsters > 0)
 		{
 			DrawStatusIcon(Canvas, MonsterIcon, X, Y, StatusIconSize.X, StatusIconSize.Y, RPRI.NumMonsters, RPRI.MaxMonsters);

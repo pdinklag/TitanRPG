@@ -25,7 +25,7 @@ defaultproperties
 {
 	bAllowInVehicle=False
 	CostPerSec=0
-	UseDelay=60
+	Cooldown=60
 	HudColor=(B=255,G=0,R=0)
 	ArtifactID="Healing Blast"
 	bCanBeTossed=False

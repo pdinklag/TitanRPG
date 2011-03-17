@@ -53,6 +53,14 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	return false; //NOT saving the vehicle
 }
 
+function bool CanEnterVehicle(Vehicle V)
+{
+	//TODO: Add a vehicle "cooldown" that prevents you from entering a vehicle after having been ejected
+	//TODO: Add a status icon for this
+	
+	return true;
+}
+
 defaultproperties
 {
 	AbilityName="Ejector Seat"

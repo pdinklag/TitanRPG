@@ -61,6 +61,7 @@ var config array<class<Ammunition> > SuperAmmoClasses;
 var config int MaxDrones, StartingDrones;
 var config int MaxMonsters; //minimum MaxMonsters per player...
 var config int MaxTurrets; //minimum MaxTurrets per player...
+var config int MaxMines; //minimum MaxMines per player...
 
 //admin commands
 var config array<String> AdminGUID;
@@ -284,6 +285,8 @@ function string GetInventoryClassOverride(string InventoryClassName)
 		return "<? echo($packageName); ?>.RPGShieldGun";
 	else if(InventoryClassName ~= "XWeapons.LinkGun" || InventoryClassName ~= "OLTeamGames.OLTeamsLinkGun")
 		return "<? echo($packageName); ?>.RPGLinkGun";
+	else if(InventoryClassName ~= "Onslaught.ONSMineLayer" || InventoryClassName ~= "OLTeamGames.OLTeamsONSMineLayer")
+		return "<? echo($packageName); ?>.RPGMineLayer";
 	else if(InventoryClassName ~= "XWeapons.BallLauncher")
 		return "<? echo($packageName); ?>.RPGBallLauncher";
 
@@ -807,6 +810,32 @@ function DriverLeftVehicle(Vehicle V, Pawn P)
 	}
 
 	Super.DriverLeftVehicle(V, P);
+}
+
+function bool CanEnterVehicle(Vehicle V, Pawn P)
+{
+	local RPGPlayerReplicationInfo RPRI;
+	local int i;
+	
+	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
+	if(RPRI != None)
+	{
+		for(i = 0; i < RPRI.Abilities.length; i++)
+		{
+			if(RPRI.Abilities[i].bAllowed)
+			{
+				if(!RPRI.Abilities[i].CanEnterVehicle(V))
+					return false;
+			}
+		}
+	}
+	
+	return Super.CanEnterVehicle(V, P);
+}
+
+function bool CanLeaveVehicle(Vehicle V, Pawn P)
+{
+	return Super.CanLeaveVehicle(V, P);
 }
 
 //Check the player data at the given index for errors (too many/not enough stat points, invalid abilities)
@@ -1468,6 +1497,7 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 
 defaultproperties
 {
+	MaxMines=2
 	MaxDrones=0
 	StartingDrones=0
 	MinHumanPlayersForExp=0

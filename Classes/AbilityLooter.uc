@@ -63,7 +63,7 @@ function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
 defaultproperties
 {
 	AbilityName="Looter"
-	Description="If you kill somebody, your victim will drop more powerful pickups per level."
+	Description="If you kill somebody, your victim will drop more powerful pickups each level."
 	MaxLevel=3
 	BonusPerLevel=1 //amount of pickups
 	bUseLevelCost=true

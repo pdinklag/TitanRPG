@@ -123,7 +123,7 @@ defaultproperties
 	MinKnockbackMomentum=1000.000000
 	KnockbackSound=Sound'WeaponSounds.Misc.ballgun_launch'
 	KnockbackOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
-	UseDelay=5
+	Cooldown=5
 	CostPerSec=25
 	HudColor=(B=255,G=128,R=128)
 	ArtifactID="Repulsion"

@@ -11,10 +11,16 @@ TEST:
 
 - Selection menu for the magic weapon maker
 
+- AbilityShockTherapy
+- AbilityMineLayer
+- AbilityLooter
+
 TODO (XT Config):
 - ColoredSpeedTrailLevel=8
+- Find and replace "UseDelay" -> "Cooldown"
 
 TODO (1.61)
+- Reimplement cooldown?
 - Get RPGBots into Invasion / InvasionPro
 
 - bAllowSuicide in Ultima
@@ -44,6 +50,10 @@ Localization TODO:
 - MagicWeaponMenu
 
 Documentation TODO:
+- AbilityShockTherapy
+- AbilityMineLayer
+- AbilityLooter
+- Mines
 - Drone
 - German translation
 - ArtifactMakeSelectedMagicWeapon
@@ -70,6 +80,10 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Added Shock Therapy ability
+- Added Looter ability
+- Added Mine Layer ability
+- Mines are synchronized between all mine layers
 - RPG Menu pauses game when offline
 - Explicit InvasionPro support
 - Bots no longer fire at friendly monsters

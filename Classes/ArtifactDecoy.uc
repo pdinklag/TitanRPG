@@ -64,7 +64,7 @@ function DoEffect()
 
 defaultproperties
 {
-	UseDelay=10
+	Cooldown=10
 	OnlyInVehicleText="The Decoy can only be used in a vehicle's driver seat."
 	OnlyOneAtATimeText="You can only fire one decoy at a time."
 	ArtifactID="Decoy"

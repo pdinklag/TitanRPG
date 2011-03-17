@@ -146,7 +146,7 @@ defaultproperties
 	CouldNotSpawnText="Failed to construct turret - adrenaline given back."
 	NoMoreTurretsText="You cannot construct any more turrets at this time."
 	bAllowInVehicle=False
-	UseDelay=30
+	Cooldown=30
 	MinActivationTime=1.000000
 	ZAdjust(0)=(TurretClass=class'ASVehicle_Sentinel_Floor',Z=150)
 	ZAdjust(1)=(TurretClass=class'ASTurret_Minigun',Z=94)

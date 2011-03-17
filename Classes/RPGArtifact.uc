@@ -8,7 +8,9 @@ var config int MinAdrenaline; //adrenaline required to activate this artifact
 
 var config Color HudColor;
 
-var config float UseDelay; //how much time has to pass before you can use this first / again
+var config float Cooldown;
+var config bool bInitialCooldown;
+var config bool bResetCooldownOnRespawn;
 
 var float CurrentCostPerSec;
 var config float FlagMultiplier; //scale the cost per sec when holding the flag
@@ -21,13 +23,13 @@ var config bool bCanBeTossed;
 var localized string Description;
 
 const MSG_Adrenaline = 0x0000;
-const MSG_UseDelay = 0x0001;
+const MSG_Cooldown = 0x0001;
 const MSG_Expired = 0x0002;
 const MSG_NotInVehicle = 0x0003;
 
 var localized string
 	MSG_Text_Adrenaline,
-	MSG_Text_UseDelay,
+	MSG_Text_Cooldown,
 	MSG_Text_Expired,
 	MSG_Text_NotInVehicle;
 
@@ -40,7 +42,7 @@ replication
 		TossArtifact;
 	
 	reliable if(Role == ROLE_Authority)
-		ClientNotifyUseDelay, Msg;
+		ClientNotifyCooldown, Msg;
 }
 
 static function bool HasActiveArtifact(Pawn Other)
@@ -60,7 +62,6 @@ static function RPGArtifact HasArtifact(Pawn Other)
 	return RPGArtifact(Other.FindInventoryType(default.class));
 }
 
-//Utility function -pd
 static function bool IsActiveFor(Pawn Other)
 {
 	local Inventory Inv;
@@ -151,9 +152,9 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 	Super.GiveTo(Other, Pickup);
 	
 	if(NextUseTime == 0.f)
-		DoUseDelay();
+		DoCooldown();
 	else
-		ClientNotifyUseDelay(NextUseTime - Level.TimeSeconds);
+		ClientNotifyCooldown(NextUseTime - Level.TimeSeconds);
 	
 	StripOut();
 	SortIn();
@@ -260,8 +261,8 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 		case MSG_Adrenaline:
 			return Repl(default.MSG_Text_Adrenaline, "$1", string(Value));
 		
-		case MSG_UseDelay:
-			return Repl(default.MSG_Text_UseDelay, "$1", string(Value) @ class'MutTitanRPG'.static.GetSecondsText(Value));
+		case MSG_Cooldown:
+			return Repl(default.MSG_Text_Cooldown, "$1", string(Value) @ class'MutTitanRPG'.static.GetSecondsText(Value));
 			
 		case MSG_Expired:
 			return default.MSG_Text_Expired;
@@ -293,7 +294,7 @@ function bool CanActivate()
 	if(Level.TimeSeconds < NextUseTime)
 	{
 		Countdown = int(NextUseTime - Level.TimeSeconds + 1);
-		Msg(MSG_UseDelay, Countdown);
+		Msg(MSG_Cooldown, Countdown);
 		return false;
 	}
 
@@ -319,12 +320,12 @@ function bool CanDeactivate()
 	return true;
 }
 
-function DoUseDelay()
+function DoCooldown()
 {
-	if(UseDelay > 0)
+	if(Cooldown > 0)
 	{
-		NextUseTime = Level.TimeSeconds + UseDelay;
-		ClientNotifyUseDelay(UseDelay);
+		NextUseTime = Level.TimeSeconds + Cooldown;
+		ClientNotifyCooldown(Cooldown);
 	}
 }
 
@@ -336,13 +337,12 @@ function Activate()
 		{
 			GotoState('');
 			Owner.PlaySound(DeactivateSound, SLOT_Interface);
+			DoCooldown();
 		}
 		else if(!bActive && CanActivate())
 		{
 			CurrentCostPerSec = 0.f;
 			GotoState('Activated');
-			
-			DoUseDelay();
 		}
 	}
 	else if(CanActivate())
@@ -352,7 +352,7 @@ function Activate()
 		if(CostPerSec > 0)
 			Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
 			
-		DoUseDelay();
+		DoCooldown();
 	}
 }
 
@@ -410,7 +410,7 @@ static function string GetArtifactNameExtra()
 	return default.Description;
 }
 
-simulated function ClientNotifyUseDelay(float Delay)
+simulated function ClientNotifyCooldown(float Delay)
 {
 	NextUseTime = Level.TimeSeconds + Delay;
 }
@@ -473,13 +473,15 @@ defaultproperties
 	bReplicateInstigator=True
 	MessageClass=Class'UnrealGame.StringMessagePlus'
 	CostPerSec=0
-	UseDelay=0
+	Cooldown=0
+	bInitialCooldown=True
+	bResetCooldownOnRespawn=True
 	HudColor=(B=0,G=255,R=255,A=255)
 	FlagMultiplier=1.000000
 	MinActivationTime=0
 	bAllowInVehicle=True
 	MSG_Text_Adrenaline="$1 adrenaline is required to activate this artifact."
-	MSG_Text_UseDelay="This artifact will be available in $1."
+	MSG_Text_Cooldown="This artifact will be available in $1."
 	MSG_Text_Expired="You have run out of adrenaline."
 	MSG_Text_NotInVehicle="You cannot use this artifact in a vehicle."
 }

@@ -135,7 +135,7 @@ defaultproperties
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MonsterSummon'
 	HudColor=(B=96,G=64,R=192)
 	CostPerSec=0
-	UseDelay=0
+	Cooldown=0
 	
 	MonsterTypes(0)=(MonsterClass=class'SkaarjPack.SkaarjPupae',DisplayName="Skaarj Pupae",Cost=10);
 	MonsterTypes(1)=(MonsterClass=class'SkaarjPack.Krall',DisplayName="Krall",Cost=25);

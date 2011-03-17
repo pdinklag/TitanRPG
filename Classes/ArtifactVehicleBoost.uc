@@ -145,7 +145,7 @@ defaultproperties
 {
 	BoostForce=(X=6000000.000000,Z=150000.000000)
 	BoostTrailLifeTime=3.000000
-	UseDelay=15
+	Cooldown=15
 	MsgRestriction="The Nitro Boost can only be used in a wheeled vehicle."
 	HudColor=(B=192,G=192,R=192)
 	ArtifactID="NitroBoost"

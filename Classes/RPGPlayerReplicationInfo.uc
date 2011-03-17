@@ -47,13 +47,14 @@ var Weapon LastPawnWeapon;
 var array<Vehicle> Turrets;
 var array<Monster> Monsters;
 var array<Drone> Drones;
+var array<ONSMineProjectile> Mines;
 
 //replicated
-var int NumMonsters, NumTurrets;
+var int NumMonsters, NumTurrets, NumMines;
 
 //stats
 var int Attack, Defense, AmmoMax, WeaponSpeed;
-var int MaxMonsters, MaxDrones, MaxTurrets;
+var int MaxMines, MaxMonsters, MaxDrones, MaxTurrets;
 
 var float HealingExpMultiplier;
 
@@ -110,8 +111,8 @@ replication
 	reliable if(Role == ROLE_Authority && bNetDirty)
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
-		NumMonsters, MaxMonsters,
-		NumTurrets, MaxTurrets;
+		NumMines, NumMonsters, MaxMonsters,
+		NumTurrets, MaxMines, MaxTurrets;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
 		ClientModifyVehicleWeaponFireRate,
@@ -184,6 +185,7 @@ function ModifyStats()
 {
 	local int x;
 	
+	MaxMines = RPGMut.MaxMines;
 	MaxMonsters = RPGMut.MaxMonsters;
 	MaxDrones = RPGMut.MaxDrones;
 	MaxTurrets = RPGMut.MaxTurrets;
@@ -669,6 +671,19 @@ simulated event Tick(float dt)
 			else
 				x++;
 		}
+
+		//Clean mines
+		x = 0;
+		while(x < Mines.Length)
+		{
+			if(Mines[x] == None)
+			{
+				NumMines--;
+				Mines.Remove(x, 1);
+			}
+			else
+				x++;
+		}
 	}
 }
 
@@ -861,6 +876,12 @@ function ModifyPlayer(Pawn Other)
 function AddDrone(Drone D)
 {
 	Drones[Drones.Length] = D;
+}
+
+function AddMine(ONSMineProjectile Mine)
+{
+	Mines[Mines.Length] = Mine;
+	NumMines++;
 }
 
 function AddMonster(Monster M)

@@ -481,6 +481,12 @@ function ModifyVehicle(Vehicle V);
  */
 function UnModifyVehicle(Vehicle V);
 
+//Override ability to enter or leave a vehicle
+function bool CanEnterVehicle(Vehicle V)
+{
+	return true;
+}
+
 /* React to damage about to be done to the injured player's pawn. Called by RPGRules.NetDamage()
  * Note that this is called AFTER the damage has been affected by Damage Bonus/Damage Reduction.
  * Also note that for any damage this is called on the abilities of both players involved.

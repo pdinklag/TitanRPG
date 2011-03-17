@@ -97,6 +97,6 @@ defaultproperties
 	CouldNotSpawnText="Failed to spawn monster - adrenaline given back."
 	NoMoreMonstersText="You cannot spawn any more monsters at this time."
 	bAllowInVehicle=False
-	UseDelay=30
+	Cooldown=30
 	MinActivationTime=1.000000
 }
