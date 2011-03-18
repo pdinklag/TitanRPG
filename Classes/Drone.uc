@@ -11,7 +11,7 @@ var float AngularSpeed, OrbitYaw, OrbitWobble;
 //Replication
 var PlayerReplicationInfo OwnerPRI;
 var byte Team;
-var vector PawnLocation;
+var vector PawnLocation, PawnVelocity;
 var rotator PawnRotation;
 
 //Client
@@ -27,8 +27,10 @@ var float SyncInterval, SyncTreshold;
 
 var float OrbitHeight;
 
-var config float OrbitRadius, OrbitHeightMin, OrbitHeightMax, OrbitWobbleZ, OrbitWobbleSpeed;
-var config float Speed;
+var config float OrbitRadius, OrbitHeightMin, OrbitHeightMax, OrbitWobbleZ, OrbitWobbleSpeed, OrbitSpeed;
+var config float FollowSpeed[2], FollowSpeedRange, FollowPawnVelocity;
+
+var config float OrbitRadiusVariance, SpeedVariance;
 
 const RAD_TO_ROT = 10430.378350f; //32768 / Pi
 
@@ -38,11 +40,11 @@ replication
 		ClientSync;
 	
 	reliable if(Role == ROLE_Authority && bNetInitial)
-		Speed,
+		FollowSpeed, FollowSpeedRange, FollowPawnVelocity, OrbitSpeed,
 		OrbitRadius, OrbitHeight, OrbitWobbleZ, OrbitWobbleSpeed, OrbitInnerTreshold, OrbitOuterTreshold;
 
 	unreliable if(Role == ROLE_Authority && bNetDirty)
-		PawnLocation, PawnRotation, Team;
+		PawnLocation, PawnVelocity, PawnRotation, Team;
 	
 	unreliable if(Role == ROLE_Authority && IsInState('Orbiting'))
 		OrbitYaw, OrbitWobble;
@@ -73,6 +75,8 @@ static function Drone SpawnFor(Pawn Other)
 
 simulated event PostBeginPlay()
 {
+	local float x;
+
 	Super.PostBeginPlay();
 	
 	if(Role == ROLE_Authority)
@@ -92,6 +96,14 @@ simulated event PostBeginPlay()
 		OrbitHeight = OrbitHeightMin + FRand() * (OrbitHeightMax - OrbitHeightMin);
 		OrbitWobble = FRand() * Pi;
 		
+		x = 1.0f + (FRand() * 2.0f - 1.0f) * SpeedVariance;
+		
+		OrbitSpeed *= x;
+		FollowSpeed[0] *= x;
+		FollowSpeed[1] *= x;
+		
+		OrbitRadius *= 1.0f + (FRand() * 2.0f - 1.0f) * OrbitRadiusVariance;
+		
 		SetTimer(SyncInterval, true);
 	}
 	
@@ -110,7 +122,7 @@ simulated event PostNetBeginPlay()
 	if(Level.NetMode != NM_DedicatedServer)
 		ChangedTeam();
 	
-	AngularSpeed = (Speed / OrbitRadius) * RAD_TO_ROT;
+	AngularSpeed = (OrbitSpeed / OrbitRadius) * RAD_TO_ROT;
 
 	GotoState('Orbiting');
 }
@@ -143,6 +155,7 @@ simulated event Tick(float dt)
 		else
 		{
 			PawnLocation = PawnOwner.Location;
+			PawnVelocity = PawnOwner.Velocity;
 			PawnRotation = PawnOwner.Rotation;
 		}
 		
@@ -156,9 +169,11 @@ simulated event Tick(float dt)
 		ChangedTeam();
 }
 
+simulated function float GetCurrentSpeed();
+
 simulated function SetDirection(vector Dir)
 {
-	Velocity = Speed * Normal(Dir);
+	Velocity = GetCurrentSpeed() * Normal(Dir);
 	SetRotation(rotator(Flatten(Dir))); //TODO: unless there is a firing target
 }
 
@@ -207,6 +222,11 @@ state Orbiting
 		OrbitYaw = r.Yaw;
 	}
 
+	simulated function float GetCurrentSpeed()
+	{
+		return OrbitSpeed;
+	}
+
 	simulated function BeginState()
 	{
 		StateUpdateLocation();
@@ -217,7 +237,7 @@ state Orbiting
 	
 	simulated event Tick(float dt)
 	{
-		local float Dist, OutOfOrbit, Z;
+		local float Dist, OutOfOrbit;
 		local vector MoveTarget;
 		
 		Global.Tick(dt);
@@ -252,6 +272,14 @@ state Following
 			Sync();
 	}
 
+	simulated function float GetCurrentSpeed()
+	{
+		local float OutOfOrbit;
+		
+		OutOfOrbit = FMin(FollowSpeedRange, VSize(Flatten(PawnLocation - Location)) / OrbitRadius);
+		return FollowSpeed[0] + OutOfOrbit * (FollowSpeed[1] - FollowSpeed[0]);
+	}
+
 	//find tangent
 	simulated function vector CalculateMoveDir()
 	{
@@ -267,13 +295,14 @@ state Following
 	{
 		Global.Tick(dt);
 		
-		if(VSize(Flatten(PawnLocation - Location)) > OrbitRadius * OrbitOuterTreshold)
+		if(VSize(PawnVelocity) >= FollowPawnVelocity ||
+			VSize(Flatten(PawnLocation - Location)) > OrbitRadius * OrbitOuterTreshold)
 		{
 			SetDirection(CalculateMoveDir());
 		}
 		else if(Role == ROLE_Authority)
 		{
-			OrbitWobble = 0.0f;
+			OrbitWobble = FRand() * OrbitWobbleSpeed;
 			GotoState('Orbiting');
 		}
 	}
@@ -299,14 +328,22 @@ defaultproperties
 	OrbitOuterTreshold=1.025
 	OrbitInnerTreshold=0.95
 	
-	SyncInterval=2.0
+	SyncInterval=0.5
 	SyncTreshold=0.05
 
 	OrbitRadius=96.00
 	OrbitHeightMin=0.00
 	OrbitHeightMax=40.00
 
-	Speed=300.00 //movement speed
+	OrbitSpeed=300.00 //movement speed
+	
+	FollowSpeed(0)=250.00 //min
+	FollowSpeed(1)=500.00 //max
+	FollowSpeedRange=2.00
+	FollowPawnVelocity=50
+	
+	SpeedVariance=0.1
+	OrbitRadiusVariance=0.1
 	
 	Team=255
 
@@ -327,7 +364,7 @@ defaultproperties
 	TeamSkin(3)=Texture'<? echo($packageName); ?>.Drones.DroneTex'
 	
 	//RotationRate=(Yaw=24000)
-	//DesiredRotation=(Yaw=30000)	
+	//DesiredRotation=(Yaw=30000)
 	//bFixedRotationDir=True
 	
 	bBounce=True
@@ -337,7 +374,7 @@ defaultproperties
 	bUseCylinderCollision=True
 	CollisionRadius=20.000000
 	CollisionHeight=20.000000
-	bCollideActors=True
+	bCollideActors=False
 	bCollideWorld=True
 	bDisturbFluidSurface=True
 	

@@ -20,6 +20,8 @@ TODO (XT Config):
 - Find and replace "UseDelay" -> "Cooldown"
 
 TODO (1.61)
+- Fix Ultima destroying friendly trans beacons
+
 - Reimplement cooldown?
 - Get RPGBots into Invasion / InvasionPro
 
@@ -48,6 +50,7 @@ Localization TODO:
 - AbCategoryEngineer
 - ArtifactMakeSelectedMagicWeapon
 - MagicWeaponMenu
+- RepairLinkLevelDescription
 
 Documentation TODO:
 - AbilityShockTherapy
@@ -67,6 +70,8 @@ Documentation TODO:
 - RPGSelectionMenu
 
 Release Config TODO:
+- RepairLinkLevel on AbilityLoadedVehicles
+- Find and replace "UseDelay" -> "Cooldown"
 - EXP_TurretKill
 - AbCategoryEngineer
 - AbilityTurretsMax

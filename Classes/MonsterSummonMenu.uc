@@ -55,11 +55,18 @@ function SelectItem()
 		}
 	}
 	
-	Cost = ArtifactMonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].Cost;
-	if(Cost > PlayerOwner().Adrenaline)
-		btOK.MenuState = MSAT_Disabled;
-	else
+	if(ArtifactMonsterSummon(Artifact).bUseCostAsCooldown)
+	{
 		btOK.MenuState = MSAT_Blurry;
+	}
+	else
+	{
+		Cost = ArtifactMonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].Cost;
+		if(Cost > PlayerOwner().Adrenaline)
+			btOK.MenuState = MSAT_Disabled;
+		else
+			btOK.MenuState = MSAT_Blurry;
+	}
 }
 
 function bool OKClicked(GUIComponent Sender)

@@ -1,4 +1,6 @@
-class RPGMineLayer extends ONSMineLayer;
+class RPGMineLayer extends ONSMineLayer
+	HideDropDown
+	CacheExempt;
 
 simulated function NewDrawWeaponInfo(Canvas Canvas, float YPos)
 {

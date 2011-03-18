@@ -8,6 +8,8 @@ struct MonsterTypeStruct
 };
 var config array<MonsterTypeStruct> MonsterTypes;
 
+var config bool bUseCostAsCooldown; //instead of consuming adrenaline, use the Cost as a cooldown value instead
+
 var int PickedMonster;
 
 replication
@@ -75,7 +77,9 @@ function ServerPickMonster(int i)
 	if(i >= 0)
 	{
 		MonsterType = MonsterTypes[i].MonsterClass;
-		CostPerSec = MonsterTypes[i].Cost;
+		
+		if(!bUseCostAsCooldown)
+			CostPerSec = MonsterTypes[i].Cost;
 		
 		Activate();
 	}
@@ -89,7 +93,9 @@ function bool CanActivate()
 	if(PickedMonster >= 0 && !b)
 	{
 		PickedMonster = -1;
-		CostPerSec = 0;
+		
+		if(!bUseCostAsCooldown)
+			CostPerSec = 0;
 	}
 	
 	return b;
@@ -117,10 +123,20 @@ state Activated
 	function EndState()
 	{
 		if(PickedMonster >= 0)
+		{
 			Super.EndState();
+
+			if(bUseCostAsCooldown)
+			{
+				Cooldown = MonsterTypes[PickedMonster].Cost;
+				DoCooldown();
+			}
+		}
 		
 		PickedMonster = -1;
-		CostPerSec = 0;
+		
+		if(!bUseCostAsCooldown)
+			CostPerSec = 0;
 	}
 }
 
@@ -136,6 +152,7 @@ defaultproperties
 	HudColor=(B=96,G=64,R=192)
 	CostPerSec=0
 	Cooldown=0
+	bUseCostAsCooldown=False
 	
 	MonsterTypes(0)=(MonsterClass=class'SkaarjPack.SkaarjPupae',DisplayName="Skaarj Pupae",Cost=10);
 	MonsterTypes(1)=(MonsterClass=class'SkaarjPack.Krall',DisplayName="Krall",Cost=25);

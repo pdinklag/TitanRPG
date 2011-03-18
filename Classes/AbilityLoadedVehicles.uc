@@ -1,5 +1,15 @@
 class AbilityLoadedVehicles extends RPGAbility;
 
+var config int RepairLinkLevel;
+
+replication
+{
+	reliable if(Role == ROLE_Authority)
+		RepairLinkLevel;
+}
+
+var localized string RepairLinkLevelDescription;
+
 function ModifyPawn(Pawn Other)
 {
 	local Weapon NewWeapon;
@@ -7,9 +17,9 @@ function ModifyPawn(Pawn Other)
 
 	Super.ModifyPawn(Other);
 
-	if(AbilityLevel >= 2)
+	if(AbilityLevel >= RepairLinkLevel)
 	{
-		newWeapon = Other.spawn(class'RPGLinkGun', Other,,, rot(0,0,0));
+		newWeapon = Other.spawn(class'RPGLinkGun', Other);
 		
 		if(newWeapon == None)
 			return;
@@ -17,7 +27,7 @@ function ModifyPawn(Pawn Other)
 		while(newWeapon.isA('RPGWeapon'))
 			newWeapon = RPGWeapon(newWeapon).ModifiedWeapon;
 
-		RPGWeapon = Other.spawn(class'WeaponRepair', Other,,, rot(0,0,0));
+		RPGWeapon = Other.spawn(class'WeaponRepair', Other);
 		
 		if(RPGWeapon == None)
 			return;
@@ -28,11 +38,18 @@ function ModifyPawn(Pawn Other)
 	}
 }
 
+simulated function string DescriptionText()
+{
+	LevelDescription[RepairLinkLevel] = Repl(RepairLinkLevelDescription, "$1", RepairLinkLevel);
+	return Super.DescriptionText();
+}
+
 defaultproperties
 {
 	AbilityName="Vehicle Toolbox"
 	Description="Grants items useful to vehicle users."
-	LevelDescription(1)="Level 2 grants the Repair Link Gun when you spawn."
+	RepairLinkLevelDescription="Level $1 grants the Repair Link Gun when you spawn."
 	MaxLevel=3
 	StartingCost=10
+	RepairLinkLevel=2
 }
