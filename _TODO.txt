@@ -42,16 +42,6 @@ TODO (1.61)
 - Disallow multiple connections with same name and GUID
 - Use ArrayCount(Array)
 
-Localization TODO:
-- TurretKillerMessage
-- AbilityTurretsMax
-- AbilityConstruction
-- TurretSummonMenu
-- AbCategoryEngineer
-- ArtifactMakeSelectedMagicWeapon
-- MagicWeaponMenu
-- RepairLinkLevelDescription
-
 Documentation TODO:
 - AbilityShockTherapy
 - AbilityMineLayer

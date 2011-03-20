@@ -15,6 +15,9 @@ var int PickedMonster;
 replication
 {
 	reliable if(Role == ROLE_Authority)
+		bUseCostAsCooldown;
+
+	reliable if(Role == ROLE_Authority)
 		ClientShowMenu, ClientClearMonsterTypes, ClientReceivePickableMonster;
 
 	reliable if(Role < ROLE_Authority)

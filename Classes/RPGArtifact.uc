@@ -337,7 +337,6 @@ function Activate()
 		{
 			GotoState('');
 			Owner.PlaySound(DeactivateSound, SLOT_Interface);
-			DoCooldown();
 		}
 		else if(!bActive && CanActivate())
 		{
@@ -371,6 +370,8 @@ state Activated
 	{
 		RoundAdrenaline();
 		bActive = false;
+		
+		DoCooldown();
 	}
 
 	event Tick(float dt)

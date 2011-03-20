@@ -144,7 +144,7 @@ function Inventory SpawnCopy( pawn Other )
 	local class<RPGWeapon> NewWeaponClass;
 	local int x;
 	local bool bRemoveReference;
-
+	
 	if (Inventory != None)
 		Inventory.Destroy();
 

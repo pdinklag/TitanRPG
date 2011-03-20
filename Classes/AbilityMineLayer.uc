@@ -10,13 +10,19 @@ function ModifyPawn(Pawn Other)
 
 function ModifyRPRI()
 {
-	RPRI.MaxMines += AbilityLevel - 1;
+	RPRI.MaxMines += int(BonusPerLevel) * AbilityLevel;
+}
+
+simulated function string DescriptionText()
+{
+	return repl(Super.DescriptionText(), "$1", int(BonusPerLevel));
 }
 
 defaultproperties
 {
 	AbilityName="Mine Layer"
-	Description="You are granted the Mine Layer when you spawn. Each subsequent level of this ability will increase the amount of parasite mines you can deploy at a time."
-	MaxLevel=7
+	BonusPerLevel=1
+	Description="You are granted the Mine Layer when you spawn. Each level of this ability will increase the amount of parasite mines you can deploy at a time by $1."
+	MaxLevel=6
 	StartingCost=5
 }

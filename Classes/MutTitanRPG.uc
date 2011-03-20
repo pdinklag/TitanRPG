@@ -271,8 +271,6 @@ function string GetInventoryClassOverride(string InventoryClassName)
 	{
 		if(InventoryClassName ~= "XWeapons.ShockRifle")
 			return "OLTeamGames.OLTeamsShockRifle";
-		else if(InventoryClassName ~= "Onslaught.ONSMineLayer")
-			return "OLTeamGames.OLTeamsONSMineLayer";
 		else if(InventoryClassName ~= "Onslaught.ONSGrenadeLauncher")
 			return "OLTeamGames.OLTeamsONSGrenadeLauncher";
 		else if(InventoryClassName ~= "XWeapons.TransLauncher")
@@ -387,8 +385,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Replace weapon base weapons
 	if(Other.IsA('xWeaponBase'))
 	{
+		Log("xWeaponBase");
 		ClassName = string(xWeaponBase(Other).WeaponType);
+		Log("Old type:" @ ClassName);
 		NewClassName = GetInventoryClassOverride(ClassName);
+		Log("New type:" @ NewClassName);
 		
 		if(!(NewClassName ~= ClassName))
 			xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
