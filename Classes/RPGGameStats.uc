@@ -27,11 +27,15 @@ var config float EXP_MultiKill[7];
 var config float EXP_Resurrection; //resurrection using the Necromancy combo
 
 //Handled externally
-var config float EXP_HeadShot, EXP_EndSpree, EXP_DamagePowercore, EXP_Win, EXP_FriendlyMonsterKill, EXP_TurretKill;
+var config float EXP_HeadShot, EXP_EndSpree, EXP_DamagePowercore, EXP_Win, EXP_TurretKill;
 var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
 var config float EXP_Assist;
 var config float EXP_Healing; //default damage multiplier for healing teammates (LM will scale this)
 var config float EXP_TeamBooster; //EXP per second per healed player
+
+//Ratios
+var config float EXP_DestroyVehicle; //you get the XP of a normal kill multiplied by this value
+var config float EXP_FriendlyMonsterKill; //you get the XP of a normal kill multiplied by this value
 
 //Not yet featured
 var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage, EXP_Hatrick;
@@ -203,8 +207,13 @@ function ScoreEvent(PlayerReplicationInfo Who, float Points, string Desc)
 	x = 0;
 	if(Desc == "frag")
 	{
+		//Handled by RPGRules
+		return;
+		
+		/*
 		x = EXP_Frag;
 		bShareExperience = true;
+		*/
 	}
 	else if(Desc == "self_frag")
 	{
@@ -606,8 +615,7 @@ defaultproperties
 	EXP_HeadShot=1.00
 	EXP_EndSpree=5.00
 	EXP_DamagePowercore=0.50 //experience for 1% damage
-	EXP_Win=30.000000
-	EXP_FriendlyMonsterKill=1.00 //kill by a summoned monster
+	EXP_Win=30
 	EXP_TurretKill=1.00 //kill by a constructed turret
 	
 	EXP_VehicleRepair=0.005 //experience for repairing one "health point"
@@ -618,6 +626,10 @@ defaultproperties
 	EXP_TeamBooster=0.10 //per second per healed player (excluding yourself)
 	
 	EXP_Resurrection=50.00 //experience for resurrecting another player using the Necromancy combo
+	
+	//Ratios
+	EXP_DestroyVehicle=0.67
+	EXP_FriendlyMonsterKill=0.50
 	
 	//Not yet featured
 	EXP_HeadHunter=10.00;

@@ -780,6 +780,13 @@ exec function KillTurrets()
 		RPRI.ServerDestroyTurrets();
 }
 
+exec function RPGFavoriteWeapon()
+{
+	Log("RPGFavoriteWeapon", 'TitanRPG');
+	if(RPRI != None)
+		RPRI.ServerFavoriteWeapon();
+}
+
 event NotifyLevelChange()
 {
 	FindRPRI();

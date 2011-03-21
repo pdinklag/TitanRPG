@@ -25,6 +25,37 @@ var RPGPlayerLevelInfo PlayerLevel;
 var DruidsOldWeaponHolder OldWeaponHolder;
 var class<Powerups> LastSelectedPowerupType;
 
+struct ArtifactCooldown
+{
+	var class<RPGArtifact> AClass;
+	var float TimeLeft;
+};
+var array<ArtifactCooldown> SavedCooldown;
+
+//Favorite Weapons
+struct FavoriteWeapon
+{
+	var class<Weapon> WeaponClass;
+	var class<RPGWeapon> ModifierClass;
+};
+var array<FavoriteWeapon> FavoriteWeapons;
+
+/*
+	Weapon granting queue
+	
+	Abilities should no longer directly give weapons to the player, but queue them up
+	using QueueWeapon. This allows for central handling of managing granted weapons, e.g.
+	by the Favorite Weapon feature
+*/
+struct GrantWeapon
+{
+	var class<Weapon> WeaponClass;
+	var class<RPGWeapon> ModifierClass;
+	var int Modifier;
+	var bool MaxAmmo;
+};
+var array<GrantWeapon> GrantQueue, GrantFavQueue;
+
 //these are used to track constant suiciding
 var float LastSuicideTime;
 var int RecentSuicideCount; //amount of recent suicides
@@ -125,7 +156,8 @@ replication
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
 		ServerClearArtifactOrder, ServerAddArtifactOrderEntry, ServerSortArtifacts,
 		ServerGetArtifact, ServerActivateArtifact, //moved from TitanPlayerController for better compatibility
-		ServerDestroyTurrets, ServerKillMonsters;
+		ServerDestroyTurrets, ServerKillMonsters,
+		ServerFavoriteWeapon;
 }
 
 static function RPGPlayerReplicationInfo CreateFor(Controller C)
@@ -523,9 +555,63 @@ simulated function ResendArtifactOrder()
 	ServerSortArtifacts();
 }
 
-function CheckArtifactClass(class<RPGArtifact> AClass)
+function SaveCooldown(RPGArtifact A)
 {
-	ClientCheckArtifactClass(AClass);
+	local float TimeLeft;
+	local ArtifactCooldown Cooldown;
+	local int i;
+	
+	if(A.NextUseTime > Level.TimeSeconds)
+	{
+		TimeLeft = Level.TimeSeconds - A.NextUseTime;
+	
+		for(i = 0; i < SavedCooldown.Length; i++)
+		{
+			if(A.class == SavedCooldown[i].AClass)
+			{
+				SavedCooldown[i].TimeLeft = TimeLeft;
+				return;
+			}
+		}
+		
+		Cooldown.AClass = A.class;
+		Cooldown.TimeLeft = TimeLeft;
+		SavedCooldown[SavedCooldown.Length] = Cooldown;
+	}
+}
+
+function int GetSavedCooldown(class<RPGArtifact> AClass)
+{
+	local int i;
+	
+	for(i = 0; i < SavedCooldown.Length; i++)
+	{
+		if(AClass == SavedCooldown[i].AClass)
+			return i;
+	}
+	
+	return -1;
+}
+
+function ModifyArtifact(RPGArtifact A)
+{
+	local int i;
+
+	ClientCheckArtifactClass(A.class);
+	
+	for(i = 0; i < Abilities.Length; i++)
+	{
+		if(Abilities[i].bAllowed)
+			Abilities[i].ModifyArtifact(A);
+	}
+	
+	//TODO: apply saved cooldown
+	i = GetSavedCooldown(A.class);
+	if(i >= 0)
+	{
+		A.ForceCooldown(SavedCooldown[i].TimeLeft);
+		SavedCooldown.Remove(i, 1);
+	}
 }
 
 simulated function ClientCheckArtifactClass(class<RPGArtifact> AClass)
@@ -845,6 +931,8 @@ function ModifyPlayer(Pawn Other)
 		if(Abilities[i].bAllowed)
 			Abilities[i].ModifyPawn(Other);
 	}
+	
+	ProcessGrantQueue(); //give weapons
 	
 	//Upon a team change, simulate Denial 4 if not present
 	if(bTeamChanged &&
@@ -1337,8 +1425,233 @@ function SaveData()
 
 	DataObject.AA = AIBuildAction;
 	DataObject.SaveConfig();
+}
+
+function AddFavorite(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass)
+{
+	local FavoriteWeapon FW;
+	local int i;
 	
-	Log("Saved" @ RPGName, 'TitanRPG');
+	for(i = 0; i < FavoriteWeapons.Length; i++)
+	{
+		if(FavoriteWeapons[i].WeaponClass == WeaponClass)
+		{
+			FavoriteWeapons[i].ModifierClass = ModifierClass;
+			return;
+		}
+	}
+	
+	FW.WeaponClass = WeaponClass;
+	FW.ModifierClass = ModifierClass;
+	FavoriteWeapons[FavoriteWeapons.Length] = FW;
+}
+
+function RemoveFavorite(class<Weapon> WeaponClass)
+{
+	local int i;
+	
+	for(i = 0; i < FavoriteWeapons.Length; i++)
+	{
+		if(FavoriteWeapons[i].WeaponClass == WeaponClass)
+		{
+			FavoriteWeapons.Remove(i, 1);
+			return;
+		}
+	}
+}
+
+function ServerFavoriteWeapon()
+{
+	local RPGWeapon RW;
+	
+	if(Controller == None || Controller.Pawn == None)
+		return;
+	
+	RW = RPGWeapon(Controller.Pawn.Weapon);
+	if(RW != None)
+	{
+		if(RW.bFavorite)
+		{
+			Log("Removed favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class, 'TitanRPG');
+			RemoveFavorite(RW.ModifiedWeapon.class);
+			RW.bFavorite = false;
+		}
+		else
+		{
+			Log("Added favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class, 'TitanRPG');
+			AddFavorite(RW.ModifiedWeapon.class, RW.class);
+			RW.bFavorite = true;
+		}
+	}
+}
+
+//grant queued weapons
+function GrantQueuedWeapon(GrantWeapon GW)
+{
+	local RPGWeapon RW;
+
+	Log("Granting:" @ GW.WeaponClass @ "/" @ GW.ModifierClass @ GW.Modifier);
+
+	RW = RPGWeapon(CreateWeapon(GW.WeaponClass, GW.ModifierClass));
+	if(RW != None)
+	{
+		Log("Success");
+		RW.SetModifier(GW.Modifier);
+		RW.GiveTo(Controller.Pawn);
+		RW.Identify(true); //TODO bNoUnidentified
+		
+		if(GW.MaxAmmo)
+			RW.MaxOutAmmo();
+	}
+}
+
+function ProcessGrantQueue()
+{
+	local int i;
+	
+	if(Controller.Pawn == None)
+		return;
+	
+	if(GrantFavQueue.Length == 0 && GrantQueue.Length == 0)
+		return;
+
+	//grant favorite weapons first
+	for(i = 0; i < GrantFavQueue.Length; i++)
+		GrantQueuedWeapon(GrantFavQueue[i]);
+	
+	GrantFavQueue.Length = 0;
+	
+	//now try the others
+	for(i = 0; i < GrantQueue.Length; i++)
+		GrantQueuedWeapon(GrantQueue[i]);
+	
+	GrantQueue.Length = 0;
+}
+
+//Add to weapon grant queue
+function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional bool MaxAmmo)
+{
+	local GrantWeapon GW;
+	
+	GW.WeaponClass = WeaponClass;
+	GW.ModifierClass = ModifierClass;
+	GW.Modifier = Modifier;
+	GW.MaxAmmo = MaxAmmo;
+	
+	if(IsFavorite(WeaponClass, ModifierClass))
+		GrantFavQueue[GrantFavQueue.Length] = GW;
+	else
+		GrantQueue[GrantQueue.Length] = GW;
+}
+
+//Find out whether a Weapon/Modifier combination is a favorite
+function bool IsFavorite(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass)
+{
+	local int i;
+	
+	for(i = 0; i < FavoriteWeapons.Length; i++)
+	{
+		if(
+			WeaponClass == FavoriteWeapons[i].WeaponClass &&
+			ModifierClass == FavoriteWeapons[i].ModifierClass
+		)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//Find whether the current player already holds a favorite for the current weapon class
+function bool WantsWeaponType(class<Weapon> WeaponClass)
+{
+	local RPGWeapon RW;
+	local Inventory Inv;
+	
+	if(Controller == None || Controller.Pawn == None)
+		return false;
+	
+	if(FavoriteWeapons.Length == 0)
+		return true;
+
+	//find whether the already holds a favorite
+	for(Inv = Controller.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		RW = RPGWeapon(Inv);
+		if(
+			RW != None &&
+			RW.ModifiedWeapon.class == WeaponClass &&
+			RW.bFavorite
+		)
+		{
+			return false; //no thanks
+		}
+	}
+	
+	return true;
+}
+
+//Create and enchant a weapon (does not give it to the Pawn yet!)
+function Weapon CreateWeapon(class<Weapon> WeaponClass, optional class<RPGWeapon> ModifierClass, optional Pickup Pickup)
+{
+	local string NewWeaponClassName;
+	local Weapon W;
+	
+	if(Controller == None || Controller.Pawn == None)
+		return None;
+	
+	NewWeaponClassName = Level.Game.BaseMutator.GetInventoryClassOverride(string(WeaponClass));
+	if(!(NewWeaponClassName ~= string(WeaponClass)))
+		WeaponClass = class<Weapon>(DynamicLoadObject(NewWeaponClassName, class'Class'));
+	
+	if(WeaponClass != None && WantsWeaponType(WeaponClass))
+	{
+		Log("Spawning a" @ WeaponClass);
+		W = Spawn(WeaponClass, Controller.Pawn);
+	
+		if(ModifierClass != None && W != None)
+			return EnchantWeapon(W, ModifierClass);
+		else
+			return W;
+	}
+	
+	return None;
+}
+
+//Enchant a weapon with the given magic and level (does not give it to the Pawn yet!)
+function RPGWeapon EnchantWeapon(Weapon W, class<RPGWeapon> ModifierClass)
+{
+	local class<Weapon> WClass;
+	local RPGWeapon RW;
+
+	if(Controller == None || Controller.Pawn == None)
+		return None;
+
+	Log("Enchanting " @ W @ "with" @ ModifierClass);
+
+	RW = RPGWeapon(W);
+	if(RW != None)
+	{
+		WClass = RW.ModifiedWeapon.class;
+		W = Spawn(WClass, Controller.Pawn);
+		
+		if(W != None)
+		{
+			RW.DetachFromPawn(Controller.Pawn);
+			RW.Destroy();
+		}
+		else
+		{
+			return None;
+		}
+	}
+
+	RW = Spawn(ModifierClass, Controller.Pawn);
+	
+	if(RW != None)
+		RW.SetModifiedWeapon(W, false);
+	
+	return RW;
 }
 
 defaultproperties

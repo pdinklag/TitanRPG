@@ -12,29 +12,12 @@ var localized string RepairLinkLevelDescription;
 
 function ModifyPawn(Pawn Other)
 {
-	local Weapon NewWeapon;
-	local RPGWeapon RPGWeapon;
-
 	Super.ModifyPawn(Other);
 
 	if(AbilityLevel >= RepairLinkLevel)
 	{
-		newWeapon = Other.spawn(class'RPGLinkGun', Other);
-		
-		if(newWeapon == None)
-			return;
-			
-		while(newWeapon.isA('RPGWeapon'))
-			newWeapon = RPGWeapon(newWeapon).ModifiedWeapon;
-
-		RPGWeapon = Other.spawn(class'WeaponRepair', Other);
-		
-		if(RPGWeapon == None)
-			return;
-		
-		RPGWeapon.Generate(None);
-		RPGWeapon.SetModifiedWeapon(newWeapon, true);
-		RPGWeapon.GiveTo(Other);
+		RPRI.QueueWeapon(
+			class'RPGLinkGun', class'WeaponRepair', class'WeaponRepair'.static.GetRandomModifierLevel());
 	}
 }
 

@@ -385,12 +385,9 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Replace weapon base weapons
 	if(Other.IsA('xWeaponBase'))
 	{
-		Log("xWeaponBase");
 		ClassName = string(xWeaponBase(Other).WeaponType);
-		Log("Old type:" @ ClassName);
 		NewClassName = GetInventoryClassOverride(ClassName);
-		Log("New type:" @ NewClassName);
-		
+
 		if(!(NewClassName ~= ClassName))
 			xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
 		
@@ -884,11 +881,11 @@ function ValidateData(RPGPlayerReplicationInfo RPRI)
 	}
 }
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
+function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other, optional bool bForceModifier)
 {
 	local int x, Chance;
 
-	if(FRand() < GameSettings.WeaponModifierChance)
+	if(bForceModifier || FRand() < GameSettings.WeaponModifierChance)
 	{
 		Chance = Rand(TotalModifierChance);
 		for (x = 0; x < WeaponModifiers.Length; x++)
@@ -1059,11 +1056,10 @@ function Mutate(string MutateString, PlayerController Sender)
 	local array<string> Args;
 	local bool bIsAdmin, bIsSuperAdmin;
 	local int i, x;
-	local Weapon OldWeapon, Copy;
+	local RPGWeapon RW;
 	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
 	local class<VehicleMagic> VMClass;
-	local class<Weapon> OldWeaponClass;
 	local class<Actor> ActorClass;
 	local vector Loc;
 	local rotator Rotate;
@@ -1246,53 +1242,9 @@ function Mutate(string MutateString, PlayerController Sender)
 
 				if(NewWeaponClass != None)
 				{
-					OldWeapon = Sender.Pawn.Weapon;
-					if(OldWeapon == None)
-						return;
-
-					if(OldWeapon.IsA('RPGWeapon'))
-						OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
-					else
-						OldWeaponClass = OldWeapon.class;
-
-					Copy = Spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
-					if(Copy == None)
-						return;
-
-					if (RPRI != None)
-					{
-						for (x = 0; x < RPRI.OldRPGWeapons.length; x++)
-						{
-							if(oldWeapon == RPRI.OldRPGWeapons[x].Weapon)
-							{
-								RPRI.OldRPGWeapons.Remove(x, 1);
-								break;
-							}
-						}
-					}
-
-					if(RPGWeapon(Copy) == None)
-						return;
-
-					//try to generate a positive weapon.
-					for(x = 0; x < 50; x++)
-					{
-						RPGWeapon(Copy).Generate(None);
-						if(RPGWeapon(Copy).Modifier > -1)
-							break;
-					}
-
-					RPGWeapon(Copy).SetModifiedWeapon(Spawn(OldWeaponClass, Sender.Pawn,,, rot(0,0,0)), true);
-
-					OldWeapon.DetachFromPawn(Sender.Pawn);
-					if(OldWeapon.isA('RPGWeapon'))
-					{
-						RPGWeapon(OldWeapon).ModifiedWeapon.Destroy();
-						RPGWeapon(OldWeapon).ModifiedWeapon = None;
-					}
-					OldWeapon.Destroy();
-					Copy.GiveTo(Sender.Pawn);
-					RPGWeapon(Copy).Identify(true);
+					RW = RPRI.EnchantWeapon(Sender.Pawn.Weapon, NewWeaponClass);
+					RW.GiveTo(Sender.Pawn);
+					RW.Identify(true);
 				}
 				else
 				{

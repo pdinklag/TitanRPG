@@ -49,11 +49,7 @@ function BotWhatNext(Bot Bot)
 
 function bool CanActivate()
 {
-	local RPGPlayerReplicationInfo RPRI;
-
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-	
-	if(RPRI != None && RPRI.Monsters.Length >= RPRI.MaxMonsters)
+	if(InstigatorRPRI != None && InstigatorRPRI.Monsters.Length >= InstigatorRPRI.MaxMonsters)
 	{
 		Msg(MSG_NoMoreMonsters);
 		return false;
@@ -66,7 +62,6 @@ function bool CanActivate()
 
 function Monster SpawnMonster(class<Monster> MonsterClass)
 {
-	local RPGPlayerReplicationInfo RPRI;
 	local FriendlyMonsterController C;
 	local Monster M;
 	local vector SpawnLoc;
@@ -84,9 +79,8 @@ function Monster SpawnMonster(class<Monster> MonsterClass)
 		C.Possess(M);
 		C.SetMaster(Instigator.Controller);
 		
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-		if(RPRI != None)
-			RPRI.AddMonster(M);
+		if(InstigatorRPRI != None)
+			InstigatorRPRI.AddMonster(M);
 	}
 
 	return M;

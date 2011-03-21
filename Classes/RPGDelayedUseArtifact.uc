@@ -2,26 +2,23 @@ class RPGDelayedUseArtifact extends RPGArtifact
 	abstract;
 
 var config bool bCanBeCanceled;
-var float AdrenalineUsed;
+var float Countdown;
 
 state Activated
 {
 	function BeginState()
 	{
 		Super.BeginState();
-		AdrenalineUsed = CostPerSec * MinActivationTime;
+		
+		Countdown = MinActivationTime; //MinActivationTime serves as the delay
 	}
 
 	event Tick(float dt)
 	{
-		local float AdrenCost;
-
-		AdrenCost = FMin(AdrenalineUsed, dt * CostPerSec);
+		Super.Tick(dt); //drain adrenaline
 		
-		AdrenalineUsed -= AdrenCost;
-		Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - AdrenCost);
-		
-		if(AdrenalineUsed <= 0.f)
+		Countdown -= dt;
+		if(Countdown <= 0)
 		{
 			DoEffect();
 			GotoState('');

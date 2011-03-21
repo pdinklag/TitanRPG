@@ -2,10 +2,12 @@ class AbilityMineLayer extends RPGAbility;
 
 function ModifyPawn(Pawn Other)
 {
+	local class<RPGWeapon> RWClass;
+
 	Super.ModifyPawn(Other);
-	
-	if(Other.FindInventoryType(class'RPGMineLayer') == None)
-		class'AbilityLoadedWeapons'.static.GiveWeapon(Other, class'RPGMineLayer', 1); //mine layer with random modifier
+
+	RWClass = RPRI.RPGMut.GetRandomWeaponModifier(class'RPGMineLayer', Other);
+	RPRI.QueueWeapon(class'RPGMineLayer', RWClass, RWClass.static.GetRandomModifierLevel());
 }
 
 function ModifyRPRI()

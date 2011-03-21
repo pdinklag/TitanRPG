@@ -60,7 +60,6 @@ simulated event PostNetReceive()
 
 function ModifyPawn(Pawn Other)
 {
-	local string WeaponClassName;
 	local int x;
 	
 	Super.ModifyPawn(Other);
@@ -70,14 +69,50 @@ function ModifyPawn(Pawn Other)
 		if(AbilityLevel >= Weapons[x].Level)
 		{
 			if(Weapons[x].WeaponClass != None)
-			{
-				WeaponClassName = string(Weapons[x].WeaponClass);
-				WeaponClassName = Level.Game.BaseMutator.GetInventoryClassOverride(WeaponClassName);
-			
-				GiveWeapon(Other, class<Weapon>(DynamicLoadObject(WeaponClassName, class'Class')), AbilityLevel);
-			}
+				GrantWeapon(Weapons[x].WeaponClass, Other);
 		}
 	}
+}
+
+function GrantWeapon(class<Weapon> WeaponClass, Pawn Other)
+{
+	local int x;
+	local class<RPGWeapon> ModifierClass;
+	local int ModifierLevel;
+	
+	ModifierClass = RPRI.RPGMut.GetRandomWeaponModifier(WeaponClass, Other, (AbilityLevel >= 3));
+	
+	if(AbilityLevel >= MaxLevel)
+	{
+		//max modifier
+		ModifierLevel = ModifierClass.default.MaxModifier;
+	}
+	else if(!bTC0X && AbilityLevel >= 5)
+	{
+		//+4 or higher
+		ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+		for(x = 0; x < 50; x++)
+		{
+			if(ModifierLevel >= 4)
+				break;
+				
+			ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+		}
+	}
+	else if(AbilityLevel >= 4)
+	{
+		//positive
+		ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+		for(x = 0; x < 50; x++)
+		{
+			if(ModifierLevel >= 0)
+				break;
+				
+			ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+		}
+	}
+	
+	RPRI.QueueWeapon(WeaponClass, ModifierClass, ModifierLevel, (AbilityLevel >= 2));
 }
 
 simulated function string DescriptionText()
@@ -118,12 +153,15 @@ simulated function string DescriptionText()
 
 static function GiveWeapon(Pawn Other, class<Weapon> WeaponClass, int AbilityLevel)
 {
+	//DEPRECATED - queued for removal
+
+	/*
 	local RPGPlayerReplicationInfo RPRI;
 	local class<RPGWeapon> RPGWeaponClass;
 	local Weapon NewWeapon;
 	local RPGWeapon RPGWeapon;
 	local int x;
-	local MutTitanRPG RPGMut;
+	
 
 	if(Other.IsA('Monster'))
 		return;
@@ -197,10 +235,13 @@ static function GiveWeapon(Pawn Other, class<Weapon> WeaponClass, int AbilityLev
 				RPGWeapon.MaxOutAmmo();
 		}
 	}
+	*/
 }
 
 static function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other, MutTitanRPG RPGMut)
 {
+	//DEPRECATED - queued for removal
+	/*
 	local int x, Chance;
 
 	Chance = Rand(RPGMut.TotalModifierChance);
@@ -212,6 +253,8 @@ static function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponTyp
 	}
 
 	return class'RPGWeapon';
+	*/
+	return None;
 }
 
 defaultproperties

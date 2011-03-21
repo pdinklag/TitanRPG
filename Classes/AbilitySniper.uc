@@ -3,34 +3,19 @@ class AbilitySniper extends RPGAbility;
 function ModifyPawn(Pawn Other)
 {
 	local class<RPGWeapon> RPGWeaponClass;
-	local Weapon NewWeapon;
-	local RPGWeapon RPGWeapon;
 	
 	Super.ModifyPawn(Other);
-
-	newWeapon = Other.Spawn(class'ClassicSniperRifle', Other,,, rot(0,0,0));
-	
-	if(newWeapon == None)
-		return;
-		
-	while(newWeapon.isA('RPGWeapon'))
-		newWeapon = RPGWeapon(newWeapon).ModifiedWeapon;
 
 	if(AbilityLevel >= 2)
 		RPGWeaponClass = class'WeaponStealth';
 	else
 		RPGWeaponClass = class'RPGWeapon';
-
-	RPGWeapon = Other.spawn(RPGWeaponClass, Other,,, rot(0,0,0));
 	
-	if(RPGWeapon == None)
-		return;
-	
-	RPGWeapon.Generate(None);
-	
-	RPGWeapon.SetModifiedWeapon(newWeapon, true);
-	RPGWeapon.GiveTo(Other);
-	RPGWeapon.MaxOutAmmo();
+	RPRI.QueueWeapon(
+		class'ClassicSniperRifle',
+		RPGWeaponClass,
+		RPGWeaponClass.static.GetRandomModifierLevel(),
+		true);
 }
 
 defaultproperties

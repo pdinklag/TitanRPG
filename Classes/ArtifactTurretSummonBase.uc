@@ -58,11 +58,7 @@ function BotWhatNext(Bot Bot)
 
 function bool CanActivate()
 {
-	local RPGPlayerReplicationInfo RPRI;
-
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-	
-	if(RPRI != None && RPRI.Turrets.Length >= RPRI.MaxTurrets)
+	if(InstigatorRPRI != None && InstigatorRPRI.Turrets.Length >= InstigatorRPRI.MaxTurrets)
 	{
 		Msg(MSG_NoMoreTurrets);
 		return false;
@@ -75,7 +71,6 @@ function bool CanActivate()
 
 function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 {
-	local RPGPlayerReplicationInfo RPRI;
 	local FriendlyTurretController C;
 	local Vehicle V;
 	local vector SpawnLoc, HitLocation, HitNormal;
@@ -133,9 +128,8 @@ function Vehicle SpawnTurret(class<Vehicle> TurretClass)
 			C.Awake();
 		}
 
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-		if(RPRI != None)
-			RPRI.AddTurret(V);
+		if(InstigatorRPRI != None)
+			InstigatorRPRI.AddTurret(V);
 	}
 
 	return V;

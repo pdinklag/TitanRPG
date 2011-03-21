@@ -43,12 +43,15 @@ var array<class<RPGWeapon> > CountersMagic;
 var float RPGTimerTime, RPGTimeCounter;
 var bool bRPGTimer, bRPGTimerRepeat;
 
+//Favorite
+var bool bFavorite;
+
 replication
 {
 	reliable if(bNetOwner && bNetDirty && Role == ROLE_Authority)
 		ModifiedWeapon, Modifier, bIdentified;
 	reliable if(bNetOwner && Role == ROLE_Authority)
-		DamageBonus, BonusPerLevel;
+		DamageBonus, BonusPerLevel, bFavorite;
 	reliable if(Role == ROLE_Authority) //functions
 		ClientScaleFireRate, ClientSetFireRateScale, ClientConstructItemName;
 	reliable if(Role < ROLE_Authority)
@@ -122,16 +125,16 @@ function Generate(RPGWeapon ForcedWeapon)
 	}
 }
 
-function int GetRandomModifierLevel()
+static function int GetRandomModifierLevel()
 {
 	local int x;
 
-	if(MinModifier == 0 && MaxModifier == 0)
+	if(default.MinModifier == 0 && default.MaxModifier == 0)
 		return 0;
 
-	x = Rand(MaxModifier + 1 - MinModifier) + MinModifier;
+	x = Rand(default.MaxModifier + 1 - default.MinModifier) + default.MinModifier;
 	
-	if(x == 0 && !bCanHaveZeroModifier)
+	if(x == 0 && !default.bCanHaveZeroModifier)
 		x = 1;
 		
 	return x;
@@ -762,6 +765,19 @@ simulated function GiveTo(Pawn Other, optional Pickup Pickup)
 		for (m = 0; m < NUM_FIRE_MODES; m++)
 			Ammo[m] = ModifiedWeapon.Ammo[m];
     }
+	
+	CheckFavorite();
+}
+
+function CheckFavorite()
+{	
+	if(HolderRPRI != None)
+		bFavorite = HolderRPRI.IsFavorite(ModifiedWeapon.class, Self.class);
+	else
+		bFavorite = false;
+	
+	if(bFavorite)
+		Log(Self.class @ "/" @ ModifiedWeapon.class $ ": This is a favorite weapon!", 'TitanRPG');
 }
 
 function GiveAmmo(int m, WeaponPickup WP, bool bJustSpawned)

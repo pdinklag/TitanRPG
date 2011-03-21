@@ -87,7 +87,6 @@ state Activated
 		local class<RPGWeapon> NewWeaponClass;
 		local class<Weapon> OldWeaponClass;
 		local int x, tries;
-		local RPGPlayerReplicationInfo RPRI;
 
 		if(OldWeapon == None)
 		{
@@ -140,14 +139,13 @@ state Activated
 			return;
 		}
 
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-		if (RPRI != None)
+		if(InstigatorRPRI != None)
 		{
-			for (x = 0; x < RPRI.OldRPGWeapons.length; x++)
+			for (x = 0; x < InstigatorRPRI.OldRPGWeapons.length; x++)
 			{
-				if(oldWeapon == RPRI.OldRPGWeapons[x].Weapon)
+				if(oldWeapon == InstigatorRPRI.OldRPGWeapons[x].Weapon)
 				{
-					RPRI.OldRPGWeapons.Remove(x, 1);
+					InstigatorRPRI.OldRPGWeapons.Remove(x, 1);
 					break;
 				}
 			}
@@ -181,7 +179,7 @@ state Activated
 		OldWeapon.Destroy();
 		Copy.GiveTo(Instigator);
 
-		LA = AbilityLoadedArtifacts(RPRI.GetOwnedAbility(class'AbilityLoadedArtifacts'));
+		LA = AbilityLoadedArtifacts(InstigatorRPRI.GetOwnedAbility(class'AbilityLoadedArtifacts'));
 		if(LA == None || !LA.ProtectArtifacts())
 		{
 			if(bCanBreak && Rand(3) == 0) //25% chance

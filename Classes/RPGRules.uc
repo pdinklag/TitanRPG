@@ -107,8 +107,6 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 {
 	local float xp;
 
-	Log("AwardEXPForDamage" @ InstigatedBy @ InstRPRI @ injured @ Damage);
-
 	if(
 		InstigatedBy != Injured.Controller &&
 		InstRPRI != None &&
@@ -123,18 +121,40 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 		if(xp > 0)
 		{
 			if(InstigatedBy.IsA('FriendlyMonsterController'))
-				InstRPRI.AwardExperience(xp);
+				InstRPRI.AwardExperience(xp * class'RPGGameStats'.default.EXP_FriendlyMonsterKill);
 			else
 				ShareExperience(InstRPRI, xp);
 		}
 	}
 }
 
+// calculate how much exp does a player get for killing another player of a certain level
+function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicationInfo KilledRPRI, optional float Multiplier)
+{
+	local float Diff;
+	
+	Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
+	
+	if(Diff > 0)
+		Diff = (Diff * Diff) / LevelDiffExpGainDiv;
+	
+	//cap gained exp to enough to get to Killed's level
+	if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && Diff > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
+		Diff = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
+	
+	Diff = float(int(Diff)); //round
+	
+	if(Multiplier > 0)
+		Diff *= Multiplier;
+	
+	return FMax(class'RPGGameStats'.default.EXP_Frag, Diff); //at least EXP_Frag
+}
+
 function ScoreKill(Controller Killer, Controller Killed)
 {
 	local Controller Master;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI, RPRI;
-	local int x, LevelDifference;
+	local int x;
 	local Inventory Inv, NextInv;
 	local vector TossVel, U, V, W;
 	local bool bShare;
@@ -233,7 +253,9 @@ function ScoreKill(Controller Killer, Controller Killed)
 			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
 			if(KillerRPRI != None)
 			{
-				KillerRPRI.AwardExperience(class'RPGGameStats'.default.EXP_FriendlyMonsterKill);
+				KillerRPRI.AwardExperience(
+					GetKillEXP(KillerRPRI, KilledRPRI, class'RPGGameStats'.default.EXP_FriendlyMonsterKill));
+				
 				Master.PlayerReplicationInfo.Score += 1;
 			}
 			
@@ -313,19 +335,10 @@ function ScoreKill(Controller Killer, Controller Killed)
 			KilledRPRI.Abilities[x].ScoreKill(Killer, Killed, false);
 	}
 
-	if(RPGMut.GameSettings.bExpForKillingBots || !Killed.IsA('Bot'))
+	if(!Killed.IsA('Bot') || RPGMut.GameSettings.bExpForKillingBots)
 	{
-		LevelDifference = Max(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
-		if(LevelDifference > 0)
-			LevelDifference = int(float(LevelDifference*LevelDifference) / LevelDiffExpGainDiv);
+		ShareExperience(KillerRPRI, GetKillEXP(KillerRPRI, KilledRPRI));
 		
-		//cap gained exp to enough to get to Killed's level
-		if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && LevelDifference > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
-			LevelDifference = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
-			
-		if(LevelDifference > 0)
-			ShareExperience(KillerRPRI, LevelDifference);
-
 		if(Killed.Pawn != None && Killed.Pawn.GetSpree() > 4)
 			ShareExperience(KillerRPRI, class'RPGGameStats'.default.EXP_EndSpree);
 	}
@@ -757,8 +770,6 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	local Controller KilledController;
 	local Pawn KilledVehicleDriver;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
-	local int LevelDifference;
-	local float exp;
 	local AbilityVehicleEject EjectorSeat;
 	
 	if(bGameEnded)
@@ -855,18 +866,8 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 					return true;
 				}
 
-				LevelDifference = Max(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
-				
-				if(LevelDifference > 0)
-					LevelDifference = int(float(LevelDifference * LevelDifference) / LevelDiffExpGainDiv);
-
-				if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && LevelDifference > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
-					LevelDifference = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
-				
-				//EXP is decreased by 33% here, because it wasn't actually a kill...
-				exp = FMax(1.0, float(LevelDifference) * 0.666667);
-				if(exp > 0)
-					ShareExperience(KillerRPRI, exp);
+				ShareExperience(KillerRPRI,
+					GetKillEXP(KillerRPRI, KilledRPRI, class'RPGGameStats'.default.EXP_DestroyVehicle));
 					
 				KillerRPRI.PRI.Score += 1.f; //add a game point
 			}

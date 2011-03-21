@@ -9,7 +9,7 @@ var config int MinAdrenaline; //adrenaline required to activate this artifact
 var config Color HudColor;
 
 var config float Cooldown;
-var config bool bInitialCooldown;
+var config bool bChargeUp; //initial "cooldown"
 var config bool bResetCooldownOnRespawn;
 
 var float CurrentCostPerSec;
@@ -19,6 +19,8 @@ var config bool bAllowInVehicle;
 var string ArtifactID; //for GetArtifact / RPGGetArtifact
 var float ActivatedTime;
 var config bool bCanBeTossed;
+
+var Sound CantUseSound; //played when CanActivate() fails
 
 var localized string Description;
 
@@ -35,6 +37,9 @@ var localized string
 
 //these are for the HUD
 var float NextUseTime; //time when this artifact will be available again
+
+//RPRI of current holder
+var RPGPlayerReplicationInfo InstigatorRPRI;
 
 replication
 {
@@ -96,24 +101,22 @@ function SortIn()
 {
 	local bool bAdded;
 	local Inventory Inv, Prev;
-	local RPGPlayerReplicationInfo RPRI;
 	local int OrderEntry, i;
 
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-	if(RPRI != None)
+	if(InstigatorRPRI != None)
 	{
 		//Re-add me.
 		if(Instigator.Inventory != None)
 		{
 			//Sort the new artifact in so the artifact order is correct.
-			OrderEntry = RPRI.FindOrderEntry(default.class);
+			OrderEntry = InstigatorRPRI.FindOrderEntry(default.class);
 			if(OrderEntry >= 0)
 			{
 				for(Inv = Instigator.Inventory; Inv != None; Inv = Inv.Inventory)
 				{
 					if(Inv.IsA('RPGArtifact'))
 					{
-						i = RPRI.FindOrderEntry(class<RPGArtifact>(Inv.class));
+						i = InstigatorRPRI.FindOrderEntry(class<RPGArtifact>(Inv.class));
 						if(i == -1 || i > OrderEntry)
 						{
 							Self.Inventory = Inv;
@@ -147,28 +150,28 @@ function SortIn()
 function GiveTo(Pawn Other, optional Pickup Pickup)
 {
 	local RPGPlayerReplicationInfo RPRI;
-	local int i;
 
 	Super.GiveTo(Other, Pickup);
-	
-	if(NextUseTime == 0.f)
-		DoCooldown();
-	else
-		ClientNotifyCooldown(NextUseTime - Level.TimeSeconds);
 	
 	StripOut();
 	SortIn();
 	
-	//Notify RPRI
+	//Get RPRI
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 	if(RPRI != None)
 	{
-		RPRI.CheckArtifactClass(Self.class);
-		for(i = 0; i < RPRI.Abilities.Length; i++)
-		{
-			if(RPRI.Abilities[i].bAllowed)
-				RPRI.Abilities[i].ModifyArtifact(Self);
-		}
+		InstigatorRPRI = RPRI;
+		InstigatorRPRI.ModifyArtifact(Self);
+	}
+
+	if(NextUseTime == 0) //unset
+	{
+		if(bChargeUp)
+			DoCooldown();
+	}
+	else
+	{
+		ClientNotifyCooldown(NextUseTime - Level.TimeSeconds);
 	}
 	
 	GotoState('');
@@ -233,6 +236,9 @@ function DropFrom(vector StartLocation)
 
 	bActive = false;
 
+	if(!bResetCooldownOnRespawn && InstigatorRPRI != None)
+		InstigatorRPRI.SaveCooldown(Self);
+
 	if(bCanBeTossed)
 	{
 		Super.DropFrom(StartLocation);
@@ -242,6 +248,8 @@ function DropFrom(vector StartLocation)
 		Destroy();
 		Instigator.NextItem();
 	}
+	
+	InstigatorRPRI = None;
 }
 
 function UsedUp()
@@ -251,7 +259,6 @@ function UsedUp()
 		Activate();
 		Msg(MSG_Expired);
 	}
-	Owner.PlaySound(DeactivateSound, SLOT_Interface);
 }
 
 static function string GetMessageString(int Msg, optional int Value, optional Object Obj)
@@ -329,6 +336,12 @@ function DoCooldown()
 	}
 }
 
+function ForceCooldown(float Time)
+{
+	NextUseTime = Level.TimeSeconds + Time;
+	ClientNotifyCooldown(Time);
+}
+
 function Activate()
 {
 	if(MinActivationTime > 0.f)
@@ -338,10 +351,18 @@ function Activate()
 			GotoState('');
 			Owner.PlaySound(DeactivateSound, SLOT_Interface);
 		}
-		else if(!bActive && CanActivate())
+		else if(!bActive)
 		{
-			CurrentCostPerSec = 0.f;
-			GotoState('Activated');
+			if(CanActivate())
+			{
+				CurrentCostPerSec = 0.f;
+				GotoState('Activated');
+			}
+			else
+			{
+				if(Instigator.Controller.IsA('PlayerController'))
+					PlayerController(Instigator.Controller).ClientPlaySound(CantUseSound,,, SLOT_Interface);
+			}
 		}
 	}
 	else if(CanActivate())
@@ -352,6 +373,11 @@ function Activate()
 			Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
 			
 		DoCooldown();
+	}
+	else
+	{
+		if(Instigator.Controller.IsA('PlayerController'))
+			PlayerController(Instigator.Controller).ClientPlaySound(CantUseSound,,, SLOT_Interface);
 	}
 }
 
@@ -475,7 +501,7 @@ defaultproperties
 	MessageClass=Class'UnrealGame.StringMessagePlus'
 	CostPerSec=0
 	Cooldown=0
-	bInitialCooldown=True
+	bChargeUp=True
 	bResetCooldownOnRespawn=True
 	HudColor=(B=0,G=255,R=255,A=255)
 	FlagMultiplier=1.000000
@@ -485,4 +511,5 @@ defaultproperties
 	MSG_Text_Cooldown="This artifact will be available in $1."
 	MSG_Text_Expired="You have run out of adrenaline."
 	MSG_Text_NotInVehicle="You cannot use this artifact in a vehicle."
+	CantUseSound=None //TODO
 }
