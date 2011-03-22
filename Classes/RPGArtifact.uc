@@ -348,14 +348,15 @@ function Activate()
 	{
 		if(bActive && CanDeactivate())
 		{
+			Instigator.PlaySound(DeactivateSound, SLOT_Interface);
 			GotoState('');
-			Owner.PlaySound(DeactivateSound, SLOT_Interface);
 		}
 		else if(!bActive)
 		{
 			if(CanActivate())
 			{
 				CurrentCostPerSec = 0.f;
+				Instigator.PlaySound(ActivateSound, SLOT_Interface);
 				GotoState('Activated');
 			}
 			else
@@ -367,6 +368,7 @@ function Activate()
 	}
 	else if(CanActivate())
 	{
+		Instigator.PlaySound(ActivateSound, SLOT_Interface);
 		DoEffect();
 
 		if(CostPerSec > 0)
@@ -511,5 +513,5 @@ defaultproperties
 	MSG_Text_Cooldown="This artifact will be available in $1."
 	MSG_Text_Expired="You have run out of adrenaline."
 	MSG_Text_NotInVehicle="You cannot use this artifact in a vehicle."
-	CantUseSound=None //TODO
+	CantUseSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
 }

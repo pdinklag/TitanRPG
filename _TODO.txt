@@ -82,6 +82,7 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Dropped Suicide penalty feature
 - Centralized exp awarding code in RPGRules
 - Implemented advaced cooldown logic (bChargeUp, bResetCooldownAfterRespawn)
 - Added Shock Therapy ability

@@ -214,6 +214,7 @@ state Activated
 
 defaultproperties
 {
+	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.Rod'
 	bAllowInVehicle=False
 	bMustBeMoving=True
 	TargetRadius=2048.000000

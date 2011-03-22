@@ -105,6 +105,7 @@ state Activated
 
 defaultproperties
 {
+	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.ProtectionArtifact'
 	bAllowWithFlag=False
 	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GlobeOverlay'
 	DamageReduction=0.666667

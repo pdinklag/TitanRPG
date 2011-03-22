@@ -122,7 +122,7 @@ static function bool Heal(Pawn Healed, int Amount, Pawn Healer, int OverHealthMa
 
 defaultproperties
 {
-	HealSound=Sound'<? echo($packageName); ?>.SoundEffects.Heal' //Sound'PickupSounds.HealthPack'
+	HealSound=Sound'<? echo($packageName); ?>.SoundEffects.Heal'
 	HealSoundVol=3.00 //2.00
 	HealOverlay=Shader'<? echo($packageName); ?>.Overlays.BlueShader'
 	SelfHealingCap=0

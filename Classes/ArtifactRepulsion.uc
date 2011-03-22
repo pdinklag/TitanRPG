@@ -41,8 +41,6 @@ function DoEffect()
 	local KnockbackInv InvKnock;
 	local Vector newLocation;
 
-	Instigator.PlaySound(ActivateSound,,1.5 * Instigator.TransientSoundVolume,,Instigator.TransientSoundRadius);
-
 	Spawn(class'RepulsionExplosion', Instigator.Controller,,Instigator.Location);
 	
 	if(bDestroysMines)

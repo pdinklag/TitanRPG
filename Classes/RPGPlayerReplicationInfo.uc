@@ -3,6 +3,8 @@ class RPGPlayerReplicationInfo extends LinkedReplicationInfo
 	DependsOn(RPGAbility)
 	Config(TitanRPG);
 
+const MAX_STATUS = 8;
+
 //server
 var RPGData DataObject;
 var MutTitanRPG RPGMut;
@@ -56,16 +58,8 @@ struct GrantWeapon
 };
 var array<GrantWeapon> GrantQueue, GrantFavQueue;
 
-//these are used to track constant suiciding
-var float LastSuicideTime;
-var int RecentSuicideCount; //amount of recent suicides
-var int SuicidePenalty; //some skills will only work limited as long as this is greater than 0
-var config float SuicideCountDuration;
-var config int SuicidePenaltyTreshold; //if this many recent suicides were detected, increase the penalty
-var config int SuicidePenaltyIncrement; //penalty gets increased by this with every violation
-
 //used to grant experience for special accomplishments - TODO: implement
-//var int FlakCount, ComboCount, HeadCount, RanoverCount, DaredevilPoints, GoalsScored;
+//var int FlakCount, ComboCount, HeadCount, RanoverCount, DaredevilPoints;
 
 //to detect team changes
 var int Team; //info holder for RPGRules, set each spawn
@@ -130,9 +124,11 @@ var Controller AboutToKill;
 var class<DamageType> KillingDamType;
 var int AdrenalineBeforeKill;
 
+//Sound
+var Sound LevelUpSound;
+
 //Text
 var localized string GameRestartingText, ImposterText, LevelUpText, IntroText;
-var localized string SuicidePenaltyWarningText, SuicidePenaltyText;
 
 replication
 {
@@ -143,7 +139,8 @@ replication
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
 		NumMines, NumMonsters, MaxMonsters,
-		NumTurrets, MaxMines, MaxTurrets;
+		NumTurrets, MaxMines, MaxTurrets,
+		StatusIcons;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
 		ClientModifyVehicleWeaponFireRate,
@@ -698,9 +695,6 @@ simulated event Tick(float dt)
 	
 	if(Role == ROLE_Authority)
 	{
-		if(RecentSuicideCount > 0 && (Level.TimeSeconds - LastSuicideTime) > SuicideCountDuration)
-			RecentSuicideCount = 0;
-		
 		//Check weapon
 		if(Controller.Pawn != None && !Controller.Pawn.IsA('Vehicle'))
 		{
@@ -823,6 +817,9 @@ function AwardExperience(float exp)
 	
 	if(Count > 0)
 	{
+		if(Controller != None && Controller.Pawn != None)
+			Controller.Pawn.PlaySound(LevelUpSound);
+	
 		Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGLevel, PRI);
 		ClientShowHint(LevelUpText);
 		
@@ -955,10 +952,6 @@ function ModifyPlayer(Pawn Other)
 	
 	if(Other.SelectedItem == None) //if not possible, do this
 		Other.NextItem();
-	
-	//Reduce penalty
-	if(SuicidePenalty > 0)
-		SuicidePenalty--;
 }
 
 function AddDrone(Drone D)
@@ -1069,28 +1062,6 @@ function ModifyVehicleFireRate(Vehicle V, float Modifier)
 			}
 		}
 	}
-}
-
-function NotifySuicide()
-{
-	if(Level.TimeSeconds - LastSuicideTime < SuicideCountDuration)
-	{
-		RecentSuicideCount++;
-		
-		if(SuicidePenalty > 0 || RecentSuicideCount >= SuicidePenaltyTreshold)
-		{
-			SuicidePenalty += SuicidePenaltyIncrement;
-			Log(RPGName $ " received a penalty for repeatedly suiciding (" $ SuicidePenalty $ ").", 'TitanRPG');
-			
-			ClientShowHint(Repl(SuicidePenaltyText, "$1", SuicidePenalty));
-		}
-		else if(RecentSuicideCount + 1 >= SuicidePenaltyTreshold)
-		{
-			ClientShowHint(SuicidePenaltyWarningText);
-		}
-	}
-	
-	LastSuicideTime = Level.TimeSeconds;
 }
 
 simulated function ModifyVehicleWeaponFireRate(Actor W, float Modifier)
@@ -1662,11 +1633,7 @@ defaultproperties
 	WeaponSpeed=0
 	HealingExpMultiplier=0 //gotten from RPGGameStats
 
-	SuicideCountDuration=0
-	SuicidePenaltyTreshold=3
-	SuicidePenaltyIncrement=3
-	SuicidePenaltyWarningText="You are about to receive a penalty|for repeatedly suiciding!"
-	SuicidePenaltyText="You have received a suicide penalty for $1 respawns!"
+	LevelUpSound=Sound'<? echo($packageName); ?>.SoundEffects.LevelUp'
 
 	bNetNotify=True
 	bAlwaysRelevant=False

@@ -89,7 +89,6 @@ state Activated
 		Super.BeginState();
 	
 		Instigator.DamageScaling *= DoubleDamageScale;
-		Instigator.PlaySound(Sound'PickupSounds.UDamagePickUp', SLOT_None, 1.5*Instigator.TransientSoundVolume,,1000,1.0);
 
 		Timer();
 		SetTimer(0.5, true);
@@ -150,6 +149,7 @@ state Activated
 
 defaultproperties
 {
+	ActivateSound=Sound'PickupSounds.UDamagePickUp'
 	DoubleDamageScale=1.500000
 	MinActivationTime=1.000000
 	CostPerSec=13

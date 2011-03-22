@@ -189,13 +189,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 
 	//suicide
 	if(Killer == Killed)
-	{
-		KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
-		if(KillerRPRI != None)
-			KillerRPRI.NotifySuicide();
-		
 		return;
-	}
 
 	//EXP for killing monsters and nonplayer AI vehicles/turrets
 	//note: most monster EXP is awarded in NetDamage(); this just notifies abilities and awards an extra 1 EXP
