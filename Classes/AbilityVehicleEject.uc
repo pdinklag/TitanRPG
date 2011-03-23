@@ -1,8 +1,20 @@
 class AbilityVehicleEject extends RPGAbility;
 
 var config array<class<DamageType> > ProtectAgainst;
+var config float VehicleCooldown; //can't enter a vehicle before this time has passed
+
+var StatusIconVehicleEject Status;
 
 var float LastEjectionTime;
+var float NextVehicleTime;
+
+var Sound CantEnterSound;
+
+replication
+{
+	reliable if(Role == ROLE_Authority)
+		ClientNotifyCooldown;
+}
 
 function bool ProtectsAgainst(class<DamageType> DamageType)
 {
@@ -19,7 +31,6 @@ function bool HasJustEjected()
 	return ((Level.TimeSeconds - LastEjectionTime) < 2.0f);
 }
 
-//Let's try a mix of fluffy's and BM's approaches
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
 	local Pawn Driver;
@@ -50,19 +61,38 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	
 	LastEjectionTime = Level.TimeSeconds;
 	
+	if(VehicleCooldown > 0)
+	{
+		NextVehicleTime = Level.TimeSeconds + VehicleCooldown;
+		ClientNotifyCooldown(VehicleCooldown);
+	}
+	
 	return false; //NOT saving the vehicle
+}
+
+simulated function ClientNotifyCooldown(float Time)
+{
+	if(Status != None)
+		Status.NextVehicleTime = Level.TimeSeconds + Time;
 }
 
 function bool CanEnterVehicle(Vehicle V)
 {
-	//TODO: Add a vehicle "cooldown" that prevents you from entering a vehicle after having been ejected
-	//TODO: Add a status icon for this
-	
+	if(Level.TimeSeconds < NextVehicleTime)
+	{
+		if(RPRI.Controller.IsA('PlayerController'))
+			PlayerController(RPRI.Controller).ClientPlaySound(CantEnterSound,,, SLOT_Interface);
+		
+		return false;
+	}
+
 	return true;
 }
 
 defaultproperties
 {
+	CantEnterSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
+	VehicleCooldown=5.00
 	AbilityName="Ejector Seat"
 	Description="Ejects you from your vehicle when it's destroyed."
 	LevelDescription(0)="Level 1 ejects you from the driver's seat when your vehicle gets destroyed."

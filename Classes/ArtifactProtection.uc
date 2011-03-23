@@ -52,13 +52,6 @@ function bool CanActivate()
 {
 	local Decoration Flag;
 
-	if(class'ArtifactLightningRod'.static.IsActiveFor(Instigator) ||
-		class'ArtifactTripleDamage'.static.IsActiveFor(Instigator) ||
-		class'ArtifactDoubleModifier'.static.IsActiveFor(Instigator))
-	{
-		return false;
-	}
-
 	Flag = Instigator.PlayerReplicationInfo.HasFlag;
 	if(!bAllowWithFlag && Flag != None)
 	{
@@ -116,6 +109,7 @@ defaultproperties
 	MinActivationTime=1.000000
 	HudColor=(B=128,G=192,R=224)
 	ArtifactID="Globe"
+	bExclusive=True
 	Description="Reduces all incoming damage."
 	PickupClass=Class'ArtifactPickupProtection'
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Globe'

@@ -5,6 +5,8 @@ class RPGGlobalInteraction extends Interaction;
 
 var float IconSize, IconTextSpacing;
 
+var Material MonsterIcon, TurretIcon;
+
 static function bool IsPawnVisible(Canvas C, FriendlyPawnReplicationInfo FPRI)
 {
 	local vector CameraLocation, CamDir;
@@ -88,9 +90,9 @@ function PostRender(Canvas C)
 			if(ScreenPos.X >= 0 && ScreenPos.X < C.SizeX && ScreenPos.Y >= 0 || ScreenPos.Y < C.SizeY)
 			{
 				if(ClassIsChildOf(FPRI.PawnClass, class'Monster'))
-					Icon = class'RPGInteraction'.default.MonsterIcon;
+					Icon = MonsterIcon;
 				if(ClassIsChildOf(FPRI.PawnClass, class'ASTurret'))
-					Icon = class'RPGInteraction'.default.TurretIcon;
+					Icon = TurretIcon;
 			
 				if(FPRI.Master.Team != None)
 					C.DrawColor = class'RPGInteraction'.default.HUDColorTeam[FPRI.Master.Team.TeamIndex];
@@ -116,6 +118,9 @@ event NotifyLevelChange()
 
 defaultproperties
 {
+	MonsterIcon=Texture'<? echo($packageName); ?>.StatusIcons.Monster'
+	TurretIcon=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
+
 	IconSize=16
 	IconTextSpacing=3
 	bVisible=True

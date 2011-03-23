@@ -759,6 +759,9 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation)
 {
+	local Inventory Inv;
+	local Weapon W;
+	local RPGWeapon RW;
 	local bool bAlreadyPrevented;
 	local int x;
 	local Controller KilledController;
@@ -811,7 +814,26 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 		{
 			KilledRPRI.bTeamChanged = true; //allow RPRI to react on spawn
 			
-			class'AbilityDenial'.static.StoreOldWeapons(Killed, KilledRPRI, true, true);
+			if(KilledVehicleDriver != None)
+				Inv = KilledVehicleDriver.Inventory;
+			else
+				Inv = Killed.Inventory;
+			
+			while(Inv != None)
+			{
+				W = Weapon(Inv);
+				if(W != None && class'AbilityDenial'.static.CanSaveWeapon(W))
+				{
+					RW = RPGWeapon(W);
+					if(RW != None)
+						KilledRPRI.QueueWeapon(RW.ModifiedWeapon.class, RW.class, RW.Modifier);
+					else
+						KilledRPRI.QueueWeapon(W.class, None, 0);
+				}
+
+				Inv = Inv.Inventory;
+			}
+			
 			return false; //cannot save from a team switch
 		}
 		else
@@ -862,8 +884,19 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 
 				ShareExperience(KillerRPRI,
 					GetKillEXP(KillerRPRI, KilledRPRI, class'RPGGameStats'.default.EXP_DestroyVehicle));
-					
+
 				KillerRPRI.PRI.Score += 1.f; //add a game point
+				
+				//reset killing spree for ejected player
+				if(KilledVehicleDriver.GetSpree() > 4)
+				{
+					Killer.AwardAdrenaline(DeathMatch(Level.Game).ADR_MajorKill);
+					ShareExperience(KillerRPRI, class'RPGGameStats'.default.EXP_EndSpree);
+					DeathMatch(Level.Game).EndSpree(Killer, KilledController);
+				}
+				
+				if(KilledVehicleDriver.IsA('UnrealPawn'))
+					UnrealPawn(KilledVehicleDriver).spree = 0;
 			}
 		}
 	}

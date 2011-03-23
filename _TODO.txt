@@ -1,5 +1,19 @@
 TEST:
-- Weapon granting abilities
+- Spectator cheats
+
+- Ejector Seat
+- StatusIcons
+- TeamBooster / Summoned monsters
+
+- Artifact order
+
+- ArtifactUDamage
+- ArtifactTripleDamage
+- ArtifactInvis
+
+- Weapon granting abilities / Denial
+- Weapon storing upon team change
+
 - Advanced cooldown logic
 - "Can't use" sound on artifacts
 - New weapon granting
@@ -13,19 +27,16 @@ TEST:
 - Knockback should knock out turrets
 
 TODO (XT Config):
+- StatusIcons
 - EXP_FriendlyMonsterKill=0.5
 - ColoredSpeedTrailLevel=8
 - Find and replace "UseDelay" -> "Cooldown"
 
 TODO (1.61)
-- Rewrite Denial
-
-- Change amount of exp gained from kills by summoned monsters
-- Central weapon granting system
-- "Favorite RPG Weapon" feature
+- "Favorite RPG Weapon" feature (GUI)
 - Central status icon handling
-- ArtifactInvisibility
-- ArtifactDoubleDamage
+- GUI settings for status icons
+- Visualize countdowns in classic artifact view
 
 - Get RPGBots into Invasion / InvasionPro
 
@@ -47,9 +58,13 @@ TODO (1.61)
 - Use ArrayCount(Array)
 
 Documentation TODO:
+- EjectorSeat
+- StatusIcons
+- ArtifactInvis
+- ArtifactUDamage
 - EXP_DestroyVehicle
 - EXP_FriendlyMonsterKill
-- RPGArtifact: Cooldown, bChargeUp, bResetCooldownAfterRespawn
+- RPGArtifact: Cooldown, bChargeUp, bResetCooldownAfterRespawn, bExclusive
 - AbilityShockTherapy
 - AbilityMineLayer
 - AbilityLooter
@@ -67,6 +82,10 @@ Documentation TODO:
 - RPGSelectionMenu
 
 Release Config TODO:
+- Ejector Seat
+- StatusIcons
+- ArtifactUDamage
+- ArtifactInvis
 - RepairLinkLevel on AbilityLoadedVehicles
 - Find and replace "UseDelay" -> "Cooldown"
 - EXP_TurretKill
@@ -82,6 +101,10 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Ejector Seat ends spree
+- Team Booster no longer boosts summoned monsters
+- Added Invisibility artifact
+- Added UDamage artifact
 - Dropped Suicide penalty feature
 - Centralized exp awarding code in RPGRules
 - Implemented advaced cooldown logic (bChargeUp, bResetCooldownAfterRespawn)

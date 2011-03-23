@@ -55,7 +55,6 @@ var Rect StatusIconBorderMaterialRect;
 var Vec2 StatusIconSize;
 var float StatusIconInnerScale;
 var Color StatusIconOverlay;
-var Material MonsterIcon, TurretIcon;
 
 //Pre-calculated values for PostRender - updated if the canvas size or settings changed
 var Vec2 CanvasSize, FontScale, ArtifactIconPos, StatusIconPos;
@@ -263,7 +262,7 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	}
 }
 
-function DrawStatusIcon(Canvas Canvas, Material Icon, float X, float Y, float SizeX, float SizeY, optional int Num, optional int Max)
+function DrawStatusIcon(Canvas Canvas, RPGStatusIcon StatusIcon, float X, float Y, float SizeX, float SizeY)
 {
 	local string Text;
 	local float XL, YL;
@@ -280,19 +279,22 @@ function DrawStatusIcon(Canvas Canvas, Material Icon, float X, float Y, float Si
 		StatusIconBorderMaterialRect.W, StatusIconBorderMaterialRect.H
 	);
 	
-	IconSize = FMin(SizeX, SizeY) * StatusIconInnerScale;
-	
-	Canvas.SetPos(X + (SizeX - IconSize) * 0.5, Y + (SizeY - IconSize) * 0.5);
-	Canvas.DrawColor = StatusIconOverlay;
-	Canvas.DrawTile(Icon, IconSize, IconSize, 0, 0, Icon.MaterialUSize(), Icon.MaterialVSize());
-	
-	if(Num != 0)
+	if(StatusIcon.IconMaterial != None)
 	{
-		if(Max != 0)
-			Text = Num $ "/" $ Max;
-		else
-			Text = string(Num);
+		IconSize = FMin(SizeX, SizeY) * StatusIconInnerScale;
 		
+		Canvas.SetPos(X + (SizeX - IconSize) * 0.5, Y + (SizeY - IconSize) * 0.5);
+		Canvas.DrawColor = StatusIconOverlay;
+		Canvas.DrawTile(
+			StatusIcon.IconMaterial,
+			IconSize, IconSize, 0, 0,
+			StatusIcon.IconMaterial.MaterialUSize(),
+			StatusIcon.IconMaterial.MaterialVSize());
+	}
+
+	Text = StatusIcon.GetText();
+	if(Text != "")
+	{
 		Canvas.TextSize(Text, XL, YL);
 		Canvas.SetPos(X + (SizeX - XL) * 0.5, Y + (SizeY - YL) * 0.5 + 1);
 		Canvas.DrawColor = WhiteColor;
@@ -465,7 +467,7 @@ function PostRender(Canvas Canvas)
 	
 	//Draw status icons
 	if(
-		!Settings.bHideStatusIcon && (RPRI.NumMonsters > 0 || RPRI.NumTurrets > 0) &&
+		!Settings.bHideStatusIcon &&
 		(!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard())
 	)
 	{
@@ -474,19 +476,14 @@ function PostRender(Canvas Canvas)
 
 		X = StatusIconPos.X;
 		Y = StatusIconPos.Y;
-		
-		//TODO: Status icon for drones, ejector seat
-		
-		if(RPRI.NumMonsters > 0)
+
+		for(i = 0; i < RPRI.Status.Length; i++)
 		{
-			DrawStatusIcon(Canvas, MonsterIcon, X, Y, StatusIconSize.X, StatusIconSize.Y, RPRI.NumMonsters, RPRI.MaxMonsters);
-			X -= StatusIconSize.X;
-		}
-		
-		if(RPRI.NumTurrets > 0)
-		{	
-			DrawStatusIcon(Canvas, TurretIcon, X, Y, StatusIconSize.X, StatusIconSize.Y, RPRI.NumTurrets, RPRI.MaxTurrets);
-			X -= StatusIconSize.X;
+			if(RPRI.Status[i].IsVisible())
+			{
+				DrawStatusIcon(Canvas, RPRI.Status[i], X, Y, StatusIconSize.X, StatusIconSize.Y);
+				X -= StatusIconSize.X;
+			}
 		}
 		
 		//Reset
@@ -669,7 +666,12 @@ function PostRender(Canvas Canvas)
 				if(P.PendingWeapon != None)
 				{
 					if(P.PendingWeapon.IsA('RPGWeapon') && RPGWeapon(P.PendingWeapon).bIdentified)
+					{
 						LastWeaponExtra = RPGWeapon(P.PendingWeapon).GetWeaponNameExtra();
+						
+						if(RPGWeapon(P.PendingWeapon).bFavorite)
+							LastWeaponExtra = "<3" @ LastWeaponExtra @ "<3";
+					}
 					else
 						LastWeaponExtra = "";
 				}
@@ -833,9 +835,6 @@ defaultproperties
 	StatusIconSize=(X=29,Y=29)
 	StatusIconInnerScale=0.75
 	StatusIconOverlay=(R=255,G=255,B=255,A=128)
-	//Status icons
-	MonsterIcon=Texture'<? echo($packageName); ?>.StatusIcons.Monster'
-	TurretIcon=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
 	//
 	DisabledOverlay=(R=0,G=0,B=0,A=150)
 	LevelText="Level:"

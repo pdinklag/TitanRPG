@@ -89,14 +89,6 @@ function bool CanActivate()
 {
 	local Weapon W;
 
-	//Don't allow rodding with certain other artifacts on
-	if(class'ArtifactDoubleModifier'.static.IsActiveFor(Instigator) ||
-		class'ArtifactTripleDamage'.static.IsActiveFor(Instigator) ||
-		class'ArtifactProtection'.static.IsActiveFor(Instigator))
-	{
-		return false;
-	}
-
 	//Get current actual Weapon -pd
 	if(RPGWeapon(Instigator.Weapon) != None)
 		W = RPGWeapon(Instigator.Weapon).ModifiedWeapon;
@@ -224,6 +216,7 @@ defaultproperties
 	NotWithTransMessage="You cannot use this artifact while using the Translocator."
 	HitEmitterClass=Class'XEffects.LightningBolt'
 	CostPerSec=4
+	bExclusive=True
 	MinActivationTime=1.000000
 	ArtifactID="Rod"
 	Description="Fires lightnings at nearby enemies."

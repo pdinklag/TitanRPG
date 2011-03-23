@@ -30,13 +30,6 @@ function bool CanActivate()
 		return false;
 	}
 
-	if(class'ArtifactLightningRod'.static.IsActiveFor(Instigator) ||
-		class'ArtifactTripleDamage'.static.IsActiveFor(Instigator) ||
-		class'ArtifactProtection'.static.IsActiveFor(Instigator))
-	{
-		return false;
-	}
-		
 	return Super.CanActivate();
 }
 
@@ -103,6 +96,7 @@ defaultproperties
 	HudColor=(G=128)
 	ArtifactID="Double"
 	bCanBeTossed=False
+	bExclusive=True
 	Description="Doubles your weapon's magic level."
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.DoubleMod'
 	ItemName="Double Magic Modifier"

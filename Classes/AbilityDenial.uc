@@ -3,6 +3,15 @@ class AbilityDenial extends RPGAbility
 
 var config array<class<Weapon> > ForbiddenWeaponTypes;
 
+struct StoredWeapon
+{
+	var class<Weapon> WeaponClass;
+	var class<RPGWeapon> ModifierClass;
+	var int Modifier;
+};
+var array<StoredWeapon> StoredWeapons;
+
+
 /*
 	This isn't beautiful, but I can't think of any other way to describe this...
 	ExtraSavingLevel determines the level from which on weapons are saved when
@@ -56,6 +65,8 @@ static function bool CanSaveWeapon(Weapon W)
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
+	local Inventory Inv;
+	local Weapon W;
 	local AbilityVehicleEject EjectorSeat;
 
 	// Ejector Seat hack.
@@ -86,126 +97,87 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 		RPRI.Controller.LastPawnWeapon = Killed.Weapon.Class;
 	}
 	
-	if(RPRI.OldWeaponHolder != None)
-		RPRI.OldWeaponHolder.Destroy();
+	if(AbilityLevel > 1)
+	{
+		W = None;
+		if(AbilityLevel >= MaxLevel)
+		{
+			//store all weapons
+			for(Inv = Killed.Inventory; Inv != None; Inv = Inv.Inventory)
+			{
+				W = Weapon(Inv);
+				if(W != None)
+					TryStoreWeapon(W);
+			}
+		}
+		else
+		{
+			//store last held weapon
+			if(Killed.IsA('Vehicle'))
+			{
+				if(AbilityLevel >= ExtraSavingLevel)
+					W = Vehicle(Killed).Driver.Weapon;
+			}
+			else
+			{
+				W = Killed.Weapon;
+			}
 
-	if(Killed != None && !Killed.IsA('Vehicle'))
-		StoreOldWeapons(Killed, RPRI, AbilityLevel >= ExtraSavingLevel, AbilityLevel >= MaxLevel);
+			if(AbilityLevel >= ExtraSavingLevel)
+			{
+				//when carrying the ball launcher, save the old weapon
+				if(RPGBallLauncher(W) != None)
+					W = RPGBallLauncher(W).RestoreWeapon;
+				else if(RPGWeapon(W) != None && RPGBallLauncher(RPGWeapon(W).ModifiedWeapon) != None)
+					W = RPGBallLauncher(RPGWeapon(W).ModifiedWeapon).RestoreWeapon;
+			}
 
-	Killed.Weapon = None;
+			if(W != None)
+				TryStoreWeapon(W);
+		}
+	}
+	
 	return false;
+}
+
+function TryStoreWeapon(Weapon W)
+{
+	local RPGWeapon RW;
+	local StoredWeapon SW;
+	
+	if(W == None || !CanSaveWeapon(W))
+		return;
+	
+	RW = RPGWeapon(W);
+	if(RW != None)
+	{
+		SW.WeaponClass = RW.ModifiedWeapon.class;
+		SW.ModifierClass = RW.class;
+		SW.Modifier = RW.Modifier;
+	}
+	else
+	{
+		SW.WeaponClass = W.class;
+		SW.ModifierClass = None;
+		SW.Modifier = 0;
+	}
+	
+	StoredWeapons[StoredWeapons.Length] = SW;
 }
 
 function ModifyPawn(Pawn Other)
 {
+	local int i;
+
 	Super.ModifyPawn(Other);
 	
     if(AbilityLevel < 2)
         return;
 
-	RestoreOldWeapons(Other, RPRI);
-}
+	for(i = 0; i < StoredWeapons.Length; i++)
+		RPRI.QueueWeapon(StoredWeapons[i].WeaponClass, StoredWeapons[i].ModifierClass, StoredWeapons[i].Modifier);
 
-//Static for other uses
-static function StoreOldWeapons(Pawn Killed, RPGPlayerReplicationInfo RPRI, bool bStoreExtra, bool bStoreAll)
-{
-	local array<Weapon> Weapons;
-	local Weapon SaveWeapon;
-	local Inventory Inv;
-	local int x;
-
-	if(bStoreAll) //final level, save all weapons
-	{	
-		for(Inv = Killed.Inventory; Inv != None; Inv = Inv.Inventory)
-		{
-			if(CanSaveWeapon(Weapon(Inv)))
-				Weapons[Weapons.length] = Weapon(Inv);
-		}
-
-		RPRI.OldWeaponHolder = Killed.Spawn(class'DruidsOldWeaponHolder', RPRI.Controller);
-		RPRI.OldWeaponHolder.SelectedWeapon = Killed.Weapon;
-		for(x = 0; x < Weapons.length; x++)
-			StoreOldWeapon(Killed, RPRI.Controller, Weapons[x], RPRI.OldWeaponHolder);
-	}
-	else
-	{
-		SaveWeapon = Killed.Weapon;
-		if(bStoreExtra) //AbilityLevel >= default.ExtraSavingLevel)
-		{
-			//when carrying the ball launcher, save the PendingWeapon (= old weapon)
-			if(RPGBallLauncher(SaveWeapon) != None)
-				SaveWeapon = RPGBallLauncher(SaveWeapon).RestoreWeapon;
-			else if(RPGWeapon(SaveWeapon) != None && RPGBallLauncher(RPGWeapon(SaveWeapon).ModifiedWeapon) != None)
-				SaveWeapon = RPGBallLauncher(RPGWeapon(SaveWeapon).ModifiedWeapon).RestoreWeapon;
-		}
-	
-		if(CanSaveWeapon(SaveWeapon))
-		{
-			RPRI.OldWeaponHolder = Killed.Spawn(class'DruidsOldWeaponHolder', RPRI.Controller);
-			RPRI.OldWeaponHolder.SelectedWeapon = Killed.Weapon;
-			StoreOldWeapon(Killed, RPRI.Controller, SaveWeapon, RPRI.OldWeaponHolder);
-		}
-	}
-}
-
-static function RestoreOldWeapons(Pawn Other, RPGPlayerReplicationInfo RPRI)
-{
-	local bool bHasSelectedWeapon;
-    local DruidsOldWeaponHolder.WeaponHolder Holder;
-	
-	if(RPRI != None && RPRI.OldWeaponHolder != None)
-	{
-		while(RPRI.OldWeaponHolder.WeaponHolders.length > 0)
-		{
-			Holder = RPRI.OldWeaponHolder.WeaponHolders[0];
-			if(Holder.Weapon != None)
-			{
-				Holder.Weapon.GiveTo(Other); //somehow it can be destroyed.
-				
-				if(Holder.Weapon == None)
-					continue;
-				
-				Holder.Weapon.AddAmmo(Holder.AmmoAmounts1 - Holder.Weapon.AmmoAmount(0), 0);
-				Holder.Weapon.AddAmmo(Holder.AmmoAmounts2 - Holder.Weapon.AmmoAmount(1), 1);
-				
-				if(Holder.Weapon == RPRI.OldWeaponHolder.SelectedWeapon)
-					bHasSelectedWeapon = true;
-			}
-			RPRI.OldWeaponHolder.WeaponHolders.Remove(0, 1);
-		}
-		
-		if(bHasSelectedWeapon)
-			RPRI.ClientSwitchToWeapon(RPRI.OldWeaponHolder.SelectedWeapon);
-		
-		RPRI.OldWeaponHolder.Destroy();
-		return;
-	}
-}
-
-static function StoreOldWeapon(Pawn Killed, Controller KilledController, Weapon Weapon, DruidsOldWeaponHolder OldWeaponHolder)
-{
-    Local DruidsOldWeaponHolder.WeaponHolder holder;
-
-    if(Weapon == None)
-        return;
-		
-    Weapon.SetOverlayMaterial(None, 0.0, True);
-    if (WeaponAttachment(Weapon.ThirdPersonActor) != None)
-      WeaponAttachment(Weapon.ThirdPersonActor).SetOverlayMaterial(None, 0.0, True);
-
-    Weapon.DetachFromPawn(Killed);
-    holder.Weapon = Weapon;
-    holder.AmmoAmounts1 = Weapon.AmmoAmount(0);
-    holder.AmmoAmounts2 = Weapon.AmmoAmount(1);
-
-    OldWeaponHolder.WeaponHolders[OldWeaponHolder.WeaponHolders.length] = holder;
-
-    Killed.DeleteInventory(holder.Weapon);
-	
-    //this forces the weapon to stay relevant to the player who will soon reclaim it
-    holder.Weapon.SetOwner(KilledController);
-    if (RPGWeapon(holder.Weapon) != None)
-        RPGWeapon(holder.Weapon).ModifiedWeapon.SetOwner(KilledController);
+	StoredWeapons.Length = 0;
 }
 
 defaultproperties

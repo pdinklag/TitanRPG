@@ -23,6 +23,9 @@ var int AIBuildAction;
 
 var RPGPlayerLevelInfo PlayerLevel;
 
+//Status icons
+var array<RPGStatusIcon> Status;
+
 //Weapon and Artifact Restoration
 var DruidsOldWeaponHolder OldWeaponHolder;
 var class<Powerups> LastSelectedPowerupType;
@@ -75,7 +78,7 @@ var array<Drone> Drones;
 var array<ONSMineProjectile> Mines;
 
 //replicated
-var int NumMonsters, NumTurrets, NumMines;
+var int NumMonsters, NumTurrets, NumMines, NumDrones;
 
 //stats
 var int Attack, Defense, AmmoMax, WeaponSpeed;
@@ -138,9 +141,8 @@ replication
 	reliable if(Role == ROLE_Authority && bNetDirty)
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
-		NumMines, NumMonsters, MaxMonsters,
-		NumTurrets, MaxMines, MaxTurrets,
-		StatusIcons;
+		NumMines, NumMonsters, NumTurrets, NumDrones,
+		MaxDrones, MaxMines, MaxTurrets, MaxMonsters;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
 		ClientModifyVehicleWeaponFireRate,
@@ -322,6 +324,14 @@ simulated event BeginPlay()
 				AIBuild.InitBot(Bot(Controller));
 		
 			AIBuild.Build(Self);
+		}
+		
+		//Instantiate status icons
+		for(i = 0; i < RPGMut.StatusIcons.Length; i++)
+		{
+			Status[i] = Spawn(RPGMut.StatusIcons[i], Controller);
+			Status[i].RPRI = Self;
+			Status[i].Index = i;
 		}
 
 		//Inform others
@@ -747,7 +757,10 @@ simulated event Tick(float dt)
 		while(x < Drones.Length)
 		{
 			if(Drones[x] == None)
+			{
+				NumDrones--;
 				Drones.Remove(x, 1);
+			}
 			else
 				x++;
 		}
@@ -796,38 +809,41 @@ function AwardExperience(float exp)
 	Experience = FMax(0.0, Experience + exp);
 	ClientNotifyExpGain(exp);
 	
-	while(Experience >= NeededExp && Count < 10000)
+	if(RPGLevel < RPGMut.Levels.Length) //don't allow levelup when max level was reached
 	{
-		Count++;
-		
-		RPGLevel++;
-		PointsAvailable += RPGMut.PointsPerLevel;
-		Experience -= float(NeededExp);
-		
-		if(RPGLevel < RPGMut.Levels.Length)
-			NeededExp = RPGMut.Levels[RPGLevel];
-		
-		if(Count <= RPGMut.MaxLevelupEffectStacking && Controller != None && Controller.Pawn != None)
+		while(Experience >= NeededExp && Count < 10000)
 		{
-			Effect = Controller.Pawn.spawn(class'LevelUpEffect', Controller.Pawn);
-			Effect.SetDrawScale(Controller.Pawn.CollisionRadius / Effect.CollisionRadius);
-			Effect.Initialize();
+			Count++;
+			
+			RPGLevel++;
+			PointsAvailable += RPGMut.PointsPerLevel;
+			Experience -= float(NeededExp);
+			
+			if(RPGLevel < RPGMut.Levels.Length)
+				NeededExp = RPGMut.Levels[RPGLevel];
+			
+			if(Count <= RPGMut.MaxLevelupEffectStacking && Controller != None && Controller.Pawn != None)
+			{
+				Effect = Controller.Pawn.spawn(class'LevelUpEffect', Controller.Pawn);
+				Effect.SetDrawScale(Controller.Pawn.CollisionRadius / Effect.CollisionRadius);
+				Effect.Initialize();
+			}
 		}
-	}
-	
-	if(Count > 0)
-	{
-		if(Controller != None && Controller.Pawn != None)
-			Controller.Pawn.PlaySound(LevelUpSound);
-	
-		Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGLevel, PRI);
-		ClientShowHint(LevelUpText);
 		
-		if(AIBuild != None)
-			AIBuild.Build(Self);
+		if(Count > 0)
+		{
+			if(Controller != None && Controller.Pawn != None)
+				Controller.Pawn.PlaySound(LevelUpSound);
 		
-		PlayerLevel.RPGLevel = RPGLevel;
-		PlayerLevel.ExpNeeded = NeededExp;
+			Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGLevel, PRI);
+			ClientShowHint(LevelUpText);
+			
+			if(AIBuild != None)
+				AIBuild.Build(Self);
+			
+			PlayerLevel.RPGLevel = RPGLevel;
+			PlayerLevel.ExpNeeded = NeededExp;
+		}
 	}
 	
 	PlayerLevel.Experience = Experience;
@@ -930,16 +946,11 @@ function ModifyPlayer(Pawn Other)
 	}
 	
 	ProcessGrantQueue(); //give weapons
-	
-	//Upon a team change, simulate Denial 4 if not present
-	if(bTeamChanged &&
-		OldWeaponHolder != None &&
-		HasAbility(class'AbilityDenial') < class'AbilityDenial'.default.MaxLevel &&
-		HasAbility(class'AbilityDenial_TC0X') < class'AbilityDenial_TC0X'.default.MaxLevel)
+
+	if(bTeamChanged)
 	{
-		class'AbilityDenial'.static.RestoreOldWeapons(Other, Self);
+		//respawning after team switch
 	}
-	
 	bTeamChanged = false;
 	
 	//Restore last selected artifact
@@ -957,6 +968,7 @@ function ModifyPlayer(Pawn Other)
 function AddDrone(Drone D)
 {
 	Drones[Drones.Length] = D;
+	NumDrones++;
 }
 
 function AddMine(ONSMineProjectile Mine)
@@ -1443,13 +1455,18 @@ function ServerFavoriteWeapon()
 	{
 		if(RW.bFavorite)
 		{
-			Log("Removed favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class, 'TitanRPG');
+			if(Controller.IsA('PlayerController'))
+				PlayerController(Controller).ClientMessage(
+					"Removed favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class);
 			RemoveFavorite(RW.ModifiedWeapon.class);
 			RW.bFavorite = false;
 		}
 		else
 		{
-			Log("Added favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class, 'TitanRPG');
+			if(Controller.IsA('PlayerController'))
+				PlayerController(Controller).ClientMessage(
+					"Added favorite:" @ RW.ModifiedWeapon.class @ "/" @ RW.class);
+
 			AddFavorite(RW.ModifiedWeapon.class, RW.class);
 			RW.bFavorite = true;
 		}
@@ -1461,12 +1478,9 @@ function GrantQueuedWeapon(GrantWeapon GW)
 {
 	local RPGWeapon RW;
 
-	Log("Granting:" @ GW.WeaponClass @ "/" @ GW.ModifierClass @ GW.Modifier);
-
 	RW = RPGWeapon(CreateWeapon(GW.WeaponClass, GW.ModifierClass));
 	if(RW != None)
 	{
-		Log("Success");
 		RW.SetModifier(GW.Modifier);
 		RW.GiveTo(Controller.Pawn);
 		RW.Identify(true); //TODO bNoUnidentified
@@ -1499,6 +1513,30 @@ function ProcessGrantQueue()
 	GrantQueue.Length = 0;
 }
 
+function InternalQueueWeapon(array<GrantWeapon> Dest, GrantWeapon GW)
+{
+	local int i;
+	
+	for(i = 0; i < Dest.Length; i++)
+	{
+		if(
+			Dest[i].WeaponClass == GW.WeaponClass &&
+			Dest[i].ModifierClass == GW.ModifierClass
+		)
+		{
+			//override in queue weapon if this modifier is higher, otherwise discard
+			if(GW.Modifier > Dest[i].Modifier)
+			{
+				Dest[i].Modifier = GW.Modifier;
+				Dest[i].MaxAmmo = Dest[i].MaxAmmo || GW.MaxAmmo;
+			}
+			return;
+		}
+	}
+	
+	Dest[Dest.Length] = GW;
+}
+
 //Add to weapon grant queue
 function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional bool MaxAmmo)
 {
@@ -1510,9 +1548,9 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	GW.MaxAmmo = MaxAmmo;
 	
 	if(IsFavorite(WeaponClass, ModifierClass))
-		GrantFavQueue[GrantFavQueue.Length] = GW;
+		InternalQueueWeapon(GrantFavQueue, GW);
 	else
-		GrantQueue[GrantQueue.Length] = GW;
+		InternalQueueWeapon(GrantQueue, GW);
 }
 
 //Find out whether a Weapon/Modifier combination is a favorite
@@ -1577,7 +1615,6 @@ function Weapon CreateWeapon(class<Weapon> WeaponClass, optional class<RPGWeapon
 	
 	if(WeaponClass != None && WantsWeaponType(WeaponClass))
 	{
-		Log("Spawning a" @ WeaponClass);
 		W = Spawn(WeaponClass, Controller.Pawn);
 	
 		if(ModifierClass != None && W != None)
@@ -1597,8 +1634,6 @@ function RPGWeapon EnchantWeapon(Weapon W, class<RPGWeapon> ModifierClass)
 
 	if(Controller == None || Controller.Pawn == None)
 		return None;
-
-	Log("Enchanting " @ W @ "with" @ ModifierClass);
 
 	RW = RPGWeapon(W);
 	if(RW != None)

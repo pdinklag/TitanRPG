@@ -18,7 +18,7 @@ function StartEffect(xPawn P)
 	i = 0;
 	for(C = Level.ControllerList; C != None; C = C.NextController)
 	{
-		if(C.SameTeamAs(P.Controller) && C.Pawn != None)
+		if(C.bIsPlayer && C.SameTeamAs(P.Controller) && C.Pawn != None)
 		{
 			//Check whether this player has an active team booster
 			Other = C.Pawn;

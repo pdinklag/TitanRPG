@@ -20,6 +20,8 @@ var config bool bAllowInVehicle;
 var float ActivatedTime;
 var config bool bCanBeTossed;
 
+var config bool bExclusive; //if true, cannot be activated if another Artifact with bExclusive is already active
+
 var Sound CantUseSound; //played when CanActivate() fails
 
 var localized string Description;
@@ -28,12 +30,14 @@ const MSG_Adrenaline = 0x0000;
 const MSG_Cooldown = 0x0001;
 const MSG_Expired = 0x0002;
 const MSG_NotInVehicle = 0x0003;
+const MSG_Exclusive = 0x0004;
 
 var localized string
 	MSG_Text_Adrenaline,
 	MSG_Text_Cooldown,
 	MSG_Text_Expired,
-	MSG_Text_NotInVehicle;
+	MSG_Text_NotInVehicle,
+	MSG_Text_Exclusive;
 
 //these are for the HUD
 var float NextUseTime; //time when this artifact will be available again
@@ -277,6 +281,9 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 		case MSG_NotInVehicle:
 			return default.MSG_Text_NotInVehicle;
 		
+		case MSG_Exclusive:
+			return default.MSG_Text_Exclusive;
+		
 		default:
 			return "";
 	}
@@ -290,7 +297,22 @@ simulated function Msg(int Msg, optional int Value, optional Object Obj)
 
 function bool CanActivate()
 {
+	local Inventory Inv;
+	local RPGArtifact A;
 	local int Countdown;
+
+	if(bExclusive)
+	{
+		for(Inv = Instigator.Inventory; Inv != None; Inv = Inv.Inventory)
+		{
+			A = RPGArtifact(Inv);
+			if(A != None && A.bExclusive && A.bActive)
+			{
+				Msg(MSG_Exclusive);
+				return false;
+			}
+		}
+	}
 
 	if(Vehicle(Instigator) != None && !bAllowInVehicle)
 	{
@@ -505,6 +527,7 @@ defaultproperties
 	Cooldown=0
 	bChargeUp=True
 	bResetCooldownOnRespawn=True
+	bExclusive=False
 	HudColor=(B=0,G=255,R=255,A=255)
 	FlagMultiplier=1.000000
 	MinActivationTime=0
@@ -513,5 +536,6 @@ defaultproperties
 	MSG_Text_Cooldown="This artifact will be available in $1."
 	MSG_Text_Expired="You have run out of adrenaline."
 	MSG_Text_NotInVehicle="You cannot use this artifact in a vehicle."
+	MSG_Text_Exclusive="You already have another exclusive artifact activated."
 	CantUseSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
 }

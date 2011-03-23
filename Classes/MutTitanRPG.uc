@@ -54,6 +54,9 @@ struct WeaponModifier
 var config array<WeaponModifier> WeaponModifiers;
 var int TotalModifierChance;
 
+//Available status icons
+var config array<class<RPGStatusIcon> > StatusIcons;
+
 //Stuff
 var config bool bAllowSuperWeaponReplenish; //allow RPGWeapon::FillToInitialAmmo() on superweapons
 var config array<class<Ammunition> > SuperAmmoClasses;
@@ -1077,6 +1080,8 @@ function Mutate(string MutateString, PlayerController Sender)
 	local Inventory Inv;
 	local bool bAll;
 	local string Game;
+	local Pawn Cheat;
+	local Controller CheatController;
 	
 	bIsAdmin = Sender.PlayerReplicationInfo.bAdmin;
 	bIsSuperAdmin = false;
@@ -1091,11 +1096,23 @@ function Mutate(string MutateString, PlayerController Sender)
 		}
 	}
 	
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Sender);
 	Split(MutateString, " ", Args);
 	
 	if(Args.Length > 0)
 	{
+		if(Sender.Pawn != None)
+		{
+			Cheat = Sender.Pawn;
+			CheatController = Sender;
+		}
+		else if(Sender.ViewTarget != None && Sender.ViewTarget.IsA('xPawn'))
+		{
+			Cheat = Pawn(Sender.ViewTarget);
+			CheatController = Cheat.Controller;
+		}
+		
+		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(CheatController);
+	
 		//admin tools
 		if(bIsAdmin || bIsSuperAdmin)
 		{
@@ -1114,26 +1131,43 @@ function Mutate(string MutateString, PlayerController Sender)
 				SaveData();
 				return;
 			}
-			else if(Args[0] ~= "fatality" && Args.Length > 1)
+			else if(Args[0] ~= "fatality")
 			{
-				bAll = (Args[1] ~= "all");
-				
-				for(C = Level.ControllerList; C != None; C = C.NextController)
+				if(Args.Length > 1)
 				{
-					if(C.Pawn != None && (bFlag || Args[1] ~= C.GetHumanReadableName()))
+					bAll = (Args[1] ~= "all");
+					
+					for(C = Level.ControllerList; C != None; C = C.NextController)
 					{
-						E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
-						
-						if(Level.NetMode == NM_DedicatedServer)
-							E.LifeSpan = 0.7;
-						
-						C.Pawn.PlaySound(Sound'WeaponSounds.redeemer_explosionsound');
-						C.Pawn.MakeNoise(1.0);
-						C.Pawn.Died(None, class'DamTypeFatality', Location);
-						
-						if(PlayerController(C) != None)
-							PlayerController(C).ClientMessage("FATALITY!");
+						if(C.Pawn != None && (bFlag || Args[1] ~= C.GetHumanReadableName()))
+						{
+							E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
+							
+							if(Level.NetMode == NM_DedicatedServer)
+								E.LifeSpan = 0.7;
+							
+							C.Pawn.PlaySound(Sound'WeaponSounds.redeemer_explosionsound');
+							C.Pawn.MakeNoise(1.0);
+							C.Pawn.Died(None, class'DamTypeFatality', Location);
+							
+							if(PlayerController(C) != None)
+								PlayerController(C).ClientMessage("FATALITY!");
+						}
 					}
+				}
+				else if(Cheat != None)
+				{
+					E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
+					
+					if(Level.NetMode == NM_DedicatedServer)
+						E.LifeSpan = 0.7;
+		
+					Cheat.PlaySound(Sound'WeaponSounds.redeemer_explosionsound');
+					Cheat.MakeNoise(1.0);
+					Cheat.Died(None, class'DamTypeFatality', Location);
+					
+					if(PlayerController(CheatController) != None)
+						PlayerController(CheatController).ClientMessage("FATALITY!");
 				}
 			}
 		}
@@ -1145,7 +1179,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			else
 				Game = string(Level.Game.class);
 			
-			Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=TitanRPG.MutTitanRPG", false);
+			Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=<? echo($packageName); ?>.MutTitanRPG", false);
 			return;
 		}
 
@@ -1157,20 +1191,20 @@ function Mutate(string MutateString, PlayerController Sender)
 				ActorClass = class<Actor>(DynamicLoadObject(Args[1], class'Class'));
 				if(ActorClass != None)
 				{
-					if(Sender.Pawn != None)
+					if(Cheat != None)
 					{
-						Rotate = Sender.Pawn.Rotation;
+						Rotate = Cheat.Rotation;
 					
 						Loc = 
-							Sender.Pawn.Location + 
+							Cheat.Location + 
 							vector(Rotate) * 
-							1.5f * (ActorClass.default.CollisionRadius + Sender.Pawn.CollisionRadius);
+							1.5f * (ActorClass.default.CollisionRadius + Cheat.CollisionRadius);
 						
-						Loc.Z = Sender.Pawn.Location.Z + ActorClass.default.CollisionHeight;
+						Loc.Z = Cheat.Location.Z + ActorClass.default.CollisionHeight;
 					}
 					else
 					{
-						//spectating
+						//spectating freely
 						Rotate = Sender.Rotation;
 						Loc = Sender.Location;
 					}
@@ -1191,16 +1225,16 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "invis")
+			else if(Cheat != None && Args[0] ~= "invis")
 			{
-				if(Sender.Pawn.DrawType == DT_None)
+				if(Cheat.DrawType == DT_None)
 				{
-					Sender.Pawn.SetDrawType(DT_Mesh);
-					Sender.ClientMessage("You are no longer invisible");
+					Cheat.SetDrawType(DT_Mesh);
+					Sender.ClientMessage("No longer invisible.");
 				}
 				else
 				{
-					Sender.Pawn.SetDrawType(DT_None);
+					Cheat.SetDrawType(DT_None);
 					Sender.ClientMessage("You are now INVISIBLE");
 				}
 				return;
@@ -1215,25 +1249,25 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Args[0] ~= "god")
 			{
-				Sender.bGodMode = !Sender.bGodMode;
+				CheatController.bGodMode = !CheatController.bGodMode;
 			
-				if(Sender.bGodMode)
+				if(CheatController.bGodMode)
 					Sender.ClientMessage("God mode is ON!");
 				else
 					Sender.ClientMessage("God mode is OFF!");
 				
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "ruler")
+			else if(Cheat != None && Args[0] ~= "ruler")
 			{
 				foreach AllActors(class'NavigationPoint', N)
 				{
 					if(N.IsA('ONSPowerCore'))
-						N.Bump(Sender.Pawn);
+						N.Bump(Cheat);
 				}
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "make" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "make" && Args.Length > 1)
 			{
 				if(Args[1] ~= "None")
 					NewWeaponClass = class'RPGWeapon';
@@ -1242,8 +1276,8 @@ function Mutate(string MutateString, PlayerController Sender)
 
 				if(NewWeaponClass != None)
 				{
-					RW = RPRI.EnchantWeapon(Sender.Pawn.Weapon, NewWeaponClass);
-					RW.GiveTo(Sender.Pawn);
+					RW = RPRI.EnchantWeapon(Cheat.Weapon, NewWeaponClass);
+					RW.GiveTo(Cheat);
 					RW.Identify(true);
 				}
 				else
@@ -1252,59 +1286,59 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "mod" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "mod" && Args.Length > 1)
 			{
-				if(RPGWeapon(Sender.Pawn.Weapon) != None)
+				if(RPGWeapon(Cheat.Weapon) != None)
 				{
-					RPGWeapon(Sender.Pawn.Weapon).SetModifier(int(Args[1]));
-					RPGWeapon(Sender.Pawn.Weapon).Identify(true);
+					RPGWeapon(Cheat.Weapon).SetModifier(int(Args[1]));
+					RPGWeapon(Cheat.Weapon).Identify(true);
 				}
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "ammo")
+			else if(Cheat != None && Args[0] ~= "ammo")
 			{
-				for(Inv = Sender.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+				for(Inv = Cheat.Inventory; Inv != None; Inv = Inv.Inventory)
 				{
 					if(Inv.IsA('Weapon'))
 						Weapon(Inv).SuperMaxOutAmmo();
 				}
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "artifacts")
+			else if(Cheat != None && Args[0] ~= "artifacts")
 			{
 				for(x = 0; x < Artifacts.Length; x++)
-					class'Util'.static.GiveInventory(Sender.Pawn, Artifacts[x]);
+					class'Util'.static.GiveInventory(Cheat, Artifacts[x]);
 
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "artifact" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "artifact" && Args.Length > 1)
 			{
 				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact" $ Args[1], class'Class'));
 				if(ArtifactClass != None)
-					class'Util'.static.GiveInventory(Sender.Pawn, ArtifactClass);
+					class'Util'.static.GiveInventory(Cheat, ArtifactClass);
 				else
 					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
 			
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "vm" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "vm" && Args.Length > 1)
 			{
 				VMClass = class<VehicleMagic>(DynamicLoadObject("<? echo($packageName); ?>.VehicleMagic" $ Args[1], class'Class'));
 				if(VMClass != None)
-					VMClass.static.ApplyTo(Vehicle(Sender.Pawn));
+					VMClass.static.ApplyTo(Vehicle(Cheat));
 				else
 					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
 			
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "adren" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "adren" && Args.Length > 1)
 			{
-				Sender.Adrenaline = Max(0, int(Args[1]));
+				CheatController.Adrenaline = Max(0, int(Args[1]));
 				return;
 			}
-			else if(Sender.Pawn != None && Args[0] ~= "health" && Args.Length > 1)
+			else if(Cheat != None && Args[0] ~= "health" && Args.Length > 1)
 			{
-				Sender.Pawn.Health = Max(1, int(Args[1]));
+				Cheat.Health = Max(1, int(Args[1]));
 				return;
 			}
 		}
@@ -1473,4 +1507,9 @@ defaultproperties
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"
+	
+	StatusIcons(0)=class'StatusIconMonsters'
+	StatusIcons(1)=class'StatusIconTurrets'
+	StatusIcons(2)=class'StatusIconDrones'
+	StatusIcons(3)=class'StatusIconVehicleEject'
 }
