@@ -27,7 +27,6 @@ var RPGPlayerLevelInfo PlayerLevel;
 var array<RPGStatusIcon> Status;
 
 //Weapon and Artifact Restoration
-var DruidsOldWeaponHolder OldWeaponHolder;
 var class<Powerups> LastSelectedPowerupType;
 
 struct ArtifactCooldown
@@ -113,6 +112,7 @@ var int RebuildMaxLevelLoss;
 
 //client
 var bool bClientSetup;
+var bool bClientSyncDone;
 
 var RPGInteraction Interaction;
 var RPGMenu Menu;
@@ -570,8 +570,8 @@ function SaveCooldown(RPGArtifact A)
 	
 	if(A.NextUseTime > Level.TimeSeconds)
 	{
-		TimeLeft = Level.TimeSeconds - A.NextUseTime;
-	
+		TimeLeft = A.NextUseTime - Level.TimeSeconds;
+
 		for(i = 0; i < SavedCooldown.Length; i++)
 		{
 			if(A.class == SavedCooldown[i].AClass)
@@ -603,7 +603,7 @@ function int GetSavedCooldown(class<RPGArtifact> AClass)
 function ModifyArtifact(RPGArtifact A)
 {
 	local int i;
-
+	
 	ClientCheckArtifactClass(A.class);
 	
 	for(i = 0; i < Abilities.Length; i++)
@@ -863,6 +863,7 @@ simulated function ClientShowHint(string Hint)
 
 simulated function ClientEnableRPGMenu()
 {
+	bClientSyncDone = true;
 	if(Interaction != None)
 	{
 		Interaction.bMenuEnabled = true;
@@ -1513,33 +1514,37 @@ function ProcessGrantQueue()
 	GrantQueue.Length = 0;
 }
 
-function InternalQueueWeapon(array<GrantWeapon> Dest, GrantWeapon GW)
-{
-	local int i;
-	
-	for(i = 0; i < Dest.Length; i++)
+//Demonstrating the power of umake!
+<?
+	function printQueueFunc($queueName)
 	{
-		if(
-			Dest[i].WeaponClass == GW.WeaponClass &&
-			Dest[i].ModifierClass == GW.ModifierClass
-		)
+?>
+		for(i = 0; i < <? echo($queueName); ?>.Length; i++)
 		{
-			//override in queue weapon if this modifier is higher, otherwise discard
-			if(GW.Modifier > Dest[i].Modifier)
+			if(
+				<? echo($queueName); ?>[i].WeaponClass == GW.WeaponClass &&
+				<? echo($queueName); ?>[i].ModifierClass == GW.ModifierClass
+			)
 			{
-				Dest[i].Modifier = GW.Modifier;
-				Dest[i].MaxAmmo = Dest[i].MaxAmmo || GW.MaxAmmo;
+				//override in queue weapon if this modifier is higher, otherwise discard
+				if(GW.Modifier > <? echo($queueName); ?>[i].Modifier)
+				{
+					<? echo($queueName); ?>[i].Modifier = GW.Modifier;
+					<? echo($queueName); ?>[i].MaxAmmo = <? echo($queueName); ?>[i].MaxAmmo || GW.MaxAmmo;
+				}
+				return;
 			}
-			return;
 		}
+		
+		<? echo($queueName); ?>[<? echo($queueName); ?>.Length] = GW;
+<?
 	}
-	
-	Dest[Dest.Length] = GW;
-}
+?>
 
 //Add to weapon grant queue
 function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional bool MaxAmmo)
 {
+	local int i;
 	local GrantWeapon GW;
 	
 	GW.WeaponClass = WeaponClass;
@@ -1548,9 +1553,13 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	GW.MaxAmmo = MaxAmmo;
 	
 	if(IsFavorite(WeaponClass, ModifierClass))
-		InternalQueueWeapon(GrantFavQueue, GW);
+	{
+		<? printQueueFunc(GrantFavQueue); ?>
+	}
 	else
-		InternalQueueWeapon(GrantQueue, GW);
+	{
+		<? printQueueFunc(GrantQueue); ?>
+	}
 }
 
 //Find out whether a Weapon/Modifier combination is a favorite

@@ -15,16 +15,17 @@ replication
 		RPRI, Index;
 }
 
-simulated event PostNetReceive()
+simulated event Tick(float dt)
 {
-	Super.PostNetReceive();
-	
-	if(!bRegistered && RPRI != None && Index >= 0)
+	if(Role < ROLE_Authority && !bRegistered)
 	{
-		RPRI.Status[Index] = Self;
-		bRegistered = true;
-		
-		ClientInitialize();
+		if(RPRI != None && RPRI.bClientSyncDone && Index >= 0)
+		{
+			RPRI.Status[Index] = Self;
+			bRegistered = true;
+			
+			ClientInitialize();
+		}
 	}
 }
 
@@ -39,5 +40,4 @@ defaultproperties
 	
 	NetUpdateFrequency=1.00
 	bOnlyRelevantToOwner=True
-	bNetNotify=True
 }

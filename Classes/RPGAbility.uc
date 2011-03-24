@@ -252,6 +252,8 @@ simulated function bool Buy(optional int Amount)
 			ModifyPawn(RPRI.Controller.Pawn);
 		}
 		
+		RPRI.ProcessGrantQueue(); //give weapons
+		
 		if(RPRI.Controller.Pawn.Weapon != None)
 			ModifyWeapon(RPRI.Controller.Pawn.Weapon);
 	}

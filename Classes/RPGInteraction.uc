@@ -479,7 +479,7 @@ function PostRender(Canvas Canvas)
 
 		for(i = 0; i < RPRI.Status.Length; i++)
 		{
-			if(RPRI.Status[i].IsVisible())
+			if(RPRI.Status[i] != None && RPRI.Status[i].IsVisible())
 			{
 				DrawStatusIcon(Canvas, RPRI.Status[i], X, Y, StatusIconSize.X, StatusIconSize.Y);
 				X -= StatusIconSize.X;

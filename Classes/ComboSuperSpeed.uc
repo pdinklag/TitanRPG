@@ -2,7 +2,7 @@ class ComboSuperSpeed extends Combo
 	config(TitanRPG);
 	
 var xEmitter LeftTrail, RightTrail;
-var config float SpeedBonus;
+var config float SpeedBonus, JumpZBonus;
 
 function StartEffect(xPawn P)
 {
@@ -16,7 +16,7 @@ function StartEffect(xPawn P)
 	P.GroundSpeed *= (1.0 + SpeedBonus);
 	P.WaterSpeed  *= (1.0 + SpeedBonus);
 	P.AirSpeed    *= (1.0 + SpeedBonus);
-	P.JumpZ       *= (1.0 + 1.25 * SpeedBonus);
+	P.JumpZ       *= (1.0 + JumpZBonus);
 }
 
 function StopEffect(xPawn P)
@@ -32,12 +32,13 @@ function StopEffect(xPawn P)
 	P.GroundSpeed /= (1.0 + SpeedBonus);
 	P.WaterSpeed  /= (1.0 + SpeedBonus);
 	P.AirSpeed    /= (1.0 + SpeedBonus);
-	P.JumpZ       /= (1.0 + 1.25 * SpeedBonus);
+	P.JumpZ       /= (1.0 + JumpZBonus);
 }
 
 defaultproperties
 {
 	SpeedBonus=0.533333 //+33%
+	JumpZBonus=0.5 //original speed combo value
 	Duration=16
     ExecMessage="Super Speed!"
     ComboAnnouncementName=Speed

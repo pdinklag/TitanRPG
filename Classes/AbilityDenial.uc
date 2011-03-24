@@ -1,5 +1,4 @@
-class AbilityDenial extends RPGAbility
-	DependsOn(DruidsOldWeaponHolder);
+class AbilityDenial extends RPGAbility;
 
 var config array<class<Weapon> > ForbiddenWeaponTypes;
 

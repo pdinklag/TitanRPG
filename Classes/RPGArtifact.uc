@@ -153,20 +153,15 @@ function SortIn()
 
 function GiveTo(Pawn Other, optional Pickup Pickup)
 {
-	local RPGPlayerReplicationInfo RPRI;
-
 	Super.GiveTo(Other, Pickup);
+	
+	InstigatorRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 	
 	StripOut();
 	SortIn();
 	
-	//Get RPRI
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-	if(RPRI != None)
-	{
-		InstigatorRPRI = RPRI;
+	if(InstigatorRPRI != None)
 		InstigatorRPRI.ModifyArtifact(Self);
-	}
 
 	if(NextUseTime == 0) //unset
 	{

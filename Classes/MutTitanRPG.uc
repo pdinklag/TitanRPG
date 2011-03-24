@@ -157,14 +157,7 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 event PreBeginPlay()
 {
 	local int i, x;
-	local DruidsOldWeaponHolder WeaponHolder;
 
-	if(Role == ROLE_Authority && Level.Game.ResetCountDown == 2)
-	{
-		foreach DynamicActors(class'DruidsOldWeaponHolder', WeaponHolder)
-			WeaponHolder.Destroy();
-	}
-	
 	//OLTeamGames support
 	bOLTeamGames = Level.Game.IsA('OLTeamGame');
 
@@ -943,7 +936,6 @@ function SaveData()
 function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 {
 	local Inventory Inv;
-	local DruidsOldWeaponHolder OldWeaponHolder;
 	local Controller C;
 	local PlayerReplicationInfo PRI;
 
@@ -972,13 +964,6 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 
 	C.Adrenaline = 0;
 
-	//Don't allow Denial to keep your weapon
-    foreach C.DynamicActors(class'DruidsOldWeaponHolder', OldWeaponHolder)
-	{
-        if(OldWeaponHolder.Owner == C)
-			OldWeaponHolder.Destroy();
-	}
-	
 	//Reset score
 	RPRI.PRI.Score = 0.f;
 	

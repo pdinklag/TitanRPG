@@ -1,4 +1,6 @@
 TEST:
+- Denial / Build switching / PDP
+
 - Spectator cheats
 
 - Ejector Seat
@@ -32,7 +34,20 @@ TODO (XT Config):
 - ColoredSpeedTrailLevel=8
 - Find and replace "UseDelay" -> "Cooldown"
 
+TODO (1.62)
+- Ballistic support (got permission)
+- OSMT integration for friendly monsters
+
 TODO (1.61)
+- XP for damage on players
+- Iron Legs weapon
+- Vehicle air control
+- Manta recharge
+- Health
+- Disable UDamage for vehicle repairs
+- Reset xloc on vehicle enter
+- Drain xloc charge when getting ejected
+
 - "Favorite RPG Weapon" feature (GUI)
 - Central status icon handling
 - GUI settings for status icons
