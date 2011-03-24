@@ -129,7 +129,7 @@ state Activated
 		{
 			Super.EndState();
 
-			if(bUseCostAsCooldown)
+			if(bUseCostAsCooldown && !bSummonFailed)
 			{
 				Cooldown = MonsterTypes[PickedMonster].Cost;
 				DoCooldown();

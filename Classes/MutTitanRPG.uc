@@ -708,11 +708,20 @@ function EndGame()
 
 function DriverEnteredVehicle(Vehicle V, Pawn P)
 {
+	local TransLauncher TL;
 	local Inventory Inv;
 	local int i;
 	local array<RPGArtifact> MyArtifacts;
 	local VehicleMagicInv VMInv;
 	local RPGPlayerReplicationInfo RPRI;
+	
+	//if this player has a translocator and the beacon isn't broken, return it to the player!
+	TL = TransLauncher(P.FindInventoryType(class'TransLauncher'));
+	if(TL != None && TL.TransBeacon != None && !TL.TransBeacon.Disrupted())
+	{
+		TL.TransBeacon.Destroy();
+		TL.TransBeacon = None;
+	}
 	
 	//disable spawn protection for the vehicle!!
 	if(Level.TimeSeconds - V.SpawnTime < DeathMatch(Level.Game).SpawnProtectionTime)

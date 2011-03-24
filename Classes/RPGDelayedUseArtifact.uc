@@ -1,8 +1,16 @@
 class RPGDelayedUseArtifact extends RPGArtifact
 	abstract;
 
+var bool bIgnoreUsedUp;
+
 var config bool bCanBeCanceled;
 var float Countdown;
+
+function UsedUp()
+{
+	if(bIgnoreUsedUp)
+		Super.UsedUp();
+}
 
 state Activated
 {
@@ -15,14 +23,16 @@ state Activated
 
 	event Tick(float dt)
 	{
-		Super.Tick(dt); //drain adrenaline
-		
 		Countdown -= dt;
 		if(Countdown <= 0)
 		{
 			DoEffect();
 			GotoState('');
+			bIgnoreUsedUp = true; //don't tell player that his adrenaline is used up
 		}
+	
+		Super.Tick(dt); //drain adrenaline
+		bIgnoreUsedUp = false;
 	}
 
 	function DoEffect();

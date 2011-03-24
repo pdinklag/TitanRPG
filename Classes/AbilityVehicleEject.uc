@@ -2,6 +2,7 @@ class AbilityVehicleEject extends RPGAbility;
 
 var config array<class<DamageType> > ProtectAgainst;
 var config float VehicleCooldown; //can't enter a vehicle before this time has passed
+var config bool bResetTranslocatorCharge;
 
 var StatusIconVehicleEject Status;
 
@@ -33,6 +34,7 @@ function bool HasJustEjected()
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
+	local TransLauncher TL;
 	local Pawn Driver;
 	local Vehicle V;
 	local vector EjectVel;
@@ -44,7 +46,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 
 	Driver = V.Driver;
 
-	if(Driver == None || !CanEjectDriver(V))
+	if(DamageType == class'DamTypeSelfDestruct' || Driver == None || !CanEjectDriver(V))
 		return false;
 	
 	if(HasJustEjected())
@@ -65,6 +67,19 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	{
 		NextVehicleTime = Level.TimeSeconds + VehicleCooldown;
 		ClientNotifyCooldown(VehicleCooldown);
+	}
+	
+	if(bResetTranslocatorCharge)
+	{
+		TL = TransLauncher(Driver.FindInventoryType(class'TransLauncher'));
+		if(TL != None)
+		{
+			//TL.DrainCharges(); //BR-like is a little too harsh, setting ammo to -1
+			TL.AmmoChargeF = 0;
+			TL.RepAmmo = 0;
+			TL.bDrained = false;
+			TL.Enable('Tick'); //start recharging
+		}
 	}
 	
 	return false; //NOT saving the vehicle
@@ -92,6 +107,7 @@ function bool CanEnterVehicle(Vehicle V)
 defaultproperties
 {
 	CantEnterSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
+	bResetTranslocatorCharge=True
 	VehicleCooldown=5.00
 	AbilityName="Ejector Seat"
 	Description="Ejects you from your vehicle when it's destroyed."

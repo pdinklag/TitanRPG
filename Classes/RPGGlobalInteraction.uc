@@ -40,7 +40,7 @@ static function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spac
 	);
 
 	C.SetPos(X - W * 0.5 + Size + Spacing, Y - YL * 0.5);
-	C.DrawText(OwnerName);
+	C.DrawTextClipped(OwnerName);
 }
 
 function PostRender(Canvas C)

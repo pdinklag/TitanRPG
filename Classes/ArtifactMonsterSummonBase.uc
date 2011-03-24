@@ -4,6 +4,8 @@ class ArtifactMonsterSummonBase extends RPGDelayedUseArtifact
 const MSG_NoMoreMonsters = 0x1000;
 const MSG_CouldNotSpawn = 0x1001;
 
+var bool bSummonFailed;
+
 var config class<Monster> MonsterType;
 var localized string NoMoreMonstersText, CouldNotSpawnText;
 
@@ -26,11 +28,13 @@ state Activated
 {
 	function DoEffect()
 	{
+		bSummonFailed = false;
 		if(SpawnMonster(MonsterType) == None)
 		{
 			if(Instigator.Controller != None)
 				Instigator.Controller.Adrenaline += MinActivationTime * CostPerSec;
-				
+			
+			bSummonFailed = true;
 			Msg(MSG_CouldNotSpawn);
 		}
 	}

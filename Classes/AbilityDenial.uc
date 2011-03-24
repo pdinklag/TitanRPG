@@ -136,6 +136,10 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 		}
 	}
 	
+	//Make current weapon unthrowable so it doesn't get dropped
+	if(Killed.Weapon != None)
+		Killed.Weapon.bCanThrow = false;
+	
 	return false;
 }
 
