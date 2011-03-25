@@ -1166,15 +1166,24 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 		}
 		
-		if(bIsSuperAdmin && Args[0] ~= "travel" && Args.Length > 1)
+		//only superadmin
+		if(bIsSuperAdmin)
 		{
-			if(Args.Length > 2)
-				Game = Args[2];
-			else
-				Game = string(Level.Game.class);
-			
-			Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=<? echo($packageName); ?>.MutTitanRPG", false);
-			return;
+			if(Args[0] ~= "travel" && Args.Length > 1)
+			{
+				if(Args.Length > 2)
+					Game = Args[2];
+				else
+					Game = string(Level.Game.class);
+				
+				Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=<? echo($packageName); ?>.MutTitanRPG", false);
+				return;
+			}
+			else if(Args[0] ~= "genhelp")
+			{
+				class'HelpGenerator'.static.GenerateHelp(Self);
+				return;
+			}
 		}
 
 		//cheats
