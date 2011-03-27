@@ -9,6 +9,9 @@ replication
 {
 	reliable if(Role == ROLE_Authority)
 		BaseDelay;
+	
+	reliable if(Role == ROLE_Authority && bNetDirty)
+		KillCount;
 }
 
 function ModifyPawn(Pawn Other)

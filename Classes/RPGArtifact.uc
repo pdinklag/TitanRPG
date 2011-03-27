@@ -163,7 +163,7 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 	if(InstigatorRPRI != None)
 		InstigatorRPRI.ModifyArtifact(Self);
 
-	if(NextUseTime == 0) //unset
+	if(NextUseTime == 0 && bResetCooldownOnRespawn) //unset
 	{
 		if(bChargeUp)
 			DoCooldown();
@@ -365,7 +365,7 @@ function Activate()
 	{
 		if(bActive && CanDeactivate())
 		{
-			Instigator.PlaySound(DeactivateSound, SLOT_Interface);
+			class'Util'.static.PlayLoudEnoughSound(Instigator, DeactivateSound);
 			GotoState('');
 		}
 		else if(!bActive)
@@ -373,7 +373,8 @@ function Activate()
 			if(CanActivate())
 			{
 				CurrentCostPerSec = 0.f;
-				Instigator.PlaySound(ActivateSound, SLOT_Interface);
+				class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
+				//Instigator.PlaySound(ActivateSound, SLOT_Interface);
 				GotoState('Activated');
 			}
 			else
@@ -385,7 +386,7 @@ function Activate()
 	}
 	else if(CanActivate())
 	{
-		Instigator.PlaySound(ActivateSound, SLOT_Interface);
+		class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
 		DoEffect();
 
 		if(CostPerSec > 0)

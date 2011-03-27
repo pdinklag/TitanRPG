@@ -768,9 +768,15 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	local Pawn KilledVehicleDriver;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
 	local AbilityVehicleEject EjectorSeat;
+	local ArtifactDoubleModifier DoubleMod;
 	
 	if(bGameEnded)
 		return Super.PreventDeath(Killed, Killer, damageType, HitLocation);
+	
+	//FIXME hotfix, must find a better solution
+	DoubleMod = ArtifactDoubleModifier(Killed.FindInventoryType(class'ArtifactDoubleModifier'));
+	if(DoubleMod != None && DoubleMod.bActive)
+		DoubleMod.GotoState('');
 	
 	if((PlayerController(Killer) != None || Bot(Killer) != None) && damageType != None && Killer != Killed.Controller)
 	{

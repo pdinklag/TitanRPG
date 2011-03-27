@@ -1,10 +1,12 @@
 TEST:
+- Chute deactivation
+- Fix Denial 1
+-  Try and restore last selected weapon
+
 - Fix cooldown activating when monster summon fails
 - Fix turret artifact "you have run out of adren"
 - Fix RPGGlobalInteraction text clipping
-- Fix Denial 1
 
-- Try and restore last selected weapon
 - Adjust turret health and damage
 - Disable turrets on flags
 - Disable UDamage for repair
@@ -38,15 +40,14 @@ TEST:
 - Knockback should knock out turrets
 
 TODO (XT Config):
-- EXP_FriendlyMonsterKill=0.5
-- ColoredSpeedTrailLevel=8
-- Find and replace "UseDelay" -> "Cooldown"
+- Make Shield weapons recreate shield faster
 
 TODO (1.62)
 - Ballistic support (got permission)
 - OSMT integration for friendly monsters
 
 TODO (1.61)
+- Blowback weapon (-> retal)
 - XP for damage on players
 - Iron Legs weapon
 - Vehicle air control
@@ -124,6 +125,8 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Ejector Seat and Ultima have status icons
+- Vehicle repair ignores UDamage
 - XLoc beacon gets reset when entering a vehicle
 - Ejector seat resets xloc charge
 - Ejector Seat ends spree

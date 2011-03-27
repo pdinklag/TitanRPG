@@ -145,6 +145,8 @@ function Inventory SpawnCopy( pawn Other )
 	local int x;
 	local bool bRemoveReference;
 	
+	Log("SpawnCopy");
+	
 	if (Inventory != None)
 		Inventory.Destroy();
 
@@ -189,6 +191,8 @@ function Inventory SpawnCopy( pawn Other )
 		RPGWeapon(Copy).Generate(OldWeapon);
 	else
 		RPGWeapon(Copy).Generate(None);
+		
+	Log("SpawnCopy: InventoryType =" @ InventoryType);
 		
 	RPGWeapon(Copy).SetModifiedWeapon(
 		Weapon(spawn(InventoryType,Other,,,rot(0,0,0))),

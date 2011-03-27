@@ -382,7 +382,8 @@ simulated function ModeTick(float dt)
 		LinkedVehicle = Vehicle(LockedPawn);
 		if ( LinkedVehicle != None && bDoHit )
 		{
-			AdjustedDamage = Damage * (1.5*Linkgun.Links+1) * Instigator.DamageScaling;
+			//AdjustedDamage = Damage * (1.5*Linkgun.Links+1) * Instigator.DamageScaling;
+			AdjustedDamage = Damage * (1.5*Linkgun.Links+1);
 			
 			//Check whether we're using a Repair Link Gun
 			for (Inv = Instigator.Inventory; Inv != None; Inv = Inv.Inventory)
@@ -394,8 +395,8 @@ simulated function ModeTick(float dt)
 				}
 			}
 			
-			if(Instigator.HasUDamage())
-				AdjustedDamage *= 2;
+			//if(Instigator.HasUDamage())
+				//AdjustedDamage *= 2;
 			
 			OldHealth = LinkedVehicle.Health;
 			if(LinkedVehicle.HealDamage(AdjustedDamage, Instigator.Controller, DamageType) && !LinkedVehicle.IsVehicleEmpty()) //only if somebody's inside

@@ -6,6 +6,17 @@ class Util extends Object abstract;
 
 var Color HighlightColor;
 
+static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, optional float Radius)
+{
+	if(Vol == 0)
+		Vol = 3.0f;
+	
+	if(Radius == 0)
+		Radius = 3.0f;
+
+	A.PlaySound(S, SLOT_None, A.TransientSoundVolume * Vol,, A.TransientSoundRadius * Radius);
+}
+
 static function array<Pawn> GetAllPassengers(Vehicle V)
 {
 	local array<Pawn> Passengers;

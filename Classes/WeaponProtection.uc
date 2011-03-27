@@ -6,7 +6,6 @@ var config int HealthCap;
 var config float ProtectionRepeatLifespan;
 
 var Sound ProtectionSound;
-var float ProtectionSoundVol;
 
 var localized string DRText;
 var localized string ProtectionText;
@@ -31,7 +30,7 @@ function RPGAdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Instigat
 		Inv = ProtectionInv(Instigator.FindInventoryType(class'ProtectionInv'));
 		if(Inv == None)
 		{
-			Instigator.PlaySound(ProtectionSound,, ProtectionSoundVol * Instigator.TransientSoundVolume,,Instigator.TransientSoundRadius);
+			class'Util'.static.PlayLoudEnoughSound(Instigator, ProtectionSound, 3);
 
 			Instigator.Health = 1;
 			Damage = 0;
@@ -63,7 +62,6 @@ simulated function string GetWeaponNameExtra()
 defaultproperties
 {
 	ProtectionSound=Sound'<? echo($packageName); ?>.SoundEffects.Protection' //Sound'WeaponSounds.Misc.instagib_rifleshot'
-	ProtectionSoundVol=6.00
 	DRText="$1 dmg reduction"
 	ProtectionText="Ultima Shield, instant kill protection"
 	DamageBonus=0.025000

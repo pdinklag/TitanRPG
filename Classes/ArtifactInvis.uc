@@ -96,7 +96,7 @@ state Activated
 
 defaultproperties
 {
-	//TODO: activate sound
+	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.Invisible'
 	MSG_Text_InvisCombo="You are already in the Invisible combo."
 	EnemyRadius=1024.00
 	ExtraCostPerEnemy=2

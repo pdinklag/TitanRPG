@@ -41,4 +41,3 @@ state Paint
 defaultproperties
 {
 }
-

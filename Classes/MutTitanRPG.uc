@@ -61,7 +61,6 @@ var config array<class<RPGStatusIcon> > StatusIcons;
 var config bool bAllowSuperWeaponReplenish; //allow RPGWeapon::FillToInitialAmmo() on superweapons
 var config array<class<Ammunition> > SuperAmmoClasses;
 
-var config int MaxDrones, StartingDrones;
 var config int MaxMonsters; //minimum MaxMonsters per player...
 var config int MaxTurrets; //minimum MaxTurrets per player...
 var config int MaxMines; //minimum MaxMines per player...
@@ -675,13 +674,6 @@ function ModifyPlayer(Pawn Other)
 
 	//set pawn's properties
 	RPRI.ModifyPlayer(Other);
-
-	//Spawn drones
-	if(StartingDrones > MaxDrones)
-		Warn("StartingDrones exceeds MaxDrones!");
-
-	for(x = 0; x < StartingDrones; x++)
-		class'Drone'.static.SpawnFor(Other);
 }
 
 function EndGame()
@@ -1488,8 +1480,7 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 defaultproperties
 {
 	MaxMines=2
-	MaxDrones=0
-	StartingDrones=0
+
 	MinHumanPlayersForExp=0
 	bAllowCheats=False
 	MaxMonsters=1
@@ -1513,6 +1504,6 @@ defaultproperties
 	
 	StatusIcons(0)=class'StatusIconMonsters'
 	StatusIcons(1)=class'StatusIconTurrets'
-	StatusIcons(2)=class'StatusIconDrones'
-	StatusIcons(3)=class'StatusIconVehicleEject'
+	StatusIcons(2)=class'StatusIconVehicleEject'
+	StatusIcons(3)=class'StatusIconUltima'
 }

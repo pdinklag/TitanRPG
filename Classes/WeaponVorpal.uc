@@ -44,7 +44,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 		if (A != None)
 		{
 			A.RemoteRole = ROLE_SimulatedProxy;
-			A.PlaySound(InstantKillSound,,2.5*Victim.TransientSoundVolume,,Victim.TransientSoundRadius);
+			class'Util'.static.PlayLoudEnoughSound(Victim, InstantKillSound, 2.5);
 		}
 	}
 }

@@ -1,8 +1,6 @@
 class RPGComboSpeed extends ComboSpeed
 	config(TitanRPG);
 	
-var config bool bSpawnDrone;
-
 function StartEffect(xPawn P)
 {
 	local RPGPlayerReplicationInfo RPRI;
@@ -48,16 +46,8 @@ function StopEffect(xPawn P)
 	P.WaterSpeed  /= 1.4;
 	P.AirSpeed    /= 1.4;
 	P.JumpZ       /= 1.5;
-	
-	/*
-		This used to be merely a bug, but has established itself and is considered a feature now.
-		Hence, try to spawn a drone. ~pd
-	*/
-	if(bSpawnDrone)
-		class'Drone'.static.SpawnFor(P);
 }
 
 defaultproperties
 {
-	bSpawnDrone=False //true for Invasion
 }

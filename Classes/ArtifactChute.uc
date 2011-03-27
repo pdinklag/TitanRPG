@@ -45,7 +45,8 @@ function bool CanActivate()
 
 function bool CanDeactivate()
 {
-	return (Instigator.Physics != PHYS_Falling || Instigator.Base != None);
+	//return (Instigator.Physics != PHYS_Falling || Instigator.Base != None);
+	return Super.CanDeactivate();
 }
 
 state Activated
@@ -88,7 +89,7 @@ state Activated
 		if(Instigator != None && Instigator.Physics == PHYS_Falling && Instigator.Base == None)
 			Instigator.Velocity.Z = VelocityZ;
 		else
-			Activate();
+			GoToState('');
 	}
 	
 	function EndState()

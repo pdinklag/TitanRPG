@@ -26,9 +26,6 @@ var RPGPlayerLevelInfo PlayerLevel;
 //Status icons
 var array<RPGStatusIcon> Status;
 
-//Weapon and Artifact Restoration
-var class<Powerups> LastSelectedPowerupType;
-
 struct ArtifactCooldown
 {
 	var class<RPGArtifact> AClass;
@@ -43,6 +40,12 @@ struct FavoriteWeapon
 	var class<RPGWeapon> ModifierClass;
 };
 var array<FavoriteWeapon> FavoriteWeapons;
+
+//Weapon and Artifact Restoration
+var class<Powerups> LastSelectedPowerupType;
+var FavoriteWeapon LastSelectedWeapon;
+
+var Weapon SwitchToWeapon; //client
 
 /*
 	Weapon granting queue
@@ -73,15 +76,14 @@ var Weapon LastPawnWeapon;
 //stuff that belongs to me
 var array<Vehicle> Turrets;
 var array<Monster> Monsters;
-var array<Drone> Drones;
 var array<ONSMineProjectile> Mines;
 
 //replicated
-var int NumMonsters, NumTurrets, NumMines, NumDrones;
+var int NumMonsters, NumTurrets, NumMines;
 
 //stats
 var int Attack, Defense, AmmoMax, WeaponSpeed;
-var int MaxMines, MaxMonsters, MaxDrones, MaxTurrets;
+var int MaxMines, MaxMonsters, MaxTurrets;
 
 var float HealingExpMultiplier;
 
@@ -141,8 +143,8 @@ replication
 	reliable if(Role == ROLE_Authority && bNetDirty)
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
-		NumMines, NumMonsters, NumTurrets, NumDrones,
-		MaxDrones, MaxMines, MaxTurrets, MaxMonsters;
+		NumMines, NumMonsters, NumTurrets,
+		MaxMines, MaxTurrets, MaxMonsters;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
 		ClientModifyVehicleWeaponFireRate,
@@ -218,7 +220,6 @@ function ModifyStats()
 	
 	MaxMines = RPGMut.MaxMines;
 	MaxMonsters = RPGMut.MaxMonsters;
-	MaxDrones = RPGMut.MaxDrones;
 	MaxTurrets = RPGMut.MaxTurrets;
 	
 	AmmoMax = default.AmmoMax;
@@ -687,12 +688,29 @@ simulated function CheckPlayerViewShake()
 
 simulated event Tick(float dt)
 {
+	local Inventory Inv;
 	local int x;
 
 	if(Level.NetMode != NM_DedicatedServer)
 	{
 		if(!bClientSetup)
 			ClientSetup();
+		
+		if(SwitchToWeapon != None) //wait until it arrived in the inventory?
+		{
+			if(Controller.Pawn != None)
+			{
+				for(Inv = Controller.Pawn.Inventory; Inv != None; Inv = Inv.Inventory)
+				{
+					if(Inv == SwitchToWeapon)
+					{
+						PerformWeaponSwitch(SwitchToWeapon);
+						SwitchToWeapon = None;
+						break;
+					}
+				}
+			}
+		}
 	}
 	
 	if(Controller == None)
@@ -719,6 +737,17 @@ simulated event Tick(float dt)
 					}
 				}
 				LastPawnWeapon = Controller.Pawn.Weapon;
+				
+				if(LastPawnWeapon != None && LastPawnWeapon.IsA('RPGWeapon'))
+				{
+					LastSelectedWeapon.WeaponClass = RPGWeapon(LastPawnWeapon).ModifiedWeapon.class;
+					LastSelectedWeapon.ModifierClass = class<RPGWeapon>(LastPawnWeapon.class);
+				}
+				else
+				{
+					LastSelectedWeapon.WeaponClass = LastPawnWeapon.class;
+					LastSelectedWeapon.ModifierClass = None;
+				}
 			}
 		}
 		else if(Controller.Pawn == None)
@@ -747,19 +776,6 @@ simulated event Tick(float dt)
 			{
 				NumTurrets--;
 				Turrets.Remove(x, 1);
-			}
-			else
-				x++;
-		}
-		
-		//Clean drones
-		x = 0;
-		while(x < Drones.Length)
-		{
-			if(Drones[x] == None)
-			{
-				NumDrones--;
-				Drones.Remove(x, 1);
 			}
 			else
 				x++;
@@ -948,6 +964,22 @@ function ModifyPlayer(Pawn Other)
 	
 	ProcessGrantQueue(); //give weapons
 
+	//Restore last selected weapon
+	if(LastSelectedWeapon.WeaponClass != None)
+	{
+		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
+		{
+			if(
+				(LastSelectedWeapon.ModifierClass == None && Inv.class == LastSelectedWeapon.WeaponClass) ||
+				(Inv.class == LastSelectedWeapon.ModifierClass && RPGWeapon(Inv).ModifiedWeapon.class == LastSelectedWeapon.WeaponClass)
+			)
+			{
+				ClientSwitchToWeapon(Weapon(Inv));
+				break;
+			}
+		}
+	}
+
 	if(bTeamChanged)
 	{
 		//respawning after team switch
@@ -964,12 +996,6 @@ function ModifyPlayer(Pawn Other)
 	
 	if(Other.SelectedItem == None) //if not possible, do this
 		Other.NextItem();
-}
-
-function AddDrone(Drone D)
-{
-	Drones[Drones.Length] = D;
-	NumDrones++;
 }
 
 function AddMine(ONSMineProjectile Mine)
@@ -1288,7 +1314,7 @@ function ServerGetArtifact(string ArtifactID)
 	}
 }
 
-simulated function ClientSwitchToWeapon(Weapon W)
+simulated function PerformWeaponSwitch(Weapon W)
 {
 	local Pawn Pawn;
 	
@@ -1296,7 +1322,10 @@ simulated function ClientSwitchToWeapon(Weapon W)
 	if(Pawn != None && !Pawn.IsA('Vehicle'))
 	{
 		if(W == None)
+		{
+			Log("Failed to switch weapon on client side - Weapon is NONE.", 'TitanRPG');
 			return;
+		}
 			
 		if(RPGWeapon(W) != None && RPGWeapon(W).ModifiedWeapon == None)
 			return;
@@ -1319,6 +1348,11 @@ simulated function ClientSwitchToWeapon(Weapon W)
 			Pawn.Weapon.Reselect();
 		}
 	}
+}
+
+simulated function ClientSwitchToWeapon(Weapon W)
+{
+	SwitchToWeapon = W;
 }
 
 function PickAIBuild()

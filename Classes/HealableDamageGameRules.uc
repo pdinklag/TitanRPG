@@ -8,7 +8,6 @@ var config float SelfHealingMultiplier;
 
 var Material HealOverlay;
 var Sound HealSound;
-var float HealSoundVol;
 
 function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
@@ -115,7 +114,7 @@ static function bool Heal(Pawn Healed, int Amount, Pawn Healer, int OverHealthMa
 	if(bMessage && PlayerController(Healed.Controller) != None)
 		PlayerController(Healed.Controller).ReceiveLocalizedMessage(class'HealedConditionMessage', 0, Healer.PlayerReplicationInfo, Healed.PlayerReplicationInfo);
 	
-	Healed.PlaySound(default.HealSound,, default.HealSoundVol * Healed.TransientSoundVolume,, 1.5 * Healed.TransientSoundRadius);
+	class'Util'.static.PlayLoudEnoughSound(Healed, default.HealSound, 3);
 	
 	return true;
 }
@@ -123,7 +122,6 @@ static function bool Heal(Pawn Healed, int Amount, Pawn Healer, int OverHealthMa
 defaultproperties
 {
 	HealSound=Sound'<? echo($packageName); ?>.SoundEffects.Heal'
-	HealSoundVol=3.00 //2.00
 	HealOverlay=Shader'<? echo($packageName); ?>.Overlays.BlueShader'
 	SelfHealingCap=0
 	SelfHealingMultiplier=0.250000

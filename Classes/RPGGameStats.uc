@@ -564,10 +564,9 @@ defaultproperties
 	CustomWeaponStats(3)=(DamageType=Class'DamTypeCounterShove',WeaponClass=Class'DummyWeaponCounterShove')
 	CustomWeaponStats(4)=(DamageType=Class'DamTypePoison',WeaponClass=Class'DummyWeaponPoison')
 	CustomWeaponStats(5)=(DamageType=Class'DamTypeRetaliation',WeaponClass=Class'DummyWeaponRetaliation')
-	CustomWeaponStats(6)=(DamageType=Class'DamTypeDronePlasma',WeaponClass=Class'DummyWeaponDrone')
-	CustomWeaponStats(7)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeaponSelfDestruct')
-	CustomWeaponStats(8)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeaponEmo')
-	CustomWeaponStats(9)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeaponMegaBlast')
+	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeaponSelfDestruct')
+	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeaponEmo')
+	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeaponMegaBlast')
 
 	//Original game values
 	EXP_Frag=1.00

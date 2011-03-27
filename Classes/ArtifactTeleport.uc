@@ -59,7 +59,6 @@ defaultproperties
 	MinActivationTime=1.000000
 	PickupClass=Class'ArtifactPickupTeleport'
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Teleport'
-	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.Teleport'
 	ItemName="Teleporter"
 	ArtifactID="Teleport"
 	Description="Teleports you to a random spawn point that belongs to your team."
