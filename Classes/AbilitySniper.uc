@@ -14,8 +14,8 @@ function ModifyPawn(Pawn Other)
 	RPRI.QueueWeapon(
 		class'ClassicSniperRifle',
 		RPGWeaponClass,
-		RPGWeaponClass.static.GetRandomModifierLevel(),
-		true);
+		RPGWeaponClass.static.GetRandomModifierLevel()
+	);
 }
 
 defaultproperties

@@ -677,8 +677,8 @@ function HolderDied()
 
 simulated function bool CanThrow()
 {
-	if (Modifier < 0)
-		return false; //can't throw cursed weapons
+	if (Modifier < 0 || Modifier > MaxModifier)
+		return false; //can't throw cursed or enhanced weapons
 
 	return bCanThrow && ModifiedWeapon.CanThrow(); //OneDropRPGWeapon says "return true;" here
 }
@@ -1039,6 +1039,28 @@ simulated event WeaponTick(float dt)
 			else
 				bRPGTimer = false;
 		}
+	}
+}
+
+function SetAmmo(int Mode, int Amount)
+{
+	if(bNoAmmoInstances)
+	{
+		if(Amount == -1)
+			Amount = ModifiedWeapon.MaxAmmo(0);
+	
+		AmmoCharge[Mode] = Amount;
+		ModifiedWeapon.AmmoCharge[Mode] = Amount;
+	}
+	else if(ModifiedWeapon.Ammo[Mode] != None)
+	{
+		if(Amount == -1)
+			Amount = ModifiedWeapon.Ammo[Mode].MaxAmmo;
+		
+		ModifiedWeapon.Ammo[Mode].AmmoAmount = Amount;
+		
+		if(Ammo[Mode] != None)
+			Ammo[Mode].AmmoAmount = Amount;
 	}
 }
 

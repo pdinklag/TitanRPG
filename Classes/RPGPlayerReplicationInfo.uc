@@ -59,7 +59,7 @@ struct GrantWeapon
 	var class<Weapon> WeaponClass;
 	var class<RPGWeapon> ModifierClass;
 	var int Modifier;
-	var bool MaxAmmo;
+	var int Ammo[2]; //extra ammo per fire mode. 0 = none, -1 = full
 };
 var array<GrantWeapon> GrantQueue, GrantFavQueue;
 
@@ -1520,8 +1520,8 @@ function GrantQueuedWeapon(GrantWeapon GW)
 		RW.GiveTo(Controller.Pawn);
 		RW.Identify(true); //TODO bNoUnidentified
 		
-		if(GW.MaxAmmo)
-			RW.MaxOutAmmo();
+		if(GW.Ammo[0] != 0) RW.SetAmmo(0, GW.Ammo[0]);
+		if(GW.Ammo[1] != 0) RW.SetAmmo(1, GW.Ammo[1]);
 	}
 }
 
@@ -1564,7 +1564,12 @@ function ProcessGrantQueue()
 				if(GW.Modifier > <? echo($queueName); ?>[i].Modifier)
 				{
 					<? echo($queueName); ?>[i].Modifier = GW.Modifier;
-					<? echo($queueName); ?>[i].MaxAmmo = <? echo($queueName); ?>[i].MaxAmmo || GW.MaxAmmo;
+					
+					if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > <? echo($queueName); ?>[i].Ammo[0])
+						<? echo($queueName); ?>[i].Ammo[0] = GW.Ammo[0];
+
+					if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > <? echo($queueName); ?>[i].Ammo[1])
+						<? echo($queueName); ?>[i].Ammo[1] = GW.Ammo[1];
 				}
 				return;
 			}
@@ -1576,7 +1581,7 @@ function ProcessGrantQueue()
 ?>
 
 //Add to weapon grant queue
-function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional bool MaxAmmo)
+function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional int Ammo1, optional int Ammo2)
 {
 	local int i;
 	local GrantWeapon GW;
@@ -1584,7 +1589,8 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	GW.WeaponClass = WeaponClass;
 	GW.ModifierClass = ModifierClass;
 	GW.Modifier = Modifier;
-	GW.MaxAmmo = MaxAmmo;
+	GW.Ammo[0] = Ammo1;
+	GW.Ammo[1] = Ammo2;
 	
 	if(IsFavorite(WeaponClass, ModifierClass))
 	{

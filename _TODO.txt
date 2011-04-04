@@ -1,4 +1,6 @@
 TEST:
+- Vamp / Vehicles
+
 - Chute deactivation
 - Fix Denial 1
 -  Try and restore last selected weapon

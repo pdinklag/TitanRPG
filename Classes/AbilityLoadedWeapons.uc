@@ -111,8 +111,18 @@ function GrantWeapon(class<Weapon> WeaponClass, Pawn Other)
 			ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
 		}
 	}
+	else
+	{
+		//any
+		ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+	}
 	
-	RPRI.QueueWeapon(WeaponClass, ModifierClass, ModifierLevel, (AbilityLevel >= 2));
+	if(AbilityLevel >= 2)
+		x = -1;
+	else
+		x = 0;
+	
+	RPRI.QueueWeapon(WeaponClass, ModifierClass, ModifierLevel, x, x);
 }
 
 simulated function string DescriptionText()

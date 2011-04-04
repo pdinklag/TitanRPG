@@ -7,6 +7,7 @@ struct StoredWeapon
 	var class<Weapon> WeaponClass;
 	var class<RPGWeapon> ModifierClass;
 	var int Modifier;
+	var int Ammo[2];
 };
 var array<StoredWeapon> StoredWeapons;
 
@@ -157,12 +158,16 @@ function TryStoreWeapon(Weapon W)
 		SW.WeaponClass = RW.ModifiedWeapon.class;
 		SW.ModifierClass = RW.class;
 		SW.Modifier = RW.Modifier;
+		SW.Ammo[0] = RW.AmmoAmount(0);
+		SW.Ammo[1] = RW.AmmoAmount(1);
 	}
 	else
 	{
 		SW.WeaponClass = W.class;
 		SW.ModifierClass = None;
 		SW.Modifier = 0;
+		SW.Ammo[0] = W.AmmoAmount(0);
+		SW.Ammo[1] = W.AmmoAmount(1);
 	}
 	
 	StoredWeapons[StoredWeapons.Length] = SW;
@@ -178,7 +183,15 @@ function ModifyPawn(Pawn Other)
         return;
 
 	for(i = 0; i < StoredWeapons.Length; i++)
-		RPRI.QueueWeapon(StoredWeapons[i].WeaponClass, StoredWeapons[i].ModifierClass, StoredWeapons[i].Modifier);
+	{
+		RPRI.QueueWeapon(
+			StoredWeapons[i].WeaponClass,
+			StoredWeapons[i].ModifierClass,
+			StoredWeapons[i].Modifier,
+			StoredWeapons[i].Ammo[0],
+			StoredWeapons[i].Ammo[1]
+		);
+	}
 
 	StoredWeapons.Length = 0;
 }
