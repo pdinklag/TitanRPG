@@ -4,7 +4,6 @@ var config bool bAllowSuicide; //should Ultima trigger when you killed yourself?
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
-	local Inventory Inv;
 	local Vehicle V;
 
 	//not on suicide / team switch
@@ -43,18 +42,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 		Killed.DrivenVehicle.KDriverLeave(true);
 	}
 	
-	Inv = Killed.FindInventoryType(class'KnockbackInv');
-	if(Inv != None)
-		Inv.Destroy();
-
-	Inv = Killed.FindInventoryType(class'NullEntropyInv');
-	if(Inv != None)
-		Inv.Destroy();
-
-	Inv = Killed.FindInventoryType(class'FreezeInv');
-	if(Inv != None)
-		Inv.Destroy();
-
+	class'RPGEffect'.static.RemoveAll(Killed);
 	class'Util'.static.GiveInventory(Killed, class'GhostInv');
 	return true;
 }

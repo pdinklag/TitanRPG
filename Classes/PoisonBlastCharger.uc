@@ -1,5 +1,4 @@
-class PoisonBlastCharger extends BlastCharger
-	DependsOn(PoisonInv);
+class PoisonBlastCharger extends BlastCharger;
 
 var config float MinDrain, MaxDrain, DrainTime;
 
@@ -8,7 +7,7 @@ function DoEffect()
 	local float damageScale, dist;
 	local vector dir;
 	local Controller C;
-	local PoisonInv Inv;
+	local EffectPoison Poison;
 
 	if(Instigator == None && InstigatorController != None)
 		Instigator = InstigatorController.Pawn;
@@ -25,17 +24,14 @@ function DoEffect()
 				dist = FMax(1, VSize(dir));
 				damageScale = 1 - FMax(0, dist / Radius);
 	
-				if(Vehicle(C.Pawn) == None && C.Pawn.FindInventoryType(class'PoisonInv') == None)
+				if(Vehicle(C.Pawn) == None)
 				{
-					Inv = Spawn(class'PoisonInv', C.Pawn);
-					if(Inv != None)
+					Poison = EffectPoison(class'EffectPoison'.static.Apply(C.Pawn, Instigator.Controller, DrainTime, 1));
+					if(Poison != None)
 					{
-						Inv.LifeSpan = DrainTime;
-						Inv.Modifier = 1;
-						Inv.PoisonMode = EPoisonMode(1); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
-						Inv.PercDrainPerLevel = MinDrain + (damageScale * (MaxDrain - MinDrain));
-						Inv.RPGRules = class'RPGRules'.static.Find(Level.Game);
-						Inv.GiveTo(C.Pawn);
+						Poison.PoisonMode = EPoisonMode(1); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
+						Poison.PercDrainPerLevel = MinDrain + (damageScale * (MaxDrain - MinDrain)); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
+						Poison.RPGRules = class'RPGRules'.static.Find(Level.Game);
 					}
 				}
 			}

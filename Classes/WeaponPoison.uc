@@ -1,7 +1,6 @@
 class WeaponPoison extends RPGWeapon
 	HideDropDown
-	CacheExempt
-	DependsOn(PoisonInv);
+	CacheExempt;
 
 var RPGRules RPGRules;
 
@@ -26,7 +25,7 @@ function PostBeginPlay()
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
 {
-	local PoisonInv Inv;
+	local EffectPoison Poison;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 
@@ -38,26 +37,16 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 	Identify();
 
-	Inv = PoisonInv(Victim.FindInventoryType(class'PoisonInv'));
-	if(Inv == None)
-	{	
-		Inv = Spawn(class'PoisonInv', Victim);
-		Inv.Modifier = Modifier;
-		Inv.PoisonMode = EPoisonMode(PoisonMode);
-		Inv.BasePercentage = BasePercentage;
-		Inv.Curve = Curve;
-		Inv.AbsDrainPerLevel = AbsDrainPerLevel;
-		Inv.PercDrainPerLevel = PercDrainPerLevel;
-		Inv.MinHealth = MinHealth;
-		
-		Inv.LifeSpan = PoisonLifespan;
-		Inv.RPGRules = RPGRules;
-		Inv.GiveTo(Victim);
-	}
-	else
+	Poison = EffectPoison(class'EffectPoison'.static.Apply(Victim, Instigator.Controller, PoisonLifespan, Modifier));
+	if(Poison != None)
 	{
-		Inv.Modifier = Modifier;
-		Inv.LifeSpan = PoisonLifespan;
+		Poison.PoisonMode = EPoisonMode(PoisonMode);
+		Poison.BasePercentage = BasePercentage;
+		Poison.Curve = Curve;
+		Poison.AbsDrainPerLevel = AbsDrainPerLevel;
+		Poison.PercDrainPerLevel = PercDrainPerLevel;
+		Poison.MinHealth = MinHealth;
+		Poison.RPGRules = RPGRules;
 	}
 }
 

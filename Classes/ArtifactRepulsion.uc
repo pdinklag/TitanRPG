@@ -38,7 +38,6 @@ function DoEffect()
 	local float dist, KnockbackScale, KnockbackAmount;
 	local vector dir;
 	local Controller C, NextC;
-	local KnockbackInv InvKnock;
 	local Vector newLocation;
 
 	Spawn(class'RepulsionExplosion', Instigator.Controller,,Instigator.Location);
@@ -64,6 +63,7 @@ function DoEffect()
 		if ( C.Pawn != None && C.Pawn != Instigator && C.Pawn.Health > 0 && !C.SameTeamAs(Instigator.Controller)
 		     && VSize(C.Pawn.Location - Instigator.Location) < BlastRadius && FastTrace(C.Pawn.Location, Instigator.Location) && !C.Pawn.isA('Vehicle'))
 		{
+			/* FIXME: Use RPGEffect system
 			if (C.Pawn.PlayerReplicationInfo != None && C.Pawn.PlayerReplicationInfo.HasFlag == None && C.Pawn.FindInventoryType(class'NullEntropyInv') == None)
 			{
 				if (C.Pawn.FindInventoryType(class'KnockbackInv') == None)
@@ -107,6 +107,7 @@ function DoEffect()
 					}
 				}
 			}
+			*/
 		}
 		C = NextC;
 	}

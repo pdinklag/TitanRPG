@@ -1,24 +1,14 @@
 TEST:
+- RPGEffects
 - Vamp / Vehicles
-
-- Chute deactivation
-- Fix Denial 1
--  Try and restore last selected weapon
-
-- Fix cooldown activating when monster summon fails
-- Fix turret artifact "you have run out of adren"
-- Fix RPGGlobalInteraction text clipping
 
 - Adjust turret health and damage
 - Disable turrets on flags
-- Disable UDamage for repair
 
-- Denial / Build switching / PDP
-
+- PDP Protection
 - Spectator cheats
 
 - StatusIcons
-- TeamBooster / Summoned monsters
 
 - Artifact order
 
@@ -49,18 +39,19 @@ TODO (1.62)
 - OSMT integration for friendly monsters
 
 TODO (1.61)
+- Fix stat points !!!
+- Allow healing of summoned monsters
+- Allow Ultima Shield for summoned monsters
+- Pull Forward weapon
+- Corrosion weapon
 - Blowback weapon (-> retal)
 - XP for damage on players
 - Iron Legs weapon
 - Vehicle air control
 - Manta recharge
 - Health
-- Disable UDamage for vehicle repairs
-- Reset xloc on vehicle enter
-- Drain xloc charge when getting ejected
 
 - "Favorite RPG Weapon" feature (GUI)
-- Central status icon handling
 - GUI settings for status icons
 - Visualize countdowns in classic artifact view
 
@@ -70,7 +61,6 @@ TODO (1.61)
 - Fix additional momentum boost with magic weapons after rpg processing (Iron Legs / CS issue)
 
 - Fix Artifacts getting lost when leaving a link turret
-- Fix drone location replication (-> rewrite drones?)
 
 - Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
 - Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)

@@ -108,6 +108,21 @@ static function int InArray(Object x, array<Object> a)
 	return -1;
 }
 
+static function int ClassInArray(class<Object> x, array<class<Object> > a, optional bool bSubclasses)
+{
+	local int i;
+	
+	for(i = 0; i < a.Length; i++)
+	{
+		if(a[i] == x)
+			return i;
+		else if(bSubclasses && ClassIsChildOf(x, a[i]))
+			return i;
+	}
+	
+	return -1;
+}
+
 static function PawnScaleSpeed(Pawn P, float Multiplier)
 {
 	P.GroundSpeed *= Multiplier;

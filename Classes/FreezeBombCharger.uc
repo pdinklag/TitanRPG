@@ -7,7 +7,6 @@ function DoEffect()
 	local float damageScale, dist;
 	local vector dir;
 	local Controller C;
-	local NullEntropyInv Inv;
 
 	if (Instigator == None && InstigatorController != None)
 		Instigator = InstigatorController.Pawn;
@@ -18,24 +17,12 @@ function DoEffect()
 				(bAffectInstigator || (C.Pawn != Instigator && !C.SameTeamAs(Instigator.Controller))) &&
 				VSize(C.Pawn.Location - Location) < Radius && FastTrace(C.Pawn.Location, Location))
 		{
-			if (Level.TimeSeconds > C.Pawn.SpawnTime + DeathMatch(Level.Game).SpawnProtectionTime) 
-			{
-				dir = C.Pawn.Location - Location;
-				dist = FMax(1,VSize(dir));
-				damageScale = 1 - FMax(0,dist/Radius);
+			dir = C.Pawn.Location - Location;
+			dist = FMax(1,VSize(dir));
+			damageScale = 1 - FMax(0,dist/Radius);
 
-				if(!C.Pawn.isA('Vehicle') && class'WeaponFreeze'.static.canTriggerPhysics(C.Pawn) 
-					&& (C.Pawn.FindInventoryType(class'NullEntropyInv') == None))
-				{
-					Inv = spawn(class'NullEntropyInv', C.Pawn,,, rot(0,0,0));
-					if(Inv != None)
-					{
-						Inv.LifeSpan = (damageScale * MaxFreezeTime * 3);	
-						Inv.Modifier = (damageScale * MaxFreezeTime * 3);	// *3 because the NullEntropyInv divides by 3
-						Inv.GiveTo(C.Pawn);
-					}
-				}
-			}
+			//TODO: Use freeze instead?
+			class'EffectNullEntropy'.static.Apply(C.Pawn, Instigator.Controller, damageScale * MaxFreezeTime);
 		}
 	}
 	

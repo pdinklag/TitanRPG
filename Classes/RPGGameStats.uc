@@ -542,8 +542,6 @@ function GameEvent(string GEvent, string Desc, PlayerReplicationInfo Who)
 		"bomb_pickup"
 		"bomb_returned_timeout"
 	*/
-	Log("RPGGameStats.GameEvent" @ GEvent @ Desc @ Eval(Who != None, Who.PlayerName, "None"), 'TitanRPG');
-	
 	if(ActualGameStats != None)
 		ActualGameStats.GameEvent(GEvent, Desc, Who);
 }

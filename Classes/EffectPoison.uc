@@ -1,0 +1,76 @@
+class EffectPoison extends RPGEffect;
+
+enum EPoisonMode
+{
+	PM_Absolute, //drain an absolute amount of health per time unit (AbsDrainPerLevel)
+	PM_Percentage, //drain a percentage of the current health per time unit (PercDrainPerLevel)
+	PM_Curve //use the TitanRPG curve (BasePercentage and Curve)
+};
+var EPoisonMode PoisonMode;
+
+var float BasePercentage;
+var float Curve;
+
+var int AbsDrainPerLevel;
+var float PercDrainPerLevel;
+
+var int MinHealth; //cannot drain below this
+
+var bool bAbsoluteDamage;
+
+var RPGRules RPGRules; //rules link
+
+state Active
+{
+	function Timer()
+	{
+		local int PoisonDamage;
+
+		Super.Timer();
+
+		switch(PoisonMode)
+		{
+			case PM_Absolute:
+				PoisonDamage = AbsDrainPerLevel * Modifier;
+				break;
+				
+			case PM_Percentage:
+				PoisonDamage = Modifier * PercDrainPerLevel * Instigator.Health;
+				break;
+				
+			case PM_Curve:
+				PoisonDamage = float(Instigator.Health) * (Curve ** (Modifier - 1.0f) * BasePercentage);
+				break;
+		}
+	
+		if(PoisonDamage > 0 && !(Instigator.Controller != None && Instigator.Controller.bGodMode))
+		{
+			if(MinHealth > 0)
+			{
+				Instigator.Health = Max(MinHealth, Instigator.Health - PoisonDamage);
+			}
+			else if(PoisonDamage >= Instigator.Health)
+			{
+				//Kill
+				Instigator.TakeDamage(PoisonDamage, EffectCauser.Pawn, Instigator.Location, vect(0, 0, 0), class'DamTypePoison');
+			}
+			else
+			{
+				Instigator.Health -= PoisonDamage;
+			}
+			
+			if(EffectCauser != None && EffectCauser != Instigator.Controller)
+				RPGRules.AwardEXPForDamage(EffectCauser, class'RPGPlayerReplicationInfo'.static.GetFor(EffectCauser), Instigator, PoisonDamage);
+		}
+	}
+}
+
+defaultproperties
+{
+	EmitterClass=class'GoopSmoke'
+	EffectOverlay=Shader'XGameShaders.PlayerShaders.LinkHit'
+	
+	EffectMessageClass=class'EffectMessagePoison'
+	
+	PoisonMode=PM_Curve
+}
