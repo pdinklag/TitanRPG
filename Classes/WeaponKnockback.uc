@@ -22,11 +22,10 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 		if(Knockback != None)
 		{
 			KBMomentum = Momentum;
-			Momentum = vect(0, 0, 0); //Knockback effect will handle it
-		
+			
 			if
 			(
-				(Momentum.X == 0 && Momentum.Y == 0 && Momentum.Z == 0) || 
+				(KBMomentum.X == 0 && KBMomentum.Y == 0 && KBMomentum.Z == 0) || 
 				DamageType == class'DamTypeSniperShot' || 
 				DamageType == class'DamTypeClassicSniper' ||
 				DamageType == class'DamTypeLinkShaft' ||
@@ -38,13 +37,14 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 				else
 					KBMomentum = Instigator.Location - Victim.Location;
 
-				KBMomentum = Normal(KBMomentum);
-				KBMomentum *= -200;
+				KBMomentum = Normal(KBMomentum) * -200;
 			}
 
 			KBMomentum *= FMax(2.0, FMax(float(Modifier) * BonusPerLevel, float(Damage) * 0.1)); //kawham!
 			Knockback.Momentum = KBMomentum;
 			Knockback.Start();
+			
+			Momentum = vect(0, 0, 0); //Knockback effect will handle it
 		}
 	}
 }

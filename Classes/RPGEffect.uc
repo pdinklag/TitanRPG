@@ -18,6 +18,7 @@ var config bool bHarmful;
 var config bool bAllowOnSelf;
 var config bool bAllowOnFlagCarriers;
 var config bool bAllowOnVehicles;
+var config bool bAllowStacking;
 
 //Effect
 var Controller EffectCauser;
@@ -52,6 +53,10 @@ replication
 
 static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Modifier)
 {
+	//Stacking
+	if(!default.bAllowStacking && GetFor(Other) != None)
+		return false;
+
 	//Spawn Protection
 	if(default.bHarmful &&
 		Other.Level.TimeSeconds <= Other.SpawnTime + DeathMatch(Other.Level.Game).SpawnProtectionTime)
@@ -66,6 +71,8 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	//Teammates
 	if(default.bHarmful && Causer != None && Causer != Other.Controller && Causer.SameTeamAs(Other.Controller))
 		return false;
+	
+	//TODO: weapon, abilities
 
 	//Magic Nullifying modifier
 	if(default.bHarmful && WeaponMagicNullifier(Other.Weapon) != None)
@@ -255,6 +262,7 @@ defaultproperties
 	bAllowOnSelf=True
 	bAllowOnFlagCarriers=True
 	bAllowOnVehicles=False
+	bAllowStacking=True
 	
 	bReplicateInstigator=True
 	bOnlyRelevantToOwner=False

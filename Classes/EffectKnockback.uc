@@ -24,7 +24,7 @@ state Activated
 		{
 			Instigator.SetPhysics(PHYS_Hovering);
 		}
-		
+
 		//see ya
 		Instigator.TakeDamage(0, EffectCauser.Pawn, Instigator.Location, Momentum, DamageType);
 	}
@@ -43,6 +43,7 @@ state Activated
 				//exploit fix
 				Instigator.Velocity = vect(0, 0, 0);
 				Destroy();
+				return;
 			}
 		}
 	}
@@ -58,8 +59,9 @@ state Activated
 
 defaultproperties
 {
-	//DamageType=class'DamTypeKnockback'
-	DamageType=class'fell'
+	bAllowStacking=False
+
+	DamageType=class'DamTypeKnockback'
 
 	bAllowOnFlagCarriers=False
 
