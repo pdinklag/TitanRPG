@@ -6,13 +6,17 @@ var localized string NullEntropyText;
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
+	local RPGEffect Effect;
+
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 	
 	if(Damage > 0)
 	{
-		if(class'EffectNullEntropy'.static.Apply(Victim, Instigator.Controller, BonusPerLevel * float(Modifier)) != None)
+		Effect = class'EffectNullEntropy'.static.Create(Victim, Instigator.Controller, BonusPerLevel * float(Modifier));
+		if(Effect != None)
 		{
 			Momentum = vect(0, 0, 0);
+			Effect.Start();
 			Identify();
 		}
 	}

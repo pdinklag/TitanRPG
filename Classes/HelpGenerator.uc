@@ -26,7 +26,7 @@ static function GenerateHelp(MutTitanRPG Mut)
 		Weapon Modifiers
 	*/
 	F = Mut.Spawn(class'FileLog');
-	F.OpenLog("titanrpg-weapons.html",, true);
+	F.OpenLog("titanrpg-weapons", "html", true);
 	
 	WriteHeader(F, "Weapon Modifiers");
 	

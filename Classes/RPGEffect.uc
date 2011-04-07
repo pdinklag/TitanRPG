@@ -37,6 +37,7 @@ var xEmitter Emitter; //client-only
 var class<RPGEffectMessage> EffectMessageClass;
 
 //Timing
+var bool bStart;
 var float LastStartTime;
 
 replication
@@ -91,7 +92,7 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	return true;
 }
 
-static function RPGEffect Apply(Pawn Other, optional Controller Causer, optional float OverrideDuration, optional float NewModifier)
+static function RPGEffect Create(Pawn Other, optional Controller Causer, optional float OverrideDuration, optional float NewModifier)
 {
 	local RPGEffect Effect;
 	
@@ -101,7 +102,7 @@ static function RPGEffect Apply(Pawn Other, optional Controller Causer, optional
 		if(Effect != None)
 		{
 			//Update
-			Effect.StopEffect();
+			Effect.Stop();
 			
 			Effect.EffectCauser = Causer;
 			
@@ -110,8 +111,6 @@ static function RPGEffect Apply(Pawn Other, optional Controller Causer, optional
 			
 			if(NewModifier > Effect.Modifier)
 				Effect.Modifier = NewModifier;
-			
-			Effect.StartEffect();
 		}
 		else
 		{
@@ -128,8 +127,6 @@ static function RPGEffect Apply(Pawn Other, optional Controller Causer, optional
 				
 				if(NewModifier > Effect.Modifier)
 					Effect.Modifier = NewModifier;
-				
-				Effect.GotoState('Active');
 			}
 		}
 	}
@@ -167,38 +164,33 @@ static function RPGEffect GetFor(Pawn Other)
 	local RPGEffect Effect;
 	
 	Effect = RPGEffect(Other.FindInventoryType(default.class));
-	if(Effect != None && Effect.IsInState('Active'))
+	if(Effect != None && Effect.IsInState('Activated'))
 		return Effect;
 	else
 		return None;
 }
 
-function StartEffect()
+function Start()
 {
-	if(EffectSound != None && Level.TimeSeconds - LastStartTime > 0.5f) //avoid sounds being spammed like hell
-		class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
-	
-	if(EffectOverlay != None)
-		class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
-	
-	SetTimer(0.05f, false); //FIXME: wait a little so adjustments can be done
-
-	LastStartTime = Level.TimeSeconds;
+	GotoState('Activated');
 }
 
-function StopEffect(); //abstract
+function Stop();
 
-simulated function ClientSpawnEffect()
-{
-	if(Instigator != None && EmitterClass != None)
-		Instigator.Spawn(EmitterClass,,, Instigator.Location, Instigator.Rotation);
-}
-
-state Active
+state Activated
 {
 	function BeginState()
 	{
-		StartEffect();
+		if(EffectSound != None && Level.TimeSeconds - LastStartTime > 0.5f) //avoid sounds being spammed like hell
+			class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
+		
+		if(EffectOverlay != None)
+			class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
+		
+		LastStartTime = Level.TimeSeconds;
+		
+		SetTimer(TimerInterval, true);
+		Timer();
 	}
 	
 	function Timer()
@@ -213,8 +205,6 @@ state Active
 
 		if(EmitterClass != None)
 			ClientSpawnEffect();
-		
-		SetTimer(TimerInterval, true);
 	}
 	
 	event Tick(float dt)
@@ -223,6 +213,12 @@ state Active
 		{
 			Destroy();
 			return;
+		}
+		
+		if(bStart)
+		{
+			Timer();
+			bStart = false;
 		}
 	
 		Duration -= dt;
@@ -233,9 +229,21 @@ state Active
 	
 	function EndState()
 	{
-		StopEffect();
 		SetTimer(0, false);
 	}
+	
+	function Start();
+	
+	function Stop()
+	{
+		GotoState('');
+	}
+}
+
+simulated function ClientSpawnEffect()
+{
+	if(Instigator != None && EmitterClass != None)
+		Instigator.Spawn(EmitterClass,,, Instigator.Location, Instigator.Rotation);
 }
 
 defaultproperties

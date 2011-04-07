@@ -7,6 +7,7 @@ struct ArtifactOrderConfigStruct
 {
 	var string ArtifactID;
 	var bool bShowAlways;
+	var bool bNeverShow;
 };
 var config array<ArtifactOrderConfigStruct> ArtifactOrderConfig;
 

@@ -8,15 +8,22 @@ var localized string KnockbackText;
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	local Vector newLocation;
+	local EffectKnockback Knockback;
+	local vector KBMomentum;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 	Identify();
 
 	if(Damage > 0)
 	{
-		if(class'EffectKnockback'.static.Apply(Victim, Instigator.Controller, (MaxModifier + 1) - Modifier) != None)
+		Knockback = EffectKnockback(
+			class'EffectKnockback'.static.Create(Victim, Instigator.Controller, (MaxModifier + 1) - Modifier));
+		
+		if(Knockback != None)
 		{
+			KBMomentum = Momentum;
+			Momentum = vect(0, 0, 0); //Knockback effect will handle it
+		
 			if
 			(
 				(Momentum.X == 0 && Momentum.Y == 0 && Momentum.Z == 0) || 
@@ -27,27 +34,17 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 			)
 			{
 				if(Instigator == Victim)
-					Momentum = Instigator.Location - HitLocation;
+					KBMomentum = Instigator.Location - HitLocation;
 				else
-					Momentum = Instigator.Location - Victim.Location;
+					KBMomentum = Instigator.Location - Victim.Location;
 
-				Momentum = Normal(Momentum);
-				Momentum *= -200;
-
-				/*
-					if they're walking, I need to bump them up 
-					in the air a bit or they won't be knocked back 
-					on no momentum weapons.
-				*/
-				if(Victim.Physics == PHYS_Walking)
-				{
-					newLocation = Victim.Location;
-					newLocation.z += 10;
-					Victim.SetLocation(newLocation);
-				}
+				KBMomentum = Normal(KBMomentum);
+				KBMomentum *= -200;
 			}
 
-			Momentum *= FMax(2.0, FMax(float(Modifier) * BonusPerLevel, float(Damage) * 0.1)); //kawham!
+			KBMomentum *= FMax(2.0, FMax(float(Modifier) * BonusPerLevel, float(Damage) * 0.1)); //kawham!
+			Knockback.Momentum = KBMomentum;
+			Knockback.Start();
 		}
 	}
 }

@@ -26,12 +26,13 @@ function DoEffect()
 	
 				if(Vehicle(C.Pawn) == None)
 				{
-					Poison = EffectPoison(class'EffectPoison'.static.Apply(C.Pawn, Instigator.Controller, DrainTime, 1));
+					Poison = EffectPoison(class'EffectPoison'.static.Create(C.Pawn, Instigator.Controller, DrainTime, 1));
 					if(Poison != None)
 					{
 						Poison.PoisonMode = EPoisonMode(1); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
 						Poison.PercDrainPerLevel = MinDrain + (damageScale * (MaxDrain - MinDrain)); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
 						Poison.RPGRules = class'RPGRules'.static.Find(Level.Game);
+						Poison.Start();
 					}
 				}
 			}

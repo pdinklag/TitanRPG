@@ -1273,6 +1273,10 @@ function Mutate(string MutateString, PlayerController Sender)
 				{
 					RW = RPRI.EnchantWeapon(Cheat.Weapon, NewWeaponClass);
 					RW.GiveTo(Cheat);
+					
+					if(Args.Length > 2 && Args[2] != "")
+						RW.SetModifier(int(Args[2]));
+					
 					RW.Identify(true);
 				}
 				else

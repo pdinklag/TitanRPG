@@ -4,6 +4,7 @@ var config float MaxFreezeTime;
 
 function DoEffect()
 {
+	local RPGEffect Effect;
 	local float damageScale, dist;
 	local vector dir;
 	local Controller C;
@@ -22,7 +23,9 @@ function DoEffect()
 			damageScale = 1 - FMax(0,dist/Radius);
 
 			//TODO: Use freeze instead?
-			class'EffectNullEntropy'.static.Apply(C.Pawn, Instigator.Controller, damageScale * MaxFreezeTime);
+			Effect = class'EffectNullEntropy'.static.Create(C.Pawn, Instigator.Controller, damageScale * MaxFreezeTime);
+			if(Effect != None)
+				Effect.Start();
 		}
 	}
 	

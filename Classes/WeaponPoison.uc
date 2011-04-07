@@ -37,7 +37,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 	Identify();
 
-	Poison = EffectPoison(class'EffectPoison'.static.Apply(Victim, Instigator.Controller, PoisonLifespan, Modifier));
+	Poison = EffectPoison(class'EffectPoison'.static.Create(Victim, Instigator.Controller, PoisonLifespan, Modifier));
 	if(Poison != None)
 	{
 		Poison.PoisonMode = EPoisonMode(PoisonMode);
@@ -47,6 +47,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 		Poison.PercDrainPerLevel = PercDrainPerLevel;
 		Poison.MinHealth = MinHealth;
 		Poison.RPGRules = RPGRules;
+		Poison.Start();
 	}
 }
 

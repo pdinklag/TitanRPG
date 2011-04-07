@@ -565,6 +565,7 @@ defaultproperties
 	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeaponSelfDestruct')
 	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeaponEmo')
 	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeaponMegaBlast')
+	CustomWeaponStats(9)=(DamageType=Class'DamTypeKnockback',WeaponClass=Class'DummyWeaponKnockback')
 
 	//Original game values
 	EXP_Frag=1.00

@@ -1,38 +1,40 @@
 class EffectKnockback extends RPGEffect;
 
-function StartEffect()
-{
-	Super.StartEffect();
+var vector Momentum;
+var class<DamageType> DamageType;
 
-	if(
-		Instigator.Physics != PHYS_Walking && 
-		Instigator.Physics != PHYS_Falling &&
-		Instigator.Physics != PHYS_Hovering)
+state Activated
+{
+	function BeginState()
 	{
-		Instigator.SetPhysics(PHYS_Hovering);
+		Super.BeginState();
+
+		/*
+			if they're walking, I need to bump them up 
+			in the air a bit or they won't be knocked back 
+			on no momentum weapons.
+		*/
+		if(Instigator.Physics == PHYS_Walking)
+			Instigator.SetLocation(Instigator.Location + vect(0, 0, 10));
+
+		if(
+			Instigator.Physics != PHYS_Walking && 
+			Instigator.Physics != PHYS_Falling &&
+			Instigator.Physics != PHYS_Hovering)
+		{
+			Instigator.SetPhysics(PHYS_Hovering);
+		}
+		
+		//see ya
+		Instigator.TakeDamage(0, EffectCauser.Pawn, Instigator.Location, Momentum, DamageType);
 	}
-}
 
-function StopEffect()
-{
-	if(Instigator != None && Instigator.Physics != PHYS_Walking && Instigator.Physics != PHYS_Falling)
-		Instigator.SetPhysics(PHYS_Falling);
-}
-
-state Active
-{
 	event Tick(float dt)
 	{
 		Super.Tick(dt);
 		
 		if(!bPendingDelete)
 		{
-			if(Instigator != None && Instigator.Base != None)
-			{
-				Destroy();
-				return;
-			}
-			
 			if(
 				!bAllowOnFlagCarriers &&
 				Instigator.PlayerReplicationInfo != None &&
@@ -44,11 +46,21 @@ state Active
 			}
 		}
 	}
+	
+	function EndState()
+	{
+		if(Instigator != None && Instigator.Physics != PHYS_Walking && Instigator.Physics != PHYS_Falling)
+			Instigator.SetPhysics(PHYS_Falling);
+		
+		Super.EndState();
+	}
 }
 
 defaultproperties
 {
-	Modifier=1.0
+	//DamageType=class'DamTypeKnockback'
+	DamageType=class'fell'
+
 	bAllowOnFlagCarriers=False
 
 	EffectSound=Sound'WeaponSounds.Misc.ballgun_launch'

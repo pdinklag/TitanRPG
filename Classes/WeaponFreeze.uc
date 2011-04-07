@@ -15,17 +15,22 @@ replication
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
 {
+	local RPGEffect Effect;
+
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 
 	if(Damage > 0)
 	{
-		if(class'EffectFreeze'.static.Apply(
+		Effect = class'EffectFreeze'.static.Create(
 			Victim,
 			Instigator.Controller,
 			Modifier * FreezeDuration,
-			1.0f - FMin(BonusPerLevel * Modifier, FreezeMax)) != None)
+			1.0f - FMin(BonusPerLevel * Modifier, FreezeMax));
+		
+		if(Effect != None)
 		{
 			Identify();
+			Effect.Start();
 		}
 	}
 }

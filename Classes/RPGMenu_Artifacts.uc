@@ -6,7 +6,7 @@ var automated GUIListBox lbArtifacts;
 var automated GUIGFXButton btUp, btDown;
 var automated GUIImage imIcon;
 var automated GUIScrollTextBox lbDesc;
-var automated moCheckbox chShowAlways;
+var automated moCheckbox chShowAlways, chNeverShow;
 
 var automated moCheckBox chShowAll;
 
@@ -73,6 +73,7 @@ function CloseMenu()
 		{
 			OrderConfigEntry.ArtifactID = RPGMenu.RPRI.ArtifactOrder[i].ArtifactID;
 			OrderConfigEntry.bShowAlways = RPGMenu.RPRI.ArtifactOrder[i].bShowAlways;
+			OrderConfigEntry.bNeverShow = RPGMenu.RPRI.ArtifactOrder[i].bNeverShow;
 			
 			Settings.ArtifactOrderConfig[Settings.ArtifactOrderConfig.Length] = OrderConfigEntry;
 		}
@@ -113,6 +114,7 @@ function SelectArtifact()
 	
 	bIgnoreNextChange = true;
 	chShowAlways.Checked(RPGMenu.RPRI.ArtifactOrder[SelectedOrderEntry].bShowAlways);
+	chNeverShow.Checked(RPGMenu.RPRI.ArtifactOrder[SelectedOrderEntry].bNeverShow);
 	bIgnoreNextChange = false;
 }
 
@@ -134,11 +136,16 @@ function InternalOnChange(GUIComponent Sender)
 			bShowAll = true;
 			for(i = 0; i < RPGMenu.RPRI.ArtifactOrder.Length; i++)
 				bShowAll = bShowAll && RPGMenu.RPRI.ArtifactOrder[i].bShowAlways;
-				
+
 			bIgnoreNextChange = true;
 			chShowAll.Checked(bShowAll);
 			bIgnoreNextChange = false;
 			
+			bDirty = true;
+			break;
+		
+		case chNeverShow:
+			RPGMenu.RPRI.ArtifactOrder[SelectedOrderEntry].bNeverShow = chNeverShow.IsChecked();
 			bDirty = true;
 			break;
 		
@@ -226,7 +233,7 @@ defaultproperties
 		LeftPadding=0.000000
 		RightPadding=0.000000
 		WinWidth=0.534992
-		WinHeight=0.392072
+		WinHeight=0.461826
 		WinLeft=0.459614
 		WinTop=0.013226
 		OnPreDraw=sbArtifact_.InternalPreDraw
@@ -238,9 +245,9 @@ defaultproperties
 		LeftPadding=0.000000
 		RightPadding=0.000000
 		WinWidth=0.534992
-		WinHeight=0.529090
+		WinHeight=0.451364
 		WinLeft=0.459614
-		WinTop=0.413226
+		WinTop=0.490386
 		OnPreDraw=sbGlobalSettings_.InternalPreDraw
 	End Object
 	sbGlobalSettings=GUISectionBackground'sbGlobalSettings_'
@@ -315,7 +322,7 @@ defaultproperties
 	End Object
 	lbDesc=WeaponDescription
 	
-	Begin Object class=moCheckBox Name=CustomWeaponCrosshair
+	Begin Object class=moCheckBox Name=ShowAlwaysCheckbox
 		WinWidth=0.242672
 		WinHeight=0.042105
 		WinLeft=0.719278
@@ -331,7 +338,25 @@ defaultproperties
 		TabOrder=5
 		OnChange=RPGMenu_Artifacts.InternalOnChange
 	End Object
-	chShowAlways=CustomWeaponCrosshair
+	chShowAlways=ShowAlwaysCheckbox
+
+	Begin Object class=moCheckBox Name=NeverShowCheckbox
+		WinWidth=0.242672
+		WinHeight=0.044444
+		WinLeft=0.719278
+		WinTop=0.315432
+		Caption="Never show"
+		Hint="If activated, this artifact will never be displayed and cannot be selected (overrides the Show Always option)."
+		CaptionWidth=0.9
+		bSquare=True
+		ComponentJustification=TXTA_Right
+		LabelJustification=TXTA_Left
+		ComponentWidth=-1
+		RenderWeight=1.01
+		TabOrder=6
+		OnChange=RPGMenu_Artifacts.InternalOnChange
+	End Object
+	chNeverShow=NeverShowCheckbox
 	
 	Begin Object class=GUIImage Name=GameCrossHairImage
 		WinWidth=0.079098
@@ -352,18 +377,18 @@ defaultproperties
 	
 	Begin Object class=moCheckBox Name=ShowAllChk
 		WinWidth=0.480585
-		WinHeight=0.043049
+		WinHeight=0.044444
 		WinLeft=0.482611
-		WinTop=0.487478
-		Caption="Always show all artifact"
-		Hint="Quickly turns 'Show always' on or off for all artifacts."
+		WinTop=0.595503
+		Caption="Always show all artifacts"
+		Hint="Quickly toggles Show always for all artifacts."
 		CaptionWidth=0.9
 		bSquare=True
 		ComponentJustification=TXTA_Right
 		LabelJustification=TXTA_Left
 		ComponentWidth=-1
 		RenderWeight=1.01
-		TabOrder=5
+		TabOrder=7
 		OnChange=RPGMenu_Artifacts.InternalOnChange
 	End Object
 	chShowAll=ShowAllChk

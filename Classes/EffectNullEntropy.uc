@@ -15,22 +15,15 @@ simulated function ClientFixLocation(vector NullLocation)
 	}
 }
 
-function StartEffect()
+state Activated
 {
-	Super.StartEffect();
-	
-	Instigator.SetPhysics(PHYS_None);
-	ClientFixLocation(Instigator.Location);
-}
+	function BeginState()
+	{
+		Super.BeginState();
+		
+		Instigator.SetPhysics(PHYS_None);
+	}
 
-function StopEffect()
-{
-	if(Instigator != None && Instigator.Physics == PHYS_None)
-		Instigator.SetPhysics(PHYS_Falling);
-}
-
-state Active
-{
 	event Tick(float dt)
 	{
 		Super.Tick(dt);
@@ -46,6 +39,14 @@ state Active
 	{
 		Super.Timer();
 		ClientFixLocation(Instigator.Location);
+	}
+	
+	function EndState()
+	{
+		if(Instigator != None && Instigator.Physics == PHYS_None)
+			Instigator.SetPhysics(PHYS_Falling);
+		
+		Super.EndState();
 	}
 }
 

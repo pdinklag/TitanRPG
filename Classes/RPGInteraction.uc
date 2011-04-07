@@ -561,7 +561,7 @@ function PostRender(Canvas Canvas)
 				AClass = RPRI.ArtifactOrder[i].ArtifactClass;
 				A = RPGArtifact(P.FindInventoryType(AClass));
 				
-				if(AClass != None && (A != None || RPRI.ArtifactOrder[i].bShowAlways))
+				if(AClass != None && !RPRI.ArtifactOrder[i].bNeverShow && (A != None || RPRI.ArtifactOrder[i].bShowAlways))
 				{
 					if(++Row > Settings.IconsPerRow)
 					{

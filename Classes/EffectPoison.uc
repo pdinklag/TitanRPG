@@ -20,7 +20,7 @@ var bool bAbsoluteDamage;
 
 var RPGRules RPGRules; //rules link
 
-state Active
+state Activated
 {
 	function Timer()
 	{

@@ -104,6 +104,7 @@ struct ArtifactOrderStruct
 	var class<RPGArtifact> ArtifactClass;
 	var string ArtifactID;
 	var bool bShowAlways;
+	var bool bNeverShow;
 };
 var array<ArtifactOrderStruct> ArtifactOrder;
 
@@ -467,6 +468,7 @@ simulated function ClientSetup()
 			OrderEntry.ArtifactClass = AClass;
 			OrderEntry.ArtifactID = Interaction.CharSettings.ArtifactOrderConfig[x].ArtifactID;
 			OrderEntry.bShowAlways = Interaction.CharSettings.ArtifactOrderConfig[x].bShowAlways;
+			OrderEntry.bNeverShow = Interaction.CharSettings.ArtifactOrderConfig[x].bNeverShow;
 			
 			ArtifactOrder[ArtifactOrder.Length] = OrderEntry;
 			ServerAddArtifactOrderEntry(OrderEntry);
@@ -548,6 +550,16 @@ function ServerClearArtifactOrder()
 
 function ServerAddArtifactOrderEntry(ArtifactOrderStruct OrderEntry)
 {
+	local Inventory Inv;
+
+	if(Controller.Pawn != None)
+	{
+		Inv = Controller.Pawn.FindInventoryType(OrderEntry.ArtifactClass);
+		
+		if(Inv != None)
+			Powerups(Inv).bActivatable = !OrderEntry.bNeverShow;
+	}
+
 	if(FindOrderEntry(OrderEntry.ArtifactClass) == -1)
 		ArtifactOrder[ArtifactOrder.Length] = OrderEntry;
 }
@@ -607,19 +619,28 @@ function ModifyArtifact(RPGArtifact A)
 	
 	ClientCheckArtifactClass(A.class);
 	
+	//Allow abilities to modify
 	for(i = 0; i < Abilities.Length; i++)
 	{
 		if(Abilities[i].bAllowed)
 			Abilities[i].ModifyArtifact(A);
 	}
 	
-	//TODO: apply saved cooldown
+	//Apply saved cooldown
 	i = GetSavedCooldown(A.class);
 	if(i >= 0)
 	{
 		A.ForceCooldown(SavedCooldown[i].TimeLeft);
 		SavedCooldown.Remove(i, 1);
 	}
+	
+	/*
+		If bNeverShow setting is used, make it non-selectable
+		bActivatable is unused by the artifact itself, but Powerups / PlayerController
+		use it to determine whether an item can be selected using NextItem and PrevItem
+	*/
+	i = FindOrderEntry(A.class);
+	A.bActivatable = !(i >= 0 && ArtifactOrder[i].bNeverShow);
 }
 
 simulated function ClientCheckArtifactClass(class<RPGArtifact> AClass)
@@ -632,6 +653,7 @@ simulated function ClientCheckArtifactClass(class<RPGArtifact> AClass)
 		OrderEntry.ArtifactClass = AClass;
 		OrderEntry.ArtifactID = AClass.default.ArtifactID;
 		OrderEntry.bShowAlways = false;
+		OrderEntry.bNeverShow = false;
 		
 		ArtifactOrder[ArtifactOrder.Length] = OrderEntry;
 		ServerAddArtifactOrderEntry(OrderEntry);
