@@ -9,7 +9,6 @@ var localized string KnockbackText;
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local EffectKnockback Knockback;
-	local vector KBMomentum;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 	Identify();
@@ -21,11 +20,9 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 		
 		if(Knockback != None)
 		{
-			KBMomentum = Momentum;
-			
 			if
 			(
-				(KBMomentum.X == 0 && KBMomentum.Y == 0 && KBMomentum.Z == 0) || 
+				(Momentum.X == 0 && Momentum.Y == 0 && Momentum.Z == 0) || 
 				DamageType == class'DamTypeSniperShot' || 
 				DamageType == class'DamTypeClassicSniper' ||
 				DamageType == class'DamTypeLinkShaft' ||
@@ -33,18 +30,21 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 			)
 			{
 				if(Instigator == Victim)
-					KBMomentum = Instigator.Location - HitLocation;
+					Momentum = Instigator.Location - HitLocation;
 				else
-					KBMomentum = Instigator.Location - Victim.Location;
+					Momentum = Instigator.Location - Victim.Location;
 
-				KBMomentum = Normal(KBMomentum) * -200;
+				Momentum = Normal(Momentum) * -200;
 			}
 
-			KBMomentum *= FMax(2.0, FMax(float(Modifier) * BonusPerLevel, float(Damage) * 0.1)); //kawham!
-			Knockback.Momentum = KBMomentum;
-			Knockback.Start();
+			Momentum *= FMax(2.0, FMax(float(Modifier) * BonusPerLevel, float(Damage) * 0.1)); //kawham!
 			
-			Momentum = vect(0, 0, 0); //Knockback effect will handle it
+			/*
+				momentum will be applied by the weapon,
+				TakeDamage just doesn't work while in a NetDamge subcall
+			*/
+			Knockback.Momentum = vect(0, 0, 0);
+			Knockback.Start();
 		}
 	}
 }

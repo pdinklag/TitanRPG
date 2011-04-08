@@ -131,23 +131,38 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 // calculate how much exp does a player get for killing another player of a certain level
 function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicationInfo KilledRPRI, optional float Multiplier)
 {
+	local float XP;
 	local float Diff;
 	
+	Log(KillerRPRI.RPGName @ "killed" @ KilledRPRI.RPGName, 'GetKillEXP');
+	
 	Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
+	Log("Level difference is" @ Diff, 'GetKillEXP');
 	
 	if(Diff > 0)
+	{
 		Diff = (Diff * Diff) / LevelDiffExpGainDiv;
+		Log("Post processed difference value is" @ Diff, 'GetKillEXP');
+	}
 	
 	//cap gained exp to enough to get to Killed's level
 	if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && Diff > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
+	{
 		Diff = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
+		Log("Capped difference value is" @ Diff, 'GetKillEXP');
+	}
 	
 	Diff = float(int(Diff)); //round
-	
+
 	if(Multiplier > 0)
+	{
 		Diff *= Multiplier;
+		Log("Difference value multiplied by" @ Multiplier @ "is" @ Diff, 'GetKillEXP');
+	}
 	
-	return FMax(class'RPGGameStats'.default.EXP_Frag, Diff); //at least EXP_Frag
+	XP = FMax(class'RPGGameStats'.default.EXP_Frag, Diff); //at least EXP_Frag
+	Log("Final XP:" @ XP, 'GetKillEXP');
+	return XP;
 }
 
 function ScoreKill(Controller Killer, Controller Killed)

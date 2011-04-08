@@ -1453,6 +1453,15 @@ simulated function bool PutDown()
 function StartEffect();
 function StopEffect();
 
+/*
+	Called by RPGEffect when it is about to be applied.
+	Returns whether or not this effect can be applied when this weapon is being held.
+*/
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Modifier)
+{
+	return true;
+}
+
 simulated function SetOverlayMaterial(Material mat, float time, bool bOverride)
 {
 	if (ModifierOverlay != None && bIdentified && mat != ModifierOverlay && time > 0)

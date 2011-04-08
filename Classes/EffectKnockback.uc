@@ -26,7 +26,8 @@ state Activated
 		}
 
 		//see ya
-		Instigator.TakeDamage(0, EffectCauser.Pawn, Instigator.Location, Momentum, DamageType);
+		if(VSize(Momentum) > 0)
+			Instigator.TakeDamage(0, EffectCauser.Pawn, Instigator.Location, Momentum, DamageType);
 	}
 
 	event Tick(float dt)
@@ -61,7 +62,7 @@ defaultproperties
 {
 	bAllowStacking=False
 
-	DamageType=class'DamTypeKnockback'
+	DamageType=class'fell'
 
 	bAllowOnFlagCarriers=False
 

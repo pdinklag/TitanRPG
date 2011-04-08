@@ -23,6 +23,7 @@ var config bool bAllowStacking;
 //Effect
 var Controller EffectCauser;
 var config float Duration;
+var bool bPermanent;
 
 var float Modifier;
 
@@ -36,6 +37,8 @@ var class<XEmitter> EmitterClass;
 var xEmitter Emitter; //client-only
 
 var class<RPGEffectMessage> EffectMessageClass;
+
+//TODO: StatusIcon
 
 //Timing
 var bool bStart;
@@ -53,6 +56,9 @@ replication
 
 static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Modifier)
 {
+	local int i;
+	local RPGPlayerReplicationInfo RPRI;
+
 	//Stacking
 	if(!default.bAllowStacking && GetFor(Other) != None)
 		return false;
@@ -71,21 +77,15 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	//Teammates
 	if(default.bHarmful && Causer != None && Causer != Other.Controller && Causer.SameTeamAs(Other.Controller))
 		return false;
-	
-	//TODO: weapon, abilities
-
-	//Magic Nullifying modifier
-	if(default.bHarmful && WeaponMagicNullifier(Other.Weapon) != None)
-		return false;
-
+		
 	//Vehicles
 	if(!default.bAllowOnVehicles && Other.IsA('Vehicle'))
 		return false;
 
 	//Immune pawn types
-	if(class'Util'.static.ClassInArray(Other.class, default.ImmunePawnTypes) >= 0)
+	if(class'Util'.static.InArray(Other.class, default.ImmunePawnTypes) >= 0)
 		return false;
-	
+		
 	//Flag carriers
 	if(
 		!default.bAllowOnFlagCarriers &&
@@ -96,6 +96,24 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 		return false;
 	}
 	
+	//RPG Weapon
+	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Modifier))
+		return false;
+
+	//Abilities
+	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
+	if(RPRI != None)
+	{
+		for(i = 0; i < RPRI.Abilities.length; i++)
+		{
+			if(RPRI.Abilities[i].bAllowed)
+			{
+				if(!RPRI.Abilities[i].AllowEffect(default.class, Causer, Modifier))
+					return false;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -184,23 +202,11 @@ function Start()
 
 function Stop();
 
+function DisplayEffect();
+
 state Activated
 {
-	function BeginState()
-	{
-		if(EffectSound != None && Level.TimeSeconds - LastStartTime > 0.5f) //avoid sounds being spammed like hell
-			class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
-		
-		if(EffectOverlay != None)
-			class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
-		
-		LastStartTime = Level.TimeSeconds;
-		
-		SetTimer(TimerInterval, true);
-		Timer();
-	}
-	
-	function Timer()
+	function DisplayEffect()
 	{
 		local PlayerReplicationInfo CauserPRI;
 		
@@ -212,6 +218,26 @@ state Activated
 
 		if(EmitterClass != None)
 			ClientSpawnEffect();
+	}
+
+	function BeginState()
+	{
+		if(EffectSound != None && Level.TimeSeconds - LastStartTime > 0.5f) //avoid sounds being spammed like hell
+			class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
+		
+		if(EffectOverlay != None)
+			class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
+		
+		LastStartTime = Level.TimeSeconds;
+		
+		DisplayEffect();
+		if(Duration >= TimerInterval)
+			SetTimer(TimerInterval, true);
+	}
+	
+	function Timer()
+	{
+		DisplayEffect();
 	}
 	
 	event Tick(float dt)
@@ -228,10 +254,13 @@ state Activated
 			bStart = false;
 		}
 	
-		Duration -= dt;
-		
-		if(Duration <= 0)
-			Destroy();
+		if(!bPermanent)
+		{
+			Duration -= dt;
+			
+			if(Duration <= 0)
+				Destroy();
+		}
 	}
 	
 	function EndState()
@@ -255,6 +284,8 @@ simulated function ClientSpawnEffect()
 
 defaultproperties
 {
+	bPermanent=False
+
 	Duration=1.00
 	TimerInterval=1.00
 

@@ -18,9 +18,14 @@ simulated function string GetWeaponNameExtra()
 	return text;
 }
 
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Modifier)
+{
+	return !EffectClass.default.bHarmful; //don't allow harmful effects
+}
+
 defaultproperties
 {
-	MagicNullText="nullifies magic weapon effects"
+	MagicNullText="nullifies harmful magic weapon effects"
 	bCanHaveZeroModifier=True
 	DamageBonus=0.050000
 	MinModifier=4

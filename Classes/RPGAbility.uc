@@ -532,6 +532,15 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 	return false;
 }
 
+/*
+	Called by RPGEffect when it is about to be applied.
+	Returns whether or not this effect can be applied when this ability is being owned.
+*/
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Modifier)
+{
+	return true;
+}
+
 defaultproperties
 {
 	RequiredLevel=0

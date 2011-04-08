@@ -6,5 +6,5 @@ defaultproperties
 	EffectMessageSelfString="Knockback by yourself!"
 	EffectMessageCauserString="Knockback by $1!"
 	
-	DrawColor=(B=219,G=0,R=154)
+	DrawColor=(B=0,G=0)
 }
