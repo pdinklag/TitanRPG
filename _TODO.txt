@@ -39,6 +39,7 @@ TODO (1.62)
 - OSMT integration for friendly monsters
 
 TODO (1.61)
+- U key in RPGSelectionMenu
 - Proximity grenades
 - Fix stat points !!!
 - Allow healing of summoned monsters
