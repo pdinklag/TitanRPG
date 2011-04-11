@@ -9,6 +9,7 @@ var automated GUIMultiColumnList Abilities;
 var automated GUIButton btBuy;
 
 var automated moEditBox ebAmount;
+var int LastAmount;
 
 var GUIStyles CategoryStyle;
 
@@ -79,8 +80,7 @@ function InitMenu()
 		}
 	}
 	
-	if(ebAmount.GetText() == "")
-		ebAmount.SetText("5");
+	ebAmount.SetText(string(LastAmount));
 	
 	Abilities.SetIndex(OldAbilityListIndex);
 	Abilities.SetTopItem(OldAbilityListTop);
@@ -92,6 +92,7 @@ function InitMenu()
 
 function CloseMenu()
 {
+	LastAmount = int(ebAmount.GetText());
 	Stats.Length = 0;
 }
 
@@ -105,7 +106,7 @@ function SelectAbility()
 	{
 		Stat = Stats[Abilities.Index];
 		
-		if(Stat.AbilityLevel < Stat.MaxLevel)
+		if(Stat.AbilityLevel < Stat.MaxLevel && RPGMenu.RPRI.PointsAvailable >= Stat.StartingCost)
 			btBuy.MenuState = MSAT_Blurry;
 		else
 			btBuy.MenuState = MSAT_Disabled;
@@ -142,11 +143,11 @@ function bool BuyStat(GUIComponent Sender)
 {
 	local int Amount;
 	local RPGAbility Stat;
-	
-	Amount = Max(1, int(ebAmount.GetText()));
 
 	RPGMenu.RPRI.ServerNoteActivity(); //Disable idle kicking when actually doing something
-	if(Abilities.Index >= 0)
+	
+	Amount = Min(RPGMenu.RPRI.PointsAvailable, Max(1, int(ebAmount.GetText())));
+	if(Abilities.Index >= 0 && Amount > 0)
 	{
 		Stat = Stats[Abilities.Index];
 		
@@ -161,6 +162,8 @@ defaultproperties
 {
 	Text_StatsAvailable="Available Stat Points:"
 	Text_Max="(MAX)"
+	
+	LastAmount=5
 
 	Begin Object Class=AltSectionBackground Name=sbAbilities_
 		Caption="Available Stats"

@@ -6,6 +6,8 @@ var array<GUITabItem> Panels;
 
 var automated GUITabControl Tabs;
 
+var bool bStats; //set by RPRI
+
 var localized string WindowTitle;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -16,10 +18,15 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 	
 	Super.InitComponent(MyController, MyOwner);
 
+	if(bStats)
+		Panels[1].ClassName = "RPGMenu_AbilitiesMaster";
+
 	for(i = 0; i < Panels.Length; i++)
 	{
 		//Prepend package name to class name
 		Panels[i].ClassName = "<? echo($packageName); ?>." $ Panels[i].ClassName;
+		
+		Log("Adding tab:" @ Panels[i].ClassName, 'DEBUG');
 		Tabs.AddTabItem(Panels[i]);
 	}
 	
@@ -29,34 +36,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function InitFor(RPGPlayerReplicationInfo Whom)
 {
-	local int i, NumStats;
+	local int i;
 
 	RPRI = Whom;
 	
 	if(RPRI.Level.NetMode == NM_Standalone)
 		RPRI.Level.Game.SetPause(true, PlayerController(RPRI.Controller));	
 	
-	for(i = 0; i < RPRI.AllAbilities.Length; i++)
-	{
-		if(RPRI.AllAbilities[i].bIsStat)
-			NumStats++;
-	}
-	
 	RPRI.Menu = Self;
 	
-	i = 0;
-	while(i < Tabs.TabStack.Length)
+	for(i = 0; i < Tabs.TabStack.Length; i++)
 	{
-		if(NumStats == 0 && Tabs.TabStack[i].MyPanel.IsA('RPGMenu_Stats'))
-		{
-			Tabs.RemoveTab("", Tabs.TabStack[i]);
-		}
-		else
-		{
-			RPGMenu_TabPage(Tabs.TabStack[i].MyPanel).RPGMenu = Self;
-			RPGMenu_TabPage(Tabs.TabStack[i].MyPanel).InitMenu();
-			i++;
-		}
+		RPGMenu_TabPage(Tabs.TabStack[i].MyPanel).RPGMenu = Self;
+		RPGMenu_TabPage(Tabs.TabStack[i].MyPanel).InitMenu();
 	}
 }
 
@@ -89,10 +81,11 @@ event Free()
 defaultproperties
 {
 	Panels(0)=(ClassName="RPGMenu_Character",Caption="Character",Hint="View your current character's statistics.")
-	Panels(1)=(ClassName="RPGMenu_Stats",Caption="Stats",Hint="Distribute stat points.")
-	Panels(2)=(ClassName="RPGMenu_Abilities",Caption="Abilities",Hint="Buy abilities.")
-	Panels(3)=(ClassName="RPGMenu_PlayerLevels",Caption="Player Levels",Hint="See the levels of the currently playing players.")
-	Panels(4)=(ClassName="RPGMenu_SettingsMaster",Caption="Settings",Hint="Customize TitanRPG features.")
+	Panels(1)=(ClassName="RPGMenu_Abilities",Caption="Buy",Hint="Distribute stat points and buy abilities.")
+	Panels(2)=(ClassName="RPGMenu_PlayerLevels",Caption="Player Levels",Hint="See the levels of the currently playing players.")
+	Panels(3)=(ClassName="RPGMenu_SettingsMaster",Caption="Settings",Hint="Customize TitanRPG features.")
+
+	bStats=False //should be left as default
 
 	Begin Object Class=GUITabControl Name=RPGMenuTC
 		bFillSpace=True

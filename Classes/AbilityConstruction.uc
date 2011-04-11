@@ -42,6 +42,7 @@ simulated event PreBeginPlay()
 			TurretTypesRepl.FloatArray[i] = TurretTypes[i].DrawScale;
 		}
 		TurretTypesRepl.Replicate();
+		FinalSyncState++;
 	}
 }
 
@@ -52,7 +53,7 @@ simulated event PostNetReceive()
 	
 	Super.PostNetReceive();
 
-	if(Role < ROLE_Authority && TurretTypesRepl != None)
+	if(ShouldReceive() && TurretTypesRepl != None)
 	{
 		TurretTypes.Length = TurretTypesRepl.Length;
 		for(i = 0; i < TurretTypes.Length; i++)
@@ -67,6 +68,7 @@ simulated event PostNetReceive()
 		
 		TurretTypesRepl.SetOwner(Owner);
 		TurretTypesRepl.ServerDestroy();
+		ClientSyncState++;
 	}
 }
 

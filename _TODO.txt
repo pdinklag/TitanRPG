@@ -39,6 +39,7 @@ TODO (1.62)
 - OSMT integration for friendly monsters
 
 TODO (1.61)
+- Get rid of RPGAbilityCategory instances
 - U key in RPGSelectionMenu
 - Proximity grenades
 - Fix stat points !!!
@@ -119,6 +120,7 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Fixed keybinding in RPGMenu
 - Ejector Seat and Ultima have status icons
 - Vehicle repair ignores UDamage
 - XLoc beacon gets reset when entering a vehicle

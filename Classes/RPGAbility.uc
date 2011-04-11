@@ -50,18 +50,31 @@ var int AbilityLevel;
 
 var bool bClientReceived;
 
+var int ClientSyncCounter;
+var int FinalSyncState, ClientSyncState;
+var bool bNetSyncComplete;
+
 var ReplicatedArray RequiredRepl, ForbiddenRepl, ItemsRepl, LevelCostRepl;
 
 replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
-		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed,
+		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed, FinalSyncState,
 		RequiredRepl, ForbiddenRepl, ItemsRepl, LevelCostRepl;
 		
-	reliable if(Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost,
 		RequiredLevel,
 		BonusPerLevel, bIsStat;
+	
+	reliable if(Role < ROLE_Authority)
+		ServerSyncComplete;
+}
+
+function ServerSyncComplete()
+{
+	bNetSyncComplete = true;
+	bNetNotify = false;
 }
 
 function bool ShouldReplicateInfo()
@@ -85,6 +98,8 @@ simulated event PreBeginPlay()
 	
 	Super.PreBeginPlay();
 	
+	FinalSyncState = 1; //initial sync
+	
 	if(ShouldReplicateInfo())
 	{
 		//Required
@@ -98,6 +113,7 @@ simulated event PreBeginPlay()
 				RequiredRepl.IntArray[i] = RequiredAbilities[i].Level;
 			}
 			RequiredRepl.Replicate();
+			FinalSyncState++;
 		}
 		
 		//Forbidden
@@ -111,6 +127,7 @@ simulated event PreBeginPlay()
 				ForbiddenRepl.IntArray[i] = ForbiddenAbilities[i].Level;
 			}
 			ForbiddenRepl.Replicate();
+			FinalSyncState++;
 		}
 
 		//Items
@@ -124,6 +141,7 @@ simulated event PreBeginPlay()
 				ItemsRepl.IntArray[i] = GrantItem[i].Level;
 			}
 			ItemsRepl.Replicate();
+			FinalSyncState++;
 		}
 		
 		//LevelCost
@@ -135,8 +153,14 @@ simulated event PreBeginPlay()
 				LevelCostRepl.IntArray[i] = LevelCost[i];
 			
 			LevelCostRepl.Replicate();
+			FinalSyncState++;
 		}
 	}
+}
+
+simulated function bool ShouldReceive()
+{
+	return Role < ROLE_Authority && !bNetSyncComplete;
 }
 
 simulated event PostNetReceive()
@@ -145,12 +169,12 @@ simulated event PostNetReceive()
 	local GrantItemStruct Grant;
 	local int i;
 
-	if(Role < ROLE_Authority)
+	if(ShouldReceive())
 	{
 		if(RPRI != None && !bClientReceived)
 		{
-			RPRI.ReceiveAbility(Self);
 			bClientReceived = true;
+			ClientSyncState++;
 		}
 	
 		//Required
@@ -165,6 +189,7 @@ simulated event PostNetReceive()
 			}
 			RequiredRepl.SetOwner(Owner);
 			RequiredRepl.ServerDestroy();
+			ClientSyncState++;
 		}
 		
 		//Forbidden
@@ -179,6 +204,7 @@ simulated event PostNetReceive()
 			}
 			ForbiddenRepl.SetOwner(Owner);
 			ForbiddenRepl.ServerDestroy();
+			ClientSyncState++;
 		}
 		
 		//Items
@@ -193,6 +219,7 @@ simulated event PostNetReceive()
 			}
 			ItemsRepl.SetOwner(Owner);
 			ItemsRepl.ServerDestroy();
+			ClientSyncState++;
 		}
 		
 		//LevelCost
@@ -204,6 +231,29 @@ simulated event PostNetReceive()
 
 			LevelCostRepl.SetOwner(Owner);
 			LevelCostRepl.ServerDestroy();
+			ClientSyncState++;
+		}
+		
+		ClientSyncCounter++;
+		
+		if(ClientSyncState >= FinalSyncState && !bNetSyncComplete)
+		{
+			RPRI.ReceiveAbility(Self);
+			ServerSyncComplete();
+			bNetSyncComplete = true;
+		}
+		else if(ClientSyncCounter > 20)
+		{
+			/*
+				in case something goes wrong, make sure the ability gets marked as received anyway,
+				so the menu becomes available.
+				
+				Should never happen.
+			*/
+			Log(Self @ "Failed to complete sync after" @ ClientSyncCounter @ "net receptions!", 'TitanRPG');
+			RPRI.ReceiveAbility(Self);
+			ServerSyncComplete();
+			bNetSyncComplete = true;
 		}
 	}
 }
@@ -260,6 +310,15 @@ simulated function bool Buy(optional int Amount)
 	return true;
 }
 
+//Get the ability's name
+simulated function string GetName()
+{
+	if(bIsStat)
+		return StatName;
+	else
+		return AbilityName;
+}
+
 /*
 	Automatically generates a description text for this ability.
 	Includes the Description string, items granted at certain levels, requirements, forbidden abilities, max level and
@@ -312,7 +371,7 @@ simulated function string DescriptionText()
 	for(x = 0; x < RequiredAbilities.Length && RequiredAbilities[x].AbilityClass != None; x++)
 	{
 		i = list.Length;
-		list[i] = RequiredAbilities[x].AbilityClass.default.AbilityName;
+		list[i] = RPRI.GetAbility(RequiredAbilities[x].AbilityClass).GetName();
 		
 		if(RequiredAbilities[x].Level > 1)
 			list[i] @= string(RequiredAbilities[x].Level);
@@ -339,7 +398,7 @@ simulated function string DescriptionText()
 	for(x = 0; x < ForbiddenAbilities.Length && ForbiddenAbilities[x].AbilityClass != None; x++)
 	{
 		i = list.Length;
-		list[i] = ForbiddenAbilities[x].AbilityClass.default.AbilityName;
+		list[i] = RPRI.GetAbility(ForbiddenAbilities[x].AbilityClass).GetName();
 		
 		if(ForbiddenAbilities[x].Level > 1)
 			list[i] @= string(ForbiddenAbilities[x].Level);

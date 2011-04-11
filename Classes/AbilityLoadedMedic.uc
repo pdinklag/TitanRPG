@@ -23,6 +23,7 @@ simulated event PreBeginPlay()
 			LevelCapRepl.IntArray[i] = LevelCap[i];
 		
 		LevelCapRepl.Replicate();
+		FinalSyncState++;
 	}
 }
 
@@ -32,7 +33,7 @@ simulated event PostNetReceive()
 	
 	Super.PostNetReceive();
 
-	if(Role < ROLE_Authority && LevelCapRepl != None)
+	if(ShouldReceive() && LevelCapRepl != None)
 	{
 		LevelCap.Length = LevelCapRepl.IntArray.Length;
 		for(i = 0; i < LevelCap.Length; i++)
@@ -40,6 +41,7 @@ simulated event PostNetReceive()
 		
 		LevelCapRepl.SetOwner(Owner);
 		LevelCapRepl.ServerDestroy();
+		ClientSyncState++;
 	}
 }
 

@@ -39,6 +39,7 @@ simulated event PreBeginPlay()
 			MonsterTypesRepl.StringArray[i] = MonsterTypes[i].DisplayName;
 		}
 		MonsterTypesRepl.Replicate();
+		FinalSyncState++;
 	}
 }
 
@@ -49,7 +50,7 @@ simulated event PostNetReceive()
 	
 	Super.PostNetReceive();
 
-	if(Role < ROLE_Authority && MonsterTypesRepl != None)
+	if(ShouldReceive() && MonsterTypesRepl != None)
 	{
 		MonsterTypes.Length = MonsterTypesRepl.ObjectArray.Length;
 		for(i = 0; i < MonsterTypes.Length; i++)
@@ -63,6 +64,7 @@ simulated event PostNetReceive()
 		
 		MonsterTypesRepl.SetOwner(Owner);
 		MonsterTypesRepl.ServerDestroy();
+		ClientSyncState++;
 	}
 }
 
@@ -88,6 +90,7 @@ function ModifyPawn(Pawn Other)
 	Artifact = Other.Spawn(class'ArtifactMonsterSummon');
 	if(Artifact != None)
 	{
+		Artifact.bCanBeTossed = false;
 		Artifact.MonsterTypes.Length = 0;
 		for(i = 0; i < MonsterTypes.Length; i++)
 		{

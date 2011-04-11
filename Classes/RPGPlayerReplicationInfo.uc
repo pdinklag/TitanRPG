@@ -871,7 +871,7 @@ function AwardExperience(float exp)
 		if(Count > 0)
 		{
 			if(Controller != None && Controller.Pawn != None)
-				Controller.Pawn.PlaySound(LevelUpSound);
+				class'Util'.static.PlayLoudEnoughSound(Controller.Pawn, LevelUpSound);
 		
 			Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGLevel, PRI);
 			ClientShowHint(LevelUpText);
@@ -901,6 +901,17 @@ simulated function ClientShowHint(string Hint)
 
 simulated function ClientEnableRPGMenu()
 {
+	local int i;
+
+	for(i = 0; i < AllAbilities.Length; i++)
+	{
+		if(AllAbilities[i].bIsStat)
+		{
+			class'RPGMenu'.default.bStats = true;
+			break;
+		}
+	}
+	
 	bClientSyncDone = true;
 	if(Interaction != None)
 	{

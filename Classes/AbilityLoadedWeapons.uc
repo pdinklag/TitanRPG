@@ -33,6 +33,7 @@ simulated event PreBeginPlay()
 			WeaponsRepl.IntArray[i] = Weapons[i].Level;
 		}
 		WeaponsRepl.Replicate();
+		FinalSyncState++;
 	}
 }
 
@@ -43,7 +44,7 @@ simulated event PostNetReceive()
 	
 	Super.PostNetReceive();
 
-	if(Role < ROLE_Authority && WeaponsRepl != None)
+	if(ShouldReceive() && WeaponsRepl != None)
 	{
 		Weapons.Length = WeaponsRepl.Length;
 		for(i = 0; i < Weapons.Length; i++)
@@ -55,6 +56,7 @@ simulated event PostNetReceive()
 		
 		WeaponsRepl.SetOwner(Owner);
 		WeaponsRepl.ServerDestroy();
+		ClientSyncState++;
 	}
 }
 

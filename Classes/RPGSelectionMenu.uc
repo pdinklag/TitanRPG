@@ -9,6 +9,7 @@ class RPGSelectionMenu extends FloatingWindow
 	config(TitanRPGSettings);
 
 var Pawn Instigator;
+var RPGPlayerReplicationInfo RPRI;
 var RPGArtifact Artifact;
 
 var automated GUISectionBackground sbList, sbPreview;
@@ -74,6 +75,7 @@ function InitFor(RPGArtifact A)
 
 	Artifact = A;
 	Instigator = A.Instigator;
+	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 
 	//Setup and fill list
 	lstItems.List.bNotify = false;
@@ -214,11 +216,21 @@ function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
 	local string Temp;
 	
 	if(State == 1)
-	{
-		Log(Self @ "InternalOnKeyEvent" @ iKey @ State @ Delta, 'DEBUG');
-
+	{		
 		Temp = PlayerOwner().ConsoleCommand("KEYNAME" @ iKey);
 		Log("KEYNAME ->" @ Temp, 'DEBUG');
+		
+		//default bindings
+		if(
+			RPRI != None &&
+			RPRI.Interaction != None &&
+			RPRI.Interaction.bDefaultArtifactBindings &&
+			Temp ~= "U"
+		)
+		{
+			OKClicked(None);
+			return true;
+		}
 		
 		Temp = PlayerOwner().ConsoleCommand("KEYBINDING" @ Temp);
 		Log("KEYBINDING ->" @ Temp, 'DEBUG');

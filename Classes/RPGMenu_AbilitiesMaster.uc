@@ -1,4 +1,6 @@
-class RPGMenu_SettingsMaster extends RPGMenu_TabPage;
+class RPGMenu_AbilitiesMaster extends RPGMenu_TabPage;
+
+var RPGPlayerReplicationInfo RPRI;
 
 var array<GUITabItem> Panels;
 var automated GUITabControl Tabs;
@@ -34,13 +36,14 @@ function CloseMenu()
 
 	for(i = 0; i < Tabs.Controls.Length; i++)
 		RPGMenu_TabPage(Tabs.Controls[i]).CloseMenu();
+	
+	RPRI = None;
 }
 
 defaultproperties
 {
-	Panels(0)=(ClassName="RPGMenu_Settings",Caption="HUD",Hint="Customize TitanRPG HUD features.")
-	Panels(1)=(ClassName="RPGMenu_Artifacts",Caption="Artifacts",Hint="Customize the order of artifacts.")
-	Panels(2)=(ClassName="RPGMenu_ControlBinderFakeTab",Caption="Keys",Hint="Change RPG related key bindings.")
+	Panels(0)=(ClassName="RPGMenu_Stats",Caption="Stats",Hint="Distribute stat points.")
+	Panels(1)=(ClassName="RPGMenu_Abilities",Caption="Abilities",Hint="Buy abilities.")
 
 	Begin Object Class=GUITabControl Name=RPGMenuTC
         WinWidth=1.0

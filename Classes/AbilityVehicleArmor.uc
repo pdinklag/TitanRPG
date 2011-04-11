@@ -6,7 +6,7 @@ var localized string MaxBonusText;
 
 replication
 {
-	reliable if(Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		MaxHealthBonus;
 }
 

@@ -7,7 +7,7 @@ var int KillCount; //Kill count in current spawn
 
 replication
 {
-	reliable if(Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		BaseDelay;
 	
 	reliable if(Role == ROLE_Authority && bNetDirty)

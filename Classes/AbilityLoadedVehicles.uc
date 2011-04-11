@@ -4,7 +4,7 @@ var config int RepairLinkLevel;
 
 replication
 {
-	reliable if(Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		RepairLinkLevel;
 }
 
