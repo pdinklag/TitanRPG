@@ -30,8 +30,6 @@ simulated event PreBeginPlay()
 simulated event PostNetReceive()
 {
 	local int i;
-	
-	Super.PostNetReceive();
 
 	if(ShouldReceive() && LevelCapRepl != None)
 	{
@@ -43,6 +41,8 @@ simulated event PostNetReceive()
 		LevelCapRepl.ServerDestroy();
 		ClientSyncState++;
 	}
+	
+	Super.PostNetReceive();
 }
 
 function int GetHealMax()

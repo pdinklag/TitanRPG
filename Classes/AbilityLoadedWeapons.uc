@@ -41,8 +41,6 @@ simulated event PostNetReceive()
 {
 	local GrantWeaponStruct W;
 	local int i;
-	
-	Super.PostNetReceive();
 
 	if(ShouldReceive() && WeaponsRepl != None)
 	{
@@ -58,6 +56,8 @@ simulated event PostNetReceive()
 		WeaponsRepl.ServerDestroy();
 		ClientSyncState++;
 	}
+	
+	Super.PostNetReceive();
 }
 
 function ModifyPawn(Pawn Other)

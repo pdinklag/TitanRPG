@@ -62,22 +62,9 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	return false;
 }
 
-function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
+function ScoreKill(Controller Killed, class<DamageType> DamageType)
 {
-	local Pawn P;
-	
-	if(Killer == Killed || Killer.SameTeamAs(Killed))
-		return;
-	
-	P = Killer.Pawn;
-	
-	if(P == None)
-		return;
-	
-	if(Vehicle(P) != None)
-		P = Vehicle(P).Driver;
-
-	if(bOwnedByKiller && (Killed.Pawn == None || (Killed.Pawn.HitDamageType != class'DamTypeTitanUltima' && Killed.Pawn.HitDamageType != class'DamTypeUltima')))
+	if(DamageType != class'DamTypeTitanUltima' && DamageType != class'DamTypeUltima')
 		KillCount++;
 }
 

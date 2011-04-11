@@ -47,8 +47,6 @@ simulated event PostNetReceive()
 {
 	local MonsterTypeStruct M;
 	local int i;
-	
-	Super.PostNetReceive();
 
 	if(ShouldReceive() && MonsterTypesRepl != None)
 	{
@@ -66,6 +64,8 @@ simulated event PostNetReceive()
 		MonsterTypesRepl.ServerDestroy();
 		ClientSyncState++;
 	}
+	
+	Super.PostNetReceive();
 }
 
 function ModifyPawn(Pawn Other)

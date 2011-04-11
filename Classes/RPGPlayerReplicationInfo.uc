@@ -227,7 +227,7 @@ function ModifyStats()
 	Attack = default.Attack;
 	Defense = default.Defense;
 	WeaponSpeed = default.WeaponSpeed;
-	HealingExpMultiplier = class'RPGGameStats'.default.EXP_Healing;
+	HealingExpMultiplier = class'RPGRules'.default.EXP_Healing;
 	
 	for(x = 0; x < Abilities.Length; x++)
 	{
@@ -834,6 +834,8 @@ function AwardExperience(float exp)
 {
 	local LevelUpEffect Effect;
 	local int Count;
+	
+	Log(RPGName @ "AwardExperience" @ exp);
 	
 	if(bGameEnded)
 		return;
@@ -1748,7 +1750,7 @@ defaultproperties
 	Attack=0
 	Defense=0
 	WeaponSpeed=0
-	HealingExpMultiplier=0 //gotten from RPGGameStats
+	HealingExpMultiplier=0 //gotten from RPGRules
 
 	LevelUpSound=Sound'<? echo($packageName); ?>.SoundEffects.LevelUp'
 

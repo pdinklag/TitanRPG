@@ -163,6 +163,11 @@ simulated function bool ShouldReceive()
 	return Role < ROLE_Authority && !bNetSyncComplete;
 }
 
+/*
+	IMPORTANT!
+	Derived classes which override PostNetReceive MUST call
+	Super.PostNetReceive() AFTER it has updated the ClientSyncState
+*/
 simulated event PostNetReceive()
 {
 	local AbilityStruct A;
@@ -555,9 +560,11 @@ function bool CanEnterVehicle(Vehicle V)
  */
 function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator);
 
-/* React to a kill. Called by RPGRules.ScoreKill()
- */
-function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller);
+/* Killed another player */
+function ScoreKill(Controller Killed, class<DamageType> DamageType);
+
+/* Killed by another player */
+function Killed(Controller Killer, class<DamageType> DamageType);
 
 /* If this returns true, prevent Killed's death. Called by RPGRules.PreventDeath()
  * NOTE: If a GameRules before RPGRules prevents the death, this probably won't get called

@@ -50,8 +50,6 @@ simulated event PostNetReceive()
 {
 	local TurretTypeStruct T;
 	local int i;
-	
-	Super.PostNetReceive();
 
 	if(ShouldReceive() && TurretTypesRepl != None)
 	{
@@ -70,6 +68,8 @@ simulated event PostNetReceive()
 		TurretTypesRepl.ServerDestroy();
 		ClientSyncState++;
 	}
+	
+	Super.PostNetReceive();
 }
 
 function ModifyPawn(Pawn Other)

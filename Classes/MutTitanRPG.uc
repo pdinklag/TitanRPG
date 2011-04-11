@@ -195,9 +195,6 @@ event PreBeginPlay()
 	
 	DeathMatch(Level.Game).bAllowTrans = GameSettings.bAllowTrans;
 	DeathMatch(Level.Game).bAllowVehicles = GameSettings.bAllowVehicles;
-	
-	if(Level.Game.bEnableStatLogging)
-		Level.Game.Spawn(class'RPGGameStats');
 }
 
 event PostBeginPlay()
@@ -481,9 +478,6 @@ event Tick(float dt)
 	if(!bGameStarted && !Level.Game.bWaitingToStartMatch)
 	{
 		bGameStarted = true;
-		
-		if(!Level.Game.bEnableStatLogging)
-			Level.Game.Spawn(class'RPGGameStats');
 	}
 	
 	//AssistInfo
@@ -1456,24 +1450,8 @@ static function string GetSecondsText(int Amount)
 function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 {
 	local GameInfo.KeyValuePair KVP;
-	local int i;
 
 	Super.GetServerDetails(ServerState);
-	
-	if(
-		RPGGameStats(Level.Game.GameStats) != None &&
-		RPGGameStats(Level.Game.GameStats).ActualGameStats == None
-	)
-	{
-		for(i = 0; i < ServerState.ServerInfo.Length; i++)
-		{
-			if(ServerState.ServerInfo[i].Key == "GameStats")
-			{
-				ServerState.ServerInfo[i].Value = "false";
-				break;
-			}
-		}
-	}
 
 	KVP.Key = "TitanRPG version";
 	KVP.Value = "<? echo($versionName); ?>";

@@ -81,7 +81,7 @@ function TryCombo(string ComboName)
 				ResurrectionCombo = -1;
 				for(i = 0; i < ArrayCount(ComboNames); i++)
 				{
-					if(class'RPGGameStats'.static.IsResurrectionCombo(ComboNames[i]))
+					if(class'RPGRules'.static.IsResurrectionCombo(ComboNames[i]))
 					{
 						ResurrectionCombo = i;
 						break;

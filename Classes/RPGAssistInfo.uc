@@ -168,7 +168,7 @@ function CheckCapture()
 			
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
 			if(RPRI != None)
-				RPRI.AwardExperience(RelativeTimeHelped * class'RPGGameStats'.default.EXP_Assist);
+				RPRI.AwardExperience(RelativeTimeHelped * class'RPGRules'.default.EXP_Assist);
 			
 			C.AwardAdrenaline(RelativeTimeHelped * default.MaxAssistAdrenaline);
 		}

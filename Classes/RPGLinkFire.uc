@@ -401,7 +401,7 @@ simulated function ModeTick(float dt)
 			OldHealth = LinkedVehicle.Health;
 			if(LinkedVehicle.HealDamage(AdjustedDamage, Instigator.Controller, DamageType) && !LinkedVehicle.IsVehicleEmpty()) //only if somebody's inside
 			{
-				if(class'RPGGameStats'.default.EXP_VehicleRepair > 0.0f)
+				if(class'RPGRules'.default.EXP_VehicleRepair > 0.0f)
 				{
 					//experience for repairing
 					RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
@@ -418,7 +418,7 @@ simulated function ModeTick(float dt)
 								
 								class'RPGRules'.static.ShareExperience(
 									RPRI,
-									float(AdjustedDamage) * class'RPGGameStats'.default.EXP_VehicleRepair);
+									float(AdjustedDamage) * class'RPGRules'.default.EXP_VehicleRepair);
 							}
 						}
 					}

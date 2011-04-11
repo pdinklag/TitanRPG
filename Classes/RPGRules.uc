@@ -13,11 +13,75 @@ var bool bAwardedFirstBlood;
 
 var bool bGameEnded;
 
+//Kills
+var class<DamageType> KillDamageType;
+
 //These damage types are simply passed through without any ability, weapon magic or similar being able to scale it
 var array<class<DamageType> > DirectDamageTypes;
 
 //These damage types should not have UDamage applied
 var array<class<DamageType> > NoUDamageTypes;
+
+/*
+	Experience Awards
+*/
+
+//Kills
+var config float EXP_Frag, EXP_SelfFrag, EXP_TeamFrag, EXP_TypeKill;
+var config float EXP_FirstBlood, EXP_KillingSpree[6], EXP_MultiKill[7];
+var config float EXP_EndSpree, EXP_CriticalFrag, EXP_FlagDenial;
+
+//Special kills
+var config float EXP_Telefrag, EXP_Headshot;
+
+//Game events
+var config float EXP_Win;
+var config float 
+	EXP_HealPowernode, EXP_ConstructPowernode, EXP_DestroyPowernode, EXP_DestroyConstructingPowernode,
+	EXP_ReturnFriendlyFlag, EXP_ReturnEnemyFlag, EXP_FlagCapFirstTouch, EXP_FlagCapAssist, EXP_FlagCapFinal, EXP_ObjectiveCompleted,
+	EXP_BallThrownFinal, EXP_BallCapFinal, EXP_BallScoreAssist, EXP_DOMScore, EXP_DamagePowercore;
+
+//TODO: Win game, ONS events, CTF events, BR events, AS events, DOM events, Necromancy
+
+//Misc
+var config float EXP_Resurrection; //resurrection using the Necromancy combo
+var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
+var config float EXP_Assist;
+
+//TitanRPG
+var config float EXP_Healing; //default damage multiplier for healing teammates (LM will scale this)
+var config float EXP_TeamBooster; //EXP per second per healed player
+
+//Multipliers
+var config float EXPMul_DestroyVehicle; //you get the XP of a normal kill multiplied by this value
+var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied by this value
+
+//Not yet featured
+var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage, EXP_Hatrick, EXP_Daredevil;
+
+/*
+*/
+
+//Data to allow custom weapon stat entries for "F3" (such as Lightning Rod, Ultima etc)
+struct CustomWeaponStatStruct
+{
+	var class<DamageType> DamageType; //if a kill is done with this damage type...
+	var class<Weapon> WeaponClass; //...a kill with this weapon will be tracked
+};
+var config array<CustomWeaponStatStruct> CustomWeaponStats;
+
+
+//Necromancy check queue
+var config array<string> ResurrectionCombos;
+
+struct NecroCheckStruct
+{
+	var RPGPlayerReplicationInfo RPRI;
+	var int OldComboCount;
+	
+	var int WaitTicks;
+};
+var array<NecroCheckStruct> NecroCheck;
 
 static function RPGRules Find(GameInfo G)
 {
@@ -121,7 +185,7 @@ function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo Ins
 		if(xp > 0)
 		{
 			if(InstigatedBy.IsA('FriendlyMonsterController'))
-				InstRPRI.AwardExperience(xp * class'RPGGameStats'.default.EXP_FriendlyMonsterKill);
+				InstRPRI.AwardExperience(xp * EXPMul_SummonKill);
 			else
 				ShareExperience(InstRPRI, xp);
 		}
@@ -134,222 +198,241 @@ function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicat
 	local float XP;
 	local float Diff;
 	
-	Log(KillerRPRI.RPGName @ "killed" @ KilledRPRI.RPGName, 'GetKillEXP');
-	
-	Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
-	Log("Level difference is" @ Diff, 'GetKillEXP');
-	
-	if(Diff > 0)
+	if(KilledRPRI != None)
 	{
-		Diff = (Diff * Diff) / LevelDiffExpGainDiv;
-		Log("Post processed difference value is" @ Diff, 'GetKillEXP');
-	}
-	
-	//cap gained exp to enough to get to Killed's level
-	if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && Diff > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
-	{
-		Diff = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
-		Log("Capped difference value is" @ Diff, 'GetKillEXP');
-	}
-	
-	Diff = float(int(Diff)); //round
+		Log(KillerRPRI.RPGName @ "killed" @ KilledRPRI.RPGName, 'GetKillEXP');
+		
+		Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
+		Log("Level difference is" @ Diff, 'GetKillEXP');
+		
+		if(Diff > 0)
+		{
+			Diff = (Diff * Diff) / LevelDiffExpGainDiv;
+			Log("Post processed difference value is" @ Diff, 'GetKillEXP');
+		}
+		
+		//cap gained exp to enough to get to Killed's level
+		if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && Diff > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
+		{
+			Diff = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
+			Log("Capped difference value is" @ Diff, 'GetKillEXP');
+		}
+		
+		Diff = float(int(Diff)); //round
 
-	if(Multiplier > 0)
-	{
-		Diff *= Multiplier;
-		Log("Difference value multiplied by" @ Multiplier @ "is" @ Diff, 'GetKillEXP');
+		if(Multiplier > 0)
+		{
+			Diff *= Multiplier;
+			Log("Difference value multiplied by" @ Multiplier @ "is" @ Diff, 'GetKillEXP');
+		}
 	}
 	
-	XP = FMax(class'RPGGameStats'.default.EXP_Frag, Diff); //at least EXP_Frag
+	XP = FMax(EXP_Frag, Diff); //at least EXP_Frag
 	Log("Final XP:" @ XP, 'GetKillEXP');
 	return XP;
 }
 
 function ScoreKill(Controller Killer, Controller Killed)
 {
-	local Controller Master;
-	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI, RPRI;
 	local int x;
 	local Inventory Inv, NextInv;
 	local vector TossVel, U, V, W;
-	local bool bShare;
+	local Pawn KillerPawn, KilledPawn;
+	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
+	local class<Weapon> KillWeaponType;
 	
+	Super.ScoreKill(Killer, Killed);
+	
+	//Nobody was killed...
 	if(Killed == None)
-	{
-		Super.ScoreKill(Killer, Killed);
 		return;
-	}
-
-	//make killed pawn drop any artifacts he's got
-	if(Killed.Pawn != None)
+	
+	//Get Pawns
+	KillerPawn = Killer.Pawn;
+	KilledPawn = Killed.Pawn;
+	
+	//Drop artifacts
+	if(KilledPawn != None)
 	{
-		Inv = Killed.Pawn.Inventory;
-		while (Inv != None)
+		Inv = KilledPawn.Inventory;
+		while(Inv != None)
 		{
 			NextInv = Inv.Inventory;
-			if(RPGArtifact(Inv) != None)
+			if(Inv.IsA('RPGArtifact'))
 			{
-				TossVel = Vector(Killed.Pawn.GetViewRotation());
-				TossVel = TossVel * ((Killed.Pawn.Velocity dot TossVel) + 500) + Vect(0,0,200);
+				TossVel = Vector(KilledPawn.GetViewRotation());
+				TossVel = TossVel * ((KilledPawn.Velocity dot TossVel) + 500) + Vect(0,0,200);
 				TossVel += VRand() * (100 + Rand(250));
 				Inv.Velocity = TossVel;
-				Killed.Pawn.GetAxes(Killed.Pawn.Rotation, U, V, W);
-				Inv.DropFrom(Killed.Pawn.Location + 0.8 * Killed.Pawn.CollisionRadius * U - 0.5 * Killed.Pawn.CollisionRadius * V);
+				KilledPawn.GetAxes(KilledPawn.Rotation, U, V, W);
+				Inv.DropFrom(KilledPawn.Location + 0.8 * KilledPawn.CollisionRadius * U - 0.5 * KilledPawn.CollisionRadius * V);
 			}
 			Inv = NextInv;
 		}
 	}
 	
-	Super.ScoreKill(Killer, Killed);
-
-	//suicide
+	//Get RPRIs
+	KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
+	KilledRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killed);
+	
+	//Suicide / Self Kill
 	if(Killer == Killed)
-		return;
-
-	//EXP for killing monsters and nonplayer AI vehicles/turrets
-	//note: most monster EXP is awarded in NetDamage(); this just notifies abilities and awards an extra 1 EXP
-	//to make sure the killer got at least 1 total (plus it's an easy way to know who got the final blow)
-	if(Killed.IsA('MonsterController') || Killed.IsA('TurretController'))
 	{
+		if(KillerRPRI != None)
+			KillerRPRI.AwardExperience(EXP_SelfFrag);
+		
+		return;
+	}
+	
+	//Team kill
+	if(Killed.SameTeamAs(Killer))
+	{
+		if(KillerRPRI != None)
+			KillerRPRI.AwardExperience(EXP_TeamFrag);
+		
+		return;
+	}
+	
+	if(Killer.IsA('FriendlyMonsterController') || Killer.IsA('FriendlyTurretController'))
+	{
+		//A summoned monster or constructed turret killed something
 		if(Killer.IsA('FriendlyMonsterController'))
 		{
-			class'RPGGameStats'.static.RegisterWeaponKill(
-				FriendlyMonsterController(Killer).Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
+			Killer = FriendlyMonsterController(Killer).Master;
+			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
 			
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyMonsterController(Killer).Master);
-			bShare = false;
+			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
+				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
 		}
 		else if(Killer.IsA('FriendlyTurretController'))
 		{
-			class'RPGGameStats'.static.RegisterWeaponKill(
-				FriendlyTurretController(Killer).Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
-			
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyTurretController(Killer).Master);
-			bShare = false;
-		}
-		else
-		{
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
-			bShare = true;
-		}
-	
-		if(RPRI != None)
-		{
-			for(x = 0; x < RPRI.Abilities.length; x++)
-			{
-				if(RPRI.Abilities[x].bAllowed)
-					RPRI.Abilities[x].ScoreKill(Killer, Killed, true);
-			}
+			Killer = FriendlyTurretController(Killer).Master;
+			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
 
-			if(bShare)
-				ShareExperience(RPRI, class'RPGGameStats'.default.EXP_Frag);
-			else
-				RPRI.AwardExperience(class'RPGGameStats'.default.EXP_Frag);
+			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
+				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
+		}
+		
+		//Award experience
+		KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
+		if(KillerRPRI != None)
+			KillerRPRI.AwardExperience(GetKillEXP(KillerRPRI, KilledRPRI, EXPMul_SummonKill));
+		
+		//Add legitimate score
+		if(Killer.PlayerReplicationInfo != None)
+		{
+			Killer.PlayerReplicationInfo.Score += 1.0f;
+			
+			if(Level.Game.MaxLives > 0)
+				Level.Game.CheckScore(Killer.PlayerReplicationInfo); //possibly win the match
 		}
 		
 		return;
 	}
-	
-	if(Killer == None)
-		return;
-	
-	//if a summoned monster did the kill, award exp and score to master
-	if(Killer.IsA('FriendlyMonsterController'))
+	else
 	{
-		Master = FriendlyMonsterController(Killer).Master;
-		if(Master != None)
+		if(Killer.PlayerReplicationInfo != None)
 		{
-			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
-			if(KillerRPRI != None)
+			KillWeaponType = GetDamageWeapon(KillDamageType);
+			if(KillWeaponType != None)
+				RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillWeaponType);
+		}
+	
+		//TODO: Adjust adrenaline for lightning rod kills
+	
+		if(KillerRPRI != None)
+		{
+			/*
+				EXPERIENCE
+			*/
+			
+			//Kill
+			if(!Killed.IsA('Bot') || RPGMut.GameSettings.bExpForKillingBots)
+				ShareExperience(KillerRPRI, GetKillEXP(KillerRPRI, KilledRPRI));
+			
+			//Type kill
+			if(Killed.IsA('PlayerController') && PlayerController(Killed).bIsTyping)
 			{
-				KillerRPRI.AwardExperience(
-					GetKillEXP(KillerRPRI, KilledRPRI, class'RPGGameStats'.default.EXP_FriendlyMonsterKill));
-				
-				Master.PlayerReplicationInfo.Score += 1;
+				Log("TYPE KILL:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_TypeKill);
 			}
 			
-			if(Master.IsA('PlayerController'))
-				PlayerController(Master).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
-			
-			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
-		}
-		return;
-	}
-	
-	//same for constructed turrets
-	if(Killer.IsA('FriendlyTurretController'))
-	{
-		Master = FriendlyTurretController(Killer).Master;
-		if(Master != None)
-		{
-			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
-			if(KillerRPRI != None)
+			//Translocator kill
+			if(KillDamageType == class'DamTypeTeleFrag')
 			{
-				KillerRPRI.AwardExperience(class'RPGGameStats'.default.EXP_TurretKill);
-				Master.PlayerReplicationInfo.Score += 1;
+				Log("TELEFRAG:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_Telefrag);
 			}
 			
-			if(Master.IsA('PlayerController'))
-				PlayerController(Master).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, Killer.Pawn);
+			//Head shot
+			if(KillDamageType == class'DamTypeSniperHeadShot' || KillDamageType == class'DamTypeClassicHeadshot')
+			{
+				Log("HEAD SHOT:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_HeadShot);
+			}
 			
-			class'RPGGameStats'.static.RegisterWeaponKill(Master.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
+			//Multi kill
+			if(Killer.IsA('UnrealPlayer') && UnrealPlayer(Killer).MultiKillLevel > 0)
+			{
+				Log("MULTI KILL (" $ string(UnrealPlayer(Killer).MultiKillLevel) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_MultiKill[Min(UnrealPlayer(Killer).MultiKillLevel, ArrayCount(EXP_MultiKill))]);
+			}
+		
+			//Spree
+			if(
+				UnrealPawn(Killer.Pawn) != None &&
+				UnrealPawn(Killer.Pawn).spree > 0 &&
+				UnrealPawn(Killer.Pawn).spree % 5 == 0
+			)
+			{
+				Log("KILLING SPREE (" $ string(UnrealPawn(Killer.Pawn).spree / 5) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_KillingSpree[Min(UnrealPawn(Killer.Pawn).spree / 5, ArrayCount(EXP_KillingSpree))]);
+			}
+			
+			//First blood
+			if(
+				Killer.PlayerReplicationInfo.Kills == 1 &&
+				TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo).bFirstBlood
+			)
+			{
+				Log("FIRST BLOOD:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_FirstBlood);
+			}
+			
+			//End spree
+			if(
+				UnrealPawn(Killed.Pawn) != None &&
+				UnrealPawn(Killed.Pawn).spree > 4
+			)
+			{
+				Log("END SPREE:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_EndSpree);
+			}
+			
+			//Kill flag carrier
+			if(Level.Game.IsA('TeamGame') && TeamGame(Level.Game).CriticalPlayer(Killed))
+			{
+				Log("CRITICAL FRAG:" @ KillerRPRI.RPGName, 'DEBUG');
+				KillerRPRI.AwardExperience(EXP_CriticalFrag);
+			}
+			
+			//Notify killer's abilities
+			for(x = 0; x < KillerRPRI.Abilities.length; x++)
+			{
+				if(KillerRPRI.Abilities[x].bAllowed)
+					KillerRPRI.Abilities[x].ScoreKill(Killed, KillDamageType);
+			}
 		}
-		return;
-	}
-	
-	//get Killer RPRI
-	KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
-	if(KillerRPRI == None)
-	{
-		Log("KillerRPRI not found for " $ Killer.GetHumanReadableName(), 'TitanRPG');
-		return;
-	}
-	
-	//Adjust adrenaline
-	if(KillerRPRI.AboutToKill == Killed)
-	{
-		//no adrenaline for lightning rod kills
-		if(KillerRPRI.KillingDamType == class'DamTypeLightningRod')
-			Killer.Adrenaline = KillerRPRI.AdrenalineBeforeKill;
-	}
-	KillerRPRI.AboutToKill = None;
-	
-	//get killed RPRI
-	KilledRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killed);
-	if (KilledRPRI == None)
-	{
-		Log("KilledRPRI not found for " $ Killed.GetHumanReadableName(), 'TitanRPG');
-		return;
-	}
-
-	//team kill
-	if(
-		Killer == None ||
-		Killer.SameTeamAs(Killed)
-	)
-	{
-		return;
-	}
-
-	//get data
-	for(x = 0; x < KillerRPRI.Abilities.length; x++)
-	{
-		if(KillerRPRI.Abilities[x].bAllowed)
-			KillerRPRI.Abilities[x].ScoreKill(Killer, Killed, true);
-	}
 		
-	for(x = 0; x < KilledRPRI.Abilities.length; x++)
-	{
-		if(KilledRPRI.Abilities[x].bAllowed)
-			KilledRPRI.Abilities[x].ScoreKill(Killer, Killed, false);
-	}
-
-	if(!Killed.IsA('Bot') || RPGMut.GameSettings.bExpForKillingBots)
-	{
-		ShareExperience(KillerRPRI, GetKillEXP(KillerRPRI, KilledRPRI));
-		
-		if(Killed.Pawn != None && Killed.Pawn.GetSpree() > 4)
-			ShareExperience(KillerRPRI, class'RPGGameStats'.default.EXP_EndSpree);
+		if(KilledRPRI != None)
+		{
+			//Notify victim's abilities
+			for(x = 0; x < KilledRPRI.Abilities.length; x++)
+			{
+				if(KilledRPRI.Abilities[x].bAllowed)
+					KilledRPRI.Abilities[x].Killed(Killer, KillDamageType);
+			}
+		}
 	}
 }
 
@@ -589,7 +672,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		if(default.bDamageLog)
 			Log("DEBUG: HEADSHOT!!");
 		
-		InstRPRI.AwardExperience(class'RPGGameStats'.default.EXP_HeadShot);
+		InstRPRI.AwardExperience(EXP_HeadShot);
 	}
 	
 	if(default.bDamageLog)
@@ -785,6 +868,8 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	local AbilityVehicleEject EjectorSeat;
 	local ArtifactDoubleModifier DoubleMod;
 	
+	KillDamageType = damageType;
+	
 	if(bGameEnded)
 		return Super.PreventDeath(Killed, Killer, damageType, HitLocation);
 	
@@ -904,7 +989,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 				}
 
 				ShareExperience(KillerRPRI,
-					GetKillEXP(KillerRPRI, KilledRPRI, class'RPGGameStats'.default.EXP_DestroyVehicle));
+					GetKillEXP(KillerRPRI, KilledRPRI, EXPMul_DestroyVehicle));
 
 				KillerRPRI.PRI.Score += 1.f; //add a game point
 				
@@ -912,7 +997,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 				if(KilledVehicleDriver.GetSpree() > 4)
 				{
 					Killer.AwardAdrenaline(DeathMatch(Level.Game).ADR_MajorKill);
-					ShareExperience(KillerRPRI, class'RPGGameStats'.default.EXP_EndSpree);
+					ShareExperience(KillerRPRI, EXP_EndSpree);
 					DeathMatch(Level.Game).EndSpree(Killer, KilledController);
 				}
 				
@@ -985,7 +1070,7 @@ function Timer()
 	if(Level.Game.bGameEnded)
 	{
 		//Grant exp for win
-		if(class'RPGGameStats'.default.EXP_Win > 0)
+		if(EXP_Win > 0)
 		{
 			if(TeamInfo(Level.Game.GameReplicationInfo.Winner) != None)
 			{
@@ -995,7 +1080,7 @@ function Timer()
 					{
 						RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
 						if (RPRI != None)
-							RPRI.AwardExperience(class'RPGGameStats'.default.EXP_Win);
+							RPRI.AwardExperience(EXP_Win);
 					}
 				}
 			}
@@ -1004,7 +1089,7 @@ function Timer()
 			{
 				RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(PlayerReplicationInfo(Level.Game.GameReplicationInfo.Winner));
 				if (RPRI != None)
-					RPRI.AwardExperience(class'RPGGameStats'.default.EXP_Win);
+					RPRI.AwardExperience(EXP_Win);
 			}
 		}
 		
@@ -1018,6 +1103,92 @@ function bool HandleRestartGame()
 	return Super.HandleRestartGame();
 }
 
+static function RegisterWeaponKill(PlayerReplicationInfo Killer, PlayerReplicationInfo Victim, class<Weapon> WeaponClass)
+{
+	local int i;
+	local bool bFound;
+	local TeamPlayerReplicationInfo TPRI;
+	local TeamPlayerReplicationInfo.WeaponStats NewWeaponStats;
+	
+	if(WeaponClass == None)
+		return;
+
+	//kill for the killer
+	TPRI = TeamPlayerReplicationInfo(Killer);
+	if(TPRI != None)
+	{
+		bFound = false;
+		for (i = 0; i < TPRI.WeaponStatsArray.Length; i++ )
+		{
+			if(TPRI.WeaponStatsArray[i].WeaponClass == WeaponClass)
+			{
+				TPRI.WeaponStatsArray[i].Kills++;
+				bFound = true;
+				break;
+			}
+		}
+
+		if(!bFound)
+		{
+			NewWeaponStats.WeaponClass = WeaponClass;
+			NewWeaponStats.Kills = 1;
+			NewWeaponStats.Deaths = 0;
+			NewWeaponStats.DeathsHolding = 0;
+			TPRI.WeaponStatsArray[TPRI.WeaponStatsArray.Length] = NewWeaponStats;
+		}
+	}
+	
+	//death for the victim
+	TPRI = TeamPlayerReplicationInfo(Victim);
+	if(TPRI != None)
+	{
+		bFound = false;
+		for (i = 0; i < TPRI.WeaponStatsArray.Length; i++ )
+		{
+			if(TPRI.WeaponStatsArray[i].WeaponClass == WeaponClass)
+			{
+				TPRI.WeaponStatsArray[i].Deaths++;
+				bFound = true;
+				break;
+			}
+		}
+
+		if(!bFound)
+		{
+			NewWeaponStats.WeaponClass = WeaponClass;
+			NewWeaponStats.Kills = 0;
+			NewWeaponStats.Deaths = 1;
+			NewWeaponStats.DeathsHolding = 0;
+			TPRI.WeaponStatsArray[TPRI.WeaponStatsArray.Length] = NewWeaponStats;
+		}
+	}
+}
+
+static function bool IsResurrectionCombo(string ComboName)
+{
+	local int i;
+	
+	for(i = 0; i < default.ResurrectionCombos.Length; i++)
+	{
+		if(InStr(ComboName, default.ResurrectionCombos[i]) >= 0)
+			return true;
+	}
+	
+	return false;
+}
+
+function class<Weapon> GetDamageWeapon(class<DamageType> DamageType)
+{
+	local int i;
+	
+	for(i = 0; i < CustomWeaponStats.Length; i++)
+	{
+		if(CustomWeaponStats[i].DamageType == DamageType)
+			return CustomWeaponStats[i].WeaponClass;
+	}
+	return None;
+}
+
 defaultproperties
 {
 	DisgraceAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.Disgrace'
@@ -1028,4 +1199,95 @@ defaultproperties
 	DirectDamageTypes(3)=class'DamTypeFatality'
 	NoUDamageTypes(0)=class'DamTypeRetaliation'
 	bDamageLog=False
+	
+	//former RPGGameStats
+	CustomWeaponStats(0)=(DamageType=Class'DamTypeTitanUltima',WeaponClass=Class'DummyWeaponUltima')
+	CustomWeaponStats(1)=(DamageType=Class'DamTypeUltima',WeaponClass=Class'DummyWeaponUltima')
+	CustomWeaponStats(2)=(DamageType=Class'DamTypeLightningRod',WeaponClass=Class'DummyWeaponLightningRod')
+	CustomWeaponStats(3)=(DamageType=Class'DamTypeCounterShove',WeaponClass=Class'DummyWeaponCounterShove')
+	CustomWeaponStats(4)=(DamageType=Class'DamTypePoison',WeaponClass=Class'DummyWeaponPoison')
+	CustomWeaponStats(5)=(DamageType=Class'DamTypeRetaliation',WeaponClass=Class'DummyWeaponRetaliation')
+	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeaponSelfDestruct')
+	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeaponEmo')
+	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeaponMegaBlast')
+	CustomWeaponStats(9)=(DamageType=Class'DamTypeRepulsion',WeaponClass=Class'DummyWeaponRepulsion')
+	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeaponVorpal')
+
+	//Kills
+	EXP_Frag=1.00
+	EXP_SelfFrag=0.00 //-1.00 really, but we don't want to lose exp here
+	EXP_TeamFrag=0.00
+	EXP_TypeKill=0.00
+	
+	EXP_EndSpree=5.00
+	EXP_CriticalFrag=3.00
+	
+	EXP_FirstBlood=5.00
+	EXP_KillingSpree(0)=5.00
+	EXP_KillingSpree(1)=5.00
+	EXP_KillingSpree(2)=5.00
+	EXP_KillingSpree(3)=5.00
+	EXP_KillingSpree(4)=5.00
+	EXP_KillingSpree(5)=5.00
+	EXP_MultiKill(0)=5.00
+	EXP_MultiKill(1)=5.00
+	EXP_MultiKill(2)=5.00
+	EXP_MultiKill(3)=5.00
+	EXP_MultiKill(4)=5.00
+	EXP_MultiKill(5)=5.00
+	EXP_MultiKill(6)=5.00
+	
+	//Special kills
+	EXP_Telefrag=1.00
+	EXP_Headshot=1.00
+
+	//Game events
+	EXP_Win=30
+	
+	EXP_HealPowernode=1.00
+	EXP_ConstructPowernode=2.50
+	EXP_DestroyPowernode=5.00
+	EXP_DestroyConstructingPowernode=0.16
+	
+	EXP_DamagePowercore=0.50 //experience for 1% damage
+
+	EXP_ReturnFriendlyFlag=3.00
+	EXP_ReturnEnemyFlag=5.00
+	EXP_FlagDenial=7.00
+
+	EXP_FlagCapFirstTouch=5.00
+	EXP_FlagCapAssist=5.00
+	EXP_FlagCapFinal=5.00
+	
+	EXP_ObjectiveCompleted=1.00
+	
+	EXP_BallThrownFinal=5.00
+	EXP_BallCapFinal=8.00 //5.00 really, but assist is 5.00 too for this... compensated
+	EXP_BallScoreAssist=2.00
+	
+	EXP_DOMScore=5.00
+	
+	//TitanRPG
+	EXP_Healing=0.01
+	EXP_TeamBooster=0.10 //per second per healed player (excluding yourself)
+	
+	//Misc
+	EXP_Resurrection=50.00 //experience for resurrecting another player using the Necromancy combo
+	EXP_VehicleRepair=0.005 //experience for repairing one "health point"
+	EXP_Assist=15.00 //Score Assist
+	
+	//Multipliers
+	EXPMul_DestroyVehicle=0.67
+	EXPMul_SummonKill=0.67
+	
+	//Not yet featured
+	EXP_HeadHunter=10.00
+	EXP_ComboWhore=10.00
+	EXP_FlakMonkey=10.00
+	EXP_RoadRampage=10.00
+	EXP_Hatrick=10.00
+	
+	//Resurrection
+	ResurrectionCombos(0)="ComboNecro"
+	ResurrectionCombos(1)="ComboRevival"
 }

@@ -9,18 +9,14 @@ struct DropItemStruct
 
 var config array<DropItemStruct> DropItems;
 
-function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller)
+function ScoreKill(Controller Killed, class<DamageType> DamageType)
 {
 	local int i, x, k, TotalChance, Amount;
 	local class<Pickup> PickupClass;
 	local Pickup Pickup;
 	local Pawn Victim;
-
-	if(!bOwnedByKiller || Killer == Killed || Killer.SameTeamAs(Killed))
-		return;
 	
 	Victim = Killed.Pawn;
-	
 	if(Victim != None)
 	{
 		for(i = 0; i < DropItems.Length; i++)

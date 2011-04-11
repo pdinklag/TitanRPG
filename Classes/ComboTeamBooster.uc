@@ -106,7 +106,7 @@ function Timer()
 	}
 	
 	if(n > 0 && RPRI != None)
-		RPRI.AwardExperience(float(n) * class'RPGGameStats'.default.EXP_TeamBooster);
+		RPRI.AwardExperience(float(n) * class'RPGRules'.default.EXP_TeamBooster);
 }
 
 function ProcessPawn(Pawn P)
