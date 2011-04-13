@@ -136,23 +136,6 @@ event PostBeginPlay()
 	Super.PostBeginPlay();
 }
 
-function GameStarted()
-{
-	local GameObjective GO;
-	
-	foreach AllActors(class'GameObjective', GO)
-	{
-		//hack to deal with Assault's stupid hardcoded scoring setup
-		if(Level.Game.IsA('ASGameInfo'))
-			GO.Score = 0;
-	
-		if(GO.IsA('CTFBase'))
-			Spawn(class'RPGFlagObserver', CTFBase(GO).myFlag);
-		else if(GO.IsA('xBombSpawn'))
-			Spawn(class'RPGBallObserver', xBombSpawn(GO).myFlag);
-	}
-}
-
 //checks if the player that owns the specified RPGStatsInv is linked up to anybody and if so shares Amount EXP
 //equally between them, otherwise gives it all to the lone player
 static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float Amount)

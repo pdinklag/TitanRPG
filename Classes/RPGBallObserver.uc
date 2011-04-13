@@ -10,7 +10,7 @@ event Tick(float dt)
 		HolderScore = Holder.PlayerReplicationInfo.Score;
 }
 
-function Scored(float ScoreDiff)
+function Scored(float Score)
 {
 	local int i;
 	local RPGPlayerReplicationInfo RPRI;
@@ -19,7 +19,7 @@ function Scored(float ScoreDiff)
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Holder);
 	if(RPRI != None)
 	{
-		if(ScoreDiff >= 7) //ball cap
+		if(Score >= 7) //ball cap
 			RPRI.AwardExperience(Rules.EXP_BallCapFinal);
 		else //ball thrown into goal
 			RPRI.AwardExperience(Rules.EXP_BallThrownFinal);
@@ -47,7 +47,11 @@ function Scored(float ScoreDiff)
 	}
 }
 
+function SetGameObject()
+{
+	GO = xBombSpawn(Objective).myFlag;
+}
+
 defaultproperties
 {
-
 }

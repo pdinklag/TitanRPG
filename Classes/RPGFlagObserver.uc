@@ -6,12 +6,6 @@ var vector DropLocation;
 
 var float MaxReturnDist;
 
-event PostBeginPlay()
-{
-	Super.PostBeginPlay();
-	OwnerTeam = CTFFlag(GO).TeamNum;
-}
-
 event Tick(float dt)
 {
 	Super.Tick(dt);
@@ -115,6 +109,14 @@ function Scored(float ScoreDiff)
 			}
 		}
 	}
+}
+
+function SetGameObject()
+{
+	GO = CTFBase(Objective).myFlag;
+	
+	if(GO != None)
+		OwnerTeam = CTFFlag(GO).TeamNum;
 }
 
 defaultproperties

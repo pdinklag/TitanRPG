@@ -16,6 +16,8 @@ var localized string SavingDataText, SavedDataText;
 //General
 var RPGRules Rules;
 
+var config bool bAllowMagicWeapons;
+
 var config bool bAllowCheats;
 var config int StartingLevel, StartingStatPoints;
 var config int PointsPerLevel;
@@ -196,6 +198,7 @@ event PreBeginPlay()
 
 event PostBeginPlay()
 {
+	local GameObjective Objective;
 	local HealableDamageGameRules HealRules;
 	local RPGReplicationInfo RRI;
 	local int x;
@@ -208,6 +211,21 @@ event PostBeginPlay()
 	
 	Rules.NextGameRules = Level.Game.GameRulesModifiers;
 	Level.Game.GameRulesModifiers = Rules;
+	
+	//Game objective observers
+	foreach AllActors(class'GameObjective', Objective)
+	{
+		//hack to deal with Assault's stupid hardcoded scoring setup
+		if(Level.Game.IsA('ASGameInfo'))
+			Objective.Score = 0;
+	
+		if(Objective.IsA('CTFBase')) //CTF flag base
+			Spawn(class'RPGFlagObserver', Objective);
+		else if(Objective.IsA('xBombSpawn')) //BR ball spawn
+			Spawn(class'RPGBallObserver', Objective);
+		
+		//TODO: ONS, Assault, Domination
+	}
 	
 	//Healable damage rules
 	HealRules = Spawn(class'HealableDamageGameRules');
@@ -331,55 +349,58 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return true;
 	}
 	
-	//Replace weapon pickup
-	if(Other.IsA('WeaponPickup') && !Other.IsA('RPGWeaponPickup') && !Other.IsA('TransPickup'))
+	if(bAllowMagicWeapons)
 	{
-		RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponPickup"));
-		if(RPGPickup != None)
+		//Replace weapon pickup
+		if(Other.IsA('WeaponPickup') && !Other.IsA('RPGWeaponPickup') && !Other.IsA('TransPickup'))
 		{
-			RPGPickup.FindPickupBase();
-			RPGPickup.GetPropertiesFrom(class<WeaponPickup>(Other.class));
-		}
-		return false;
-	}
-	
-	//Replace weapon locker (TODO: only if magic weapon chance > 0 ???)
-	if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
-	{
-		Locker = WeaponLocker(Other);
-		RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponLocker"));
-		
-		if(RPGLocker != None)
-		{
-			RPGLocker.SetLocation(Locker.Location);
-			RPGLocker.ReplacedLocker = Locker;
-			Locker.GotoState('Disabled');
-		}
-
-		for(i = 0; i < Locker.Weapons.length; i++)
-		{
-			if(Locker.Weapons[i].WeaponClass != None)
+			RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponPickup"));
+			if(RPGPickup != None)
 			{
-				ClassName = String(Locker.Weapons[i].WeaponClass);
-				NewClassName = GetInventoryClassOverride(ClassName);
-				
-				if(!(NewClassName ~= ClassName))
-					Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+				RPGPickup.FindPickupBase();
+				RPGPickup.GetPropertiesFrom(class<WeaponPickup>(Other.class));
 			}
+			return false;
 		}
-		return true;
-	}
-	
-	//Replace weapon base weapons
-	if(Other.IsA('xWeaponBase'))
-	{
-		ClassName = string(xWeaponBase(Other).WeaponType);
-		NewClassName = GetInventoryClassOverride(ClassName);
-
-		if(!(NewClassName ~= ClassName))
-			xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
 		
-		return true;
+		//Replace weapon locker (TODO: only if magic weapon chance > 0 ???)
+		if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
+		{
+			Locker = WeaponLocker(Other);
+			RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponLocker"));
+			
+			if(RPGLocker != None)
+			{
+				RPGLocker.SetLocation(Locker.Location);
+				RPGLocker.ReplacedLocker = Locker;
+				Locker.GotoState('Disabled');
+			}
+
+			for(i = 0; i < Locker.Weapons.length; i++)
+			{
+				if(Locker.Weapons[i].WeaponClass != None)
+				{
+					ClassName = String(Locker.Weapons[i].WeaponClass);
+					NewClassName = GetInventoryClassOverride(ClassName);
+					
+					if(!(NewClassName ~= ClassName))
+						Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+				}
+			}
+			return true;
+		}
+		
+		//Replace weapon base weapons
+		if(Other.IsA('xWeaponBase'))
+		{
+			ClassName = string(xWeaponBase(Other).WeaponType);
+			NewClassName = GetInventoryClassOverride(ClassName);
+
+			if(!(NewClassName ~= ClassName))
+				xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+			
+			return true;
+		}
 	}
 	
 	//Weapon
@@ -468,13 +489,12 @@ event Tick(float dt)
 {
 	local Weapon W;
 	local Projectile Proj;
-	//local CTFFlag F;
-	
+
 	//If stats are disabled, create the game stats override here
 	if(!bGameStarted && !Level.Game.bWaitingToStartMatch)
 	{
+		//needed for anything?
 		bGameStarted = true;
-		Rules.GameStarted();
 	}
 	
 	//Projectiles
@@ -951,9 +971,11 @@ function Mutate(string MutateString, PlayerController Sender)
 	local bool bIsAdmin, bIsSuperAdmin;
 	local int i, x;
 	local RPGWeapon RW;
+	local RPGWeaponModifier WM;
 	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
 	local class<VehicleMagic> VMClass;
+	local class<RPGWeaponModifier> WMClass;
 	local class<Actor> ActorClass;
 	local vector Loc;
 	local rotator Rotate;
@@ -1167,6 +1189,20 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 				return;
 			}
+			else if(Cheat != None && Args[0] ~= "wm" && Args.Length > 1)
+			{
+				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("<? echo($packageName); ?>.WeaponModifier_" $ Args[1], class'Class'));
+				if(WMClass != None)
+				{
+					WM = Spawn(WMClass, Cheat.Weapon);
+					WM.SetModifier(WMClass.static.GetRandomModifierLevel());
+				}
+				else
+				{
+					Sender.ClientMessage("WeaponModifier class '" $ Args[1] $ "' not found!");
+				}
+				return;
+			}
 			else if(Cheat != None && Args[0] ~= "make" && Args.Length > 1)
 			{
 				if(Args[1] ~= "None")
@@ -1372,6 +1408,8 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 
 defaultproperties
 {
+	bAllowMagicWeapons=True
+
 	MaxMines=2
 
 	MinHumanPlayersForExp=0
