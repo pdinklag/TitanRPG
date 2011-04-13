@@ -20,7 +20,6 @@ var config int MinHealth; //cannot drain below this
 function PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	RPGRules = class'RPGRules'.static.Find(Level.Game);
 }
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
@@ -46,7 +45,6 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 		Poison.AbsDrainPerLevel = AbsDrainPerLevel;
 		Poison.PercDrainPerLevel = PercDrainPerLevel;
 		Poison.MinHealth = MinHealth;
-		Poison.RPGRules = RPGRules;
 		Poison.Start();
 	}
 }

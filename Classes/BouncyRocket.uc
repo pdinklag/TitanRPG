@@ -1,4 +1,4 @@
-class RPGBouncyRocket extends RPGRocketProj;
+class BouncyRocket extends RPGRocketProj;
 
 simulated event HitWall(vector HitNormal, actor Wall)
 {

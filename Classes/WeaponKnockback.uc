@@ -16,7 +16,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	if(Damage > 0)
 	{
 		Knockback = EffectKnockback(
-			class'EffectKnockback'.static.Create(Victim, Instigator.Controller, (MaxModifier + 1) - Modifier));
+			class'EffectKnockback'.static.Create(Victim, Instigator.Controller, 1.00));
 		
 		if(Knockback != None)
 		{

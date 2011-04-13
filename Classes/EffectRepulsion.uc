@@ -2,7 +2,7 @@ class EffectRepulsion extends EffectKnockback;
 
 defaultproperties
 {
-	bAllowOnSelf = False
+	bAllowOnSelf=False
 	bAllowOnVehicles=False
 
 	DamageType=class'DamTypeRepulsion'

@@ -1,9 +1,13 @@
 class AbilityDamageBalance extends RPGAbility;
 
-function ModifyRPRI()
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	RPRI.Attack += AbilityLevel * int(BonusPerLevel * 200.0);
-	RPRI.Defense += AbilityLevel * int(BonusPerLevel * 200.0);
+	Damage = float(Damage) * (1.0 + float(AbilityLevel) * BonusPerLevel);
+}
+
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	Damage = float(Damage) * (1.0 - float(AbilityLevel) * BonusPerLevel);
 }
 
 simulated function string DescriptionText()

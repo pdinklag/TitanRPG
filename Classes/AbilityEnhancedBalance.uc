@@ -1,14 +1,13 @@
 class AbilityEnhancedBalance extends RPGAbility;
 
-function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	if(Damage <= 0)
-		return;
+	Damage = float(Damage) * (1.0 + float(AbilityLevel) * BonusPerLevel);
+}
 
-	if(bOwnedByInstigator)
-		Damage *= 1.0 + float(AbilityLevel) * BonusPerLevel;
-	else
-		Damage *= 1.0 - float(AbilityLevel) * BonusPerLevel;
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	Damage = float(Damage) * (1.0 - float(AbilityLevel) * BonusPerLevel);
 }
 
 simulated function string DescriptionText()

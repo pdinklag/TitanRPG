@@ -9,14 +9,6 @@ state Activated
 	{
 		Super.BeginState();
 
-		/*
-			if they're walking, I need to bump them up 
-			in the air a bit or they won't be knocked back 
-			on no momentum weapons.
-		*/
-		if(Instigator.Physics == PHYS_Walking)
-			Instigator.SetLocation(Instigator.Location + vect(0, 0, 10));
-
 		if(
 			Instigator.Physics != PHYS_Walking && 
 			Instigator.Physics != PHYS_Falling &&
@@ -24,10 +16,17 @@ state Activated
 		{
 			Instigator.SetPhysics(PHYS_Hovering);
 		}
-
-		//see ya
+		
+		Log(Self @ "Momentum =" @ Momentum, 'DEBUG');
 		if(VSize(Momentum) > 0)
-			Instigator.TakeDamage(0, EffectCauser.Pawn, Instigator.Location, Momentum, DamageType);
+		{
+			Instigator.TakeDamage(
+				0,
+				EffectCauser.Pawn,
+				Instigator.Location,
+				Momentum * Modifier * Instigator.Mass,
+				DamageType);
+		}
 	}
 
 	event Tick(float dt)
@@ -61,10 +60,11 @@ state Activated
 defaultproperties
 {
 	bAllowStacking=False
+	bAllowOnFlagCarriers=False
 
 	DamageType=class'fell'
-
-	bAllowOnFlagCarriers=False
+	
+	Modifier=1.00
 
 	EffectSound=Sound'WeaponSounds.Misc.ballgun_launch'
 	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'

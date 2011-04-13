@@ -14,6 +14,8 @@ var bool bJustSaved;
 var localized string SavingDataText, SavedDataText;
 
 //General
+var RPGRules Rules;
+
 var config bool bAllowCheats;
 var config int StartingLevel, StartingStatPoints;
 var config int PointsPerLevel;
@@ -68,12 +70,7 @@ var config int MaxMines; //minimum MaxMines per player...
 //admin commands
 var config array<String> AdminGUID;
 
-//CTF Assist
-var CTFFlag RedFlag, BlueFlag;
-var RPGAssistInfo RedInfo, BlueInfo;
-
 //INIT stuff
-var bool bAddedAssistInfo;
 var bool bGameStarted;
 
 //Instance
@@ -199,7 +196,6 @@ event PreBeginPlay()
 
 event PostBeginPlay()
 {
-	local RPGRules Rules;
 	local HealableDamageGameRules HealRules;
 	local RPGReplicationInfo RRI;
 	local int x;
@@ -472,38 +468,13 @@ event Tick(float dt)
 {
 	local Weapon W;
 	local Projectile Proj;
-	local CTFFlag F;
+	//local CTFFlag F;
 	
 	//If stats are disabled, create the game stats override here
 	if(!bGameStarted && !Level.Game.bWaitingToStartMatch)
 	{
 		bGameStarted = true;
-	}
-	
-	//AssistInfo
-	if(!bAddedAssistInfo)
-	{
-		if(Level.Game.GameReplicationInfo.bMatchHasBegun) //Match started!
-		{
-			foreach AllActors(class'CTFFlag', F) //find flags.
-			{
-				if(F.TeamNum == 1)
-					BlueFlag = F;
-				else
-					RedFlag = F;
-			}
-
-			if(RedFlag != None && BlueFlag != None) //Spawn Infos and set variables in those.
-			{
-				RedInfo = Spawn(class'RPGAssistInfo', RedFlag);
-				BlueInfo = Spawn(class'RPGAssistInfo', BlueFlag);
-				RedInfo.EnemyTeamInfo  = BlueFlag.Team;
-				BlueInfo.EnemyTeamInfo = RedFlag.Team;
-				RedInfo.EnemyTeamScore  = BlueFlag.Team.Score;
-				BlueInfo.EnemyTeamScore = RedFlag.Team.Score;
-				bAddedAssistInfo = true;
-			}
-		}
+		Rules.GameStarted();
 	}
 	
 	//Projectiles
@@ -968,66 +939,6 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 
 function ServerTraveling(string URL, bool bItems)
 {
-	local int i;
-	local LoopDetection A, B;
-	local FileLog FLog;
-	local Object X;
-	local array<Object> Ref;
-	local int TravelTimeDiff;
-
-	A = new(None, "TitanRPG") class'LoopDetection';
-	B = new(None, "Temp") class'LoopDetection';
-	B.FromCurrent(Level);
-	
-	if(A.IsInfoValid())
-	{
-		TravelTimeDiff = B.ToSeconds() - A.ToSeconds();
-		Log("DEBUG: Last travel was" @ TravelTimeDiff @ "seconds ago (" $ A.Format() $ ").", 'TitanRPG');
-		
-		if(TravelTimeDiff < 5 && TravelTimeDiff > 0)
-		{
-			Log("=> LOOP DETECTED", 'TitanRPG');
-			
-			Log("", 'TitanRPG');
-			Log("DEBUG: Testing file output to 'loop.log'...", 'TitanRPG');
-			FLog = Spawn(class'FileLog');
-			FLog.OpenLog("loop.log",, true);
-			FLog.Logf("Testing file output - if this file is not in UserLogs, something's seriously wrong...");
-			FLog.CloseLog();
-			FLog.Destroy();
-			Flog = None;
-			
-			Log("", 'TitanRPG');
-			Log("DEBUG: Trying to obtain an object from an unused package (class'OLTeamGames.OLTeamGame')...", 'TitanRPG');
-			X = DynamicLoadObject("OLTeamGames.OLTeamGame", class'Class');
-			Log("-> X =" @ X, 'TitanRPG');
-			
-			Log("", 'TitanRPG');
-			Log("DEBUG: Listing all objects referencing me (" $ Self $ ")...", 'TitanRPG');
-			GetReferencers(Self, Ref);
-			for(i = 0; i < Ref.Length; i++)
-				Log(i @ Ref[i]);
-			
-			Log("", 'TitanRPG');
-			Log("DEBUG: Listing ALL objects...", 'TitanRPG');
-			i = 0;
-			foreach AllObjects(class'Object',  X)
-				Log(string(i++) @ X);
-			
-			Log("", 'TitanRPG');
-			Log("Causing an infinite loop to crash the server...", 'TitanRPG');
-			while(true)
-			{
-			}
-		}
-	}
-	
-	A.LastTravel = B.LastTravel;
-	A.SaveConfig();
-	
-	A = None;
-	B = None;
-
 	//Save data again, as people might have bought something after the game ended
 	SaveData();
 	
@@ -1098,9 +1009,9 @@ function Mutate(string MutateString, PlayerController Sender)
 		{
 			if(Args[0] ~= "damagelog")
 			{
-				class'RPGRules'.default.bDamageLog = !class'RPGRules'.default.bDamageLog;
+				class'RPGRules'.static.Instance(Level).bDamageLog;
 				
-				if(class'RPGRules'.default.bDamageLog)
+				if(class'RPGRules'.static.Instance(Level).bDamageLog)
 					Sender.ClientMessage("Damage log is ON!");
 				else
 					Sender.ClientMessage("Damage log is OFF!");

@@ -17,9 +17,10 @@ replication
 		ClientNotifyCooldown;
 }
 
-function bool ProtectsAgainst(class<DamageType> DamageType)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	return (class'Util'.static.InArray(DamageType, ProtectAgainst) >= 0);
+	if(HasJustEjected() && class'Util'.static.InArray(DamageType, ProtectAgainst) >= 0)
+		Damage = 0;
 }
 
 function bool CanEjectDriver(Vehicle KilledVehicle)
@@ -118,15 +119,16 @@ defaultproperties
 	LevelCost(0)=20
 	LevelCost(1)=10
 	RequiredAbilities(0)=(AbilityClass=class'AbilityVehicleArmor',Level=1)
-	ProtectAgainst(0)=class'Onslaught.DamTypeONSVehicleExplosion'
-	ProtectAgainst(1)=class'Onslaught.DamTypeDestroyedVehicleRoadKill'
-	ProtectAgainst(2)=class'Onslaught.DamTypeTankShell'
-	ProtectAgainst(3)=class'OnslaughtBP.DamTypeShockTankShockBall'
-	ProtectAgainst(4)=class'OnslaughtBP.DamTypeArtilleryShell'
-	ProtectAgainst(5)=class'OnslaughtFull.DamTypeMASCannon'
-	ProtectAgainst(6)=class'OnslaughtFull.DamTypeIonTankBlast'
-	ProtectAgainst(7)=class'XWeapons.DamTypeIonBlast'
-	ProtectAgainst(8)=class'XWeapons.DamTypeRedeemer'
-	ProtectAgainst(9)=class'DamTypeTitanUltima'
-	ProtectAgainst(10)=class'DamTypeUltima'
+	ProtectAgainst(0)=class'Onslaught.DamTypeONSVehicle'
+	ProtectAgainst(1)=class'Onslaught.DamTypeONSVehicleExplosion'
+	ProtectAgainst(2)=class'Onslaught.DamTypeDestroyedVehicleRoadKill'
+	ProtectAgainst(3)=class'Onslaught.DamTypeTankShell'
+	ProtectAgainst(4)=class'OnslaughtBP.DamTypeShockTankShockBall'
+	ProtectAgainst(5)=class'OnslaughtBP.DamTypeArtilleryShell'
+	ProtectAgainst(6)=class'OnslaughtFull.DamTypeMASCannon'
+	ProtectAgainst(7)=class'OnslaughtFull.DamTypeIonTankBlast'
+	ProtectAgainst(8)=class'XWeapons.DamTypeIonBlast'
+	ProtectAgainst(9)=class'XWeapons.DamTypeRedeemer'
+	ProtectAgainst(10)=class'DamTypeTitanUltima'
+	ProtectAgainst(11)=class'DamTypeUltima'
 }

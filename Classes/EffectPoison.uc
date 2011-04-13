@@ -18,12 +18,11 @@ var int MinHealth; //cannot drain below this
 
 var bool bAbsoluteDamage;
 
-var RPGRules RPGRules; //rules link
-
 state Activated
 {
 	function Timer()
 	{
+		local RPGPlayerReplicationInfo CauserRPRI;
 		local int PoisonDamage;
 
 		Super.Timer();
@@ -60,7 +59,14 @@ state Activated
 			}
 			
 			if(EffectCauser != None && EffectCauser != Instigator.Controller)
-				RPGRules.AwardEXPForDamage(EffectCauser, class'RPGPlayerReplicationInfo'.static.GetFor(EffectCauser), Instigator, PoisonDamage);
+			{
+				CauserRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(EffectCauser);
+				if(CauserRPRI != None)
+				{
+					CauserRPRI.AwardExperience(class'RPGRules'.static.Instance(Level).GetDamageEXP(
+						PoisonDamage, EffectCauser.Pawn, Instigator));
+				}
+			}
 		}
 	}
 }

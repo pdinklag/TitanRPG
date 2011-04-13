@@ -14,15 +14,9 @@ function ModifyPawn(Pawn Other)
 	Other.MaxFallSpeed = Other.default.MaxFallSpeed * (1.0 + MaxFallSpeedBonus * float(AbilityLevel));
 }
 
-function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	if (Injured == Instigator)
-		return;
-
-	if (bOwnedByInstigator)
-		return;
-	else
-		Momentum = Momentum - ((Momentum * MomentumReduction) * AbilityLevel);
+	Momentum -= ((Momentum * MomentumReduction) * AbilityLevel);
 }
 
 simulated function string DescriptionText()

@@ -39,33 +39,33 @@ function DoEffect()
 	local float RepulsionScale;
 	local vector Dir;
 	local float Dist;
-	local Controller C, NextC;
+	local Pawn P;
 
 	Spawn(class'RepulsionExplosion', Instigator.Controller,,Instigator.Location);
 	
 	if(bDestroysMines)
 	{
 		//Destroy all nearby enemy mines
-		foreach DynamicActors(class'ONSMineProjectile', Mine)
+		foreach Instigator.VisibleCollidingActors(class'ONSMineProjectile', Mine, BlastRadius)
 		{
-			if(Mine.TeamNum != Instigator.Controller.GetTeamNum() &&
-				VSize(Mine.Location - Instigator.Location) < BlastRadius && FastTrace(Mine.Location, Instigator.Location) )
+			if(
+				FastTrace(Mine.Location, Instigator.Location) &&
+				Mine.TeamNum != Instigator.Controller.GetTeamNum()
+			)
 			{
 				Mine.Explode(Mine.Location, vect(0, 0, 1));
 			}
 		}
 	}
 	
-	C = Level.ControllerList;
-	while (C != None)
+	foreach Instigator.VisibleCollidingActors(class'Pawn', P, BlastRadius)
 	{
-		NextC = C.NextController;
-		if (VSize(C.Pawn.Location - Instigator.Location) < BlastRadius && FastTrace(C.Pawn.Location, Instigator.Location) && !C.Pawn.isA('Vehicle'))
+		if(FastTrace(P.Location, Instigator.Location))
 		{
-			Repulsion = EffectRepulsion(class'EffectRepulsion'.static.Create(C.Pawn, Instigator.Controller, MaxKnockbackTime));
+			Repulsion = EffectRepulsion(class'EffectRepulsion'.static.Create(P, Instigator.Controller, MaxKnockbackTime));
 			if(Repulsion != None)
 			{
-				Dir = C.Pawn.Location - Instigator.Location;
+				Dir = P.Location - Instigator.Location;
 				Dist = FMax(1, VSize(Dir));
 				Dir = Normal(Dir);
 
@@ -74,17 +74,16 @@ function DoEffect()
 				Repulsion.Start();
 			}
 		}
-		C = NextC;
 	}
 }
 
 defaultproperties
 {
 	bAllowInVehicle=False
-	BlastRadius=2000.000000
-	MaxKnockbackTime=2.000000
-	MaxKnockbackMomentum=3000.000000
-	MinKnockbackMomentum=1000.000000
+	BlastRadius=2048
+	MaxKnockbackTime=2.00
+	MaxKnockbackMomentum=1500
+	MinKnockbackMomentum=250
 	KnockbackSound=Sound'WeaponSounds.Misc.ballgun_launch'
 	KnockbackOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
 	Cooldown=5

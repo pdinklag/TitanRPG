@@ -1,12 +1,8 @@
 class AbilityEnhancedReduction extends RPGAbility;
 
-function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	if(bOwnedByInstigator)
-		return; //if the instigator is doing the damage, ignore this.
-		
-	if(Damage > 0)
-		Damage *= 1.0 - float(AbilityLevel) * BonusPerLevel;
+	Damage = float(Damage) * (1.0 - float(AbilityLevel) * BonusPerLevel);
 }
 
 simulated function string DescriptionText()

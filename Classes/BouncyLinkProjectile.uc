@@ -1,4 +1,4 @@
-class RPGBouncyShockBall extends ShockProjectile;
+class BouncyLinkProjectile extends RPGLinkProjectile;
 
 simulated event HitWall(vector HitNormal, actor Wall)
 {
@@ -6,8 +6,13 @@ simulated event HitWall(vector HitNormal, actor Wall)
 		Super.HitWall(HitNormal, Wall);
 }
 
+simulated event Tick(float dt)
+{
+	Super.Tick(dt);
+}
+
 defaultproperties
 {
 	Buoyancy=1.00 //abused as bounciness
-	LifeSpan=16.67
+	LifeSpan=5
 }

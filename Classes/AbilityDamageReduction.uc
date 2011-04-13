@@ -1,8 +1,8 @@
 class AbilityDamageReduction extends RPGAbility;
 
-function ModifyRPRI()
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	RPRI.Defense += AbilityLevel * int(BonusPerLevel * 200.0);
+	Damage = float(Damage) * (1.0 - float(AbilityLevel) * BonusPerLevel);
 }
 
 simulated function string DescriptionText()
@@ -16,5 +16,5 @@ defaultproperties
 	Description="Reduces all damage you take by $1 per level."
 	MaxLevel=6
 	StartingCost=5
-	BonusPerLevel=0.025000
+	BonusPerLevel=0.025
 }

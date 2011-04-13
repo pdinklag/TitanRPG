@@ -41,11 +41,9 @@ simulated event PreBeginPlay()
 		ClientDamageReduction = DamageReduction;
 }
 
-function AdjustPlayerDamage(out int Damage, Pawn InstigatedBy, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	//Don't protect from self damage :P
-	if(InstigatedBy != Instigator)
-		Damage = Max(Damage - Damage * DamageReduction, 0);
+	Damage = Max(Damage - Damage * DamageReduction, 0);
 }
 
 function bool CanActivate()

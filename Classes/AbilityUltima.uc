@@ -5,6 +5,8 @@ var config bool bAllowSuicide; //should Ultima trigger when you killed yourself?
 
 var int KillCount; //Kill count in current spawn
 
+var float TryRadiusMin, TryRadiusMax; //if spawning a charger fails, try randomly around the player
+
 replication
 {
 	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
@@ -22,9 +24,11 @@ function ModifyPawn(Pawn Other)
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
-	local Pawn P;
 	local UltimaCharger UC;
+	local Pawn P;
 	local AbilityVehicleEject EjectorSeat;
+	local int Tries;
+	local vector TryLocation;
 
 	if(bAlreadyPrevented)
 		return false;
@@ -48,14 +52,21 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 
 	if(Killed.Location.Z > Killed.Region.Zone.KillZ && KillCount > 0)
 	{
-		UC = Killed.Spawn(class'UltimaCharger', Killed.Controller,, Killed.Location);
-		if(UC != None)
+		if(SpawnCharger(Killed.Location) == None)
 		{
-			UC.SetChargeTime(FMax(float(MaxLevel), BaseDelay) - float(AbilityLevel));
-		}
-		else
-		{
-			Warn("Failed to spawn Ultima charger for" @ Killed.GetHumanReadableName());
+			//Location is blocked by something, try somewhere else
+			for(Tries = 0; Tries < 25; Tries++)
+			{
+				TryLocation = Killed.Location +
+					VRand() * (TryRadiusMin + FRand() * (TryRadiusMax - TryRadiusMin));
+				
+				UC = SpawnCharger(TryLocation);
+				if(UC != None)
+					break;
+			}
+			
+			if(UC == None)
+				Warn("Failed to spawn Ultima charger for" @ Killed.GetHumanReadableName());
 		}
 	}
 
@@ -66,6 +77,17 @@ function ScoreKill(Controller Killed, class<DamageType> DamageType)
 {
 	if(DamageType != class'DamTypeTitanUltima' && DamageType != class'DamTypeUltima')
 		KillCount++;
+}
+
+function UltimaCharger SpawnCharger(vector ChargerLocation)
+{
+	local UltimaCharger UC;
+
+	UC = Spawn(class'UltimaCharger', RPRI.Controller,, ChargerLocation);
+	if(UC != None)
+		UC.SetChargeTime(FMax(float(MaxLevel), BaseDelay) - float(AbilityLevel));
+	
+	return UC;
 }
 
 defaultproperties
@@ -84,4 +106,7 @@ defaultproperties
 	LevelCost(4)=20
 	BaseDelay=5.0
 	bAllowSuicide=False //true for TC06
+	
+	TryRadiusMin=32
+	TryRadiusMax=48
 }

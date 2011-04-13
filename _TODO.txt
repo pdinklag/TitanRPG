@@ -32,15 +32,20 @@ TEST:
 - Knockback should knock out turrets
 
 TODO (XT Config):
+- Make ejector drain xloc again
 - Make Shield weapons recreate shield faster
+- Continue self destruct and veh hack cooldown after spawn
+- Add Self Destruct to artifacts list
 
 TODO (1.62)
 - Ballistic support (got permission)
 - OSMT integration for friendly monsters
 
 TODO (1.61)
+- XP for game events
+
 - Get rid of RPGAbilityCategory instances
-- U key in RPGSelectionMenu
+
 - Proximity grenades
 - Fix stat points !!!
 - Allow healing of summoned monsters

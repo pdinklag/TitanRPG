@@ -82,7 +82,7 @@ var array<ONSMineProjectile> Mines;
 var int NumMonsters, NumTurrets, NumMines;
 
 //stats
-var int Attack, Defense, AmmoMax, WeaponSpeed;
+var int AmmoMax, WeaponSpeed;
 var int MaxMines, MaxMonsters, MaxTurrets;
 
 var float HealingExpMultiplier;
@@ -224,8 +224,6 @@ function ModifyStats()
 	MaxTurrets = RPGMut.MaxTurrets;
 	
 	AmmoMax = default.AmmoMax;
-	Attack = default.Attack;
-	Defense = default.Defense;
 	WeaponSpeed = default.WeaponSpeed;
 	HealingExpMultiplier = class'RPGRules'.default.EXP_Healing;
 	
@@ -834,6 +832,9 @@ function AwardExperience(float exp)
 {
 	local LevelUpEffect Effect;
 	local int Count;
+	
+	if(exp == 0)
+		return;
 	
 	Log(RPGName @ "AwardExperience" @ exp);
 	
@@ -1747,8 +1748,6 @@ function RPGWeapon EnchantWeapon(Weapon W, class<RPGWeapon> ModifierClass)
 defaultproperties
 {
 	AmmoMax=0
-	Attack=0
-	Defense=0
 	WeaponSpeed=0
 	HealingExpMultiplier=0 //gotten from RPGRules
 

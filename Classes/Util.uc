@@ -51,6 +51,35 @@ static function array<Pawn> GetAllPassengers(Vehicle V)
 	return Passengers;
 }
 
+static function array<Controller> GetAllPassengerControllers(Vehicle V)
+{
+	local array<Controller> Passengers;
+	local int x;
+	local ONSVehicle OV;
+	local ONSWeaponPawn WP;
+	
+	if(V.Controller != None)
+		Passengers[Passengers.Length] = V.Controller;
+	
+	if(ONSVehicle(V) != None)
+		OV = ONSVehicle(V);
+	else if(ONSWeaponPawn(V) != None)
+		OV = ONSWeaponPawn(V).VehicleBase;
+	
+	if(OV != None)
+	{
+		for(x = 0; x < OV.WeaponPawns.Length; x++)
+		{
+			WP = OV.WeaponPawns[x];
+			
+			if(WP.Controller != None)
+				Passengers[Passengers.Length] = WP.Controller;
+		}
+	}
+	
+	return Passengers;
+}
+
 static final function Weapon GetWeapon(Inventory Inv)
 {
 	if(RPGWeapon(Inv) != None)

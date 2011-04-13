@@ -29,23 +29,57 @@ var array<class<DamageType> > NoUDamageTypes;
 //Kills
 var config float EXP_Frag, EXP_SelfFrag, EXP_TeamFrag, EXP_TypeKill;
 var config float EXP_FirstBlood, EXP_KillingSpree[6], EXP_MultiKill[7];
-var config float EXP_EndSpree, EXP_CriticalFrag, EXP_FlagDenial;
+var config float EXP_EndSpree, EXP_CriticalFrag;
 
 //Special kills
 var config float EXP_Telefrag, EXP_Headshot;
 
 //Game events
 var config float EXP_Win;
-var config float 
-	EXP_HealPowernode, EXP_ConstructPowernode, EXP_DestroyPowernode, EXP_DestroyConstructingPowernode,
-	EXP_ReturnFriendlyFlag, EXP_ReturnEnemyFlag, EXP_FlagCapFirstTouch, EXP_FlagCapAssist, EXP_FlagCapFinal, EXP_ObjectiveCompleted,
-	EXP_BallThrownFinal, EXP_BallCapFinal, EXP_BallScoreAssist, EXP_DOMScore, EXP_DamagePowercore;
+
+/*
+	CTF
+	EXP_FlagCapFirstTouch - EXP for whomever touched the flag first for the cap.
+	EXP_FlagCapAssist - EXP for everyone who held the flag at a point during the cap.
+	EXP_FlagCapFinal - EXP for whomever does the actual cap.
+	
+	EXP_ReturnFriendlyFlag - Return flag which was close to the own base.
+	EXP_ReturnEnemyFlag - Return flag which was far from the own base.
+	EXP_FlagDenial - Return flag which was very close to the enemy base.
+*/
+var config float EXP_FlagCapFirstTouch, EXP_FlagCapAssist, EXP_FlagCapFinal;
+var config float EXP_ReturnFriendlyFlag, EXP_ReturnEnemyFlag, EXP_FlagDenial;
+
+/*
+	BR
+	EXP_BallScoreAssist - EXP for everyone who held the ball at a point during the score.
+	EXP_BallThrownFinal - EXP for whomever fired the ball into the goal.
+	EXP_BallCapFinal - EXP for whomever jumps through the goal.
+*/
+var config float EXP_BallThrownFinal, EXP_BallCapFinal, EXP_BallScoreAssist;
+
+/*
+	DOM
+	EXP_DOMScore - EXP for whomever touched the point in the first place.
+*/
+var config float EXP_DOMScore;
+
+//ONS
+var config float EXP_HealPowernode, EXP_ConstructPowernode, EXP_DestroyPowernode, EXP_DestroyConstructingPowernode;
+var config float EXP_DamagePowercore;
+
+//AS
+var config float EXP_ObjectiveCompleted;
 
 //TODO: Win game, ONS events, CTF events, BR events, AS events, DOM events, Necromancy
 
 //Misc
 var config float EXP_Resurrection; //resurrection using the Necromancy combo
 var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
+
+/*
+	EXP_Assist - Will be multiplied by the relative time assisted.
+*/
 var config float EXP_Assist;
 
 //TitanRPG
@@ -70,7 +104,6 @@ struct CustomWeaponStatStruct
 };
 var config array<CustomWeaponStatStruct> CustomWeaponStats;
 
-
 //Necromancy check queue
 var config array<string> ResurrectionCombos;
 
@@ -83,38 +116,41 @@ struct NecroCheckStruct
 };
 var array<NecroCheckStruct> NecroCheck;
 
-static function RPGRules Find(GameInfo G)
+static function RPGRules Instance(LevelInfo Level)
 {
 	local GameRules Rules;
-	
-	if(G != None)
-	{
-		for(Rules = G.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
-		{
-			if(RPGRules(Rules) != None)
-				return RPGRules(Rules);
-		}
-	}
 
+	for(Rules = Level.Game.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
+	{
+		if(RPGRules(Rules) != None)
+			return RPGRules(Rules);
+	}
 	return None;
 }
 
 event PostBeginPlay()
 {
-	local GameObjective GO;
-
 	bGameEnded = false;
-
 	SetTimer(Level.TimeDilation, true);
 
-	//hack to deal with Assault's stupid hardcoded scoring setup
-	if(ASGameInfo(Level.Game) != None)
-	{
-		foreach AllActors(class'GameObjective', GO)
-			GO.Score = 0;
-	}
-
 	Super.PostBeginPlay();
+}
+
+function GameStarted()
+{
+	local GameObjective GO;
+	
+	foreach AllActors(class'GameObjective', GO)
+	{
+		//hack to deal with Assault's stupid hardcoded scoring setup
+		if(Level.Game.IsA('ASGameInfo'))
+			GO.Score = 0;
+	
+		if(GO.IsA('CTFBase'))
+			Spawn(class'RPGFlagObserver', CTFBase(GO).myFlag);
+		else if(GO.IsA('xBombSpawn'))
+			Spawn(class'RPGBallObserver', xBombSpawn(GO).myFlag);
+	}
 }
 
 //checks if the player that owns the specified RPGStatsInv is linked up to anybody and if so shares Amount EXP
@@ -126,6 +162,9 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 	local RPGPlayerReplicationInfo RPRI;
 	local array<RPGPlayerReplicationInfo> Links;
 	local int i;
+	
+	if(Amount == 0)
+		return;
 	
 	if(InstigatorRPRI.Controller.Pawn == None || InstigatorRPRI.Controller.Pawn.Weapon == None)
 	{
@@ -166,28 +205,29 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 	}
 }
 
-// award EXP based on damage done
-function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo InstRPRI, Pawn injured, float Damage)
+/**
+	SCORE OBJECTIVE
+*/
+function ScoreObjective(PlayerReplicationInfo Scorer, int Score)
 {
-	local float xp;
-
-	if(
-		InstigatedBy != Injured.Controller &&
-		InstRPRI != None &&
-		injured.IsA('Monster') &&
-		injured.Controller != None &&
-		!injured.Controller.IsA('FriendlyMonsterController')
-	)
+	local RPGPlayerReplicationInfo RPRI;
+	
+	Super.ScoreObjective(Scorer, Score);
+	
+	if(Score > 0)
 	{
-		Damage = FMin(Damage, injured.Health);
-		xp = RPGMut.GameSettings.ExpForDamageScale * (Damage / injured.HealthMax) * float(Monster(injured).ScoringValue);
-
-		if(xp > 0)
+		Log("ScoreObjective" @ Scorer.PlayerName @ Score);
+		
+		if(Level.Game.IsA('ONSOnslaughtGame'))
 		{
-			if(InstigatedBy.IsA('FriendlyMonsterController'))
-				InstRPRI.AwardExperience(xp * EXPMul_SummonKill);
-			else
-				ShareExperience(InstRPRI, xp);
+			RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Scorer);
+		}
+		else if(Level.Game.IsA('ASGameInfo'))
+		{
+			//Assault objective scored
+			RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Scorer);
+			if(RPRI != None)
+				RPRI.AwardExperience(EXP_ObjectiveCompleted);
 		}
 	}
 }
@@ -228,10 +268,14 @@ function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicat
 	}
 	
 	XP = FMax(EXP_Frag, Diff); //at least EXP_Frag
+	
 	Log("Final XP:" @ XP, 'GetKillEXP');
 	return XP;
 }
 
+/***************************************************
+****************** SCORE KILL **********************
+***************************************************/
 function ScoreKill(Controller Killer, Controller Killed)
 {
 	local int x;
@@ -436,6 +480,203 @@ function ScoreKill(Controller Killer, Controller Killed)
 	}
 }
 
+/*
+// award EXP based on damage done
+function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo InstRPRI, Pawn injured, float Damage)
+{
+	local float xp;
+
+	if(
+		InstigatedBy != Injured.Controller &&
+		InstRPRI != None &&
+		injured.IsA('Monster') &&
+		injured.Controller != None &&
+		!injured.Controller.IsA('FriendlyMonsterController')
+	)
+	{
+		Damage = FMin(Damage, injured.Health);
+		xp = RPGMut.GameSettings.ExpForDamageScale * (Damage / injured.HealthMax) * float(Monster(injured).ScoringValue);
+
+		if(xp > 0)
+		{
+			if(InstigatedBy.IsA('FriendlyMonsterController'))
+				InstRPRI.AwardExperience(xp * EXPMul_SummonKill);
+			else
+				ShareExperience(InstRPRI, xp);
+		}
+	}
+}
+*/
+
+//Get exp for damage
+function float GetDamageEXP(int Damage, Pawn InstigatedBy, Pawn Injured)
+{
+	if(
+		Damage == 0 ||
+		InstigatedBy == Injured ||
+		InstigatedBy.Controller.SameTeamAs(Injured.Controller)
+	)
+	{
+		return 0;
+	}
+	
+	if(Injured.IsA('Monster'))
+		return RPGMut.GameSettings.ExpForDamageScale * (float(Damage) / Injured.HealthMax) * float(Monster(Injured).ScoringValue);
+	
+	return 0;
+}
+
+/***************************************************
+****************** NET DAMAGE **********************
+***************************************************/
+function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	local Controller injuredController, instigatorController;
+	local RPGPlayerReplicationInfo injuredRPRI, instigatorRPRI;
+	local Inventory Inv;
+	local int x;
+
+	if(bDamageLog)
+	{
+		Log("BEGIN", 'RPGDamage');
+		Log("OriginalDamage =" @ OriginalDamage, 'RPGDamage');
+		Log("Damage =" @ Damage, 'RPGDamage');
+		Log("injured =" @ injured, 'RPGDamage');
+		Log("instigatedBy =" @ instigatedBy, 'RPGDamage');
+		Log("HitLocation =" @ HitLocation, 'RPGDamage');
+		Log("Momentum =" @ Momentum, 'RPGDamage');
+		Log("DamageType =" @ DamageType, 'RPGDamage');
+		Log("---", 'RPGDamage');
+	}
+	
+	//Filter UDamage
+	if(
+		class'Util'.static.InArray(DamageType, NoUDamageTypes) >= 0 &&
+		instigatedBy != None &&
+		instigatedBy.HasUDamage()
+	)
+	{
+		OriginalDamage /= 2;
+		Damage /= 2;
+
+		if(bDamageLog)
+		{
+			Log("This damage type should not have UDamage applied!", 'RPGDamage');
+			Log("-> OriginalDamage = " $ OriginalDamage, 'RPGDamage');
+			Log("-> Damage = " $ Damage, 'RPGDamage');
+		}
+	}
+
+	//Direct damage types
+	if(class'Util'.static.InArray(DamageType, DirectDamageTypes) >= 0)
+	{
+		if(bDamageLog)
+		{
+			Log("This is a direct damage type and will not be processed further by RPG.", 'RPGDamage');
+			Log("END", 'RPGDamage');
+		}
+		
+		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType); //pass-through
+	}
+	
+	//Let other rules modify damage
+	Damage = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	if(bDamageLog)
+		Log("After Super call: Damage =" @ Damage $ ", Momentum =" @ Momentum, 'RPGDamage');
+	
+	//Get info
+	
+	//TODO: Friendly monster / turret
+	//TODO: Vehicles
+	
+	injuredController = injured.Controller;
+	injuredRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(injuredController);
+
+	instigatorController = instigatedBy.Controller;
+	instigatorRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(instigatorController);
+	
+	if(bDamageLog)
+	{
+		Log("injuredController =" @ injuredController, 'RPGDamage');
+		Log("injuredRPRI =" @ injuredRPRI.RPGName, 'RPGDamage');
+		Log("instigatorController =" @ instigatorController, 'RPGDamage');
+		Log("instigatorRPRI =" @ instigatorRPRI.RPGName, 'RPGDamage');
+	}
+	
+	/*
+		ACTIVE DAMAGE MODIFICATION
+	*/
+	
+	//Abilities
+	if(instigatorRPRI != None)
+	{
+		for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+		{
+			if(instigatorRPRI.Abilities[x].bAllowed)
+				instigatorRPRI.Abilities[x].AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		}
+	}
+	
+	//RPGWeapon
+	if(RPGWeapon(instigatedBy.Weapon) != None)
+		RPGWeapon(instigatedBy.Weapon).RPGAdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
+	
+	//Active artifacts
+	for(Inv = instigatedBy.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
+			RPGArtifact(Inv).AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+	}
+	
+	//TODO: Vehicle magic
+	
+	/*
+		PASSIVE DAMAGE MODIFICATION
+	*/
+	
+	//Abilities
+	if(injuredRPRI != None)
+	{
+		for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+		{
+			if(instigatorRPRI.Abilities[x].bAllowed)
+				instigatorRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		}
+	}
+	
+	//RPGWeapon
+	if(RPGWeapon(injured.Weapon) != None)
+		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Active artifacts
+	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
+			RPGArtifact(Inv).AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+	}
+	
+	//TODO: Vehicle magic
+	
+	/*
+	*/
+	
+	//Experience
+	if(instigatorRPRI != None)
+	{
+		ShareExperience(instigatorRPRI, GetDamageEXP(Damage, instigatedBy, Injured));
+	}
+	
+	//Done
+	if(bDamageLog)
+	{
+		Log("Final Damage =" @ Damage $ ", Momentum =" @ Momentum, 'RPGDamage');
+		Log("END", 'RPGDamage');
+	}
+	return Damage;
+}
+
+/*
 function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local RPGPlayerReplicationInfo InjuredRPRI, InstRPRI, RPRI;
@@ -450,7 +691,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	local AbilityVehicleEject Eject;
 	local RPGWeapon RW;
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 	{
 		Log("=== RPGRules.NetDamage BEGIN ===");
 		Log("OriginalDamage = " $ OriginalDamage);
@@ -473,7 +714,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		OriginalDamage = int(float(OriginalDamage) / (2.f * instigatedBy.DamageScaling));
 		Damage = int(float(Damage) / (2.f * instigatedBy.DamageScaling));
 		
-		if(default.bDamageLog)
+		if(bDamageLog)
 		{
 			Log("DEBUG: This damage type should not have UDamage applied!");
 			Log("DEBUG: OriginalDamage = " $ OriginalDamage);
@@ -484,7 +725,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	//Direct damage types should not be processed by RPG
 	if(class'Util'.static.InArray(DamageType, DirectDamageTypes) >= 0)
 	{
-		if(default.bDamageLog)
+		if(bDamageLog)
 		{
 			Log("DEBUG: This is a direct damage type and will not be processed further by RPG!");
 			Log("=== RPGRules.NetDamage END ===");
@@ -502,7 +743,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		instigatedBy.Controller.SameTeamAs(injured.Controller)
 		)
 	{
-		if(default.bDamageLog)
+		if(bDamageLog)
 		{
 			Log("ZERO: Do not hurt friendly monsters!");
 			Log("=== RPGRules.NetDamage END ===");
@@ -514,7 +755,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	//Pass through damage done by a monster to another monster
 	if(Monster(injured) != None && Monster(instigatedBy) != None)
 	{
-		if(default.bDamageLog)
+		if(bDamageLog)
 		{
 			Log("SKIP: Damage done to a monster by another monster!");
 			Log("=== RPGRules.NetDamage END ===");
@@ -532,7 +773,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 			Eject = AbilityVehicleEject(RPRI.GetOwnedAbility(class'AbilityVehicleEject'));
 			if(Eject != None && Eject.HasJustEjected() && Eject.ProtectsAgainst(DamageType))
 			{
-				if(default.bDamageLog)
+				if(bDamageLog)
 				{
 					Log("ZERO: Damage was nullified by Ejector Seat!");
 					Log("=== RPGRules.NetDamage END ===");
@@ -574,7 +815,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		}
 	}
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 	{
 		Log("DEBUG: InstigatorWeaponPawn = " $ InjuredWeaponPawn);
 		Log("DEBUG: InjuredWeaponPawn = " $ InjuredWeaponPawn);
@@ -587,7 +828,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		(instigatedBy.Controller == None && InstigatorWeaponPawn == None)
 	)
 	{
-		if(default.bDamageLog)
+		if(bDamageLog)
 		{
 			Log("SKIP: Not enough information for RPG processing!");
 			Log("=== RPGRules.NetDamage END ===");
@@ -604,7 +845,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	if(InstigatorController == None)
 		InstigatorController = InstigatorWeaponPawn.Controller;
 		
-	if(default.bDamageLog)
+	if(bDamageLog)
 	{
 		Log("DEBUG: InjuredController = " $ InjuredController);
 		Log("DEBUG: InstigatorController = " $ InstigatorController);
@@ -615,7 +856,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		Damage = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		if(Damage < 0)
 		{
-			if(default.bDamageLog)
+			if(bDamageLog)
 			{
 				Log("SKIP: Negative damage!");
 				Log("=== RPGRules.NetDamage END ===");
@@ -625,7 +866,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		}
 		else if (Damage == 0) //for zero damage, still process abilities/magic weapons so effects relying on hits instead of damage still work
 		{
-			if(default.bDamageLog)
+			if(bDamageLog)
 				Log("INFO: Zero damage!");
 		
 			bZeroDamage = true;
@@ -635,7 +876,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	InstRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(InstigatorController);
 	InjuredRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(InjuredController);
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 	{
 		Log("DEBUG: InstRPRI = " $ InstRPRI);
 		Log("DEBUG: InjuredRPRI = " $ InjuredRPRI);
@@ -675,19 +916,19 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		InstRPRI.AwardExperience(EXP_HeadShot);
 	}
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 		Log("DEBUG: Processing damage...");
 
 	if(InstRPRI != None)
 		Damage += int(float(Damage) * float(InstRPRI.Attack) * 0.005);
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 		Log("DEBUG: After instigator's damage bonus: Damage = " $ Damage);
 		
 	if(InjuredRPRI != None)
 		Damage -= int(float(Damage) * float(InjuredRPRI.Defense) * 0.005);
 		
-	if(default.bDamageLog)
+	if(bDamageLog)
 		Log("DEBUG: After injured's damage reduction: Damage = " $ Damage);
 
 	if(Damage < 1 && !bZeroDamage)
@@ -701,7 +942,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		{
 			RW.RPGAdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
 
-			if(default.bDamageLog)
+			if(bDamageLog)
 				Log("DEBUG: After instigator's WEAPON " $ RW.ItemName $ " RPGAdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 		}
 	}
@@ -716,7 +957,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		{
 			A.AdjustTargetDamage(Damage, Injured, HitLocation, Momentum, DamageType);
 		
-			if(default.bDamageLog)
+			if(bDamageLog)
 				Log("DEBUG: After instigator's active ARTIFACT " $ A.ItemName $ " AdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 		}
 	}
@@ -728,7 +969,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	{
 		VM.AdjustTargetDamage(Damage, Injured, HitLocation, Momentum, DamageType);
 
-		if(default.bDamageLog)
+		if(bDamageLog)
 			Log("DEBUG: After instigator's active VEHICLE MAGIC " $ VM.MagicName $ " AdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 	}
 	bZeroDamage = bZeroDamage || Damage == 0;
@@ -741,8 +982,8 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 			if(InstRPRI.Abilities[x].bAllowed)
 				InstRPRI.Abilities[x].HandleDamage(Damage, injured, instigatedBy, Momentum, DamageType, true);
 		
-			if(default.bDamageLog)
-				Log("DEBUG: After instigator's ABILITY " $ InstRPRI.Abilities[x].default.AbilityName $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
+			if(bDamageLog)
+				Log("DEBUG: After instigator's ABILITY " $ InstRPRI.Abilities[x].GetName() $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 		}
 	}
 	bZeroDamage = bZeroDamage || Damage == 0;
@@ -752,7 +993,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	{
 		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
 		
-		if(default.bDamageLog)
+		if(bDamageLog)
 			Log("DEBUG: After injured's WEAPON " $ RPGWeapon(injured.Weapon).ItemName $ " RPGAdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 	}
 	bZeroDamage = bZeroDamage || Damage == 0;
@@ -766,7 +1007,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		{
 			A.AdjustPlayerDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType);
 			
-			if(default.bDamageLog)
+			if(bDamageLog)
 				Log("DEBUG: After injured's active ARTIFACT " $ A.ItemName $ " AdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
 		}
 	}
@@ -778,7 +1019,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	{
 		VM.AdjustPlayerDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType);
 	
-		if(default.bDamageLog)
+		if(bDamageLog)
 			Log("DEBUG: After injured's active VEHICLE MAGIC " $ VM.MagicName $ " AdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);	
 	}
 	bZeroDamage = bZeroDamage || Damage == 0;
@@ -791,13 +1032,13 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 			if(InjuredRPRI.Abilities[x].bAllowed)
 				InjuredRPRI.Abilities[x].HandleDamage(Damage, injured, instigatedBy, Momentum, DamageType, false);
 		
-			if(default.bDamageLog)
-				Log("DEBUG: After injured's ABILITY " $ InjuredRPRI.Abilities[x].default.AbilityName $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);	
+			if(bDamageLog)
+				Log("DEBUG: After injured's ABILITY " $ InjuredRPRI.Abilities[x].GetName() $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);	
 		}
 	}
 	bZeroDamage = bZeroDamage || Damage == 0;
 	
-	if(default.bDamageLog)
+	if(bDamageLog)
 		Log("=== RPGRules.NetDamage END ===");
 
 	//EXP for damage
@@ -826,6 +1067,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		return Damage;
 	}
 }
+*/
 
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
@@ -1011,7 +1253,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	{
 		//if this damagetype is an instant kill that bypasses Pawn.TakeDamage() and calls Pawn.Died() directly
 		//then we need to award EXP by damage for the rest of the monster's health
-		AwardEXPForDamage(Killer, class'RPGPlayerReplicationInfo'.static.GetFor(Killer), Killed, Killed.Health);
+		//TODO: AwardEXPForDamage(Killer, class'RPGPlayerReplicationInfo'.static.GetFor(Killer), Killed, Killed.Health);
 	}
 
 	//Yet Another Invasion Hack - Invasion doesn't call ScoreKill() on the GameRules if a monster kills something
@@ -1191,6 +1433,8 @@ function class<Weapon> GetDamageWeapon(class<DamageType> DamageType)
 
 defaultproperties
 {
+	bDamageLog=True
+
 	DisgraceAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.Disgrace'
 	EagleEyeAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.EagleEye'
 	DirectDamageTypes(0)=class'DamTypeEmo'
@@ -1198,7 +1442,6 @@ defaultproperties
 	DirectDamageTypes(2)=class'DamTypeRetaliation'
 	DirectDamageTypes(3)=class'DamTypeFatality'
 	NoUDamageTypes(0)=class'DamTypeRetaliation'
-	bDamageLog=False
 	
 	//former RPGGameStats
 	CustomWeaponStats(0)=(DamageType=Class'DamTypeTitanUltima',WeaponClass=Class'DummyWeaponUltima')
@@ -1262,8 +1505,8 @@ defaultproperties
 	EXP_ObjectiveCompleted=1.00
 	
 	EXP_BallThrownFinal=5.00
-	EXP_BallCapFinal=8.00 //5.00 really, but assist is 5.00 too for this... compensated
-	EXP_BallScoreAssist=2.00
+	EXP_BallCapFinal=10.00
+	EXP_BallScoreAssist=5.00
 	
 	EXP_DOMScore=5.00
 	

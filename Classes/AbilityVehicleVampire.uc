@@ -1,11 +1,12 @@
 class AbilityVehicleVampire extends AbilityVampire;
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	if(!bOwnedByInstigator || Injured == Instigator || Vehicle(Instigator) == None)
+	if(Injured == InstigatedBy || !InstigatedBy.IsA('Vehicle'))
 		return;
-		
-	Super.HandleDamage(Damage, Injured, Instigator, Momentum, DamageType, bOwnedByInstigator);
+	
+	bAllowForVehicles = True;
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 }
 
 defaultproperties

@@ -1,22 +1,33 @@
 class AbilityEnergyLeech extends RPGAbility;
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local float AdrenalineBonus;
 
-	if (Damage < 1 || !bOwnedByInstigator || DamageType == class'DamTypeCounterShove'  || Injured == Instigator || Instigator == None || Injured == None ||  UnrealPlayer(Instigator.Controller) == None || Instigator.Controller.Adrenaline >= Instigator.Controller.AdrenalineMax || Instigator.InCurrentCombo() || HasActiveArtifact(Instigator))
+	if(
+		Damage <= 0 ||
+		InstigatedBy == Injured ||
+		InstigatedBy.Controller.SameTeamAs(Injured.Controller) ||
+		InstigatedBy.Controller.Adrenaline >= InstigatedBy.Controller.AdrenalineMax ||
+		InstigatedBy.InCurrentCombo() ||
+		HasActiveArtifact(InstigatedBy)
+	)
+	{
 		return;
+	}
 	
-	if (Damage > Injured.Health)
-		AdrenalineBonus = Injured.Health;
-	else
-		AdrenalineBonus = Damage;
-	AdrenalineBonus *= BonusPerLevel * AbilityLevel;
+	AdrenalineBonus = float(Min(Damage, Injured.Health)) * BonusPerLevel * AbilityLevel;
 
-	if (Instigator.Controller.Adrenaline + AdrenalineBonus >= Instigator.Controller.AdrenalineMax)
-		UnrealPlayer(Instigator.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
+	InstigatedBy.Controller.Adrenaline =
+		FMin(InstigatedBy.Controller.Adrenaline + AdrenalineBonus, InstigatedBy.Controller.AdrenalineMax);
 
-	Instigator.Controller.Adrenaline = FMin(Instigator.Controller.Adrenaline + AdrenalineBonus, Instigator.Controller.AdrenalineMax);
+	if(
+		InstigatedBy.Controller.IsA('UnrealPlayer') &&
+		InstigatedBy.Controller.Adrenaline >= InstigatedBy.Controller.AdrenalineMax
+	)
+	{
+		UnrealPlayer(InstigatedBy.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
+	}
 }
 
 static function bool HasActiveArtifact(Pawn Instigator)

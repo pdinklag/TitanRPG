@@ -98,8 +98,8 @@ function Timer()
 					if(Effects[i] == None)
 						Effects[i] = Spawn(class'TeamBoosterEffect', Other,, Other.Location, Other.Rotation);
 				
-					ProcessPawn(Other);
-					n++;
+					if(ProcessPawn(Other))
+						n++;
 				}
 			}
 		}
@@ -109,12 +109,20 @@ function Timer()
 		RPRI.AwardExperience(float(n) * class'RPGRules'.default.EXP_TeamBooster);
 }
 
-function ProcessPawn(Pawn P)
+function bool ProcessPawn(Pawn P)
 {
 	if(P.Health < P.SuperHealthMax)
+	{
 		P.GiveHealth(5, P.SuperHealthMax);
-	else
+		return true;
+	}
+	else if(P.IsA('xPawn') && xPawn(P).ShieldStrength < xPawn(P).ShieldStrengthMax)
+	{
 		P.AddShieldStrength(5);
+		return true;
+	}
+	
+	return false;
 }
 
 function StopEffect(xPawn P)

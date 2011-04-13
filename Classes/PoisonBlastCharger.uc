@@ -31,25 +31,23 @@ function DoEffect()
 					{
 						Poison.PoisonMode = EPoisonMode(1); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
 						Poison.PercDrainPerLevel = MinDrain + (damageScale * (MaxDrain - MinDrain)); //1 is PM_Percentage... accessing enum members just won't work??? ~pd
-						Poison.RPGRules = class'RPGRules'.static.Find(Level.Game);
 						Poison.Start();
 					}
 				}
 			}
 		}
 	}
-	
 	Destroy();
 }
 
 defaultproperties
 {
 	bBotsBeAfraid=True
-	ChargeTime=2.000000
-	MaxDrain=0.300000
-	MinDrain=0.150000
-	DrainTime=15.000000
-	Radius=2000.000000
+	ChargeTime=2.00
+	MaxDrain=0.30
+	MinDrain=0.15
+	DrainTime=15
+	Radius=2000
 	ChargeEmitterClass=class'PoisonBlastChargeEmitter'
 	ExplosionClass=class'PoisonBlastExplosion'
 }

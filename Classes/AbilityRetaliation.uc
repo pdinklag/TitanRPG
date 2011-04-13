@@ -1,29 +1,26 @@
 class AbilityRetaliation extends RPGAbility;
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local int RetalDamage;
 
 	if(DamageType == class'DamTypeCounterShove' || DamageType == class'DamTypeRetaliation')
 		return;
 
-	if(bOwnedByInstigator || Injured == Instigator || Instigator == None || Injured.Controller == None)
+	if(Injured == InstigatedBy || Injured.Controller.SameTeamAs(InstigatedBy.Controller))
 		return;
 
-	if(!Injured.Controller.SameTeamAs(Instigator.Controller))
+	RetalDamage = float(AbilityLevel) * BonusPerLevel * float(Damage);
+	RetalDamage = Min(RetalDamage, Injured.Health);
+	
+	if(RetalDamage > 0)
 	{
-		RetalDamage = int(float(AbilityLevel) * BonusPerLevel * float(Damage));
-		RetalDamage = FMin(RetalDamage, float(Injured.Health));
-		
-		if(RetalDamage > 0)
-		{
-			Instigator.TakeDamage(
-				RetalDamage,
-				Injured,
-				Instigator.Location,
-				vect(0, 0, 0),
-				class'DamTypeRetaliation');
-		}
+		InstigatedBy.TakeDamage(
+			RetalDamage,
+			Injured,
+			InstigatedBy.Location,
+			vect(0, 0, 0),
+			class'DamTypeRetaliation');
 	}
 }
 

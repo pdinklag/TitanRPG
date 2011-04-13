@@ -1,11 +1,9 @@
 class AbilityCautiousness extends RPGAbility;
 
-function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	if(Injured != Instigator || !bOwnedByInstigator || DamageType == class'Fell')
-		return;
-
-	Damage -= int(float(Damage) * BonusPerLevel * float(AbilityLevel));
+	if(InstigatedBy == Injured && DamageType != class'Fell')
+		Damage -= int(float(Damage) * BonusPerLevel * float(AbilityLevel));
 }
 
 simulated function string DescriptionText()

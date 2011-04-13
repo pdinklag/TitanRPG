@@ -4,29 +4,28 @@ var config float ReductionPerLevel;
 
 replication
 {
-	reliable if(Role == ROLE_Authority)
+	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		ReductionPerLevel;
 }
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function bool IsShockDamage(class<DamageType> DamageType)
 {
-	if(
+	return
 		ClassIsChildOf(DamageType, class'DamTypeShockBall') ||
 		ClassIsChildOf(DamageType, class'DamTypeShockBeam') ||
-		ClassIsChildOf(DamageType, class'DamTypeShockCombo')
-	)
-	{
-		if(bOwnedByInstigator)
-		{
-			//reduce outgoing damage
-			Damage = float(Damage) * ReductionPerLevel * float(AbilityLevel);
-		}
-		else
-		{
-			//reduce incoming damage
-			Damage = float(Damage) * BonusPerLevel * float(AbilityLevel);
-		}
-	}
+		ClassIsChildOf(DamageType, class'DamTypeShockCombo');
+}
+
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	if(IsShockDamage(DamageType))
+		Damage = float(Damage) * BonusPerLevel * float(AbilityLevel);
+}
+
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	if(IsShockDamage(DamageType))
+		Damage = float(Damage) * ReductionPerLevel * float(AbilityLevel);
 }
 
 simulated function string DescriptionText()

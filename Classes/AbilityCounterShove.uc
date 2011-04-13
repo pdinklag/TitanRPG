@@ -1,30 +1,29 @@
 class AbilityCounterShove extends RPGAbility;
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local float MomentumMod;
 
 	if(DamageType == class'DamTypeCounterShove' || DamageType == class'DamTypeRetaliation')
 		return;
 
-	if(bOwnedByInstigator || Injured == Instigator || Instigator == None || (Injured != None && Instigator != None && Injured.GetTeamNum() == Instigator.GetTeamNum()))
+	if(InstigatedBy == Injured || InstigatedBy == None || Injured.Controller.SameTeamAs(InstigatedBy.Controller))
 		return;
 
-	//negative values to reverse direction
-
-	if (Injured.isA('Vehicle'))
+	if(Injured.isA('Vehicle'))
 	{
-		MomentumMod = - (0.0075 * AbilityLevel);
+		MomentumMod = -(0.0075 * float(AbilityLevel));
 	}
 	else		
     {
-		if (AbilityLevel < 5)
-			MomentumMod = - (0.75 * AbilityLevel);
+		if(AbilityLevel < 5)
+			MomentumMod = -(0.75 * float(AbilityLevel));
 		else
 			MomentumMod = -4.00;
 	}
 
-	Instigator.TakeDamage(0, Injured, Instigator.Location, (Momentum * Injured.Mass) * MomentumMod, class'DamTypeCounterShove');
+	//TODO: RPGEffect
+	InstigatedBy.TakeDamage(0, Injured, Instigator.Location, Momentum * MomentumMod * Injured.Mass, class'DamTypeCounterShove');
 }
 
 defaultproperties

@@ -558,7 +558,13 @@ function bool CanEnterVehicle(Vehicle V)
  * Also note that for any damage this is called on the abilities of both players involved.
  * Use bOwnedByInstigator to determine which pawn is the owner of this ability.
  */
-function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator);
+//function HandleDamage(out int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator);
+
+/* Dealing damage - NOTE: InstigatedBy is not necessarily the Instigator but whatever is currently controlled by it! */
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
+
+/* Taking damage - NOTE: Injured is not necessarily the Instigator but whatever is currently controlled by it! */
+function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
 
 /* Killed another player */
 function ScoreKill(Controller Killed, class<DamageType> DamageType);

@@ -3,6 +3,8 @@ class AbilityVampire extends RPGAbility;
 var config float HealthBonusMax;
 var config int HealthBonusAbsoluteCap;
 
+var config bool bAllowForVehicles;
+
 var localized string AbsoluteCapText;
 
 replication
@@ -11,12 +13,15 @@ replication
 		HealthBonusMax, HealthBonusAbsoluteCap;
 }
 
-function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Momentum, class<DamageType> DamageType, bool bOwnedByInstigator)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local Pawn HealMe;
 	local int Health, HealthBonus;
 
-	if(!bOwnedByInstigator || Injured == Instigator || Instigator == None || DamageType == class'DamTypeRetaliation')
+	if(Injured == InstigatedBy || DamageType == class'DamTypeRetaliation')
+		return;
+	
+	if(!bAllowForVehicles && InstigatedBy.IsA('Vehicle'))
 		return;
 
 	Health = int(float(Damage) * BonusPerLevel * float(AbilityLevel));
@@ -24,13 +29,13 @@ function HandleDamage(int Damage, Pawn Injured, Pawn Instigator, out vector Mome
 	{
 		Health = 1;
 	}
-	if (Instigator.Controller != None)
+	if(InstigatedBy.Controller != None)
 	{
 		//now works in vehicle side turrets!
-		if(ONSWeaponPawn(Instigator) != None)
-			HealMe = ONSWeaponPawn(Instigator).VehicleBase;
+		if(ONSWeaponPawn(InstigatedBy) != None)
+			HealMe = ONSWeaponPawn(InstigatedBy).VehicleBase;
 		else
-			HealMe = Instigator;
+			HealMe = InstigatedBy;
 	
 		if(HealMe != None)
 		{
@@ -73,4 +78,5 @@ defaultproperties
 	BonusPerLevel=0.050000
 	HealthBonusMax=0.333333
 	HealthBonusAbsoluteCap=0
+	bAllowForVehicles=True
 }
