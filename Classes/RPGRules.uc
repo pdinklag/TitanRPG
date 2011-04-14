@@ -326,7 +326,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 		if(Killer.IsA('FriendlyMonsterController'))
 		{
 			Killer = FriendlyMonsterController(Killer).Master;
-			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponMonster');
+			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Monster');
 			
 			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
 				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
@@ -334,7 +334,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 		else if(Killer.IsA('FriendlyTurretController'))
 		{
 			Killer = FriendlyTurretController(Killer).Master;
-			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeaponTurret');
+			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Turret');
 
 			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
 				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
@@ -514,6 +514,7 @@ function float GetDamageEXP(int Damage, Pawn InstigatedBy, Pawn Injured)
 ***************************************************/
 function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
+	local RPGWeaponModifier WM;
 	local Controller injuredController, instigatorController;
 	local RPGPlayerReplicationInfo injuredRPRI, instigatorRPRI;
 	local Inventory Inv;
@@ -581,10 +582,19 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	
 	if(bDamageLog)
 	{
-		Log("injuredController =" @ injuredController, 'RPGDamage');
-		Log("injuredRPRI =" @ injuredRPRI.RPGName, 'RPGDamage');
 		Log("instigatorController =" @ instigatorController, 'RPGDamage');
-		Log("instigatorRPRI =" @ instigatorRPRI.RPGName, 'RPGDamage');
+		
+		if(instigatorRPRI != None)
+			Log("instigatorRPRI =" @ instigatorRPRI.RPGName, 'RPGDamage');
+		else
+			Log("instigatorRPRI = None");
+	
+		Log("injuredController =" @ injuredController, 'RPGDamage');
+		
+		if(injuredRPRI != None)
+			Log("injuredRPRI =" @ injuredRPRI.RPGName, 'RPGDamage');
+		else
+			Log("injuredRPRI = None");
 	}
 	
 	/*
@@ -604,6 +614,11 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	//RPGWeapon
 	if(RPGWeapon(instigatedBy.Weapon) != None)
 		RPGWeapon(instigatedBy.Weapon).RPGAdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
+	
+	//Weapon modifier
+	WM = class'RPGWeaponModifier'.static.GetFor(instigatedBy.Weapon);
+	if(WM != None)
+		WM.AdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
 	
 	//Active artifacts
 	for(Inv = instigatedBy.Inventory; Inv != None; Inv = Inv.Inventory)
@@ -631,6 +646,11 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	//RPGWeapon
 	if(RPGWeapon(injured.Weapon) != None)
 		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Weapon modifier
+	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);
+	if(WM != None)
+		WM.AdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
 	
 	//Active artifacts
 	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
@@ -1416,7 +1436,7 @@ function class<Weapon> GetDamageWeapon(class<DamageType> DamageType)
 
 defaultproperties
 {
-	bDamageLog=True
+	bDamageLog=False
 
 	DisgraceAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.Disgrace'
 	EagleEyeAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.EagleEye'
@@ -1427,17 +1447,17 @@ defaultproperties
 	NoUDamageTypes(0)=class'DamTypeRetaliation'
 	
 	//former RPGGameStats
-	CustomWeaponStats(0)=(DamageType=Class'DamTypeTitanUltima',WeaponClass=Class'DummyWeaponUltima')
-	CustomWeaponStats(1)=(DamageType=Class'DamTypeUltima',WeaponClass=Class'DummyWeaponUltima')
-	CustomWeaponStats(2)=(DamageType=Class'DamTypeLightningRod',WeaponClass=Class'DummyWeaponLightningRod')
-	CustomWeaponStats(3)=(DamageType=Class'DamTypeCounterShove',WeaponClass=Class'DummyWeaponCounterShove')
-	CustomWeaponStats(4)=(DamageType=Class'DamTypePoison',WeaponClass=Class'DummyWeaponPoison')
-	CustomWeaponStats(5)=(DamageType=Class'DamTypeRetaliation',WeaponClass=Class'DummyWeaponRetaliation')
-	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeaponSelfDestruct')
-	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeaponEmo')
-	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeaponMegaBlast')
-	CustomWeaponStats(9)=(DamageType=Class'DamTypeRepulsion',WeaponClass=Class'DummyWeaponRepulsion')
-	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeaponVorpal')
+	CustomWeaponStats(0)=(DamageType=Class'DamTypeTitanUltima',WeaponClass=Class'DummyWeapon_Ultima')
+	CustomWeaponStats(1)=(DamageType=Class'DamTypeUltima',WeaponClass=Class'DummyWeapon_Ultima')
+	CustomWeaponStats(2)=(DamageType=Class'DamTypeLightningRod',WeaponClass=Class'DummyWeapon_LightningRod')
+	CustomWeaponStats(3)=(DamageType=Class'DamTypeCounterShove',WeaponClass=Class'DummyWeapon_CounterShove')
+	CustomWeaponStats(4)=(DamageType=Class'DamTypePoison',WeaponClass=Class'DummyWeapon_Poison')
+	CustomWeaponStats(5)=(DamageType=Class'DamTypeRetaliation',WeaponClass=Class'DummyWeapon_Retaliation')
+	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeapon_SelfDestruct')
+	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeapon_Emo')
+	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeapon_MegaBlast')
+	CustomWeaponStats(9)=(DamageType=Class'DamTypeRepulsion',WeaponClass=Class'DummyWeapon_Repulsion')
+	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeapon_Vorpal')
 
 	//Kills
 	EXP_Frag=1.00

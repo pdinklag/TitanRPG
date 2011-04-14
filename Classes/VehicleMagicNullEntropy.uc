@@ -7,7 +7,7 @@ function AdjustTargetDamage(out int Damage, Actor Victim, vector HitLocation, ou
 
 	if(Damage > 0 && Victim.IsA('Pawn'))
 	{
-		Effect = class'EffectNullEntropy'.static.Create(Pawn(Victim), Instigator.Controller, 5);
+		Effect = class'Effect_NullEntropy'.static.Create(Pawn(Victim), Instigator.Controller, 5);
 		if(Effect != None)
 			Effect.Start();
 	}

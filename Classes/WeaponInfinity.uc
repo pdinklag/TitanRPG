@@ -39,11 +39,6 @@ defaultproperties
 	PatternPos="$W of Infinity"
 	PatternNeg="$W of Infinity"
 	bCanHaveZeroModifier=True
-	ForbiddenWeaponTypes(0)=Class'XWeapons.BallLauncher'
-	ForbiddenWeaponTypes(1)=Class'XWeapons.TransLauncher'
-	ForbiddenWeaponTypes(2)=Class'XWeapons.Redeemer'
-	ForbiddenWeaponTypes(3)=Class'XWeapons.Painter'
-	ForbiddenWeaponTypes(4)=Class'OnslaughtFull.ONSPainter'
 	//AI
 	AIRatingBonus=0.025000
 }

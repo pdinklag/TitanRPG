@@ -1,9 +1,9 @@
 //Dummy weapon to track kills in the "F3 stats"
-class DummyWeaponTurret extends Weapon
+class DummyWeapon_Vorpal extends Weapon
 	HideDropDown
 	CacheExempt;
 	
 defaultproperties
 {
-	ItemName="Constructed Turret"
+	ItemName="Vorpal Effect"
 }

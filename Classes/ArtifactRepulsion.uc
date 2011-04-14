@@ -34,7 +34,7 @@ function BotFightEnemy(Bot Bot)
 
 function DoEffect()
 {
-	local EffectRepulsion Repulsion;
+	local Effect_Repulsion Repulsion;
 	local ONSMineProjectile Mine;
 	local float RepulsionScale;
 	local vector Dir;
@@ -62,7 +62,7 @@ function DoEffect()
 	{
 		if(FastTrace(P.Location, Instigator.Location))
 		{
-			Repulsion = EffectRepulsion(class'EffectRepulsion'.static.Create(P, Instigator.Controller, MaxKnockbackTime));
+			Repulsion = Effect_Repulsion(class'Effect_Repulsion'.static.Create(P, Instigator.Controller, MaxKnockbackTime));
 			if(Repulsion != None)
 			{
 				Dir = P.Location - Instigator.Location;

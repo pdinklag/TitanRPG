@@ -1,4 +1,4 @@
-class EffectRepulsion extends EffectKnockback;
+class Effect_Repulsion extends Effect_Knockback;
 
 defaultproperties
 {
@@ -9,5 +9,5 @@ defaultproperties
 
 	EffectSound=None
 	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
-	EffectMessageClass=class'EffectMessageRepulsion'
+	EffectMessageClass=class'EffectMessage_Repulsion'
 }

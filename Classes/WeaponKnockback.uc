@@ -8,15 +8,15 @@ var localized string KnockbackText;
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	local EffectKnockback Knockback;
+	local Effect_Knockback Knockback;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 	Identify();
 
 	if(Damage > 0)
 	{
-		Knockback = EffectKnockback(
-			class'EffectKnockback'.static.Create(Victim, Instigator.Controller, 1.00));
+		Knockback = Effect_Knockback(
+			class'Effect_Knockback'.static.Create(Victim, Instigator.Controller, 1.00));
 		
 		if(Knockback != None)
 		{

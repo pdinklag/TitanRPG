@@ -1,4 +1,4 @@
-class EffectMessagePoison extends RPGEffectMessage;
+class EffectMessage_Poison extends RPGEffectMessage;
 
 defaultproperties
 {

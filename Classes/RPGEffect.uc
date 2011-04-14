@@ -54,10 +54,12 @@ replication
 		EffectCauser;
 }
 
-static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Modifier)
+static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Duration, optional float Modifier)
 {
 	local int i;
 	local RPGPlayerReplicationInfo RPRI;
+	local RPGWeaponModifier WM;
+	local bool bAllow;
 
 	//Stacking
 	if(!default.bAllowStacking && GetFor(Other) != None)
@@ -99,8 +101,15 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	//RPG Weapon
 	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Modifier))
 		return false;
+	
+	//Weapon Modifier
+	WM = class'RPGWeaponModifier'.static.GetFor(Other.Weapon);
+	if(WM != None && !WM.AllowEffect(default.class, Causer, Duration, Modifier))
+		return false;
 
 	//Abilities
+	bAllow = true;
+	
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
 	if(RPRI != None)
 	{
@@ -108,20 +117,20 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 		{
 			if(RPRI.Abilities[i].bAllowed)
 			{
-				if(!RPRI.Abilities[i].AllowEffect(default.class, Causer, Modifier))
-					return false;
+				if(!RPRI.Abilities[i].AllowEffect(default.class, Causer, Duration, Modifier))
+					bAllow = false;
 			}
 		}
 	}
 
-	return true;
+	return bAllow;
 }
 
 static function RPGEffect Create(Pawn Other, optional Controller Causer, optional float OverrideDuration, optional float NewModifier)
 {
 	local RPGEffect Effect;
 	
-	if(CanBeApplied(Other, Causer, NewModifier))
+	if(CanBeApplied(Other, Causer, OverrideDuration, NewModifier))
 	{
 		Effect = GetFor(Other);
 		if(Effect != None)

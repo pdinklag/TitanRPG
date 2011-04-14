@@ -1,4 +1,4 @@
-class EffectMessageKnockback extends RPGEffectMessage;
+class EffectMessage_Knockback extends RPGEffectMessage;
 
 defaultproperties
 {

@@ -1,4 +1,4 @@
-class EffectVorpal extends RPGInstantEffect;
+class Effect_Vorpal extends RPGInstantEffect;
 
 function DoEffect()
 {
@@ -11,5 +11,5 @@ defaultproperties
 	EffectSound=Sound'WeaponSounds.Misc.instagib_rifleshot'
 	EmitterClass=class'RocketExplosion'
 	
-	EffectMessageClass=class'EffectMessageVorpal'
+	EffectMessageClass=class'EffectMessage_Vorpal'
 }

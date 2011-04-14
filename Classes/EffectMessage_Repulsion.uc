@@ -1,4 +1,4 @@
-class EffectMessageRepulsion extends RPGEffectMessage;
+class EffectMessage_Repulsion extends RPGEffectMessage;
 
 defaultproperties
 {

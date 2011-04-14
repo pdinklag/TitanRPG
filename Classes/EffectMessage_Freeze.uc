@@ -1,4 +1,4 @@
-class EffectMessageFreeze extends RPGEffectMessage;
+class EffectMessage_Freeze extends RPGEffectMessage;
 
 defaultproperties
 {

@@ -33,6 +33,7 @@ var float ArtifactBorderSize;
 var float ArtifactHighlightIndention;
 var float ArtifactIconInnerScale;
 
+var RPGWeaponModifier CurrentModifier;
 var string LastWeaponExtra;
 
 var class<RPGArtifact> LastSelectedArtifact;
@@ -347,6 +348,7 @@ function PostRender(Canvas Canvas)
 	local array<class<RPGArtifact> > Artifacts;
 	local class<RPGArtifact> AClass;
 	local RPGArtifact A;
+	local RPGWeaponModifier WM;
 	local Pawn P;
 	
 	local HudCDeathmatch HUD;
@@ -464,32 +466,6 @@ function PostRender(Canvas Canvas)
 		Canvas.FontScaleX = FontScale.X;
 		Canvas.FontScaleY = FontScale.Y;
 	}
-	
-	//Draw status icons
-	if(
-		!Settings.bHideStatusIcon &&
-		(!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard())
-	)
-	{
-		Canvas.FontScaleX *= 0.75f;
-		Canvas.FontScaleY *= 0.75f;
-
-		X = StatusIconPos.X;
-		Y = StatusIconPos.Y;
-
-		for(i = 0; i < RPRI.Status.Length; i++)
-		{
-			if(RPRI.Status[i] != None && RPRI.Status[i].IsVisible())
-			{
-				DrawStatusIcon(Canvas, RPRI.Status[i], X, Y, StatusIconSize.X, StatusIconSize.Y);
-				X -= StatusIconSize.X;
-			}
-		}
-		
-		//Reset
-		Canvas.FontScaleX = FontScale.X;
-		Canvas.FontScaleY = FontScale.Y;
-	}
 
 	//Draw hints
 	if(Hint.Length > 0 && HintTimer > TimeSeconds && (!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard()))
@@ -514,6 +490,32 @@ function PostRender(Canvas Canvas)
 	//From here on, only if there's still a game going on... should reduce the crashes
 	if(!RPRI.bGameEnded) 
 	{
+		//Draw status icons
+		if(
+			!Settings.bHideStatusIcon &&
+			(!HUD.IsA('HUD_Assault') || !HUD_Assault(HUD).ShouldShowObjectiveBoard())
+		)
+		{
+			Canvas.FontScaleX *= 0.75f;
+			Canvas.FontScaleY *= 0.75f;
+
+			X = StatusIconPos.X;
+			Y = StatusIconPos.Y;
+
+			for(i = 0; i < RPRI.Status.Length; i++)
+			{
+				if(RPRI.Status[i] != None && RPRI.Status[i].IsVisible())
+				{
+					DrawStatusIcon(Canvas, RPRI.Status[i], X, Y, StatusIconSize.X, StatusIconSize.Y);
+					X -= StatusIconSize.X;
+				}
+			}
+			
+			//Reset
+			Canvas.FontScaleX = FontScale.X;
+			Canvas.FontScaleY = FontScale.Y;
+		}
+	
 		//Draw artifacts
 		if(Settings.bClassicArtifactSelection)
 		{
@@ -616,13 +618,15 @@ function PostRender(Canvas Canvas)
 			Canvas.FontScaleX = Canvas.default.FontScaleX;
 			Canvas.FontScaleY = Canvas.default.FontScaleY;
 			
+			
 			Fade = ArtifactDrawTimer - TimeSeconds;
+			
+			Canvas.DrawColor = ArtifactDrawColor;
 			if(Fade <= 1.0f)
-				Canvas.DrawColor.A = 255 * Fade;
+				Canvas.DrawColor.A = 255.0f * Fade;
 	
 			Canvas.TextSize(LastSelItemName, XL, YL);
 			
-			Canvas.DrawColor = ArtifactDrawColor;
 			Canvas.SetPos((Canvas.ClipX - XL) * 0.5f, Canvas.ClipY * 0.8f - YL);
 			Canvas.DrawText(LastSelItemName);
 			
@@ -653,16 +657,17 @@ function PostRender(Canvas Canvas)
 					
 					Fade = HUD.WeaponDrawTimer - TimeSeconds;
 
+					Canvas.DrawColor = HUD.WeaponDrawColor;
 					if(Fade <= 1.0f)
-						Canvas.DrawColor.A = 255 * Fade;
+						Canvas.DrawColor.A = 255.0f * Fade;
 
 					Canvas.TextSize(LastWeaponExtra, XL, YL);
 					
-					Canvas.DrawColor = HUD.WeaponDrawColor;
 					Canvas.SetPos((Canvas.ClipX - XL) * 0.5f, Canvas.ClipY * 0.8f);
 					Canvas.DrawText(LastWeaponExtra);
 				}
 				
+				//Get new description
 				if(P.PendingWeapon != None)
 				{
 					if(P.PendingWeapon.IsA('RPGWeapon') && RPGWeapon(P.PendingWeapon).bIdentified)
@@ -673,7 +678,13 @@ function PostRender(Canvas Canvas)
 							LastWeaponExtra = "<3" @ LastWeaponExtra @ "<3";
 					}
 					else
-						LastWeaponExtra = "";
+					{
+						WM = class'RPGWeaponModifier'.static.GetFor(P.PendingWeapon);
+						if(WM != None)
+							LastWeaponExtra = WM.GetDescription();
+						else
+							LastWeaponExtra = "";
+					}
 				}
 			}
 		}
@@ -697,6 +708,13 @@ function PostRender(Canvas Canvas)
 			LastSelItemName = "";
 			LastSelExtra = "";
 		}
+		
+		//Weapon Modifier
+		if(CurrentModifier == None || P.Weapon != CurrentModifier.Weapon)
+			CurrentModifier = class'RPGWeaponModifier'.static.GetFor(P.Weapon);
+
+		if(CurrentModifier != None)
+			CurrentModifier.PostRender(Canvas);
 	}
 
 	//Reset

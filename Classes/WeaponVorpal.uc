@@ -14,7 +14,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	{
 		Identify();
 	
-		Vorpal = class'EffectVorpal'.static.Create(Victim, Instigator.Controller);
+		Vorpal = class'Effect_Vorpal'.static.Create(Victim, Instigator.Controller);
 		if(Vorpal != None)
 			Vorpal.Start();
 	}

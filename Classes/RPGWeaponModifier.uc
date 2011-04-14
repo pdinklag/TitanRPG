@@ -19,31 +19,84 @@ var int Modifier;
 var config float DamageBonus, BonusPerLevel;
 
 //Visual
+var bool bIdentified;
 var Material ModifierOverlay;
 
 //Item name
 var localized string PatternPos, PatternNeg;
-var localized string DamageBonusText;
 
 //AI
 var float AIRatingBonus;
+var array<class<DamageType> > CountersDamage;
+var array<class<RPGWeaponModifier> > CountersModifier;
+
+//Restrictions
+var config array<class<Weapon> > ForbiddenWeaponTypes;
+var config bool bAllowForSpecials; //inventory groups 0 (super weapons) and 10 (xloc)
+
+//Description
+var localized string DamageBonusText;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetOwner)
-		Weapon, bActive, Modifier, DamageBonus, BonusPerLevel;
+	reliable if(Role == ROLE_Authority && bNetOwner && bNetDirty)
+		Weapon, bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
 	
 	reliable if(Role == ROLE_Authority)
 		ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
 }
 
-static function RPGWeaponModifier GetFor(Weapon W)
+static function bool AllowedFor(class<Weapon> WeaponType)
+{
+	if(!default.bAllowForSpecials &&
+		(
+			WeaponType.default.InventoryGroup == 0 || //Super weapons
+			WeaponType.default.InventoryGroup == 10 || //Translocator
+			WeaponType.default.InventoryGroup == 15 //Ball Launcher
+		)
+	)
+	{
+		return false;
+	}
+
+	return (class'Util'.static.InArray(WeaponType, default.ForbiddenWeaponTypes) == -1);
+}
+
+static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bAdd)
 {
 	local RPGWeaponModifier WM;
 	
-	foreach W.ChildActors(class'RPGWeaponModifier', WM)
-		return WM;
+	if(!AllowedFor(W.class))
+		return None;
+	
+	if(!bAdd)
+	{
+		WM = GetFor(W);
+		if(WM != None)
+			WM.Destroy();
+	}
+	
+	WM = W.Spawn(default.class, W);
+	WM.bActive = (W.Instigator.Weapon == W);
+	
+	if(WM != None)
+		WM.SetModifier(Modifier);
+	
+	if(bIdentify)
+		WM.Identify();
 
+	return WM;
+}
+
+static function RPGWeaponModifier GetFor(Weapon W)
+{
+	local RPGWeaponModifier WM;
+
+	if(W != None)
+	{
+		foreach W.ChildActors(class'RPGWeaponModifier', WM)
+			return WM;
+	}
 	return None;
 }
 
@@ -99,8 +152,12 @@ function SetModifier(int x)
 		SetActive(false);
 
 	Modifier = x;
-	Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-	ClientConstructItemName(Weapon.class, Modifier);
+	
+	if(bIdentified)
+	{
+		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
+		ClientConstructItemName(Weapon.class, Modifier);
+	}
 	
 	if(bWasActive)
 		SetActive(true);
@@ -166,21 +223,46 @@ simulated event Tick(float dt)
 	}
 }
 
-function SetActive(bool b)
+function Identify(optional bool bReIdentify)
 {
-	bActive = b;
-	if(bActive)
+	if(!bIdentified || bReIdentify)
+	{
+		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
+		ClientConstructItemName(Weapon.class, Modifier);
+
+		if(bActive)
+		{
+			SetOverlay();
+		
+			if(Instigator.Controller.IsA('PlayerController'))
+			{
+				PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
+					class'NewIdentifyMessage', 0,,, Self);
+			}
+		}
+
+		bIdentified = true;
+	}
+}
+
+function SetActive(bool bActivate)
+{
+	if(bActivate && !bActive)
 	{
 		StartEffect();
-		SetOverlay();
+		
+		if(bIdentified)
+			SetOverlay();
+		
 		ClientStartEffect();
 	}
-	else
+	else if(!bActivate && bActive)
 	{
 		StopEffect();
-		SetOverlay();
 		ClientStopEffect();
 	}
+	
+	bActive = bActivate;
 }
 
 simulated function SetOverlay()
@@ -207,9 +289,16 @@ function StopEffect(); //weapon gets put down
 simulated function ClientStartEffect();
 simulated function ClientStopEffect();
 
+simulated function PostRender(Canvas C); //called client-side by the Interaction
+
 function RPGTick(float dt); //called only if weapon is active
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+{
+	if(DamageBonus != 0 && Modifier != 0)
+		Damage += float(Damage) * Modifier * DamageBonus;
+}
+
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
 
 function bool PreventDeath(Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
@@ -217,18 +306,61 @@ function bool PreventDeath(Controller Killer, class<DamageType> DamageType, vect
 	return false;
 }
 
-function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Modifier)
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
 {
 	return true;
 }
 
+//TODO: hook into RPGBot
 function float GetAIRating()
 {
 	return Weapon.GetAIRating() * (1.0f + AIRatingBonus);
 }
 
+simulated event Destroyed()
+{
+	SetActive(false);
+	
+	Super.Destroyed();
+}
+
+simulated function string GetDescription()
+{
+	if(DamageBonus != 0 && Modifier != 0)
+		return Repl(DamageBonusText, "$1", GetBonusPercentageString(DamageBonus));
+	else
+		return "";
+}
+
+//Helper function
+simulated function string GetBonusPercentageString(float Bonus)
+{
+	local string text;
+
+	Bonus *= float(Modifier);
+	
+	if(Bonus > 0)
+		text = "+";
+	
+	Bonus *= 100.0f;
+	
+	if(float(int(Bonus)) == Bonus)
+		text $= int(Bonus);
+	else
+		text $= Bonus;
+	
+	text $= "%";
+	
+	return text;
+}
+
 defaultproperties
 {
+	DamageBonusText="$1 damage"
+
+	DamageBonus=0
+	BonusPerLevel=0
+
 	bCanHaveZeroModifier=True
 	
 	RemoteRole=ROLE_SimulatedProxy
@@ -241,6 +373,8 @@ defaultproperties
 	bReplicateInstigator=True
 	bMovable=False
 	bHidden=True
+	
+	bAllowForSpecials=True
 	
 	AIRatingBonus=0
 }

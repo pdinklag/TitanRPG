@@ -1,4 +1,4 @@
-class EffectKnockback extends RPGEffect;
+class Effect_Knockback extends RPGEffect;
 
 var vector Momentum;
 var class<DamageType> DamageType;
@@ -17,7 +17,6 @@ state Activated
 			Instigator.SetPhysics(PHYS_Hovering);
 		}
 		
-		Log(Self @ "Momentum =" @ Momentum, 'DEBUG');
 		if(VSize(Momentum) > 0)
 		{
 			Instigator.TakeDamage(
@@ -68,5 +67,5 @@ defaultproperties
 
 	EffectSound=Sound'WeaponSounds.Misc.ballgun_launch'
 	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
-	EffectMessageClass=class'EffectMessageKnockback'
+	EffectMessageClass=class'EffectMessage_Knockback'
 }

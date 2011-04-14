@@ -2,36 +2,49 @@ class WeaponModifier_Speed extends RPGWeaponModifier;
 
 var float SpeedModifier;
 
+var localized string SpeedText;
+
 function StartEffect()
 {
-	Log(Self @ "StartEffect");
-
-	SpeedModifier = 1.f + BonusPerLevel * Abs(float(Modifier));
-	if(Modifier < 0 && SpeedModifier != 0.f)
+	SpeedModifier = 1.0f + BonusPerLevel * Abs(float(Modifier));
+	if(Modifier < 0 && SpeedModifier != 0)
 		SpeedModifier = 1.0 / SpeedModifier;
 	
 	class'Util'.static.PawnScaleSpeed(Instigator, SpeedModifier);
+	
+	Identify();
 }
 
 function StopEffect()
 {
-	Log(Self @ "StopEffect");
+	if(SpeedModifier != 0)
+		class'Util'.static.PawnScaleSpeed(Instigator, 1.0f / SpeedModifier);
 
-	if(SpeedModifier != 0.f)
-		class'Util'.static.PawnScaleSpeed(Instigator, 1.f / SpeedModifier);
+	SpeedModifier = 0;
+}
+
+simulated function string GetDescription()
+{
+	local string text;
 	
-	SpeedModifier = 0.f;
+	text = Super.GetDescription();
+	
+	if(text != "") text $= ", ";
+	text $= Repl(SpeedText, "$1", GetBonusPercentageString(BonusPerLevel) );
+	
+	return text;
 }
 
 defaultproperties
 {
+	SpeedText="$1 movement speed"
 	DamageBonus=0.050000
 	BonusPerLevel=0.030000
 	MinModifier=-3
-	MaxModifier=10
+	MaxModifier=7
 	ModifierOverlay=Shader'XGameShaders.BRShaders.BombIconBS'
-	PatternPos="$W of Quickfoot"
-	PatternNeg="$W of Slowfoot"
+	PatternPos="$W of Speed"
+	PatternNeg="$W of Slowness"
 	//AI
 	AIRatingBonus=0.025000
 }

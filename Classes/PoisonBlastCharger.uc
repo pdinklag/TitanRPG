@@ -7,7 +7,7 @@ function DoEffect()
 	local float damageScale, dist;
 	local vector dir;
 	local Controller C;
-	local EffectPoison Poison;
+	local Effect_Poison Poison;
 
 	if(Instigator == None && InstigatorController != None)
 		Instigator = InstigatorController.Pawn;
@@ -26,7 +26,7 @@ function DoEffect()
 	
 				if(Vehicle(C.Pawn) == None)
 				{
-					Poison = EffectPoison(class'EffectPoison'.static.Create(C.Pawn, Instigator.Controller, DrainTime, 1));
+					Poison = Effect_Poison(class'Effect_Poison'.static.Create(C.Pawn, Instigator.Controller, DrainTime, 1));
 					if(Poison != None)
 					{
 						Poison.PoisonMode = EPoisonMode(1); //1 is PM_Percentage... accessing enum members just won't work??? ~pd

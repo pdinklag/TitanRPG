@@ -21,7 +21,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 	if(Damage > 0)
 	{
-		Effect = class'EffectFreeze'.static.Create(
+		Effect = class'Effect_Freeze'.static.Create(
 			Victim,
 			Instigator.Controller,
 			Modifier * FreezeDuration,

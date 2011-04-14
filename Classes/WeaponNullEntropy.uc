@@ -12,7 +12,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	
 	if(Damage > 0)
 	{
-		Effect = class'EffectNullEntropy'.static.Create(Victim, Instigator.Controller, BonusPerLevel * float(Modifier));
+		Effect = class'Effect_NullEntropy'.static.Create(Victim, Instigator.Controller, BonusPerLevel * float(Modifier));
 		if(Effect != None)
 		{
 			Momentum = vect(0, 0, 0);

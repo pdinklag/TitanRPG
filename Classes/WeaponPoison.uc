@@ -24,19 +24,13 @@ function PostBeginPlay()
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
 {
-	local EffectPoison Poison;
+	local Effect_Poison Poison;
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 
-	if(Victim == None || WeaponMagicNullifier(Victim.Weapon) != None)
-		return;
-		
-	if(Victim != Instigator && Instigator.Controller.SameTeamAs(Victim.Controller))
-		return;
-
 	Identify();
 
-	Poison = EffectPoison(class'EffectPoison'.static.Create(Victim, Instigator.Controller, PoisonLifespan, Modifier));
+	Poison = Effect_Poison(class'Effect_Poison'.static.Create(Victim, Instigator.Controller, PoisonLifespan, Modifier));
 	if(Poison != None)
 	{
 		Poison.PoisonMode = EPoisonMode(PoisonMode);

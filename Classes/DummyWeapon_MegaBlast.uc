@@ -1,4 +1,4 @@
-class DummyWeaponMegaBlast extends Weapon
+class DummyWeapon_MegaBlast extends Weapon
 	HideDropDown
 	CacheExempt;
 

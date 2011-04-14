@@ -1,4 +1,4 @@
-class EffectMessageVorpal extends RPGEffectMessage;
+class EffectMessage_Vorpal extends RPGEffectMessage;
 
 defaultproperties
 {

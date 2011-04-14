@@ -1,9 +1,9 @@
 //Dummy weapon to track kills in the "F3 stats"
-class DummyWeaponPoison extends Weapon
+class DummyWeapon_Retaliation extends Weapon
 	HideDropDown
 	CacheExempt;
 	
 defaultproperties
 {
-	ItemName="Poison"
+	ItemName="Retaliation"
 }

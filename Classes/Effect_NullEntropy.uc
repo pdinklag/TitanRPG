@@ -1,4 +1,4 @@
-class EffectNullEntropy extends RPGEffect;
+class Effect_NullEntropy extends RPGEffect;
 
 replication
 {
@@ -57,5 +57,5 @@ defaultproperties
 
 	EffectSound=SoundGroup'WeaponSounds.Translocator.TranslocatorModuleRegeneration'
 	EffectOverlay=Shader'MutantSkins.Shaders.MutantGlowShader'
-	EffectMessageClass=class'EffectMessageNullEntropy'
+	EffectMessageClass=class'EffectMessage_NullEntropy'
 }

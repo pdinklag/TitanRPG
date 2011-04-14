@@ -1,4 +1,4 @@
-class EffectFreeze extends RPGEffect;
+class Effect_Freeze extends RPGEffect;
 
 //saved values for unapply
 var float JumpZ;
@@ -78,5 +78,5 @@ defaultproperties
 	EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
 	EmitterClass=class'IceSmokeEffect'
 	
-	EffectMessageClass=class'EffectMessageFreeze'
+	EffectMessageClass=class'EffectMessage_Freeze'
 }

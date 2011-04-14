@@ -1,4 +1,4 @@
-class EffectMessageNullEntropy extends RPGEffectMessage;
+class EffectMessage_NullEntropy extends RPGEffectMessage;
 
 defaultproperties
 {

@@ -1,4 +1,4 @@
-class EffectPoison extends RPGEffect;
+class Effect_Poison extends RPGEffect;
 
 enum EPoisonMode
 {
@@ -76,7 +76,7 @@ defaultproperties
 	EmitterClass=class'GoopSmoke'
 	EffectOverlay=Shader'XGameShaders.PlayerShaders.LinkHit'
 	
-	EffectMessageClass=class'EffectMessagePoison'
+	EffectMessageClass=class'EffectMessage_Poison'
 	
 	PoisonMode=PM_Curve
 }

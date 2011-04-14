@@ -6,6 +6,11 @@ class Util extends Object abstract;
 
 var Color HighlightColor;
 
+static function vector ReflectVector(vector v, vector normal)
+{
+	return (v - 2.0 * normal * (v dot normal));
+}
+
 static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, optional float Radius)
 {
 	if(Vol == 0)
@@ -248,7 +253,7 @@ static function AdjustWeaponFireRate(Weapon W, float Scale)
 		WF = W.GetFireMode(i);
 		if(WF != None)
 		{
-			if(MinigunFire(WF) != None) //minigun needs a hack because it fires differently than normal weapons
+			if(MinigunFire(WF) != None)
 			{
 				MinigunFire(WF).BarrelRotationsPerSec *= Scale;
 				MinigunFire(WF).FireRate = 1.f / (MinigunFire(WF).RoundsPerRotation * MinigunFire(WF).BarrelRotationsPerSec);

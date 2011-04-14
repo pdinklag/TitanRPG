@@ -971,7 +971,6 @@ function Mutate(string MutateString, PlayerController Sender)
 	local bool bIsAdmin, bIsSuperAdmin;
 	local int i, x;
 	local RPGWeapon RW;
-	local RPGWeaponModifier WM;
 	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
 	local class<VehicleMagic> VMClass;
@@ -1031,9 +1030,9 @@ function Mutate(string MutateString, PlayerController Sender)
 		{
 			if(Args[0] ~= "damagelog")
 			{
-				class'RPGRules'.static.Instance(Level).bDamageLog;
+				Rules.bDamageLog = !Rules.bDamageLog;
 				
-				if(class'RPGRules'.static.Instance(Level).bDamageLog)
+				if(Rules.bDamageLog)
 					Sender.ClientMessage("Damage log is ON!");
 				else
 					Sender.ClientMessage("Damage log is OFF!");
@@ -1194,8 +1193,8 @@ function Mutate(string MutateString, PlayerController Sender)
 				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("<? echo($packageName); ?>.WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
 				{
-					WM = Spawn(WMClass, Cheat.Weapon);
-					WM.SetModifier(WMClass.static.GetRandomModifierLevel());
+					WMClass.static.Modify(
+						Cheat.Weapon, WMClass.static.GetRandomModifierLevel(), true);
 				}
 				else
 				{
