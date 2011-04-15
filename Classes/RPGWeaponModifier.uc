@@ -1,4 +1,3 @@
-
 /*
 	FINALLY getting rid of RPGWeapon. This is the future.
 */
@@ -33,9 +32,12 @@ var array<class<RPGWeaponModifier> > CountersModifier;
 //Restrictions
 var config array<class<Weapon> > ForbiddenWeaponTypes;
 var config bool bAllowForSpecials; //inventory groups 0 (super weapons) and 10 (xloc)
+var bool bCanThrow;
 
 //Description
+var bool bOmitModifierInName;
 var localized string DamageBonusText;
+var string Description;
 
 replication
 {
@@ -46,7 +48,7 @@ replication
 		ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
 }
 
-static function bool AllowedFor(class<Weapon> WeaponType)
+static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 {
 	if(!default.bAllowForSpecials &&
 		(
@@ -62,11 +64,11 @@ static function bool AllowedFor(class<Weapon> WeaponType)
 	return (class'Util'.static.InArray(WeaponType, default.ForbiddenWeaponTypes) == -1);
 }
 
-static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bAdd)
+static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bAdd, optional bool bForce)
 {
 	local RPGWeaponModifier WM;
 	
-	if(!AllowedFor(W.class))
+	if(!bForce && !AllowedFor(W.class, W.Instigator))
 		return None;
 	
 	if(!bAdd)
@@ -112,10 +114,13 @@ static function string ConstructItemName(class<Weapon> WeaponClass, int Modifier
 	
 	NewItemName = repl(Pattern, "$W", WeaponClass.default.ItemName);
 	
-	if(Modifier > 0)
-		NewItemName @= "+" $ Modifier;
-	else if(Modifier < 0)
-		NewItemName @= Modifier;
+	if(!default.bOmitModifierInName)
+	{
+		if(Modifier > 0)
+			NewItemName @= "+" $ Modifier;
+		else if(Modifier < 0)
+			NewItemName @= Modifier;
+	}
 
 	return NewItemName;
 }
@@ -173,6 +178,9 @@ simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
 	
+	if(PatternNeg == "")
+		PatternNeg = PatternPos;
+	
 	if(Role == ROLE_Authority)
 	{
 		Weapon = Weapon(Owner);
@@ -183,6 +191,7 @@ simulated event PostBeginPlay()
 			return;
 		}
 		
+		Weapon.bCanThrow = bCanThrow;
 		Instigator = Weapon.Instigator;
 	}
 }
@@ -293,6 +302,8 @@ simulated function PostRender(Canvas C); //called client-side by the Interaction
 
 function RPGTick(float dt); //called only if weapon is active
 
+function WeaponFire(byte Mode); //called when weapon just fired
+
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	if(DamageBonus != 0 && Modifier != 0)
@@ -324,12 +335,29 @@ simulated event Destroyed()
 	Super.Destroyed();
 }
 
+simulated function AddToDescription(string Format, optional float Bonus)
+{
+	if(Description != "")
+		Description $= ", ";
+		
+	if(Bonus != 0)
+		Description $= Repl(Format, "$1", GetBonusPercentageString(Bonus));
+	else
+		Description $= Format;
+}
+
+simulated function BuildDescription()
+{
+	if(DamageBonus != 0)
+		AddToDescription(DamageBonusText, DamageBonus);
+}
+
 simulated function string GetDescription()
 {
-	if(DamageBonus != 0 && Modifier != 0)
-		return Repl(DamageBonusText, "$1", GetBonusPercentageString(DamageBonus));
-	else
-		return "";
+	if(Description == "")
+		BuildDescription();
+
+	return Description;
 }
 
 //Helper function
@@ -361,6 +389,7 @@ defaultproperties
 	DamageBonus=0
 	BonusPerLevel=0
 
+	bCanThrow=True
 	bCanHaveZeroModifier=True
 	
 	RemoteRole=ROLE_SimulatedProxy

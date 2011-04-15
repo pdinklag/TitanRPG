@@ -4,27 +4,25 @@ var localized string MagicNullText;
 
 function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
 {
-	return !(
+	if(
 		EffectClass == class'Effect_Freeze' ||
 		EffectClass == class'Effect_Knockback' ||
 		EffectClass == class'Effect_NullEntropy' ||
 		EffectClass == class'Effect_Poison' ||
 		EffectClass == class'Effect_Vorpal'
-	);
+	)
+	{
+		Identify();
+		return false;
+	}
+	
+	return true;
 }
 
-simulated function string GetDescription()
+simulated function BuildDescription()
 {
-	local string text;
-	
-	text = Super.GetDescription();
-	
-	if(text != "")
-		text $= ", ";
-	
-	text $= MagicNullText;
-	
-	return text;
+	Super.BuildDescription();
+	AddToDescription(MagicNullText);
 }
 
 defaultproperties

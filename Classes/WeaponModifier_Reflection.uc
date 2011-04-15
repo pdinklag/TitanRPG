@@ -57,7 +57,7 @@ function WeaponFire FindWeaponFire(Pawn Other, class<WeaponFire> WFClass)
 		W = Weapon(Inv);
 		if(W != None)
 		{
-			for(i = 0; i < ArrayCount(W.FireModeClass); i++)
+			for(i = 0; i < W.NUM_FIRE_MODES; i++)
 			{
 				if(ClassIsChildOf(W.FireModeClass[i], WFClass))
 					return W.GetFireMode(i);
@@ -97,17 +97,10 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 	}
 }
 
-simulated function string GetDescription()
+simulated function BuildDescription()
 {
-	local string text;
-	
-	text = Super.GetDescription();
-	
-	if(text != "")
-		text $= ", ";
-	
-	text $= Repl(ReflectionText, "$1", class'Util'.static.FormatPercent(BaseChance + float(Modifier) * BonusPerLevel));
-	return text;
+	Super.BuildDescription();
+	AddToDescription(Repl(ReflectionText, "$1", class'Util'.static.FormatPercent(BaseChance + float(Modifier) * BonusPerLevel)));
 }
 
 defaultproperties
@@ -127,8 +120,8 @@ defaultproperties
 	ReflectMap(1)=(DamageType=class'DamTypeShockBeam',WeaponFire=class'ShockBeamFire')
 	ReflectMap(2)=(DamageType=class'DamTypeShockBall',WeaponFire=class'ShockProjFire')
 	//AI
-	AIRatingBonus=0.025000
-	CountersModifier(0)=class'WeaponNullEntropy'
+	AIRatingBonus=0.025
+	//CountersModifier(0)=class'WeaponNullEntropy'
 	CountersDamage(0)=class'DamTypeShockBeam'
 	CountersDamage(1)=class'DamTypeShockBall'
 	CountersDamage(2)=class'DamTypeLinkPlasma'

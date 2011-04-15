@@ -23,16 +23,10 @@ function StopEffect()
 	SpeedModifier = 0;
 }
 
-simulated function string GetDescription()
+simulated function BuildDescription()
 {
-	local string text;
-	
-	text = Super.GetDescription();
-	
-	if(text != "") text $= ", ";
-	text $= Repl(SpeedText, "$1", GetBonusPercentageString(BonusPerLevel) );
-	
-	return text;
+	Super.BuildDescription();
+	AddToDescription(SpeedText, BonusPerLevel);
 }
 
 defaultproperties
@@ -46,5 +40,5 @@ defaultproperties
 	PatternPos="$W of Speed"
 	PatternNeg="$W of Slowness"
 	//AI
-	AIRatingBonus=0.025000
+	AIRatingBonus=0.025
 }

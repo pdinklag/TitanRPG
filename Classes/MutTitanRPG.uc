@@ -506,8 +506,9 @@ event Tick(float dt)
 			
 			if(W != None && W.IsA('RPGWeapon'))
 				RPGWeapon(Proj.Instigator.Weapon).ModifyProjectile(Proj);
-
-			Proj.Tag = 'Processed';
+			
+			if(Proj.Tag == Proj.class.Name)
+				Proj.Tag = 'Processed'; //make sure it's only processed once
 		}
 	}
 }
@@ -974,6 +975,7 @@ function Mutate(string MutateString, PlayerController Sender)
 	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
 	local class<VehicleMagic> VMClass;
+	local RPGWeaponModifier WM;
 	local class<RPGWeaponModifier> WMClass;
 	local class<Actor> ActorClass;
 	local vector Loc;
@@ -1193,8 +1195,11 @@ function Mutate(string MutateString, PlayerController Sender)
 				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("<? echo($packageName); ?>.WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
 				{
-					WMClass.static.Modify(
-						Cheat.Weapon, WMClass.static.GetRandomModifierLevel(), true);
+					WM = WMClass.static.Modify(
+						Cheat.Weapon, WMClass.static.GetRandomModifierLevel(), true, false, true);
+
+					if(Args.Length > 2 && Args[2] != "")
+						WM.SetModifier(int(Args[2]));
 				}
 				else
 				{

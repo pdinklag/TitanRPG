@@ -2,22 +2,21 @@ class WeaponModifier_Infinity extends RPGWeaponModifier;
 
 var localized string InfAmmoText;
 
+function WeaponFire(byte Mode)
+{
+	Identify();
+}
+
 function RPGTick(float dt)
 {
+	//TODO: Find a way for ballistic weapons
 	Weapon.MaxOutAmmo();
 }
 
-simulated function string GetDescription()
+simulated function BuildDescription()
 {
-	local string text;
-	
-	text = Super.GetDescription();
-	
-	if(text != "")
-		text $= ", ";
-	
-	text $= InfAmmoText;
-	return text;
+	Super.BuildDescription();
+	AddToDescription(InfAmmoText);
 }
 
 defaultproperties
@@ -35,4 +34,3 @@ defaultproperties
 	//AI
 	AIRatingBonus=0.025000
 }
-	

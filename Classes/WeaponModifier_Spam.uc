@@ -18,6 +18,8 @@ simulated function ClientAdjustFireRate(float Scale)
 
 function StartEffect()
 {
+	Super.StartEffect();
+	
 	FireRateModifier = 1.0f + BonusPerLevel * Abs(float(Modifier));
 	
 	if(Modifier < 0)
@@ -29,6 +31,9 @@ function StartEffect()
 
 function StopEffect()
 {
+	if(Weapon == None)
+		return;
+
 	if(FireRateModifier != 0)
 	{
 		class'Util'.static.AdjustWeaponFireRate(Weapon, 1.0f / FireRateModifier);
@@ -38,17 +43,10 @@ function StopEffect()
 	FireRateModifier = 0;
 }
 
-simulated function string GetDescription()
+simulated function BuildDescription()
 {
-	local string text;
-	
-	text = Super.GetDescription();
-	
-	if(text != "")
-		text $= ", ";
-	
-	text $= Repl(SpamText, "$1", GetBonusPercentageString(BonusPerLevel));
-	return text;
+	Super.BuildDescription();
+	AddToDescription(SpamText, BonusPerLevel);
 }
 
 defaultproperties
