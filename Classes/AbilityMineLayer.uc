@@ -1,15 +1,5 @@
 class AbilityMineLayer extends RPGAbility;
 
-function ModifyPawn(Pawn Other)
-{
-	local class<RPGWeapon> RWClass;
-
-	Super.ModifyPawn(Other);
-
-	RWClass = RPRI.RPGMut.GetRandomWeaponModifier(class'RPGMineLayer', Other);
-	RPRI.QueueWeapon(class'RPGMineLayer', RWClass, RWClass.static.GetRandomModifierLevel());
-}
-
 function ModifyRPRI()
 {
 	RPRI.MaxMines += int(BonusPerLevel) * AbilityLevel;
@@ -22,9 +12,14 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
-	AbilityName="Mine Layer"
+	AbilityName="Mine Field"
 	BonusPerLevel=1
-	Description="You are granted the Mine Layer when you spawn. Each level of this ability will increase the amount of parasite mines you can deploy at a time by $1."
-	MaxLevel=6
-	StartingCost=5
+	Description="Each level of this ability will increase the amount of parasite mines you can deploy at a time by $1."
+	MaxLevel=4
+	RequiredAbilities(0)=(AbilityClass=class'AbilityLoadedWeapons',Level=2)
+	bUseLevelCost=True
+	LevelCost(0)=5
+	LevelCost(1)=5
+	LevelCost(2)=10
+	LevelCost(3)=10
 }

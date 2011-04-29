@@ -677,7 +677,7 @@ function HolderDied()
 
 simulated function bool CanThrow()
 {
-	if (Modifier < 0 || Modifier > MaxModifier)
+	if (Modifier < 0 || Modifier > MaxModifier )
 		return false; //can't throw cursed or enhanced weapons
 
 	return bCanThrow && ModifiedWeapon.CanThrow(); //OneDropRPGWeapon says "return true;" here

@@ -10,7 +10,7 @@ var localized string MatrixText;
 simulated event WeaponTick(float dt)
 {
 	local Projectile P;
-	local SyncMatrix Sync;
+	local Sync_Matrix Sync;
 	local float Multiplier;
 
 	Super.WeaponTick(dt);
@@ -46,13 +46,16 @@ simulated event WeaponTick(float dt)
 			//Tell clients
 			if(Level.NetMode == NM_DedicatedServer)
 			{
-				Sync = P.Instigator.Spawn(class'SyncMatrix');
-				Sync.Proj = P;
-				Sync.ProjClass = P.class;
-				Sync.ProcessedTag = 'Matrix';
-				Sync.SpeedMultiplier = Multiplier;
-				Sync.ProjVelocity = P.Velocity;
-				Sync.ProjLocation = P.Location;
+				Sync = P.Instigator.Spawn(class'Sync_Matrix');
+				if(Sync != None)
+				{
+					Sync.Proj = P;
+					Sync.ProjClass = P.class;
+					Sync.ProcessedTag = 'Matrix';
+					Sync.SpeedMultiplier = Multiplier;
+					Sync.ProjVelocity = P.Velocity;
+					Sync.ProjLocation = P.Location;
+				}
 			}
 		}
 	}

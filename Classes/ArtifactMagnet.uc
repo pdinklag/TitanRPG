@@ -46,7 +46,7 @@ state Activated
 		else
 			Instigator.SetPhysics(PHYS_Spider);
 	
-		FlightTrail = Instigator.spawn(class'FlightEffect', Instigator);
+		FlightTrail = Instigator.spawn(class'FX_Flight', Instigator);
 		Retry = 0;
 		SetTimer(0.15, true);
 	}

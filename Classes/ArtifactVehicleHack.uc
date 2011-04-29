@@ -149,17 +149,17 @@ static function ApplySkin(Vehicle V, Material Mat)
 	local int x;
 
 	if(ONSWeaponPawn(V) != None)
-		class'SyncOverlayMaterial'.static.Sync(ONSWeaponPawn(V).Gun, Mat, -1, true);
+		class'Sync_OverlayMaterial'.static.Sync(ONSWeaponPawn(V).Gun, Mat, -1, true);
 	else
-		class'SyncOverlayMaterial'.static.Sync(V, Mat, -1, true);
+		class'Sync_OverlayMaterial'.static.Sync(V, Mat, -1, true);
 	
 	if(ONSVehicle(V) != None)
 	{
 		for(x = 0; x < ONSVehicle(V).Weapons.Length; x++)
-			class'SyncOverlayMaterial'.static.Sync(ONSVehicle(V).Weapons[x], Mat, -1, true);
+			class'Sync_OverlayMaterial'.static.Sync(ONSVehicle(V).Weapons[x], Mat, -1, true);
 	
 		for(x = 0; x < ONSVehicle(V).WeaponPawns.Length; x++)
-			class'SyncOverlayMaterial'.static.Sync(ONSVehicle(V).WeaponPawns[x].Gun, Mat, -1, true);
+			class'Sync_OverlayMaterial'.static.Sync(ONSVehicle(V).WeaponPawns[x].Gun, Mat, -1, true);
 	}
 }
 

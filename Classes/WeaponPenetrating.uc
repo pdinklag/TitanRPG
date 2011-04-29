@@ -4,6 +4,8 @@ class WeaponPenetrating extends RPGWeapon
 
 var localized string PenetratingText;
 
+var int Recursions;
+
 static function bool AllowedFor(class<Weapon> Weapon, Pawn Other)
 {
 	local int x;
@@ -27,25 +29,35 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 	Identify();
+	
+	if(Recursions >= 10)
+	{
+		Log(Self @ "More than 10 recursions detected!");
+		return;
+	}
 
 	for (i = 0; i < NUM_FIRE_MODES; i++)
 	{
 		if (InstantFire(FireMode[i]) != None && InstantFire(FireMode[i]).DamageType == DamageType)
 		{
 			//HACK - compensate for shock rifle not firing on crosshair
-			if (ShockBeamFire(FireMode[i]) != None && PlayerController(Instigator.Controller) != None)
+			if(ShockBeamFire(FireMode[i]) != None && PlayerController(Instigator.Controller) != None)
 			{
 				StartTrace = Instigator.Location + Instigator.EyePosition();
 				GetViewAxes(X,Y,Z);
 				StartTrace = StartTrace + X*class'ShockProjFire'.Default.ProjSpawnOffset.X;
 				if (!WeaponCentered())
 					StartTrace = StartTrace + Hand * Y*class'ShockProjFire'.Default.ProjSpawnOffset.Y + Z*class'ShockProjFire'.Default.ProjSpawnOffset.Z;
-					
+				
+				Recursions++;
 				InstantFire(FireMode[i]).DoTrace(HitLocation + Normal(HitLocation - StartTrace) * Victim.CollisionRadius * 2, rotator(HitLocation - StartTrace));
+				Recursions--;
 			}
 			else
 			{
+				Recursions++;
 				InstantFire(FireMode[i]).DoTrace(HitLocation + Normal(HitLocation - (Instigator.Location + Instigator.EyePosition())) * Victim.CollisionRadius * 2, rotator(HitLocation - (Instigator.Location + Instigator.EyePosition())));
+				Recursions--;
 			}
 			return;
 		}

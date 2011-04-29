@@ -73,8 +73,8 @@ state Activated
 
 defaultproperties
 {
-	EmitterClass=class'GoopSmoke'
-	EffectOverlay=Shader'XGameShaders.PlayerShaders.LinkHit'
+	xEmitterClass=class'FX_PoisonSmoke'
+	//EffectOverlay=Shader'XGameShaders.PlayerShaders.LinkHit'
 	
 	EffectMessageClass=class'EffectMessage_Poison'
 	

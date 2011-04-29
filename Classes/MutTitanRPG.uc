@@ -6,12 +6,8 @@ class MutTitanRPG extends Mutator
 
 //Saving
 var config array<string> IgnoreNameTag;
-
 var config int SaveDuringGameInterval;
 var float NextSaveTime;
-var bool bJustSaved;
-
-var localized string SavingDataText, SavedDataText;
 
 //General
 var RPGRules Rules;
@@ -23,6 +19,7 @@ var config int StartingLevel, StartingStatPoints;
 var config int PointsPerLevel;
 var config int MinHumanPlayersForExp;
 var config array<int> Levels;
+var config bool bLevelCap; //can't reach more levels than defined in the array above
 var config float LevelDiffExpGainDiv; //divisor to extra experience from defeating someone of higher level (a value of 1 results in level difference squared EXP)
 var config int MaxLevelupEffectStacking;
 var config array<class<RPGAbility> > Abilities;
@@ -35,6 +32,11 @@ var config array<class<RPGArtifact> > DefaultArtifacts; //artifacts that players
 var config array<class<Combo> > Combos; //additional combos to enable for players
 
 var config array<class<Weapon> > DisallowModifiersFor; //these weapons can not be modified
+
+//Invasion
+var config bool bAutoAdjustInvasionLevel; //auto adjust invasion monsters' level based on lowest level player
+var config float InvasionAutoAdjustFactor; //affects how dramatically monsters increase in level for each level of the lowest level player
+var float InvasionDamageAdjustment; //calculated from lowest player level and a lot of Mysterial's mojo
 
 //OLTeamGames support
 var bool bOLTeamGames;
@@ -155,6 +157,9 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 event PreBeginPlay()
 {
 	local int i, x;
+	
+	if(!Level.Game.IsA('Invasion'))
+		bAutoAdjustInvasionLevel = false; //don't waste any time doing Invasion stuff if we're not in Invasion
 
 	//OLTeamGames support
 	bOLTeamGames = Level.Game.IsA('OLTeamGame');
@@ -242,10 +247,10 @@ event PostBeginPlay()
 	
 	//Save
 	if(SaveDuringGameInterval > 0)
-	{
 		NextSaveTime = Level.TimeSeconds + float(SaveDuringGameInterval);
-		SetTimer(SaveDuringGameInterval, true);
-	}
+
+	//Timer
+	SetTimer(Level.TimeDilation, true);
 
 	//Stuff
 	if(StartingLevel < 1)
@@ -322,13 +327,17 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return false;
     }
 	
-	//Required Equipment
 	if(Other.IsA('UnrealPawn'))
 	{
-		//Monster fake weapon (for NetDamage to be called)
+		
 		if(Other.IsA('Monster'))
-			Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
+		{
+			//Monster fake weapon (for NetDamage to be called) - ~pd: NetDamage IS being called, what's wrong here??
+			//Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
+			Pawn(Other).HealthMax = Pawn(Other).Health; //fix, e.g. to allow healing properly
+		}
 	
+		//Required Equipment
 		for(i = 0; i < 16; i++)
 			UnrealPawn(Other).RequiredEquipment[i] = GetInventoryClassOverride(UnrealPawn(Other).RequiredEquipment[i]);
 		
@@ -690,7 +699,6 @@ function DriverEnteredVehicle(Vehicle V, Pawn P)
 	local Inventory Inv;
 	local int i;
 	local array<RPGArtifact> MyArtifacts;
-	local VehicleMagicInv VMInv;
 	local RPGPlayerReplicationInfo RPRI;
 	
 	//if this player has a translocator and the beacon isn't broken, return it to the player!
@@ -740,11 +748,6 @@ function DriverEnteredVehicle(Vehicle V, Pawn P)
 	}
 	P.Controller = None;
 
-	//apply vehicle magic
-	VMInv = VehicleMagicInv(P.FindInventoryType(class'VehicleMagicInv'));
-	if(VMInv != None && VMInv.VMClass != None)
-		VMInv.VMClass.static.ApplyTo(V);
-
 	Super.DriverEnteredVehicle(V, P);
 }
 
@@ -753,14 +756,8 @@ function DriverLeftVehicle(Vehicle V, Pawn P)
 	local Inventory Inv;
 	local array<RPGArtifact> MyArtifacts;
 	local int i;
-	local VehicleMagic VM;
 	local RPGPlayerReplicationInfo RPRI;
 	
-	//Disable any vehicle magic -pd
-	VM = class'VehicleMagic'.static.FindFor(V);
-	if(VM != None)
-		VM.Destroy();
-
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
 	if(RPRI != None)
 		RPRI.DriverLeftVehicle(V, P);
@@ -898,8 +895,40 @@ function NotifyLogout(Controller Exiting)
 
 function Timer()
 {
-	SaveData();
-	NextSaveTime = Level.TimeSeconds + float(SaveDuringGameInterval);
+	local int LowestLevel;
+	local RPGPlayerReplicationInfo RPRI;
+	local Controller C;
+
+	if(SaveDuringGameInterval > 0 && Level.TimeSeconds >= NextSaveTime)
+	{
+		SaveData();
+		NextSaveTime = Level.TimeSeconds + float(SaveDuringGameInterval);
+	}
+	
+	//find level of lowest level player
+	
+	if(Level.Game.IsA('Invasion') && bAutoAdjustInvasionLevel)
+	{
+		LowestLevel = 0;
+		for(C = Level.ControllerList; C != None; C = C.NextController)
+		{
+			RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
+			if(RPRI != None && (LowestLevel == 0 || RPRI.RPGLevel < LowestLevel))
+				LowestLevel = RPRI.RPGLevel;
+		}
+		
+		if(LowestLevel > 0)
+		{
+			InvasionDamageAdjustment = 
+				0.0025f * float(PointsPerLevel) * (
+				2 * (Invasion(Level.Game).WaveNum + 1) +
+				float(LowestLevel) * InvasionAutoAdjustFactor);
+		}
+	}
+	else
+	{
+		InvasionDamageAdjustment = 0;
+	}
 }
 
 function SaveData()
@@ -974,7 +1003,6 @@ function Mutate(string MutateString, PlayerController Sender)
 	local RPGWeapon RW;
 	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
-	local class<VehicleMagic> VMClass;
 	local RPGWeaponModifier WM;
 	local class<RPGWeaponModifier> WMClass;
 	local class<Actor> ActorClass;
@@ -996,6 +1024,9 @@ function Mutate(string MutateString, PlayerController Sender)
 	local string Game;
 	local Pawn Cheat;
 	local Controller CheatController;
+	local Monster M;
+	local class<RPGEffect> EffectClass;
+	local RPGEffect Effect;
 	
 	bIsAdmin = Sender.PlayerReplicationInfo.bAdmin;
 	bIsSuperAdmin = false;
@@ -1190,6 +1221,22 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 				return;
 			}
+			else if(Args[0] ~= "nextwave" && Level.Game.IsA('Invasion'))
+			{
+				//Kill all monsters
+				foreach DynamicActors(class'Monster', M)
+				{
+					if(FriendlyMonsterController(M.Controller) == None)
+						M.Suicide();
+				}
+				
+				//End wave
+				Invasion(Level.Game).NumMonsters = 0;
+				Invasion(Level.Game).WaveEndTime = Level.TimeSeconds;
+				Invasion(Level.Game).bWaveInProgress = false;
+				Invasion(Level.Game).WaveCountDown = 15;
+				Invasion(Level.Game).WaveNum++;
+			}
 			else if(Cheat != None && Args[0] ~= "wm" && Args.Length > 1)
 			{
 				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("<? echo($packageName); ?>.WeaponModifier_" $ Args[1], class'Class'));
@@ -1204,6 +1251,23 @@ function Mutate(string MutateString, PlayerController Sender)
 				else
 				{
 					Sender.ClientMessage("WeaponModifier class '" $ Args[1] $ "' not found!");
+				}
+				return;
+			}
+			else if(Cheat != None && Args[0] ~= "effect" && Args.Length > 1)
+			{
+				EffectClass = class<RPGEffect>(DynamicLoadObject("<? echo($packageName); ?>.Effect_" $ Args[1], class'Class'));
+				if(EffectClass != None)
+				{
+					Effect = EffectClass.static.Create(Cheat, Sender);
+					if(Effect != None)
+						Effect.Start();
+					else
+						Sender.ClientMessage("Effect '" $ Args[1] $ "' not applicable.");
+				}
+				else
+				{
+					Sender.ClientMessage("Effect class '" $ Args[1] $ "' not found!");
 				}
 				return;
 			}
@@ -1260,16 +1324,6 @@ function Mutate(string MutateString, PlayerController Sender)
 				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact" $ Args[1], class'Class'));
 				if(ArtifactClass != None)
 					class'Util'.static.GiveInventory(Cheat, ArtifactClass);
-				else
-					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
-			
-				return;
-			}
-			else if(Cheat != None && Args[0] ~= "vm" && Args.Length > 1)
-			{
-				VMClass = class<VehicleMagic>(DynamicLoadObject("<? echo($packageName); ?>.VehicleMagic" $ Args[1], class'Class'));
-				if(VMClass != None)
-					VMClass.static.ApplyTo(Vehicle(Cheat));
 				else
 					Sender.ClientMessage("Artifact class '" $ Args[1] $ "' not found!");
 			
@@ -1414,17 +1468,20 @@ defaultproperties
 {
 	bAllowMagicWeapons=True
 
-	MaxMines=2
+	bLevelCap=True
 
 	MinHumanPlayersForExp=0
 	bAllowCheats=False
 	MaxMonsters=1
 	MaxTurrets=1
+	MaxMines=8
+	bAutoAdjustInvasionLevel=True
+	InvasionAutoAdjustFactor=0.30
 	SaveDuringGameInterval=0
 	StartingLevel=1
 	StartingStatPoints=0
 	PointsPerLevel=5
-	LevelDiffExpGainDiv=100.000000
+	LevelDiffExpGainDiv=100.00
 	MaxLevelupEffectStacking=1
 	bAllowSuperWeaponReplenish=True
 	SuperAmmoClasses(0)=class'XWeapons.RedeemerAmmo'

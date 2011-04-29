@@ -32,7 +32,7 @@ static function bool AllowedFor(class<Weapon> Weapon, Pawn Other)
 
 function ModifyProjectile(Projectile P)
 {
-	local SyncProjectileSpeed Sync;
+	local Sync_ProjectileSpeed Sync;
 	local float Multiplier;
 
 	Identify();
@@ -48,7 +48,7 @@ function ModifyProjectile(Projectile P)
 		//Tell clients
 		if(Level.NetMode == NM_DedicatedServer)
 		{
-			Sync = Instigator.Spawn(class'SyncProjectileSpeed');
+			Sync = Instigator.Spawn(class'Sync_ProjectileSpeed');
 			Sync.Proj = P;
 			Sync.ProjClass = P.class;
 			Sync.ProcessedTag = 'Force';

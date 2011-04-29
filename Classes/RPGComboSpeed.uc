@@ -16,7 +16,7 @@ function StartEffect(xPawn P)
 		
 		//Colored trail
 		if(SpeedAbility != None && SpeedAbility.ShouldColorSpeedTrail())
-			EmitterClass = class'SuperSpeedTrail';
+			EmitterClass = class'FX_SuperSpeedTrail';
 	}
 	
     LeftTrail = Spawn(EmitterClass, P,, P.Location, P.Rotation);

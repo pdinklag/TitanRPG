@@ -10,7 +10,7 @@ function BotWhatNext(Bot Bot)
 		Bot.Adrenaline >= CostPerSec &&
 		Instigator.Health >= 75 && //should survive until then
 		FRand() < 0.8 &&
-		CountNearbyEnemies(class'MegaCharger'.default.Radius) >= 2
+		CountNearbyEnemies(class'Blast_Mega'.default.Radius) >= 2
 	)
 	{
 		Activate();
@@ -19,7 +19,7 @@ function BotWhatNext(Bot Bot)
 
 function DoEffect()
 {
-	Spawn(class'MegaCharger', Instigator.Controller,,Instigator.Location);
+	Spawn(class'Blast_Mega', Instigator.Controller,,Instigator.Location);
 	Destroy();
 }
 

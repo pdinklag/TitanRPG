@@ -158,6 +158,11 @@ function SetModifier(int x)
 
 	Modifier = x;
 	
+	if(Modifier < 0 || Modifier > MaxModifier)
+		Weapon.bCanThrow = false; //cannot throw negative or enhanced weapons
+	else
+		Weapon.bCanThrow = bCanThrow;
+	
 	if(bIdentified)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);

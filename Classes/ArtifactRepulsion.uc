@@ -41,7 +41,7 @@ function DoEffect()
 	local float Dist;
 	local Pawn P;
 
-	Spawn(class'RepulsionExplosion', Instigator.Controller,,Instigator.Location);
+	Spawn(class'FX_Repulsion', Instigator.Controller,,Instigator.Location);
 	
 	if(bDestroysMines)
 	{

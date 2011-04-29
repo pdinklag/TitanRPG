@@ -399,26 +399,29 @@ simulated function ModeTick(float dt)
 				//AdjustedDamage *= 2;
 			
 			OldHealth = LinkedVehicle.Health;
-			if(LinkedVehicle.HealDamage(AdjustedDamage, Instigator.Controller, DamageType) && !LinkedVehicle.IsVehicleEmpty()) //only if somebody's inside
+			if(LinkedVehicle.HealDamage(AdjustedDamage, Instigator.Controller, DamageType))
 			{
-				if(class'RPGRules'.default.EXP_VehicleRepair > 0.0f)
+				if(!LinkedVehicle.IsVehicleEmpty()) //only if somebody's inside
 				{
-					//experience for repairing
-					RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-					if(RPRI != None)
+					if(class'RPGRules'.default.EXP_VehicleRepair > 0.0f)
 					{
-						Healable = HealableDamageInv(LinkedVehicle.FindInventoryType(class'HealableDamageInv'));
-						if(Healable != None && Healable.Damage > 0)
+						//experience for repairing
+						RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
+						if(RPRI != None)
 						{
-							AdjustedDamage = Min(LinkedVehicle.Health - OldHealth, Healable.Damage);
-	
-							if(AdjustedDamage > 0)
-							{	
-								Healable.Damage = Max(0, Healable.Damage - AdjustedDamage);
-								
-								class'RPGRules'.static.ShareExperience(
-									RPRI,
-									float(AdjustedDamage) * class'RPGRules'.default.EXP_VehicleRepair);
+							Healable = HealableDamageInv(LinkedVehicle.FindInventoryType(class'HealableDamageInv'));
+							if(Healable != None && Healable.Damage > 0)
+							{
+								AdjustedDamage = Min(LinkedVehicle.Health - OldHealth, Healable.Damage);
+		
+								if(AdjustedDamage > 0)
+								{	
+									Healable.Damage = Max(0, Healable.Damage - AdjustedDamage);
+									
+									class'RPGRules'.static.ShareExperience(
+										RPRI,
+										float(AdjustedDamage) * class'RPGRules'.default.EXP_VehicleRepair);
+								}
 							}
 						}
 					}

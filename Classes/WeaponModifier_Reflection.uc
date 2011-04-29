@@ -90,6 +90,10 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 				else if(WF.IsA('InstantFire'))
 					InstantFire(WF).DoTrace(HitLocation, ReflectDir);
 			}
+			else
+			{
+				Log("Couldn't find" @ WFClass @ "for" @ InstigatedBy, 'DEBUG');
+			}
 			
 			Damage = 0;
 			Momentum = vect(0, 0, 0);

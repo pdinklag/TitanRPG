@@ -89,7 +89,7 @@ static function string GetLocalString(optional int Switch, optional PlayerReplic
 defaultproperties
 {
 	ActivationText="Self Destruction in T minus $1..."
-	ExplosionEffectClass=Class'SelfDestructExplosion'
+	ExplosionEffectClass=Class'FX_SelfDestructExplosion'
 	ExplosionSound=Sound'ONSVehicleSounds-S.Explosions.Explosion01'
 	TickSound=Sound'GeneralAmbience.beep4'
 

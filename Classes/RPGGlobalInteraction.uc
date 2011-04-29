@@ -3,55 +3,78 @@
 */
 class RPGGlobalInteraction extends Interaction;
 
-var float IconSize, IconTextSpacing;
+var Color TeamBeaconColor[5];
 
-var Material MonsterIcon, TurretIcon;
-
-static function bool IsPawnVisible(Canvas C, FriendlyPawnReplicationInfo FPRI)
+function bool IsLocationVisible(Canvas C, vector Location, Actor RefActor)
 {
 	local vector CameraLocation, CamDir;
 	local rotator CameraRotation;
 	
+	if(
+		RefActor.Region.Zone != None && 
+		RefActor.Region.Zone.bDistanceFog &&
+		VSize(CameraLocation - Location) >= RefActor.Region.Zone.DistanceFogEnd
+	)
+	{
+		//can't see when it's too foggy
+		return false;
+	}
+	
 	C.GetCameraLocation(CameraLocation, CameraRotation);
 	CamDir = vector(CameraRotation);
 
-	if((FPRI.PawnLocation - CameraLocation) dot CamDir < 0)
+	if((Location - CameraLocation) dot CamDir < 0)
 		return false;
 	
-	return FPRI.FastTrace(FPRI.PawnLocation, CameraLocation);
+	return RefActor.FastTrace(Location, CameraLocation);
 }
 
-static function DrawOwnerIcon(Canvas C, float X, float Y, float Size, float Spacing, Material Icon, string OwnerName)
+function DrawBeacon(Canvas C, float X, float Y, float Scale, int Team, string Text)
 {
-	local float W, XL, YL;
-
-	C.TextSize(OwnerName, XL, YL);
-	W = XL + Size + Spacing;
+	local Texture BeaconTex;
+	local float XL,YL;
 	
-	C.Style = 5;
+	C.Font = C.TinyFont;
 
-	C.SetPos(X - W * 0.5, Y - Size * 0.5);
-	C.DrawTile(
-		Icon,
-		Size, Size,
-		0, 0,
-		Icon.MaterialUSize(),
-		Icon.MaterialVSize()
-	);
+	BeaconTex = ViewportOwner.Actor.TeamBeaconTexture; //TODO
+	if(BeaconTex == None)
+		return;
 
-	C.SetPos(X - W * 0.5 + Size + Spacing, Y - YL * 0.5);
-	C.DrawTextClipped(OwnerName);
+	if(Team >= 0 && Team <= 3)
+		C.DrawColor = TeamBeaconColor[Team];
+	else
+		C.DrawColor = TeamBeaconColor[4];
+
+	if(Text != "")
+	{
+		C.StrLen(Text, XL, YL);
+		C.SetPos(X - 0.125 * BeaconTex.USize , Y - 0.125 * BeaconTex.VSize - YL);
+		C.DrawTextClipped(Text);
+	}
+
+	C.SetPos(X - Scale * 0.125 * BeaconTex.USize, Y - Scale * 0.125 * BeaconTex.VSize);
+	C.DrawTile(BeaconTex,
+		Scale * 0.25 * BeaconTex.USize,
+		Scale * 0.25 * BeaconTex.VSize,
+		0.0,
+		0.0,
+		BeaconTex.USize,
+		BeaconTex.VSize);
 }
 
 function PostRender(Canvas C)
 {
 	local PlayerController PC;
 	local Actor RefActor;
-	local float MaxDist, AdjustedSize, AdjustedSpacing;
+	local float MaxDist, Dist;
 	local vector ScreenPos;
 	local FriendlyPawnReplicationInfo FPRI;
-	local Material Icon;
+	local vector FriendlyPawnLocation;
 	local HudCDeathmatch HUD;
+	local string Text;
+	local int Team;
+	local vector CamLoc;
+	local rotator CamRot;
 
 	PC = ViewportOwner.Actor;
 	if(PC == None || PC.PlayerReplicationInfo == None)
@@ -60,17 +83,11 @@ function PostRender(Canvas C)
 	HUD = HudCDeathmatch(ViewportOwner.Actor.myHUD);
 	if(HUD == None)
 		return;
-	
-	C.Font = HUD.GetMediumFontFor(C);
-	C.FontScaleX = 0.5f;
-	C.FontScaleY = 0.5f;
 
 	if(PC.IsA('OLTeamPlayerController'))
 		MaxDist = float(PC.GetPropertyText("OLTeamBeaconPlayerInfoMaxDist"));
 	else
 		MaxDist = PC.TeamBeaconPlayerInfoMaxDist;
-	
-	MaxDist *= 2.0f;
 	
 	if(PC.ViewTarget != None)
 		RefActor = PC.ViewTarget;
@@ -78,37 +95,50 @@ function PostRender(Canvas C)
 		RefActor = PC.Pawn;
 	else
 		RefActor = PC;
-
-	AdjustedSize = IconSize * C.ClipX / 640.0f;
-	AdjustedSpacing = IconTextSpacing * C.ClipX / 640.0f;
 	
+	C.GetCameraLocation(CamLoc, CamRot);
+
 	foreach PC.DynamicActors(class'FriendlyPawnReplicationInfo', FPRI)
 	{
-		if(VSize(FPRI.PawnLocation - RefActor.Location) < MaxDist && IsPawnVisible(C, FPRI))
+		if(FPRI.Pawn != None)
+			FriendlyPawnLocation = FPRI.Pawn.Location;
+		else
+			FriendlyPawnLocation = FPRI.PawnLocation;
+	
+		Dist = VSize(FriendlyPawnLocation - CamLoc) * PC.FOVBias; //considers zoom etc
+		if(Dist < MaxDist * 2.0f && IsLocationVisible(C, FriendlyPawnLocation, RefActor))
 		{
-			ScreenPos = C.WorldToScreen(FPRI.PawnLocation + FPRI.PawnClass.default.CollisionHeight * vect(0, 0, 1));
+			ScreenPos = C.WorldToScreen(
+				FriendlyPawnLocation +
+				FPRI.PawnHeight *
+				1.1f *
+				vect(0, 0, 1));
+			
 			if(ScreenPos.X >= 0 && ScreenPos.X < C.SizeX && ScreenPos.Y >= 0 || ScreenPos.Y < C.SizeY)
 			{
-				if(ClassIsChildOf(FPRI.PawnClass, class'Monster'))
-					Icon = MonsterIcon;
-				if(ClassIsChildOf(FPRI.PawnClass, class'ASTurret'))
-					Icon = TurretIcon;
-			
-				if(FPRI.Master.Team != None)
-					C.DrawColor = class'RPGInteraction'.default.HUDColorTeam[FPRI.Master.Team.TeamIndex];
+				if(Dist < MaxDist)
+				{
+					Text = FPRI.Master.PlayerName;
+					if(PC.PlayerReplicationInfo == FPRI.Master)
+						Text @= "(" $ FPRI.PawnHealth $ ")";
+				}
 				else
-					C.DrawColor = class'RPGInteraction'.default.WhiteColor;
+				{
+					Text = "";
+				}
 				
-				DrawOwnerIcon(C, ScreenPos.X, ScreenPos.Y, AdjustedSize, AdjustedSpacing, Icon, FPRI.Master.PlayerName);
+				if(FPRI.Master.Team != None)
+					Team = FPRI.Master.Team.TeamIndex;
+				else
+					Team = 255;
+			
+				DrawBeacon(C, ScreenPos.X, ScreenPos.Y, 1.0f /*FMax(0.5f, 1.0f - FMax(0.0f, (Dist - MaxDist) / MaxDist))*/, Team, Text);
 			}
 		}
 	}
 	
 	//reset
 	C.DrawColor = C.default.DrawColor;
-	C.Font = C.default.Font;
-	C.FontScaleX = C.default.FontScaleX;
-	C.FontScaleY = C.default.FontScaleY;
 }
 
 event NotifyLevelChange()
@@ -118,10 +148,11 @@ event NotifyLevelChange()
 
 defaultproperties
 {
-	MonsterIcon=Texture'<? echo($packageName); ?>.StatusIcons.Monster'
-	TurretIcon=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
-
-	IconSize=16
-	IconTextSpacing=3
 	bVisible=True
+
+	TeamBeaconColor(0)=(R=255,G=64,B=64,A=255)
+	TeamBeaconColor(1)=(R=64,G=90,B=255,A=255)
+	TeamBeaconColor(2)=(R=64,G=255,B=64,A=255)
+	TeamBeaconColor(3)=(R=255,G=224,B=64,A=255)
+	TeamBeaconColor(4)=(B=255,G=255,R=255,A=255)
 }

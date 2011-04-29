@@ -3,7 +3,7 @@ class AbilityAura extends RPGAbility;
 var config float HealInterval;
 var config float HealRadius;
 
-var array<HealingBeamEffect> HealEmitters;
+var array<FX_HealingBeam> HealEmitters;
 
 replication
 {
@@ -19,7 +19,8 @@ function ModifyPawn(Pawn Other)
 
 function Timer()
 {
-	local HealingBeamEffect HealEmitter;
+	local Effect_Heal Heal;
+	local FX_HealingBeam HealEmitter;
 	local Pawn P;
 
 	if(Instigator == None || Instigator.Health <= 0)
@@ -40,14 +41,16 @@ function Timer()
 			!P.IsA('Monster') &&
 			!P.IsA('Vehicle') &&
 			P.Health < P.HealthMax &&
-			P.Controller != None &&
-			P.Controller.SameTeamAs(RPRI.Controller) &&
 			FastTrace(Instigator.Location, P.Location)
 		)
 		{
-			if(class'HealableDamageGameRules'.static.Heal(P, AbilityLevel * int(BonusPerLevel), Instigator, 0, RPRI.HealingExpMultiplier, true))
+			Heal = Effect_Heal(class'Effect_Heal'.static.Create(P, RPRI.Controller));
+			if(Heal != None)
 			{
-				HealEmitter = Instigator.Spawn(class'HealingBeamEffect', Instigator);
+				Heal.HealAmount = AbilityLevel * int(BonusPerLevel);
+				Heal.Start();
+			
+				HealEmitter = Instigator.Spawn(class'FX_HealingBeam', Instigator);
 				HealEmitter.LinkedPawn = P;
 				
 				HealEmitters[HealEmitters.Length] = HealEmitter;

@@ -29,14 +29,14 @@ simulated function string GetWeaponNameExtra()
 	if(text != "")
 		text $= ", ";
 	
-	text $= VorpalText;
+	text $= Repl(VorpalText, "$1", class'Util'.static.FormatPercent(0.01f * float(Modifier - MinModifier)));
 	return text;
 }
 
 defaultproperties
 {
-	VorpalText="instant kill chance"
-	DamageBonus=0.100000
+	VorpalText="$1 instant kill chance"
+	DamageBonus=0.10
 	MinModifier=6
 	MaxModifier=10
 	ModifierOverlay=Shader'XGameShaders.BRShaders.BombIconYS'

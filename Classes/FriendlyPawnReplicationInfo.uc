@@ -8,6 +8,8 @@ var PlayerReplicationInfo Master;
 //we can only replicate this info because the Pawn itself may become irrelevant
 var class<Pawn> PawnClass;
 var vector PawnLocation;
+var int PawnHealth;
+var float PawnHeight;
 
 replication
 {
@@ -15,7 +17,7 @@ replication
 		Master;
 	
 	reliable if(Role == ROLE_Authority && bNetDirty)
-		PawnLocation, PawnClass;
+		Pawn, PawnLocation, PawnHealth, PawnClass, PawnHeight;
 }
 
 simulated event Tick(float dt)
@@ -32,6 +34,8 @@ simulated event Tick(float dt)
 		{
 			PawnLocation = Pawn.Location;
 			PawnClass = Pawn.class;
+			PawnHealth = Pawn.Health;
+			PawnHeight = Pawn.CollisionHeight * Pawn.DrawScale;
 		}
 	}
 }

@@ -62,7 +62,7 @@ function class<RPGWeapon> PickBest()
 
 simulated function ClientShowMenu()
 {
-	class'MagicWeaponMenu'.static.ShowFor(Self);
+	class'SelectionMenu_WeaponModifier'.static.ShowFor(Self);
 }
 
 function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)

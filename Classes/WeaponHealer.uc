@@ -46,26 +46,30 @@ static function bool AllowedFor(class<Weapon> Weapon, Pawn Other)
 	return false;
 }
 
-
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
+	local Effect_Heal Heal;
 	local int HealthGiven;
-
+	
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
-
+	
 	if(Victim != None && OriginalDamage > 0)
 	{
-		if(Victim == Instigator || Instigator.Controller.SameTeamAs(Victim.Controller))
+		HealthGiven = Max(1, OriginalDamage * (BonusPerLevel * float(Modifier)));
+	
+		Heal = Effect_Heal(class'Effect_Heal'.static.Create(Victim, Instigator.Controller,, GetMaxHealthBonus()));
+		if(Heal != None)
 		{
 			Identify();
 		
-			HealthGiven = Max(1, OriginalDamage * (BonusPerLevel * float(Modifier)));
-
-			Momentum = vect(0,0,0);
+			Heal.HealAmount = HealthGiven;
+			Heal.Start();
+		}
+		
+		if(Victim == Instigator || Instigator.Controller.SameTeamAs(Victim.Controller))
+		{
+			Momentum = vect(0, 0, 0);
 			Damage = 0;
-			
-			if(HealthGiven > 0)
-				class'HealableDamageGameRules'.static.Heal(Victim, HealthGiven, Instigator, GetMaxHealthBonus(), HolderRPRI.HealingExpMultiplier, true);
 		}
 	}
 }

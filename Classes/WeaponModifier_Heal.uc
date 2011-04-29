@@ -37,13 +37,24 @@ static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other)
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
+	local Effect_Heal Heal;
+	local int HealthGiven;
+
 	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
 	
-	if(Instigator.Controller.SameTeamAs(Injured.Controller))
+	HealthGiven = Max(1, OriginalDamage * (BonusPerLevel * float(Modifier)));
+
+	Heal = Effect_Heal(class'Effect_Heal'.static.Create(Injured, Instigator.Controller,, GetMaxHealthBonus()));
+	if(Heal != None)
 	{
-		Log("Create healing RPGEffect", 'TODO');
-		
 		Identify();
+	
+		Heal.HealAmount = HealthGiven;
+		Heal.Start();
+	}
+	
+	if(Injured == Instigator || Instigator.Controller.SameTeamAs(Injured.Controller))
+	{
 		Momentum = vect(0, 0, 0);
 		Damage = 0;
 	}

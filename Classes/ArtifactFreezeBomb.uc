@@ -5,7 +5,7 @@ function BotWhatNext(Bot Bot)
 	if(
 		Instigator.Health >= 75 && //should survive until then
 		FRand() < 0.6 &&
-		CountNearbyEnemies(class'FreezeBombCharger'.default.Radius) >= 2
+		CountNearbyEnemies(class'Blast_Freeze'.default.Radius) >= 2
 	)
 	{
 		Activate();
@@ -14,7 +14,7 @@ function BotWhatNext(Bot Bot)
 
 function DoEffect()
 {
-	Spawn(class'FreezeBombCharger', Instigator.Controller,,Instigator.Location);
+	Spawn(class'Blast_Freeze', Instigator.Controller,,Instigator.Location);
 	Destroy();
 }
 

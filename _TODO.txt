@@ -19,7 +19,6 @@ TEST:
 - Weapon granting abilities / Denial
 - Weapon storing upon team change
 
-- Advanced cooldown logic
 - "Can't use" sound on artifacts
 - New weapon granting
 
@@ -31,11 +30,19 @@ TEST:
 - Fix client side crashes due to RPG Menu
 - Knockback should knock out turrets
 
+TODO (XT Database):
+- fluff -> new key
+- Strip mine layer abilities
+
 TODO (XT Config):
-- Make ejector drain xloc again
-- Make Shield weapons recreate shield faster
-- Continue self destruct and veh hack cooldown after spawn
-- Add Self Destruct to artifacts list
+- Aura heals 2 per level
+- Cautiousness up to 100%
+- Change Mine Layer ability
+- Reduce blast cooldowns
+- Add bio bomb
+- Remove armor piercing
+- Set BonusPerLevel on NullEntropy
+- Parachute
 
 TODO (1.62)
 - Ballistic support (got permission)
@@ -125,6 +132,10 @@ Release Config TODO:
 - ArtifactTurretSummonBase
 
 DONE 1.61:
+- Got rid of RPGGameStats
+- Rewrote damage and kill system
+- Improved global interaction (monster names)
+- Fixed link not draining ammo on repair
 - Fixed keybinding in RPGMenu
 - Ejector Seat and Ultima have status icons
 - Vehicle repair ignores UDamage

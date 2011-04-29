@@ -6,5 +6,5 @@ defaultproperties
 	PickupMessage="You got the Invisibility!"
 	PickupSound=Sound'PickupSounds.SniperAmmoPickup'
 	StaticMesh=StaticMesh'<? echo($packageName); ?>.ArtifactPickupStatics.Invis2M'
-	DrawScale=0.60
+	DrawScale=0.50
 }

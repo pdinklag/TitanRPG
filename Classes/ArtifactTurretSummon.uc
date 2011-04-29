@@ -68,7 +68,7 @@ simulated function ClientReceivePickableTurret(TurretTypeStruct Type)
 
 simulated function ClientShowMenu()
 {
-	class'TurretSummonMenu'.static.ShowFor(Self);
+	class'SelectionMenu_ConstructTurret'.static.ShowFor(Self);
 }
 
 function ServerPickTurret(int i)

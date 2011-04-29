@@ -33,7 +33,6 @@ var float ArtifactBorderSize;
 var float ArtifactHighlightIndention;
 var float ArtifactIconInnerScale;
 
-var RPGWeaponModifier CurrentModifier;
 var string LastWeaponExtra;
 
 var class<RPGArtifact> LastSelectedArtifact;
@@ -710,11 +709,9 @@ function PostRender(Canvas Canvas)
 		}
 		
 		//Weapon Modifier
-		if(CurrentModifier == None || P.Weapon != CurrentModifier.Weapon)
-			CurrentModifier = class'RPGWeaponModifier'.static.GetFor(P.Weapon);
-
-		if(CurrentModifier != None)
-			CurrentModifier.PostRender(Canvas);
+		WM = class'RPGWeaponModifier'.static.GetFor(P.Weapon);
+		if(WM != None)
+			WM.PostRender(Canvas);
 	}
 
 	//Reset
@@ -832,6 +829,22 @@ function Remove()
 	Master.RemoveInteraction(Self);
 }
 
+exec function ListChannels()
+{
+	local int n;
+	local Actor A;
+	
+	foreach ViewportOwner.Actor.DynamicActors(class'Actor', A)
+	{
+		if(A.RemoteRole == ROLE_Authority)
+		{
+			Log(A, 'Channels');
+			n++;
+		}
+	}
+	Log("Total:" @ n, 'Channels');
+}
+
 defaultproperties
 {
 	ExpGainDurationForever=21.0 //this or higher means forever
@@ -842,7 +855,7 @@ defaultproperties
 	EXPBarColor=(B=128,G=255,R=128,A=255)
 	RedColor=(R=255,A=255)
 	WhiteColor=(B=255,G=255,R=255,A=255)
-	//Team colors (taken from HudOLTeamDeathmatch
+	//Team colors (taken from HudOLTeamDeathmatch)
 	HUDColorTeam(0)=(R=200,G=0,B=0,A=255)
 	HUDColorTeam(1)=(R=50,G=64,B=200,A=255)
 	HUDColorTeam(2)=(R=0,G=200,B=0,A=255)

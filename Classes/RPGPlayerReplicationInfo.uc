@@ -126,8 +126,6 @@ var array<RPGAbility> AllAbilities;
 var array<class<RPGArtifact> > AllArtifacts;
 
 //adrenaline gain modification
-var Controller AboutToKill;
-var class<DamageType> KillingDamType;
 var int AdrenalineBeforeKill;
 
 //Sound
@@ -278,7 +276,7 @@ simulated event BeginPlay()
 				if(RPGMut.Levels.Length > data.LV)
 					data.XN = RPGMut.Levels[data.LV];
 				else
-					data.XN = RPGMut.Levels[RPGMut.Levels.Length - 1];
+					data.XN = RPGMut.Levels[RPGMut.Levels.Length - 1]; //TODO: what to do?
 					
 				if (PlayerController(Controller) != None)
 					data.ID = PlayerController(Controller).GetPlayerIDHash();
@@ -830,7 +828,7 @@ simulated function ClientReInitMenu()
 
 function AwardExperience(float exp)
 {
-	local LevelUpEffect Effect;
+	local FX_LevelUp Effect;
 	local int Count;
 	
 	if(exp == 0)
@@ -850,7 +848,7 @@ function AwardExperience(float exp)
 	Experience = FMax(0.0, Experience + exp);
 	ClientNotifyExpGain(exp);
 	
-	if(RPGLevel < RPGMut.Levels.Length) //don't allow levelup when max level was reached
+	if(!RPGMut.bLevelCap || RPGLevel < RPGMut.Levels.Length) //don't allow levelup when max level was reached
 	{
 		while(Experience >= NeededExp && Count < 10000)
 		{
@@ -865,7 +863,7 @@ function AwardExperience(float exp)
 			
 			if(Count <= RPGMut.MaxLevelupEffectStacking && Controller != None && Controller.Pawn != None)
 			{
-				Effect = Controller.Pawn.spawn(class'LevelUpEffect', Controller.Pawn);
+				Effect = Controller.Pawn.spawn(class'FX_LevelUp', Controller.Pawn);
 				Effect.SetDrawScale(Controller.Pawn.CollisionRadius / Effect.CollisionRadius);
 				Effect.Initialize();
 			}

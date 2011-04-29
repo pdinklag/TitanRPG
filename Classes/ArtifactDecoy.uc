@@ -36,7 +36,7 @@ function bool CanActivate()
 		return false;
 	}
 
-	if(ONSVehicle(Instigator) == None)
+	if(Vehicle(Instigator) == None)
 	{
 		Msg(MSG_OnlyInVehicle);
 		return false;
@@ -65,7 +65,7 @@ function DoEffect()
 defaultproperties
 {
 	Cooldown=10
-	OnlyInVehicleText="The Decoy can only be used in a vehicle's driver seat."
+	OnlyInVehicleText="The Decoy can only be used in a vehicle."
 	OnlyOneAtATimeText="You can only fire one decoy at a time."
 	ArtifactID="Decoy"
 	bCanBeTossed=False

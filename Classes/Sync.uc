@@ -8,7 +8,7 @@
 	ClientFunction is to do whatever is supposed to do on the client, all information
 	required can simply be replicated.
 */
-class Sync extends Actor;
+class Sync extends Actor; //TODO: Make ReplicationInfo
 
 var float LifeTime;
 

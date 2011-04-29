@@ -39,7 +39,7 @@ simulated function WeaponTick(float dt)
 			{
 				if(P.ReadyToPickup(0) && WeaponLocker(P) == None)
 				{
-					Spawn(class'TitanMisfortuneEffect',P,, P.Location);
+					Spawn(class'FX_Misfortune',P,, P.Location);
 
 					if (!P.bDropped && WeaponPickup(P) != None && WeaponPickup(P).bWeaponStay && P.RespawnTime != 0.0)
 						P.GotoState('Sleeping');

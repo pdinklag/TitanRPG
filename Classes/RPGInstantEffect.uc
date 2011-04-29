@@ -9,11 +9,15 @@ state Activated
 {
 	function BeginState()
 	{
-		Duration = 0;
+		Duration = 1; //don't destroy immediately, so stacking can be handled properly
 		
 		Super.BeginState();
 		
 		DoEffect();
+	}
+	
+	function Timer()
+	{
 		Destroy();
 	}
 }

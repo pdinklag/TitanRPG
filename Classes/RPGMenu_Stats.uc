@@ -13,12 +13,14 @@ var int LastAmount;
 
 var GUIStyles CategoryStyle;
 
+var bool bLoseFocus; //fix
+
 var localized string Text_Max, Text_StatsAvailable;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
 	Super.InitComponent(MyController, MyOwner);
-	
+
 	Abilities = lstAbilities.List;
 	Abilities.bMultiselect = false;
 	Abilities.bInitializeList = false;
@@ -26,6 +28,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 	Abilities.OnDrawItem = DrawAbilityInfo;
 	Abilities.OnClick = OnAbilityClick;
 	Abilities.OnKeyEvent = OnAbilityKeyEvent;
+	
+	ebAmount.OnKeyEvent = OnAmountKeyEvent;
 }
 
 function DrawAbilityInfo(Canvas Canvas, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
@@ -82,6 +86,12 @@ function InitMenu()
 	
 	ebAmount.SetText(string(LastAmount));
 	
+	if(bLoseFocus)
+	{
+		ebAmount.LoseFocus(None);
+		bLoseFocus = true;
+	}
+
 	Abilities.SetIndex(OldAbilityListIndex);
 	Abilities.SetTopItem(OldAbilityListTop);
 	
@@ -93,6 +103,7 @@ function InitMenu()
 function CloseMenu()
 {
 	LastAmount = int(ebAmount.GetText());
+	bLoseFocus = true;
 	Stats.Length = 0;
 }
 
@@ -132,6 +143,19 @@ function bool OnAbilityKeyEvent(out byte Key, out byte State, float delta)
 	}
 }
 
+function bool OnAmountKeyEvent(out byte Key, out byte State, float delta)
+{
+	if(Key == 13 && State == 3) //up / down key released
+	{
+		BuyStat(None);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 function bool OnAbilityClick(GUIComponent Sender)
 {
 	Abilities.InternalOnClick(Sender);
@@ -146,6 +170,7 @@ function bool BuyStat(GUIComponent Sender)
 
 	RPGMenu.RPRI.ServerNoteActivity(); //Disable idle kicking when actually doing something
 	
+	LastAmount = int(ebAmount.GetText());
 	Amount = Min(RPGMenu.RPRI.PointsAvailable, Max(1, int(ebAmount.GetText())));
 	if(Abilities.Index >= 0 && Amount > 0)
 	{

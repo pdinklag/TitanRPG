@@ -1,6 +1,6 @@
 class ArtifactLight extends RPGArtifact;
 
-var PlayerLight Light;
+var FX_PlayerLight Light;
 
 state Activated
 {
@@ -10,7 +10,7 @@ state Activated
 		
 		if(Light == None)
 		{
-			Light = Spawn(class'PlayerLight', Instigator, , Instigator.Location);
+			Light = Spawn(class'FX_PlayerLight', Instigator, , Instigator.Location);
 			Light.SetBase(Instigator);
 			Light.LightHue = 40;
 			Light.LightSaturation = 224;

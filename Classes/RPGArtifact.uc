@@ -477,7 +477,7 @@ function int CountNearbyEnemies(float Radius, optional bool bSameTeam)
 	local Pawn P;
 	local int n;
 
-	foreach Instigator.VisibleCollidingActors(class'Pawn', P, class'MegaCharger'.default.Radius)
+	foreach Instigator.VisibleCollidingActors(class'Pawn', P, Radius)
 	{
 		if(
 			P.Controller != None &&

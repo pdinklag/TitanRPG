@@ -71,7 +71,7 @@ var config float EXP_DamagePowercore;
 //AS
 var config float EXP_ObjectiveCompleted;
 
-//TODO: Win game, ONS events, CTF events, BR events, AS events, DOM events, Necromancy
+//TODO: Win game, ONS events, AS events, DOM events, Necromancy
 
 //Misc
 var config float EXP_Resurrection; //resurrection using the Necromancy combo
@@ -204,6 +204,7 @@ function ScoreObjective(PlayerReplicationInfo Scorer, int Score)
 		if(Level.Game.IsA('ONSOnslaughtGame'))
 		{
 			RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Scorer);
+			//TODO
 		}
 		else if(Level.Game.IsA('ASGameInfo'))
 		{
@@ -275,7 +276,9 @@ function ScoreKill(Controller Killer, Controller Killed)
 		return;
 	
 	//Get Pawns
-	KillerPawn = Killer.Pawn;
+	if(Killer != None)
+		KillerPawn = Killer.Pawn;
+
 	KilledPawn = Killed.Pawn;
 	
 	//Drop artifacts
@@ -320,182 +323,165 @@ function ScoreKill(Controller Killer, Controller Killed)
 		return;
 	}
 	
-	if(Killer.IsA('FriendlyMonsterController') || Killer.IsA('FriendlyTurretController'))
+	if(Killer != None)
 	{
-		//A summoned monster or constructed turret killed something
-		if(Killer.IsA('FriendlyMonsterController'))
+		if(Killer.IsA('FriendlyMonsterController') || Killer.IsA('FriendlyTurretController'))
 		{
-			Killer = FriendlyMonsterController(Killer).Master;
-			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Monster');
-			
-			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
-				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
-		}
-		else if(Killer.IsA('FriendlyTurretController'))
-		{
-			Killer = FriendlyTurretController(Killer).Master;
-			RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Turret');
+			//A summoned monster or constructed turret killed something
+			if(Killer.IsA('FriendlyMonsterController'))
+			{
+				Killer = FriendlyMonsterController(Killer).Master;
+				RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Monster');
+				
+				if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
+					PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyMonsterKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
+			}
+			else if(Killer.IsA('FriendlyTurretController'))
+			{
+				Killer = FriendlyTurretController(Killer).Master;
+				RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, class'DummyWeapon_Turret');
 
-			if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
-				PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
-		}
-		
-		//Award experience
-		KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
-		if(KillerRPRI != None)
-			KillerRPRI.AwardExperience(GetKillEXP(KillerRPRI, KilledRPRI, EXPMul_SummonKill));
-		
-		//Add legitimate score
-		if(Killer.PlayerReplicationInfo != None)
-		{
-			Killer.PlayerReplicationInfo.Score += 1.0f;
+				if(Killer.IsA('PlayerController') && Killed.PlayerReplicationInfo != None)
+					PlayerController(Killer).ReceiveLocalizedMessage(class'FriendlyTurretKillerMessage',, Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillerPawn);
+			}
 			
-			if(Level.Game.MaxLives > 0)
-				Level.Game.CheckScore(Killer.PlayerReplicationInfo); //possibly win the match
+			//Award experience
+			KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
+			if(KillerRPRI != None)
+				KillerRPRI.AwardExperience(GetKillEXP(KillerRPRI, KilledRPRI, EXPMul_SummonKill));
+			
+			//Add legitimate score
+			if(Killer.PlayerReplicationInfo != None)
+			{
+				Killer.PlayerReplicationInfo.Score += 1.0f;
+				
+				if(Level.Game.MaxLives > 0)
+					Level.Game.CheckScore(Killer.PlayerReplicationInfo); //possibly win the match
+			}
+			
+			return;
 		}
+		else
+		{
+			if(Killer.PlayerReplicationInfo != None)
+			{
+				KillWeaponType = GetCustomStatWeapon(KillDamageType);
+				if(KillWeaponType != None)
+					RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillWeaponType);
+			}
 		
-		return;
+			//TODO: Adjust adrenaline for lightning rod kills
+		
+			if(KillerRPRI != None)
+			{
+				/*
+					ADRENALINE ADJUSTMENT
+				*/
+				if(KillDamageType == class'DamTypeLightningRod') //TODO: make generic?
+					Killer.Adrenaline = KillerRPRI.AdrenalineBeforeKill;
+			
+				/*
+					EXPERIENCE
+				*/
+				
+				//Kill
+				if(!Killed.IsA('Bot') || RPGMut.GameSettings.bExpForKillingBots)
+					ShareExperience(KillerRPRI, GetKillEXP(KillerRPRI, KilledRPRI));
+				
+				//Type kill
+				if(Killed.IsA('PlayerController') && PlayerController(Killed).bIsTyping)
+				{
+					Log("TYPE KILL:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_TypeKill);
+				}
+				
+				//Translocator kill
+				if(KillDamageType == class'DamTypeTeleFrag')
+				{
+					Log("TELEFRAG:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_Telefrag);
+				}
+				
+				//Head shot
+				if(KillDamageType == class'DamTypeSniperHeadShot' || KillDamageType == class'DamTypeClassicHeadshot')
+				{
+					Log("HEAD SHOT:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_HeadShot);
+				}
+				
+				//Multi kill
+				if(Killer.IsA('UnrealPlayer') && UnrealPlayer(Killer).MultiKillLevel > 0)
+				{
+					Log("MULTI KILL (" $ string(UnrealPlayer(Killer).MultiKillLevel) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_MultiKill[Min(UnrealPlayer(Killer).MultiKillLevel, ArrayCount(EXP_MultiKill))]);
+				}
+			
+				//Spree
+				if(
+					UnrealPawn(Killer.Pawn) != None &&
+					UnrealPawn(Killer.Pawn).spree > 0 &&
+					UnrealPawn(Killer.Pawn).spree % 5 == 0
+				)
+				{
+					Log("KILLING SPREE (" $ string(UnrealPawn(Killer.Pawn).spree / 5) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_KillingSpree[Min(UnrealPawn(Killer.Pawn).spree / 5, ArrayCount(EXP_KillingSpree))]);
+				}
+				
+				//First blood
+				if(
+					Killer.PlayerReplicationInfo.Kills == 1 &&
+					TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo).bFirstBlood
+				)
+				{
+					Log("FIRST BLOOD:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_FirstBlood);
+				}
+				
+				//End spree
+				if(
+					UnrealPawn(Killed.Pawn) != None &&
+					UnrealPawn(Killed.Pawn).spree > 4
+				)
+				{
+					Log("END SPREE:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_EndSpree);
+				}
+				
+				//Kill flag carrier
+				if(Level.Game.IsA('TeamGame') && TeamGame(Level.Game).CriticalPlayer(Killed))
+				{
+					Log("CRITICAL FRAG:" @ KillerRPRI.RPGName, 'DEBUG');
+					KillerRPRI.AwardExperience(EXP_CriticalFrag);
+				}
+				
+				//Notify killer's abilities
+				for(x = 0; x < KillerRPRI.Abilities.length; x++)
+				{
+					if(KillerRPRI.Abilities[x].bAllowed)
+						KillerRPRI.Abilities[x].ScoreKill(Killed, KillDamageType);
+				}
+			}
+		}
 	}
-	else
+
+	if(KilledRPRI != None)
 	{
-		if(Killer.PlayerReplicationInfo != None)
+		//Notify victim's abilities
+		for(x = 0; x < KilledRPRI.Abilities.length; x++)
 		{
-			KillWeaponType = GetDamageWeapon(KillDamageType);
-			if(KillWeaponType != None)
-				RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillWeaponType);
-		}
-	
-		//TODO: Adjust adrenaline for lightning rod kills
-	
-		if(KillerRPRI != None)
-		{
-			/*
-				EXPERIENCE
-			*/
-			
-			//Kill
-			if(!Killed.IsA('Bot') || RPGMut.GameSettings.bExpForKillingBots)
-				ShareExperience(KillerRPRI, GetKillEXP(KillerRPRI, KilledRPRI));
-			
-			//Type kill
-			if(Killed.IsA('PlayerController') && PlayerController(Killed).bIsTyping)
-			{
-				Log("TYPE KILL:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_TypeKill);
-			}
-			
-			//Translocator kill
-			if(KillDamageType == class'DamTypeTeleFrag')
-			{
-				Log("TELEFRAG:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_Telefrag);
-			}
-			
-			//Head shot
-			if(KillDamageType == class'DamTypeSniperHeadShot' || KillDamageType == class'DamTypeClassicHeadshot')
-			{
-				Log("HEAD SHOT:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_HeadShot);
-			}
-			
-			//Multi kill
-			if(Killer.IsA('UnrealPlayer') && UnrealPlayer(Killer).MultiKillLevel > 0)
-			{
-				Log("MULTI KILL (" $ string(UnrealPlayer(Killer).MultiKillLevel) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_MultiKill[Min(UnrealPlayer(Killer).MultiKillLevel, ArrayCount(EXP_MultiKill))]);
-			}
-		
-			//Spree
-			if(
-				UnrealPawn(Killer.Pawn) != None &&
-				UnrealPawn(Killer.Pawn).spree > 0 &&
-				UnrealPawn(Killer.Pawn).spree % 5 == 0
-			)
-			{
-				Log("KILLING SPREE (" $ string(UnrealPawn(Killer.Pawn).spree / 5) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_KillingSpree[Min(UnrealPawn(Killer.Pawn).spree / 5, ArrayCount(EXP_KillingSpree))]);
-			}
-			
-			//First blood
-			if(
-				Killer.PlayerReplicationInfo.Kills == 1 &&
-				TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo).bFirstBlood
-			)
-			{
-				Log("FIRST BLOOD:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_FirstBlood);
-			}
-			
-			//End spree
-			if(
-				UnrealPawn(Killed.Pawn) != None &&
-				UnrealPawn(Killed.Pawn).spree > 4
-			)
-			{
-				Log("END SPREE:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_EndSpree);
-			}
-			
-			//Kill flag carrier
-			if(Level.Game.IsA('TeamGame') && TeamGame(Level.Game).CriticalPlayer(Killed))
-			{
-				Log("CRITICAL FRAG:" @ KillerRPRI.RPGName, 'DEBUG');
-				KillerRPRI.AwardExperience(EXP_CriticalFrag);
-			}
-			
-			//Notify killer's abilities
-			for(x = 0; x < KillerRPRI.Abilities.length; x++)
-			{
-				if(KillerRPRI.Abilities[x].bAllowed)
-					KillerRPRI.Abilities[x].ScoreKill(Killed, KillDamageType);
-			}
-		}
-		
-		if(KilledRPRI != None)
-		{
-			//Notify victim's abilities
-			for(x = 0; x < KilledRPRI.Abilities.length; x++)
-			{
-				if(KilledRPRI.Abilities[x].bAllowed)
-					KilledRPRI.Abilities[x].Killed(Killer, KillDamageType);
-			}
-		}
-	}
-}
-
-/*
-// award EXP based on damage done
-function AwardEXPForDamage(Controller InstigatedBy, RPGPlayerReplicationInfo InstRPRI, Pawn injured, float Damage)
-{
-	local float xp;
-
-	if(
-		InstigatedBy != Injured.Controller &&
-		InstRPRI != None &&
-		injured.IsA('Monster') &&
-		injured.Controller != None &&
-		!injured.Controller.IsA('FriendlyMonsterController')
-	)
-	{
-		Damage = FMin(Damage, injured.Health);
-		xp = RPGMut.GameSettings.ExpForDamageScale * (Damage / injured.HealthMax) * float(Monster(injured).ScoringValue);
-
-		if(xp > 0)
-		{
-			if(InstigatedBy.IsA('FriendlyMonsterController'))
-				InstRPRI.AwardExperience(xp * EXPMul_SummonKill);
-			else
-				ShareExperience(InstRPRI, xp);
+			if(KilledRPRI.Abilities[x].bAllowed)
+				KilledRPRI.Abilities[x].Killed(Killer, KillDamageType);
 		}
 	}
 }
-*/
 
 //Get exp for damage
 function float GetDamageEXP(int Damage, Pawn InstigatedBy, Pawn Injured)
 {
+	Damage = Min(Damage, Injured.Health); //clamp to injured's health
+
 	if(
-		Damage == 0 ||
+		Damage <= 0 ||
 		InstigatedBy == Injured ||
 		InstigatedBy.Controller.SameTeamAs(Injured.Controller)
 	)
@@ -509,6 +495,30 @@ function float GetDamageEXP(int Damage, Pawn InstigatedBy, Pawn Injured)
 	return 0;
 }
 
+//Get pawn's weapon for the given damage type
+function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
+{
+	local class<Weapon> WClass;
+	local Inventory Inv;
+	
+	if(ClassIsChildOf(DamageType, class'WeaponDamageType'))
+	{
+		WClass = class<WeaponDamageType>(DamageType).default.WeaponClass;
+		
+		if(Other.Weapon != None && ClassIsChildOf(Other.Weapon.class, WClass)) //for most cases
+			return Other.Weapon;
+		
+		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
+		{
+			if(ClassIsChildOf(Inv.class, WClass))
+				return Weapon(Inv);
+			else if(Inv.IsA('RPGWeapon') && ClassIsChildOf(RPGWeapon(Inv).ModifiedWeapon.class, WClass))
+				return Weapon(Inv);
+		}
+	}
+	return None;
+}
+
 /***************************************************
 ****************** NET DAMAGE **********************
 ***************************************************/
@@ -518,6 +528,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	local Controller injuredController, instigatorController;
 	local RPGPlayerReplicationInfo injuredRPRI, instigatorRPRI;
 	local Inventory Inv;
+	local Weapon W;
 	local int x;
 
 	if(bDamageLog)
@@ -577,8 +588,11 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	injuredController = injured.Controller;
 	injuredRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(injuredController);
 
-	instigatorController = instigatedBy.Controller;
-	instigatorRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(instigatorController);
+	if(instigatedBy != None)
+	{
+		instigatorController = instigatedBy.Controller;
+		instigatorRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(instigatorController);
+	}
 	
 	if(bDamageLog)
 	{
@@ -598,33 +612,65 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	}
 	
 	/*
+		Invasion auto adjustment - with a big FIXME note...
+		
+		UT2004RPG solved this by treating a monster as another RPG character who spent half of his stat points on
+		damage bonus and the other half on damage reduction.
+	*/
+	if(
+		RPGMut.bAutoAdjustInvasionLevel &&
+		RPGMut.InvasionDamageAdjustment > 0 &&
+		(injured.IsA('Monster') || Monster(instigatedBy) != None)
+	)
+	{
+		x = float(Damage) * RPGMut.InvasionDamageAdjustment;
+		
+		if(Monster(instigatedBy) != None)
+			Damage += x;
+		
+		if(injured.IsA('Monster'))
+			Damage -= x;
+	}
+	
+	/*
 		ACTIVE DAMAGE MODIFICATION
 	*/
 	
-	//Abilities
-	if(instigatorRPRI != None)
+	if(instigatedBy != None)
 	{
-		for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+		//Abilities
+		if(instigatorRPRI != None)
 		{
-			if(instigatorRPRI.Abilities[x].bAllowed)
-				instigatorRPRI.Abilities[x].AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+			for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+			{
+				if(instigatorRPRI.Abilities[x].bAllowed)
+					instigatorRPRI.Abilities[x].AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+			}
 		}
-	}
-	
-	//RPGWeapon
-	if(RPGWeapon(instigatedBy.Weapon) != None)
-		RPGWeapon(instigatedBy.Weapon).RPGAdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
-	
-	//Weapon modifier
-	WM = class'RPGWeaponModifier'.static.GetFor(instigatedBy.Weapon);
-	if(WM != None)
-		WM.AdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
-	
-	//Active artifacts
-	for(Inv = instigatedBy.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
-			RPGArtifact(Inv).AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		
+		W = GetDamageWeapon(instigatedBy, DamageType);
+		
+		if(bDamageLog)
+			Log("DamageWeapon =" @ W, 'RPGDamage');
+		
+		if(W != None)
+		{
+			//RPGWeapon
+			if(RPGWeapon(W) != None)
+				RPGWeapon(W).RPGAdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
+			
+			//Weapon modifier
+			WM = class'RPGWeaponModifier'.static.GetFor(W);
+			if(WM != None)
+				WM.AdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
+		}
+		
+		//Active artifacts
+		for(Inv = instigatedBy.Inventory; Inv != None; Inv = Inv.Inventory)
+		{
+			if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
+				RPGArtifact(Inv).AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		}
 	}
 	
 	//TODO: Vehicle magic
@@ -636,10 +682,10 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	//Abilities
 	if(injuredRPRI != None)
 	{
-		for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+		for(x = 0; x < injuredRPRI.Abilities.length; x++)
 		{
-			if(instigatorRPRI.Abilities[x].bAllowed)
-				instigatorRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+			if(injuredRPRI.Abilities[x].bAllowed)
+				injuredRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		}
 	}
 	
@@ -678,399 +724,6 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	}
 	return Damage;
 }
-
-/*
-function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
-{
-	local RPGPlayerReplicationInfo InjuredRPRI, InstRPRI, RPRI;
-	local int x;
-	local bool bZeroDamage;
-	local Controller InjuredController, InstigatorController;
-	local ONSVehicle V;
-	local ONSWeaponPawn WP, InjuredWeaponPawn, InstigatorWeaponPawn; //"side turret"
-	local Inventory Inv;
-	local RPGArtifact A;
-	local VehicleMagic VM;
-	local AbilityVehicleEject Eject;
-	local RPGWeapon RW;
-	
-	if(bDamageLog)
-	{
-		Log("=== RPGRules.NetDamage BEGIN ===");
-		Log("OriginalDamage = " $ OriginalDamage);
-		Log("Damage = " $ Damage);
-		Log("injured = " $ injured);
-		Log("instigatedBy = " $ instigatedBy);
-		Log("HitLocation = " $ HitLocation);
-		Log("Momentum = " $ Momentum);
-		Log("DamageType = " $ DamageType);
-		Log("");
-	}
-	
-	//Filter UDamage if desired for this damage type
-	if(
-		class'Util'.static.InArray(DamageType, NoUDamageTypes) >= 0 &&
-		instigatedBy != None &&
-		instigatedBy.HasUDamage()
-	)
-	{
-		OriginalDamage = int(float(OriginalDamage) / (2.f * instigatedBy.DamageScaling));
-		Damage = int(float(Damage) / (2.f * instigatedBy.DamageScaling));
-		
-		if(bDamageLog)
-		{
-			Log("DEBUG: This damage type should not have UDamage applied!");
-			Log("DEBUG: OriginalDamage = " $ OriginalDamage);
-			Log("DEBUG: Damage = " $ Damage);
-		}
-	}
-	
-	//Direct damage types should not be processed by RPG
-	if(class'Util'.static.InArray(DamageType, DirectDamageTypes) >= 0)
-	{
-		if(bDamageLog)
-		{
-			Log("DEBUG: This is a direct damage type and will not be processed further by RPG!");
-			Log("=== RPGRules.NetDamage END ===");
-		}
-		
-		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType); //pass-through
-	}
-
-	//Don't do anything to friendly monsters
-	if(
-		injured.IsA('Monster') &&
-		FriendlyMonsterController(injured.Controller) != None &&
-		instigatedBy != None &&
-		instigatedBy.Controller != None &&
-		instigatedBy.Controller.SameTeamAs(injured.Controller)
-		)
-	{
-		if(bDamageLog)
-		{
-			Log("ZERO: Do not hurt friendly monsters!");
-			Log("=== RPGRules.NetDamage END ===");
-		}
-	
-		return 0;
-	}
-		
-	//Pass through damage done by a monster to another monster
-	if(Monster(injured) != None && Monster(instigatedBy) != None)
-	{
-		if(bDamageLog)
-		{
-			Log("SKIP: Damage done to a monster by another monster!");
-			Log("=== RPGRules.NetDamage END ===");
-		}
-	
-		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-
-	//Let Ejector Seat decide whether or not to ignore this damage type
-	if(!injured.IsA('Vehicle'))
-	{
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(injured.Controller);
-		if(RPRI != None)
-		{
-			Eject = AbilityVehicleEject(RPRI.GetOwnedAbility(class'AbilityVehicleEject'));
-			if(Eject != None && Eject.HasJustEjected() && Eject.ProtectsAgainst(DamageType))
-			{
-				if(bDamageLog)
-				{
-					Log("ZERO: Damage was nullified by Ejector Seat!");
-					Log("=== RPGRules.NetDamage END ===");
-				}
-				
-				return 0;
-			}
-		}
-	}
-	
-	//Check whether injured is a vehicle, if so, browse through the side turrets and see whether it is manned
-	//Enables effects to work in/on vehicle side turrets
-	V = ONSVehicle(injured);
-	if(V != None && V.Controller == None)
-	{
-		for(x = 0; x < V.WeaponPawns.Length; x++)
-		{
-			WP = V.WeaponPawns[x];
-			if(WP != None && WP.Controller != None)
-			{
-				InjuredWeaponPawn = WP;
-				break;
-			}
-		}
-	}
-	
-	//Same for instigator
-	V = ONSVehicle(instigatedBy);
-	if(V != None && V.Controller == None)
-	{
-		for(x = 0; x < V.WeaponPawns.Length; x++)
-		{
-			WP = V.WeaponPawns[x];
-			if(WP != None && WP.Controller != None)
-			{
-				InstigatorWeaponPawn = WP;
-				break;
-			}
-		}
-	}
-	
-	if(bDamageLog)
-	{
-		Log("DEBUG: InstigatorWeaponPawn = " $ InjuredWeaponPawn);
-		Log("DEBUG: InjuredWeaponPawn = " $ InjuredWeaponPawn);
-	}
-
-	if(
-		injured == None ||
-		instigatedBy == None ||
-		(injured.Controller == None && InjuredWeaponPawn == None) ||
-		(instigatedBy.Controller == None && InstigatorWeaponPawn == None)
-	)
-	{
-		if(bDamageLog)
-		{
-			Log("SKIP: Not enough information for RPG processing!");
-			Log("=== RPGRules.NetDamage END ===");
-		}
-	
-		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-
-	InjuredController = injured.Controller;
-	if(InjuredController == None)
-		InjuredController = InjuredWeaponPawn.Controller;
-		
-	InstigatorController = instigatedBy.Controller;
-	if(InstigatorController == None)
-		InstigatorController = InstigatorWeaponPawn.Controller;
-		
-	if(bDamageLog)
-	{
-		Log("DEBUG: InjuredController = " $ InjuredController);
-		Log("DEBUG: InstigatorController = " $ InstigatorController);
-	}
-
-	if(Damage <= 0)
-	{
-		Damage = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-		if(Damage < 0)
-		{
-			if(bDamageLog)
-			{
-				Log("SKIP: Negative damage!");
-				Log("=== RPGRules.NetDamage END ===");
-			}
-		
-			return Damage;
-		}
-		else if (Damage == 0) //for zero damage, still process abilities/magic weapons so effects relying on hits instead of damage still work
-		{
-			if(bDamageLog)
-				Log("INFO: Zero damage!");
-		
-			bZeroDamage = true;
-		}
-	}
-	
-	InstRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(InstigatorController);
-	InjuredRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(InjuredController);
-	
-	if(bDamageLog)
-	{
-		Log("DEBUG: InstRPRI = " $ InstRPRI);
-		Log("DEBUG: InjuredRPRI = " $ InjuredRPRI);
-	}
-	
-	if(Monster(instigatedBy) == None && InstRPRI == None)
-	{
-		//This should never happen
-		Warn("InstRPRI not found for " $ instigatedBy.GetHumanReadableName() $ " (" $ instigatedBy $ ")");
-		
-		if(default.bDamageLog)
-			Log("=== RPGRules.NetDamage END ===");
-		
-		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-	
-	if(Monster(injured) == None && TurretController(InjuredController) == None && InjuredRPRI == None)
-	{
-		//This should never happen
-		Warn("InjuredRPRI not found for " $ injured.GetHumanReadableName() $ " (" $ injured $ ")");
-		
-		if(default.bDamageLog)
-			Log("=== RPGRules.NetDamage END ===");
-		
-		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-
-	//headshot bonus EXP
-	if(
-		InstRPRI != None &&
-		(DamageType == class'DamTypeSniperHeadShot' || DamageType == class'DamTypeClassicHeadshot') &&
-		!InstigatorController.SameTeamAs(InjuredController))
-	{
-		if(default.bDamageLog)
-			Log("DEBUG: HEADSHOT!!");
-		
-		InstRPRI.AwardExperience(EXP_HeadShot);
-	}
-	
-	if(bDamageLog)
-		Log("DEBUG: Processing damage...");
-
-	if(InstRPRI != None)
-		Damage += int(float(Damage) * float(InstRPRI.Attack) * 0.005);
-	
-	if(bDamageLog)
-		Log("DEBUG: After instigator's damage bonus: Damage = " $ Damage);
-		
-	if(InjuredRPRI != None)
-		Damage -= int(float(Damage) * float(InjuredRPRI.Defense) * 0.005);
-		
-	if(bDamageLog)
-		Log("DEBUG: After injured's damage reduction: Damage = " $ Damage);
-
-	if(Damage < 1 && !bZeroDamage)
-		Damage = 1;
-		
-	//if this is weapon damage done by an RPGWeapon, let it modify the damage
-	if(ClassIsChildOf(DamageType, class'WeaponDamageType'))
-	{
-		RW = RPGWeapon(class'Util'.static.TraceBackWeapon(InstigatedBy, class<WeaponDamageType>(DamageType)));
-		if(RW != None)
-		{
-			RW.RPGAdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
-
-			if(bDamageLog)
-				Log("DEBUG: After instigator's WEAPON " $ RW.ItemName $ " RPGAdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-		}
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-
-	//Instigator active artifacts, active damage scaling -pd
-	for(Inv = instigatedBy.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		A = RPGArtifact(Inv);
-		
-		if(A != None && A.bActive)
-		{
-			A.AdjustTargetDamage(Damage, Injured, HitLocation, Momentum, DamageType);
-		
-			if(bDamageLog)
-				Log("DEBUG: After instigator's active ARTIFACT " $ A.ItemName $ " AdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-		}
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-	
-	//Instigator's vehicle magic -pd
-	VM = class'VehicleMagic'.static.FindFor(instigatedBy);
-	if(VM != None)
-	{
-		VM.AdjustTargetDamage(Damage, Injured, HitLocation, Momentum, DamageType);
-
-		if(bDamageLog)
-			Log("DEBUG: After instigator's active VEHICLE MAGIC " $ VM.MagicName $ " AdjustTargetDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-
-	//Instigator abilities
-	if(InstRPRI != None)
-	{
-		for(x = 0; x < InstRPRI.Abilities.length; x++)
-		{
-			if(InstRPRI.Abilities[x].bAllowed)
-				InstRPRI.Abilities[x].HandleDamage(Damage, injured, instigatedBy, Momentum, DamageType, true);
-		
-			if(bDamageLog)
-				Log("DEBUG: After instigator's ABILITY " $ InstRPRI.Abilities[x].GetName() $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-		}
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-
-	//Injured weapon magic
-	if(RPGWeapon(injured.Weapon) != None)
-	{
-		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
-		
-		if(bDamageLog)
-			Log("DEBUG: After injured's WEAPON " $ RPGWeapon(injured.Weapon).ItemName $ " RPGAdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-
-	//Injured active artifacts, passive damage scaling -pd
-	for(Inv = Injured.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		A = RPGArtifact(Inv);
-		
-		if(A != None && A.bActive)
-		{
-			A.AdjustPlayerDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType);
-			
-			if(bDamageLog)
-				Log("DEBUG: After injured's active ARTIFACT " $ A.ItemName $ " AdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);
-		}
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-	
-	//Injured vehicle magic -pd
-	VM = class'VehicleMagic'.static.FindForAnyPassenger(Injured);
-	if(VM != None)
-	{
-		VM.AdjustPlayerDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType);
-	
-		if(bDamageLog)
-			Log("DEBUG: After injured's active VEHICLE MAGIC " $ VM.MagicName $ " AdjustPlayerDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);	
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-	
-	//Injured abilities
-	if(InjuredRPRI != None)
-	{
-		for(x = 0; x < InjuredRPRI.Abilities.length; x++)
-		{
-			if(InjuredRPRI.Abilities[x].bAllowed)
-				InjuredRPRI.Abilities[x].HandleDamage(Damage, injured, instigatedBy, Momentum, DamageType, false);
-		
-			if(bDamageLog)
-				Log("DEBUG: After injured's ABILITY " $ InjuredRPRI.Abilities[x].GetName() $ " HandleDamage: Damage = " $ Damage $ ", Momentum = " $ Momentum);	
-		}
-	}
-	bZeroDamage = bZeroDamage || Damage == 0;
-	
-	if(bDamageLog)
-		Log("=== RPGRules.NetDamage END ===");
-
-	//EXP for damage
-	if(bZeroDamage || Damage < 0)
-	{
-		Damage = 0;
-		return 0;
-	}
-	else
-	{
-		//retrieve actual damage
-		Damage = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-		
-		//xp for damage
-		if(InstRPRI != None)
-		{
-			AwardEXPForDamage(InstigatorController, InstRPRI, injured, Damage);
-		}
-		else if(InstigatorController.IsA('FriendlyMonsterController'))
-		{
-			InstRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(FriendlyMonsterController(InstigatorController).Master);
-			if(InstRPRI != None)
-				AwardEXPForDamage(InstigatorController, InstRPRI, injured, Damage);
-		}
-
-		return Damage;
-	}
-}
-*/
 
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
@@ -1274,11 +927,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 		KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
 	
 	if(KillerRPRI != None)
-	{
-		KillerRPRI.AboutToKill = Killed.Controller;
-		KillerRPRI.KillingDamType = damageType;
 		KillerRPRI.AdrenalineBeforeKill = Killer.Adrenaline;
-	}
 
 	return false;
 }
@@ -1422,7 +1071,7 @@ static function bool IsResurrectionCombo(string ComboName)
 	return false;
 }
 
-function class<Weapon> GetDamageWeapon(class<DamageType> DamageType)
+function class<Weapon> GetCustomStatWeapon(class<DamageType> DamageType)
 {
 	local int i;
 	
@@ -1458,6 +1107,7 @@ defaultproperties
 	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeapon_MegaBlast')
 	CustomWeaponStats(9)=(DamageType=Class'DamTypeRepulsion',WeaponClass=Class'DummyWeapon_Repulsion')
 	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeapon_Vorpal')
+	CustomWeaponStats(11)=(DamageType=Class'DamTypeBioBomb',WeaponClass=Class'DummyWeapon_BioBomb')
 
 	//Kills
 	EXP_Frag=1.00

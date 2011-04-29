@@ -76,7 +76,7 @@ defaultproperties
 
 	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GreyShader'
 	EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
-	EmitterClass=class'IceSmokeEffect'
+	xEmitterClass=class'FX_IceSmoke'
 	
 	EffectMessageClass=class'EffectMessage_Freeze'
 }

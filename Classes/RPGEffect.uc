@@ -32,9 +32,7 @@ var config float TimerInterval;
 //Audiovisual
 var Sound EffectSound;
 var Material EffectOverlay;
-var class<XEmitter> EmitterClass;
-
-var xEmitter Emitter; //client-only
+var class<xEmitter> xEmitterClass;
 
 var class<RPGEffectMessage> EffectMessageClass;
 
@@ -43,15 +41,13 @@ var class<RPGEffectMessage> EffectMessageClass;
 //Timing
 var bool bStart;
 var float LastStartTime;
+var float LastEffectTime;
+var float EffectLimitInterval; //to avoid sounds and effects being spammed like hell
 
 replication
 {
-	unreliable if(Role == ROLE_Authority)
-		Duration,
-		ClientSpawnEffect;
-	
 	reliable if(Role == ROLE_Authority && bNetDirty)
-		EffectCauser;
+		Duration, EffectCauser;
 }
 
 static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Duration, optional float Modifier)
@@ -60,7 +56,7 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	local RPGPlayerReplicationInfo RPRI;
 	local RPGWeaponModifier WM;
 	local bool bAllow;
-
+	
 	//Stacking
 	if(!default.bAllowStacking && GetFor(Other) != None)
 		return false;
@@ -97,7 +93,7 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	{
 		return false;
 	}
-	
+
 	//RPG Weapon
 	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Modifier))
 		return false;
@@ -213,40 +209,55 @@ function Stop();
 
 function DisplayEffect();
 
+function bool ShouldDisplayEffect()
+{
+	return true;
+}
+
 state Activated
 {
 	function DisplayEffect()
 	{
 		local PlayerReplicationInfo CauserPRI;
 		
-		if(EffectCauser != None)
-			CauserPRI = EffectCauser.PlayerReplicationInfo;
+		if(Level.TimeSeconds - LastEffectTime >= EffectLimitInterval)
+		{
+			if(EffectCauser != None)
+				CauserPRI = EffectCauser.PlayerReplicationInfo;
 
-		if(EffectMessageClass != None)
-			Instigator.ReceiveLocalizedMessage(EffectMessageClass, 0, Instigator.PlayerReplicationInfo, CauserPRI);
+			if(EffectMessageClass != None)
+				Instigator.ReceiveLocalizedMessage(EffectMessageClass, 0, Instigator.PlayerReplicationInfo, CauserPRI);
 
-		if(EmitterClass != None)
-			ClientSpawnEffect();
+			if(xEmitterClass != None)
+				Instigator.Spawn(xEmitterClass, Instigator);
+		}
+		
+		LastEffectTime = Level.TimeSeconds;
 	}
 
 	function BeginState()
 	{
-		if(EffectSound != None && Level.TimeSeconds - LastStartTime > 0.5f) //avoid sounds being spammed like hell
-			class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
-		
-		if(EffectOverlay != None)
-			class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
+		if(ShouldDisplayEffect())
+		{
+			if(EffectSound != None && Level.TimeSeconds - LastStartTime >= EffectLimitInterval)
+				class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
+			
+			if(EffectOverlay != None)
+				class'Sync_OverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);
+			
+			DisplayEffect();
+		}
 		
 		LastStartTime = Level.TimeSeconds;
 		
-		DisplayEffect();
 		if(Duration >= TimerInterval)
 			SetTimer(TimerInterval, true);
 	}
 	
 	function Timer()
 	{
-		DisplayEffect();
+		if(ShouldDisplayEffect())
+			DisplayEffect();
 	}
 	
 	event Tick(float dt)
@@ -285,18 +296,13 @@ state Activated
 	}
 }
 
-simulated function ClientSpawnEffect()
-{
-	if(Instigator != None && EmitterClass != None)
-		Instigator.Spawn(EmitterClass,,, Instigator.Location, Instigator.Rotation);
-}
-
 defaultproperties
 {
 	bPermanent=False
 
 	Duration=1.00
 	TimerInterval=1.00
+	EffectLimitInterval=0.50
 
 	bHarmful=True
 	bAllowOnSelf=True
@@ -305,5 +311,5 @@ defaultproperties
 	bAllowStacking=True
 	
 	bReplicateInstigator=True
-	bOnlyRelevantToOwner=False
+	bOnlyRelevantToOwner=True
 }

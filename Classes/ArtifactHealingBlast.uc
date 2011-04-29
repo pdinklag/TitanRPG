@@ -1,22 +1,33 @@
 class ArtifactHealingBlast extends RPGArtifact;
 
+function BotWhatNext(Bot Bot)
+{
+	if(
+		Instigator.Health >= 50 && //should survive until then
+		CountNearbyEnemies(class'Blast_Heal'.default.Radius, true) >= 2
+	)
+	{
+		Activate();
+	}
+}
+
 function DoEffect()
 {
 	local AbilityLoadedMedic LM;
 	local RPGPlayerReplicationInfo RPRI;
-	local HealingBlastCharger Charger;
+	local Blast_Heal Blast;
 
-	Charger = Spawn(class'HealingBlastCharger', Instigator.Controller,,Instigator.Location);
-	if(Charger != None)
+	Blast = Spawn(class'Blast_Heal', Instigator.Controller,,Instigator.Location);
+	if(Blast != None)
 	{
 		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 		if(RPRI != None)
 		{
 			LM = AbilityLoadedMedic(RPRI.GetOwnedAbility(class'AbilityLoadedMedic'));
 			if(LM != None)
-				Charger.MaxHealth = LM.GetHealMax();
+				Blast.MaxHealth = LM.GetHealMax();
 			
-			Charger.EXPMultiplier = RPRI.HealingExpMultiplier;
+			Blast.EXPMultiplier = RPRI.HealingExpMultiplier;
 		}
 	}
 }

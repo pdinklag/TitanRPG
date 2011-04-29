@@ -14,7 +14,7 @@ state Activated
 		else
 			Instigator.SetPhysics(PHYS_Flying);
 			
-		FlightTrail = Instigator.spawn(class'FlightEffect', Instigator);
+		FlightTrail = Instigator.spawn(class'FX_Flight', Instigator);
 	}
 	
 	event Tick(float dt)

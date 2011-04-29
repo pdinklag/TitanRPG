@@ -100,7 +100,7 @@ static function string HighlightText(string Text, Color Highlight, Color Old)
 
 static function bool IsRound(float p)
 {
-	return (float(int(p)) == p);
+	return (float(int(p)) - p < 0.01f);
 }
 
 static function string FormatPercent(float p)
@@ -366,23 +366,23 @@ static function SetVehicleOverlay(Vehicle V, Material Mat, float Duration, bool 
 	if(OV != None)
 	{
 		for(i = 0; i < OV.Weapons.Length; i++)
-			class'SyncOverlayMaterial'.static.Sync(OV.Weapons[i], Mat, Duration, bOverride);
+			class'Sync_OverlayMaterial'.static.Sync(OV.Weapons[i], Mat, Duration, bOverride);
 		
 		for(i = 0; i < OV.WeaponPawns.Length; i++)
-			class'SyncOverlayMaterial'.static.Sync(OV.WeaponPawns[i].Gun, Mat, Duration, bOverride);
+			class'Sync_OverlayMaterial'.static.Sync(OV.WeaponPawns[i].Gun, Mat, Duration, bOverride);
 	}
 	
 	AT = ASTurret(V);
 	if(AT != None)
 	{
 		if(AT.TurretBase != None)
-			class'SyncOverlayMaterial'.static.Sync(AT.TurretBase, Mat, Duration, bOverride);
+			class'Sync_OverlayMaterial'.static.Sync(AT.TurretBase, Mat, Duration, bOverride);
 
 		if(AT.TurretSwivel != None)
-			class'SyncOverlayMaterial'.static.Sync(AT.TurretSwivel, Mat, Duration, bOverride);
+			class'Sync_OverlayMaterial'.static.Sync(AT.TurretSwivel, Mat, Duration, bOverride);
 	}
 	
-	class'SyncOverlayMaterial'.static.Sync(V, Mat, Duration, bOverride);
+	class'Sync_OverlayMaterial'.static.Sync(V, Mat, Duration, bOverride);
 }
 
 static function Weapon TraceBackWeapon(Pawn P, class<WeaponDamageType> DamageType)

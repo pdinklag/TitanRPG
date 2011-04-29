@@ -26,7 +26,7 @@ function bool CheckReflect(Vector HitLocation, out Vector RefNormal, int Damage 
 		{
 			Identify();
 		
-			class'SyncOverlayMaterial'.static.Sync(Instigator, ModifierOverlay, 1.0, false);
+			class'Sync_OverlayMaterial'.static.Sync(Instigator, ModifierOverlay, 1.0, false);
 			return true;
 		}
 	}

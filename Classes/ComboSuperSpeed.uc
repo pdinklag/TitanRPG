@@ -6,10 +6,10 @@ var config float SpeedBonus, JumpZBonus;
 
 function StartEffect(xPawn P)
 {
-    LeftTrail = Spawn(class'SuperSpeedTrail', P,, P.Location, P.Rotation);
+    LeftTrail = Spawn(class'FX_SuperSpeedTrail', P,, P.Location, P.Rotation);
     P.AttachToBone(LeftTrail, 'lfoot');
 
-    RightTrail = Spawn(class'SuperSpeedTrail', P,, P.Location, P.Rotation);
+    RightTrail = Spawn(class'FX_SuperSpeedTrail', P,, P.Location, P.Rotation);
     P.AttachToBone(RightTrail, 'rfoot');
 	
 	P.AirControl  *= (1.0 + SpeedBonus);

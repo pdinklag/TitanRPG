@@ -218,7 +218,6 @@ function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
 	if(State == 1)
 	{		
 		Temp = PlayerOwner().ConsoleCommand("KEYNAME" @ iKey);
-		Log("KEYNAME ->" @ Temp, 'DEBUG');
 		
 		//default bindings
 		if(
@@ -233,7 +232,6 @@ function bool InternalOnKeyEvent(out byte iKey, out byte State, float Delta)
 		}
 		
 		Temp = PlayerOwner().ConsoleCommand("KEYBINDING" @ Temp);
-		Log("KEYBINDING ->" @ Temp, 'DEBUG');
 		
 		//ActivateItem equals a click on OK
 		if(Temp ~= "ActivateItem" || Temp ~= "InventoryActivate")

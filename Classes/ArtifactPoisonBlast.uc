@@ -4,7 +4,7 @@ function BotWhatNext(Bot Bot)
 {
 	if(
 		Instigator.Health >= 50 && //should survive until then
-		CountNearbyEnemies(class'HealingBlastCharger'.default.Radius, true) >= 2
+		CountNearbyEnemies(class'Blast_Poison'.default.Radius) >= 2
 	)
 	{
 		Activate();
@@ -13,7 +13,7 @@ function BotWhatNext(Bot Bot)
 
 function DoEffect()
 {
-	Spawn(class'PoisonBlastCharger', Instigator.Controller,,Instigator.Location);
+	Spawn(class'Blast_Poison', Instigator.Controller,,Instigator.Location);
 	Destroy();
 }
 

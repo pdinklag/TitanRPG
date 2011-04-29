@@ -1,4 +1,5 @@
 //This is a total hack to fix Epic's not calling GameRules.NetDamage for monsters
+//~pd: Is this even needed in 3369 ???
 class FakeMonsterWeapon extends Weapon
 	CacheExempt
 	HideDropDown;
@@ -42,6 +43,11 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 function AdjustPlayerDamage( out int Damage, Pawn InstigatedBy, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
 {
 	Damage = Level.Game.GameRulesModifiers.NetDamage(Damage, Damage, Instigator, InstigatedBy, HitLocation, Momentum, DamageType);
+}
+
+simulated function bool IsFiring()
+{
+	return false;
 }
 
 defaultproperties

@@ -58,9 +58,10 @@ state Activated
 
 defaultproperties
 {
-	bAllowStacking=False
+	//bAllowStacking=False
 	bAllowOnFlagCarriers=False
-
+	bAllowOnVehicles=True
+	
 	DamageType=class'fell'
 	
 	Modifier=1.00

@@ -70,7 +70,7 @@ simulated function ClientReceivePickableMonster(MonsterTypeStruct Type)
 
 simulated function ClientShowMenu()
 {
-	class'MonsterSummonMenu'.static.ShowFor(Self);
+	class'SelectionMenu_SummonMonster'.static.ShowFor(Self);
 }
 
 function ServerPickMonster(int i)

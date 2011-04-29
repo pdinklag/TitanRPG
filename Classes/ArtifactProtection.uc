@@ -66,7 +66,7 @@ state Activated
 	{
 		Super.BeginState();
 		
-		class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, -1, true);
+		class'Sync_OverlayMaterial'.static.Sync(Instigator, EffectOverlay, -1, true);
 		SetTimer(0.5, true);
 	}
 	
@@ -79,14 +79,14 @@ state Activated
 		}
 		else if(Instigator.OverlayMaterial == None)
 		{
-			class'SyncOverlayMaterial'.static.Sync(Instigator, EffectOverlay, -1, true);
+			class'Sync_OverlayMaterial'.static.Sync(Instigator, EffectOverlay, -1, true);
 		}
 	}
 
 	function EndState()
 	{
 		if(Instigator != None)
-			class'SyncOverlayMaterial'.static.Sync(Instigator, None, 0, true);
+			class'Sync_OverlayMaterial'.static.Sync(Instigator, None, 0, true);
 
 		SetTimer(0, false);
 		

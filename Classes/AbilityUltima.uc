@@ -24,7 +24,7 @@ function ModifyPawn(Pawn Other)
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> DamageType, vector HitLocation, bool bAlreadyPrevented)
 {
-	local UltimaCharger UC;
+	local Blast_Ultima UC;
 	local Pawn P;
 	local AbilityVehicleEject EjectorSeat;
 	local int Tries;
@@ -79,11 +79,11 @@ function ScoreKill(Controller Killed, class<DamageType> DamageType)
 		KillCount++;
 }
 
-function UltimaCharger SpawnCharger(vector ChargerLocation)
+function Blast_Ultima SpawnCharger(vector ChargerLocation)
 {
-	local UltimaCharger UC;
+	local Blast_Ultima UC;
 
-	UC = Spawn(class'UltimaCharger', RPRI.Controller,, ChargerLocation);
+	UC = Spawn(class'Blast_Ultima', RPRI.Controller,, ChargerLocation);
 	if(UC != None)
 		UC.SetChargeTime(FMax(float(MaxLevel), BaseDelay) - float(AbilityLevel));
 	

@@ -22,7 +22,7 @@ function RPGTick(float dt)
 {
 	local float Multiplier;
 	local Projectile Proj;
-	local SyncProjectileSpeed Sync;
+	local Sync_ProjectileSpeed Sync;
 
 	//Projectiles
 	foreach Instigator.VisibleCollidingActors(class'Projectile', Proj, 256)
@@ -43,7 +43,7 @@ function RPGTick(float dt)
 				//Tell clients
 				if(Level.NetMode == NM_DedicatedServer)
 				{
-					Sync = Instigator.Spawn(class'SyncProjectileSpeed');
+					Sync = Instigator.Spawn(class'Sync_ProjectileSpeed');
 					Sync.Proj = Proj;
 					Sync.ProjClass = Proj.class;
 					Sync.ProcessedTag = default.class.Name;

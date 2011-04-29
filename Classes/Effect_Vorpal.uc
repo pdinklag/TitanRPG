@@ -9,7 +9,7 @@ defaultproperties
 {
 	//EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GreyShader'
 	EffectSound=Sound'WeaponSounds.Misc.instagib_rifleshot'
-	EmitterClass=class'RocketExplosion'
+	xEmitterClass=class'RocketExplosion'
 	
 	EffectMessageClass=class'EffectMessage_Vorpal'
 }
