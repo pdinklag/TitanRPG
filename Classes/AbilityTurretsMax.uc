@@ -2,6 +2,8 @@ class AbilityTurretsMax extends RPGAbility;
 
 function ModifyRPRI()
 {
+	Super.ModifyRPRI();
+
 	RPRI.MaxTurrets += AbilityLevel;
 }
 

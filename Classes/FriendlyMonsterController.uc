@@ -18,12 +18,14 @@ function Possess(Pawn aPawn)
 	Super(ScriptedController).Possess(aPawn);
 	
 	InitializeSkill(DeathMatch(Level.Game).AdjustedDifficulty);
+	
 	Pawn.MaxFallSpeed = 1.1 * Pawn.default.MaxFallSpeed;
 	Pawn.SetMovementPhysics();
+	Pawn.bAlwaysRelevant = true; //should stay relevant for global interaction
 
 	if(Pawn.Physics == PHYS_Walking)
 		Pawn.SetPhysics(PHYS_Falling);
-	
+
 	FPRI.Pawn = aPawn;
 
 	Enable('NotifyBump');

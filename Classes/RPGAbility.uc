@@ -56,6 +56,9 @@ var bool bNetSyncComplete;
 
 var ReplicatedArray RequiredRepl, ForbiddenRepl, ItemsRepl, LevelCostRepl;
 
+//Status icons
+var class<RPGStatusIcon> StatusIconClass;
+
 replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
@@ -80,7 +83,7 @@ function ServerSyncComplete()
 function bool ShouldReplicateInfo()
 {
 	return
-		(Role == ROLE_Authority) &&
+		Role == ROLE_Authority &&
 		RemoteRole != ROLE_None &&
 		Level.NetMode != NM_Standalone &&
 		Owner.IsA('PlayerController');
@@ -508,7 +511,11 @@ simulated function int Cost()
 	return CostForNextLevel(AbilityLevel);
 }
 
-function ModifyRPRI();
+function ModifyRPRI()
+{
+	if(StatusIconClass != None)
+		RPRI.ClientCreateStatusIcon(StatusIconClass);
+}
 
 function ModifyPawn(Pawn Other)
 {

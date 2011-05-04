@@ -10,37 +10,13 @@ var config array<MonsterTypeStruct> MonsterTypes;
 
 var config bool bUseCostAsCooldown; //instead of consuming adrenaline, use the Cost as a cooldown value instead
 
-var int PickedMonster;
-
 replication
 {
 	reliable if(Role == ROLE_Authority)
 		bUseCostAsCooldown;
 
 	reliable if(Role == ROLE_Authority)
-		ClientShowMenu, ClientClearMonsterTypes, ClientReceivePickableMonster;
-
-	reliable if(Role < ROLE_Authority)
-		ServerPickMonster;
-}
-
-simulated function int PickBest()
-{
-	local int i, Cost, Best, BestCost;
-	
-	Best = -1;
-	BestCost = 0;
-	
-	for(i = 0; i < MonsterTypes.Length; i++)
-	{
-		Cost = MonsterTypes[i].Cost;
-		if(Cost <= Instigator.Controller.Adrenaline && Cost > BestCost)
-		{
-			Best = i;
-			BestCost = Cost;
-		}
-	}
-	return Best;
+		ClientClearMonsterTypes, ClientReceivePickableMonster;
 }
 
 function GiveTo(Pawn Other, optional Pickup Pickup)
@@ -68,84 +44,52 @@ simulated function ClientReceivePickableMonster(MonsterTypeStruct Type)
 	MonsterTypes[MonsterTypes.Length] = Type;
 }
 
-simulated function ClientShowMenu()
+simulated function int MenuPickBest()
 {
-	class'SelectionMenu_SummonMonster'.static.ShowFor(Self);
+	local int i, Cost, Best, BestCost;
+	
+	Best = -1;
+	BestCost = 0;
+	
+	for(i = 0; i < MonsterTypes.Length; i++)
+	{
+		Cost = MonsterTypes[i].Cost;
+		if(Cost <= Instigator.Controller.Adrenaline && Cost > BestCost)
+		{
+			Best = i;
+			BestCost = Cost;
+		}
+	}
+	return Best;
 }
 
-function ServerPickMonster(int i)
+function OnMenuPick(int i)
 {
-	PickedMonster = i;
-	
 	if(i >= 0)
 	{
 		MonsterType = MonsterTypes[i].MonsterClass;
 		
-		if(!bUseCostAsCooldown)
+		if(bUseCostAsCooldown)
+			Cooldown = MonsterTypes[i].Cost;
+		else
 			CostPerSec = MonsterTypes[i].Cost;
-		
-		Activate();
 	}
-}
-
-function bool CanActivate()
-{
-	local bool b;
-	
-	b = Super.CanActivate();
-	if(PickedMonster >= 0 && !b)
-	{
-		PickedMonster = -1;
-		
-		if(!bUseCostAsCooldown)
-			CostPerSec = 0;
-	}
-	
-	return b;
 }
 
 state Activated
 {
-	function BeginState()
-	{
-		if(PickedMonster >= 0)
-		{
-			Super.BeginState();
-		}
-		else
-		{
-			GotoState('');
-		
-			if(Instigator.Controller.IsA('PlayerController'))
-				ClientShowMenu();
-			else
-				ServerPickMonster(PickBest());
-		}
-	}
-	
 	function EndState()
 	{
-		if(PickedMonster >= 0)
-		{
-			Super.EndState();
-
-			if(bUseCostAsCooldown && !bSummonFailed)
-			{
-				Cooldown = MonsterTypes[PickedMonster].Cost;
-				DoCooldown();
-			}
-		}
-		
-		PickedMonster = -1;
-		
 		if(!bUseCostAsCooldown)
 			CostPerSec = 0;
+	
+		Super.EndState();
 	}
 }
 
 defaultproperties
 {
-	PickedMonster=-1
+	SelectionMenuClass=class'SelectionMenu_SummonMonster';
 	
 	ArtifactID="MonsterSummon"
 	Description="Summons a friendly monster of your choice."

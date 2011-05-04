@@ -10,8 +10,16 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	if(Other.Health >= Other.HealthMax + Modifier)
 		return false;
 
-	if(Other.Controller == None || !Other.Controller.SameTeamAs(Causer))
-		return false;
+	if(Other.Controller != None)
+	{
+		if(!Other.Controller.SameTeamAs(Causer))
+			return false;
+	}
+	else if(Other.PlayerReplicationInfo != None && Other.PlayerReplicationInfo.Team != None)
+	{
+		if(Causer == None || Causer.GetTeamNum() != Other.PlayerReplicationInfo.Team.TeamIndex)
+			return false;
+	}
 
 	return Super.CanBeApplied(Other, Causer, Duration, Modifier);
 }
@@ -26,7 +34,7 @@ function HealPassengers(Vehicle V)
 	local int x;
 	local array<Pawn> Passengers;
 	local Effect_Heal Heal;
-
+	
 	Passengers = class'Util'.static.GetAllPassengers(V);
 	for(x = 0; x < Passengers.Length; x++)
 	{
@@ -73,9 +81,9 @@ function DoEffect()
 		if(RPRI != None && RPRI.HealingExpMultiplier > 0)
 		{
 			Inv = HealableDamageInv(Instigator.FindInventoryType(class'HealableDamageInv'));
-			if(Inv != None)
+			if(Inv != None && Inv.Damage > 0)
 			{
-				ExpHealth = Max(HealAmount, Inv.Damage);
+				ExpHealth = Min(HealAmount, Inv.Damage);
 				if(ExpHealth > 0)
 				{
 					if(RPRI != None)

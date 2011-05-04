@@ -1,23 +1,39 @@
 class FriendlyPawnReplicationInfo extends ReplicationInfo;
 
 var Pawn Pawn;
-
-//replicated
 var PlayerReplicationInfo Master;
 
-//we can only replicate this info because the Pawn itself may become irrelevant
-var class<Pawn> PawnClass;
-var vector PawnLocation;
-var int PawnHealth;
-var float PawnHeight;
+var RPGGlobalInteraction Interaction; //client
 
 replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
-		Master;
+		Master, Pawn;
+}
+
+simulated event PostNetBeginPlay()
+{
+	local int i;
+	local PlayerController PC;
+
+	Super.PostNetBeginPlay();
 	
-	reliable if(Role == ROLE_Authority && bNetDirty)
-		Pawn, PawnLocation, PawnHealth, PawnClass, PawnHeight;
+	if(Level.NetMode != NM_DedicatedServer)
+	{
+		PC = Level.GetLocalPlayerController();
+		if(PC != None)
+		{
+			for(i = 0; i < PC.Player.LocalInteractions.Length; i++)
+			{
+				if(PC.Player.LocalInteractions[i].IsA('RPGGlobalInteraction'))
+				{
+					Interaction = RPGGlobalInteraction(PC.Player.LocalInteractions[i]);
+					Interaction.AddFriendlyPawn(Self);
+					break;
+				}
+			}
+		}
+	}
 }
 
 simulated event Tick(float dt)
@@ -27,20 +43,19 @@ simulated event Tick(float dt)
 	if(Role == ROLE_Authority)
 	{
 		if(Master == None || Pawn == None || Pawn.Health <= 0)
-		{
 			Destroy();
-		}
-		else
-		{
-			PawnLocation = Pawn.Location;
-			PawnClass = Pawn.class;
-			PawnHealth = Pawn.Health;
-			PawnHeight = Pawn.CollisionHeight * Pawn.DrawScale;
-		}
 	}
+}
+
+simulated event Destroyed()
+{
+	if(Interaction != None)	
+		Interaction.RemoveFriendlyPawn(Self);
+
+	Super.Destroyed();
 }
 
 defaultproperties
 {
-	NetUpdateFrequency=16.00
+	NetUpdateFrequency=1.00
 }

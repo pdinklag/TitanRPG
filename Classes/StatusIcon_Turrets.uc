@@ -1,11 +1,11 @@
-class StatusIconTurrets extends RPGStatusIcon;
+class StatusIcon_Turrets extends RPGStatusIcon;
 
-simulated function bool IsVisible()
+function bool IsVisible()
 {
 	return (RPRI.NumTurrets > 0);
 }
 
-simulated function string GetText()
+function string GetText()
 {
 	return RPRI.NumTurrets $ "/" $ RPRI.MaxTurrets;
 }

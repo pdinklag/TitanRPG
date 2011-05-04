@@ -48,8 +48,6 @@ function PostBeginPlay()
 
 function bool CanActivate()
 {
-	local array<Pawn> Passengers;
-
 	if(ONSVehicle(Instigator) == None && ASVehicle(Instigator) == None)
 	{
 		Msg(MSG_OnlyInVehicle);
@@ -62,8 +60,7 @@ function bool CanActivate()
 		return false;
 	}
 	
-	Passengers = class'Util'.static.GetAllPassengers(Vehicle(Instigator));
-	if(Passengers.Length > 1)
+	if(class'Util'.static.GetNumPassengers(Vehicle(Instigator)) > 1)
 	{
 		Msg(MSG_TeamMembers);
 		return false;

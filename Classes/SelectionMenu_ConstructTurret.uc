@@ -1,5 +1,8 @@
 class SelectionMenu_ConstructTurret extends RPGSelectionMenu;
 
+//TODO: rewrite
+
+/*
 function int GetNumItems()
 {
 	return ArtifactTurretSummon(Artifact).TurretTypes.Length;
@@ -82,3 +85,4 @@ defaultproperties
 	SpinnyItemOffset=(X=80,Y=-5,Z=-5)
 	SpinnyItemRotation=(Pitch=-2048,Yaw=36864,Roll=0)
 }
+*/

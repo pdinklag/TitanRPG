@@ -227,19 +227,19 @@ function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicat
 		Log(KillerRPRI.RPGName @ "killed" @ KilledRPRI.RPGName, 'GetKillEXP');
 		
 		Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
-		Log("Level difference is" @ Diff, 'GetKillEXP');
+		//Log("Level difference is" @ Diff, 'GetKillEXP');
 		
 		if(Diff > 0)
 		{
 			Diff = (Diff * Diff) / LevelDiffExpGainDiv;
-			Log("Post processed difference value is" @ Diff, 'GetKillEXP');
+			//Log("Post processed difference value is" @ Diff, 'GetKillEXP');
 		}
 		
 		//cap gained exp to enough to get to Killed's level
 		if(KilledRPRI.RPGLevel - KillerRPRI.RPGLevel > 0 && Diff > (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp)
 		{
 			Diff = (KilledRPRI.RPGLevel - KillerRPRI.RPGLevel) * KilledRPRI.NeededExp;
-			Log("Capped difference value is" @ Diff, 'GetKillEXP');
+			//Log("Capped difference value is" @ Diff, 'GetKillEXP');
 		}
 		
 		Diff = float(int(Diff)); //round
@@ -247,13 +247,13 @@ function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicat
 		if(Multiplier > 0)
 		{
 			Diff *= Multiplier;
-			Log("Difference value multiplied by" @ Multiplier @ "is" @ Diff, 'GetKillEXP');
+			//Log("Difference value multiplied by" @ Multiplier @ "is" @ Diff, 'GetKillEXP');
 		}
 	}
 	
 	XP = FMax(EXP_Frag, Diff); //at least EXP_Frag
 	
-	Log("Final XP:" @ XP, 'GetKillEXP');
+	//Log("Final XP:" @ XP, 'GetKillEXP');
 	return XP;
 }
 
@@ -505,11 +505,18 @@ function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
 	{
 		WClass = class<WeaponDamageType>(DamageType).default.WeaponClass;
 		
-		if(Other.Weapon != None && ClassIsChildOf(Other.Weapon.class, WClass)) //for most cases
+		//for most cases, checking the currently held weapon will suffice
+		if(Other.Weapon != None && ClassIsChildOf(Other.Weapon.class, WClass))
+			return Other.Weapon;
+		else if(RPGWeapon(Other.Weapon) != None && ClassIsChildOf(RPGWeapon(Other.Weapon).ModifiedWeapon.class, WClass))
 			return Other.Weapon;
 		
+		//if not, browse the inventory
 		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
 		{
+			if(Inv == Other.Weapon)
+				continue; //already checked
+			
 			if(ClassIsChildOf(Inv.class, WClass))
 				return Weapon(Inv);
 			else if(Inv.IsA('RPGWeapon') && ClassIsChildOf(RPGWeapon(Inv).ModifiedWeapon.class, WClass))
@@ -633,9 +640,38 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	}
 	
 	/*
-		ACTIVE DAMAGE MODIFICATION
+		PASSIVE DAMAGE MODIFICATION
 	*/
 	
+	//Abilities
+	if(injuredRPRI != None)
+	{
+		for(x = 0; x < injuredRPRI.Abilities.length; x++)
+		{
+			if(injuredRPRI.Abilities[x].bAllowed)
+				injuredRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		}
+	}
+	
+	//RPGWeapon
+	if(RPGWeapon(injured.Weapon) != None)
+		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Weapon modifier
+	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);
+	if(WM != None)
+		WM.AdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Active artifacts
+	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
+			RPGArtifact(Inv).AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+	}
+	
+	/*
+		ACTIVE DAMAGE MODIFICATION
+	*/
 	if(instigatedBy != None)
 	{
 		//Abilities
@@ -672,40 +708,6 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 				RPGArtifact(Inv).AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		}
 	}
-	
-	//TODO: Vehicle magic
-	
-	/*
-		PASSIVE DAMAGE MODIFICATION
-	*/
-	
-	//Abilities
-	if(injuredRPRI != None)
-	{
-		for(x = 0; x < injuredRPRI.Abilities.length; x++)
-		{
-			if(injuredRPRI.Abilities[x].bAllowed)
-				injuredRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-		}
-	}
-	
-	//RPGWeapon
-	if(RPGWeapon(injured.Weapon) != None)
-		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
-	
-	//Weapon modifier
-	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);
-	if(WM != None)
-		WM.AdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
-	
-	//Active artifacts
-	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
-			RPGArtifact(Inv).AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-	
-	//TODO: Vehicle magic
 	
 	/*
 	*/

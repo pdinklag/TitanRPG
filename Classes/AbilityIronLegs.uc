@@ -16,7 +16,8 @@ function ModifyPawn(Pawn Other)
 
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	Momentum -= ((Momentum * MomentumReduction) * AbilityLevel);
+	if(Injured != InstigatedBy)
+		Momentum -= ((Momentum * MomentumReduction) * AbilityLevel);
 }
 
 simulated function string DescriptionText()

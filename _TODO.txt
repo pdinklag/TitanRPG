@@ -1,52 +1,14 @@
 TEST:
-- RPGEffects
-- Vamp / Vehicles
+- Null Entropy with two weapons of same type
+- Sturdy / CS
 
-- Adjust turret health and damage
-- Disable turrets on flags
-
-- PDP Protection
-- Spectator cheats
-
-- StatusIcons
-
-- Artifact order
-
-- ArtifactUDamage
-- ArtifactTripleDamage
-- ArtifactInvis
-
-- Weapon granting abilities / Denial
-- Weapon storing upon team change
-
-- "Can't use" sound on artifacts
-- New weapon granting
-
-- Stats
-- SpeedSwitcher
-
-- Fix GameStats?
-
-- Fix client side crashes due to RPG Menu
-- Knockback should knock out turrets
-
-TODO (XT Database):
-- fluff -> new key
-- Strip mine layer abilities
-
-TODO (XT Config):
-- Aura heals 2 per level
-- Cautiousness up to 100%
-- Change Mine Layer ability
-- Reduce blast cooldowns
-- Add bio bomb
-- Remove armor piercing
-- Set BonusPerLevel on NullEntropy
-- Parachute
+TODO (XT):
+- Add LoopDetection to mutators!
+- NullEntropy BonusPerLevel=0.333333
 
 TODO (1.62)
 - Ballistic support (got permission)
-- OSMT integration for friendly monsters
+- OSMT integration for friendly monsters (wait for permission???)
 
 TODO (1.61)
 - XP for game events
@@ -62,7 +24,6 @@ TODO (1.61)
 - Blowback weapon (-> retal)
 - XP for damage on players
 - Iron Legs weapon
-- Vehicle air control
 - Manta recharge
 - Health
 

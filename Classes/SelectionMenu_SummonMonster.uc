@@ -26,7 +26,7 @@ function string GetItem(int i)
 
 function int GetDefaultItemIndex()
 {
-	return ArtifactMonsterSummon(Artifact).PickBest();
+	return Artifact.MenuPickBest();
 }
 
 function SelectItem()
@@ -67,12 +67,6 @@ function SelectItem()
 		else
 			btOK.MenuState = MSAT_Blurry;
 	}
-}
-
-function bool OKClicked(GUIComponent Sender)
-{
-	ArtifactMonsterSummon(Artifact).ServerPickMonster(lstItems.List.Index);
-	return Super.OKClicked(Sender);
 }
 
 defaultproperties

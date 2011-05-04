@@ -5,74 +5,23 @@ class RPGGlobalInteraction extends Interaction;
 
 var Color TeamBeaconColor[5];
 
-function bool IsLocationVisible(Canvas C, vector Location, Actor RefActor)
-{
-	local vector CameraLocation, CamDir;
-	local rotator CameraRotation;
-	
-	if(
-		RefActor.Region.Zone != None && 
-		RefActor.Region.Zone.bDistanceFog &&
-		VSize(CameraLocation - Location) >= RefActor.Region.Zone.DistanceFogEnd
-	)
-	{
-		//can't see when it's too foggy
-		return false;
-	}
-	
-	C.GetCameraLocation(CameraLocation, CameraRotation);
-	CamDir = vector(CameraRotation);
-
-	if((Location - CameraLocation) dot CamDir < 0)
-		return false;
-	
-	return RefActor.FastTrace(Location, CameraLocation);
-}
-
-function DrawBeacon(Canvas C, float X, float Y, float Scale, int Team, string Text)
-{
-	local Texture BeaconTex;
-	local float XL,YL;
-	
-	C.Font = C.TinyFont;
-
-	BeaconTex = ViewportOwner.Actor.TeamBeaconTexture; //TODO
-	if(BeaconTex == None)
-		return;
-
-	if(Team >= 0 && Team <= 3)
-		C.DrawColor = TeamBeaconColor[Team];
-	else
-		C.DrawColor = TeamBeaconColor[4];
-
-	if(Text != "")
-	{
-		C.StrLen(Text, XL, YL);
-		C.SetPos(X - 0.125 * BeaconTex.USize , Y - 0.125 * BeaconTex.VSize - YL);
-		C.DrawTextClipped(Text);
-	}
-
-	C.SetPos(X - Scale * 0.125 * BeaconTex.USize, Y - Scale * 0.125 * BeaconTex.VSize);
-	C.DrawTile(BeaconTex,
-		Scale * 0.25 * BeaconTex.USize,
-		Scale * 0.25 * BeaconTex.VSize,
-		0.0,
-		0.0,
-		BeaconTex.USize,
-		BeaconTex.VSize);
-}
+var array<FriendlyPawnReplicationInfo> FriendlyPawns;
 
 function PostRender(Canvas C)
 {
+	if(FriendlyPawns.Length > 0)
+		RenderFriendlyPawnsInfo(C);
+}
+
+function RenderFriendlyPawnsInfo(Canvas C)
+{
+	local int i;
+	local Texture TeamBeacon;
 	local PlayerController PC;
-	local Actor RefActor;
-	local float MaxDist, Dist;
+	local float Dist, ScaledDist, TeamBeaconPlayerInfoMaxDist, FarAwayInv, Height, XScale, XL, YL;
 	local vector ScreenPos;
 	local FriendlyPawnReplicationInfo FPRI;
-	local vector FriendlyPawnLocation;
-	local HudCDeathmatch HUD;
 	local string Text;
-	local int Team;
 	local vector CamLoc;
 	local rotator CamRot;
 
@@ -80,60 +29,92 @@ function PostRender(Canvas C)
 	if(PC == None || PC.PlayerReplicationInfo == None)
 		return;
 
-	HUD = HudCDeathmatch(ViewportOwner.Actor.myHUD);
-	if(HUD == None)
-		return;
-
-	if(PC.IsA('OLTeamPlayerController'))
-		MaxDist = float(PC.GetPropertyText("OLTeamBeaconPlayerInfoMaxDist"));
+	if(PC.IsA('OLTeamPlayerController')) //CTF4
+		TeamBeaconPlayerInfoMaxDist = float(PC.GetPropertyText("OLTeamBeaconPlayerInfoMaxDist"));
 	else
-		MaxDist = PC.TeamBeaconPlayerInfoMaxDist;
+		TeamBeaconPlayerInfoMaxDist = PC.TeamBeaconPlayerInfoMaxDist;
 	
-	if(PC.ViewTarget != None)
-		RefActor = PC.ViewTarget;
-	else if(PC.Pawn != None)
-		RefActor = PC.Pawn;
-	else
-		RefActor = PC;
+	TeamBeacon = ViewportOwner.Actor.TeamBeaconTexture;
+	FarAwayInv = 1.0f / TeamBeaconPlayerInfoMaxDist;
 	
 	C.GetCameraLocation(CamLoc, CamRot);
-
-	foreach PC.DynamicActors(class'FriendlyPawnReplicationInfo', FPRI)
-	{
-		if(FPRI.Pawn != None)
-			FriendlyPawnLocation = FPRI.Pawn.Location;
-		else
-			FriendlyPawnLocation = FPRI.PawnLocation;
 	
-		Dist = VSize(FriendlyPawnLocation - CamLoc) * PC.FOVBias; //considers zoom etc
-		if(Dist < MaxDist * 2.0f && IsLocationVisible(C, FriendlyPawnLocation, RefActor))
+	for(i = 0; i < FriendlyPawns.Length; i++)
+	{
+		FPRI = FriendlyPawns[i];
+		
+		if(FPRI.Pawn != None)
 		{
-			ScreenPos = C.WorldToScreen(
-				FriendlyPawnLocation +
-				FPRI.PawnHeight *
-				1.1f *
-				vect(0, 0, 1));
+			//check if behind
+			if((FPRI.Pawn.Location - CamLoc) dot vector(CamRot) < 0)
+				continue;
+		
+			/*
+				Translated and optimized from C++ code (UnPawn.cpp)
+			*/
 			
-			if(ScreenPos.X >= 0 && ScreenPos.X < C.SizeX && ScreenPos.Y >= 0 || ScreenPos.Y < C.SizeY)
+			//Determine visibility
+			if(!PC.LineOfSightTo(FPRI.Pawn))
+				continue;
+		
+			Dist = PC.FOVBias * VSize(FPRI.Pawn.Location - CamLoc);
+			ScaledDist = TeamBeaconPlayerInfoMaxDist * FClamp(0.04f * FPRI.Pawn.CollisionRadius, 1.0f, 2.0f);
+			
+			ScreenPos = C.WorldToScreen(FPRI.Pawn.Location);
+			
+			if(Dist < 0.0f || Dist > 2.0f * ScaledDist)
+				continue;
+			
+			if(Dist > ScaledDist)
 			{
-				if(Dist < MaxDist)
-				{
-					Text = FPRI.Master.PlayerName;
-					if(PC.PlayerReplicationInfo == FPRI.Master)
-						Text @= "(" $ FPRI.PawnHealth $ ")";
-				}
-				else
-				{
-					Text = "";
-				}
-				
-				if(FPRI.Master.Team != None)
-					Team = FPRI.Master.Team.TeamIndex;
-				else
-					Team = 255;
-			
-				DrawBeacon(C, ScreenPos.X, ScreenPos.Y, 1.0f /*FMax(0.5f, 1.0f - FMax(0.0f, (Dist - MaxDist) / MaxDist))*/, Team, Text);
+				ScreenPos.Z = 0;
+				if(VSize(ScreenPos) * VSize(ScreenPos) > 0.02f * Dist * Dist)
+					continue;
 			}
+
+			//Color
+			if(FPRI.Master.Team != None)
+				C.DrawColor = TeamBeaconColor[FPRI.Master.Team.TeamIndex];
+			else
+				C.DrawColor = TeamBeaconColor[4];
+			
+			//Beacon scale
+			XScale = FClamp(0.28f * (ScaledDist - Dist) / ScaledDist, 0.1f, 0.25f);
+			
+			//Draw height
+			Height = FPRI.Pawn.CollisionHeight * FClamp(0.85f + Dist * 0.85f * FarAwayInv, 1.1f, 1.75f);
+			
+			//ScreenPos
+			ScreenPos = C.WorldToScreen(FPRI.Pawn.Location + Height * vect(0, 0, 1));
+			ScreenPos.X -= 0.5f * TeamBeacon.USize * XScale;
+			ScreenPos.Y -= 0.5f * TeamBeacon.VSize * XScale;
+
+			//Draw
+			C.Style = 9; //STY_AlphaZ
+			C.SetPos(ScreenPos.X, ScreenPos.Y);
+			
+			C.DrawTile(
+				TeamBeacon,
+				TeamBeacon.USize * XScale, TeamBeacon.VSize * XScale,
+				0, 0, TeamBeacon.USize, TeamBeacon.VSize);
+
+			//Text
+			if(Dist < TeamBeaconPlayerInfoMaxDist && C.ClipX > 600)
+			{
+				C.Font = C.TinyFont;
+				
+				Text = FPRI.Master.PlayerName;
+				if(FPRI.Master.Team == PC.PlayerReplicationInfo.Team)
+					Text @= "(" $ FPRI.Pawn.Health $ ")";
+				
+				C.StrLen(Text, XL, YL);
+				C.SetPos(ScreenPos.X, ScreenPos.Y - YL);
+				C.DrawTextClipped(Text);
+			}
+		}
+		else
+		{
+			Log("FPRI.Pawn is None!", 'DEBUG');
 		}
 	}
 	
@@ -143,7 +124,27 @@ function PostRender(Canvas C)
 
 event NotifyLevelChange()
 {
+	FriendlyPawns.Length = 0;
 	Master.RemoveInteraction(Self);
+}
+
+function AddFriendlyPawn(FriendlyPawnReplicationInfo FPRI)
+{
+	FriendlyPawns[FriendlyPawns.Length] = FPRI;
+}
+
+function RemoveFriendlyPawn(FriendlyPawnReplicationInfo FPRI)
+{
+	local int i;
+	
+	for(i = 0; i < FriendlyPawns.Length; i++)
+	{
+		if(FriendlyPawns[i] == FPRI)
+		{
+			FriendlyPawns.Remove(i, 1);
+			break;
+		}
+	}
 }
 
 defaultproperties

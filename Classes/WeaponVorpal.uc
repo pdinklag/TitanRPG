@@ -2,7 +2,22 @@ class WeaponVorpal extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
+var int ReplicatedMinModifier;
+
 var localized string VorpalText;
+
+replication
+{
+	reliable if(Role == ROLE_Authority && bNetOwner)
+		ReplicatedMinModifier; //needed for description
+}
+
+simulated event PreBeginPlay()
+{
+	Super.PreBeginPlay();
+	
+	ReplicatedMinModifier = MinModifier;
+}
 
 function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType)
 {
@@ -29,7 +44,7 @@ simulated function string GetWeaponNameExtra()
 	if(text != "")
 		text $= ", ";
 	
-	text $= Repl(VorpalText, "$1", class'Util'.static.FormatPercent(0.01f * float(Modifier - MinModifier)));
+	text $= Repl(VorpalText, "$1", class'Util'.static.FormatPercent(0.01f * float(Modifier + 1 - ReplicatedMinModifier)));
 	return text;
 }
 

@@ -13,13 +13,49 @@ static function vector ReflectVector(vector v, vector normal)
 
 static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, optional float Radius)
 {
+	//xPawn.default.TransientSoundVolume = 0.3
+	//xPawn.default.TransientSoundRadius = 300
+
 	if(Vol == 0)
-		Vol = 3.0f;
+		Vol = 1.0f;
 	
 	if(Radius == 0)
-		Radius = 3.0f;
+		Radius = 1.0f;
 
-	A.PlaySound(S, SLOT_None, A.TransientSoundVolume * Vol,, A.TransientSoundRadius * Radius);
+	A.PlaySound(S, SLOT_None, Vol * 1.25f,, Radius * 300.0f);
+}
+
+static function int GetNumPassengers(Vehicle V)
+{
+	local int n, x;
+	local ONSVehicle OV;
+	local ONSWeaponPawn WP;
+	
+	if(ONSVehicle(V) != None)
+		OV = ONSVehicle(V);
+	else if(ONSWeaponPawn(V) != None)
+		OV = ONSWeaponPawn(V).VehicleBase;
+	
+	if(OV != None)
+	{
+		if(OV.Driver != None)
+			n++;
+		
+		for(x = 0; x < OV.WeaponPawns.Length; x++)
+		{
+			WP = OV.WeaponPawns[x];
+			
+			if(WP.Driver != None)
+				n++;
+		}
+	}
+	else
+	{
+		if(V.Driver != None)
+			n++;
+	}
+	
+	return n;
 }
 
 static function array<Pawn> GetAllPassengers(Vehicle V)

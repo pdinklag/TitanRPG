@@ -10,11 +10,11 @@ static function GetHitEffects(out class<xEmitter> HitEffects[4], int VictemHealt
 
 defaultproperties
 {
-     DeathString="%o was electrocuted by %k's lightning rod."
-     FemaleSuicide="%o had an electrifying experience."
-     MaleSuicide="%o had an electrifying experience."
-     bCauseConvulsions=True
-     DamageOverlayMaterial=Shader'XGameShaders.PlayerShaders.LightningHit'
-     DamageOverlayTime=1.000000
-     GibPerterbation=0.250000
+	DeathString="%o was electrocuted by %k's lightning rod."
+	FemaleSuicide="%o had an electrifying experience."
+	MaleSuicide="%o had an electrifying experience."
+	bCauseConvulsions=True
+	DamageOverlayMaterial=Shader'XGameShaders.PlayerShaders.LightningHit'
+	DamageOverlayTime=1.000000
+	GibPerterbation=0.250000
 }

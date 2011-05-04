@@ -34,7 +34,10 @@ event Tick(float dt)
 		
 		if(CurrentState == 'Held')
 		{
-			Holder = GO.Holder.Controller;
+			if(GO.Holder.DrivenVehicle != None)
+				Holder = GO.Holder.DrivenVehicle.Controller;
+			else
+				Holder = GO.Holder.Controller;
 
 			NewTeam = Holder.GetTeamNum();
 			if(NewTeam != HoldingTeam && LastState == 'Dropped')

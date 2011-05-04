@@ -18,9 +18,21 @@ simulated function string GetWeaponNameExtra()
 	return text;
 }
 
-function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Modifier)
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
 {
-	return !EffectClass.default.bHarmful; //don't allow harmful effects
+	if(
+		EffectClass == class'Effect_Freeze' ||
+		EffectClass == class'Effect_Knockback' ||
+		EffectClass == class'Effect_NullEntropy' ||
+		EffectClass == class'Effect_Poison' ||
+		EffectClass == class'Effect_Vorpal'
+	)
+	{
+		Identify();
+		return false;
+	}
+	
+	return true;
 }
 
 defaultproperties

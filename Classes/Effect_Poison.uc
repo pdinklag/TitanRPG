@@ -73,9 +73,9 @@ state Activated
 
 defaultproperties
 {
+	bAllowOnVehicles=True
+
 	xEmitterClass=class'FX_PoisonSmoke'
-	//EffectOverlay=Shader'XGameShaders.PlayerShaders.LinkHit'
-	
 	EffectMessageClass=class'EffectMessage_Poison'
 	
 	PoisonMode=PM_Curve

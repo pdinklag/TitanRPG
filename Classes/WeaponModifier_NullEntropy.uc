@@ -10,7 +10,11 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 	
 	if(Damage > 0)
 	{
-		Effect = class'Effect_NullEntropy'.static.Create(Injured, Instigator.Controller, BonusPerLevel * float(Modifier));
+		Effect = class'Effect_NullEntropy'.static.Create(
+			Injured,
+			Instigator.Controller,
+			FMax(1.0f, BonusPerLevel * float(Modifier)));
+		
 		if(Effect != None)
 		{
 			Identify();
@@ -29,7 +33,7 @@ simulated function BuildDescription()
 
 defaultproperties
 {
-	BonusPerLevel=0.50
+	BonusPerLevel=0.333333
 	NullEntropyText="immobilizes human targets"
 	DamageBonus=0.05
 	MinModifier=3

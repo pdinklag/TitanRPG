@@ -156,6 +156,8 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
+	StatusIconClass=class'StatusIcon_Turrets'
+
 	AbilityName="Construction"
 	Description="You are granted the Turret Construction artifact when you spawn.|Each level of this ability allows you to summon more powerful turrets."
 	StartingCost=10

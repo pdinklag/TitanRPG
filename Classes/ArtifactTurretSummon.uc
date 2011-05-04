@@ -1,5 +1,7 @@
 class ArtifactTurretSummon extends ArtifactTurretSummonBase;
 
+//TODO: rewrite
+
 struct TurretTypeStruct
 {
 	var class<Vehicle> TurretClass;
@@ -11,6 +13,7 @@ struct TurretTypeStruct
 };
 var config array<TurretTypeStruct> TurretTypes;
 
+/*
 var int PickedTurret;
 
 replication
@@ -141,3 +144,4 @@ defaultproperties
 	Cooldown=0
 	TurretTypes(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=100,StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor',DrawScale=0.125)
 }
+*/

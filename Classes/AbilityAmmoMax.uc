@@ -2,6 +2,8 @@ class AbilityAmmoMax extends RPGAbility;
 
 function ModifyRPRI()
 {
+	Super.ModifyRPRI();
+	
 	RPRI.AmmoMax += AbilityLevel * int(BonusPerLevel * 100.0);
 }
 

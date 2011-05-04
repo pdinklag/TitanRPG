@@ -16,6 +16,7 @@ var config array<class<Pawn> > ImmunePawnTypes;
 var config bool bHarmful;
 
 var config bool bAllowOnSelf;
+var config bool bAllowOnTeammates;
 var config bool bAllowOnFlagCarriers;
 var config bool bAllowOnVehicles;
 var config bool bAllowStacking;
@@ -56,7 +57,7 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	local RPGPlayerReplicationInfo RPRI;
 	local RPGWeaponModifier WM;
 	local bool bAllow;
-	
+
 	//Stacking
 	if(!default.bAllowStacking && GetFor(Other) != None)
 		return false;
@@ -73,17 +74,20 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 		return false;
 
 	//Teammates
-	if(default.bHarmful && Causer != None && Causer != Other.Controller && Causer.SameTeamAs(Other.Controller))
+	if((default.bHarmful || !default.bAllowOnTeammates) && Causer != None && Causer != Other.Controller && Causer.SameTeamAs(Other.Controller))
 		return false;
-		
+
 	//Vehicles
+	if(Other.IsA('Vehicle') && Vehicle(Other).IsVehicleEmpty())
+		return false;
+
 	if(!default.bAllowOnVehicles && Other.IsA('Vehicle'))
 		return false;
 
 	//Immune pawn types
 	if(class'Util'.static.InArray(Other.class, default.ImmunePawnTypes) >= 0)
 		return false;
-		
+
 	//Flag carriers
 	if(
 		!default.bAllowOnFlagCarriers &&
@@ -95,9 +99,9 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	}
 
 	//RPG Weapon
-	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Modifier))
+	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Duration, Modifier))
 		return false;
-	
+
 	//Weapon Modifier
 	WM = class'RPGWeaponModifier'.static.GetFor(Other.Weapon);
 	if(WM != None && !WM.AllowEffect(default.class, Causer, Duration, Modifier))
@@ -105,7 +109,7 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 
 	//Abilities
 	bAllow = true;
-	
+
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
 	if(RPRI != None)
 	{
@@ -306,6 +310,7 @@ defaultproperties
 
 	bHarmful=True
 	bAllowOnSelf=True
+	bAllowOnTeammates=True
 	bAllowOnFlagCarriers=True
 	bAllowOnVehicles=False
 	bAllowStacking=True

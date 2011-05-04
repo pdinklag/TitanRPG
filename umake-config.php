@@ -3,7 +3,7 @@
 	$productName = "TitanRPG $versionName";
 	
 	$packageName = "TitanRPG";
-	//$packageName = "TitanRPG161-01";
+	//$packageName = "TitanRPG161-03";
 	
 	$deleteAfterCompile = true;
 ?>

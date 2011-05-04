@@ -2,6 +2,8 @@ class AbilityMineLayer extends RPGAbility;
 
 function ModifyRPRI()
 {
+	Super.ModifyRPRI();
+
 	RPRI.MaxMines += int(BonusPerLevel) * AbilityLevel;
 }
 

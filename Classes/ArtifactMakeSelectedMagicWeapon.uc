@@ -1,20 +1,16 @@
 class ArtifactMakeSelectedMagicWeapon extends ArtifactWeaponMaker;
 
-var class<RPGWeapon> PickedWeapon;
 var ReplicatedArray Available;
 
 replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
 		Available;
-
-	reliable if(Role == ROLE_Authority)
-		ClientShowMenu;
-	
-	reliable if(Role < ROLE_Authority)
-		ServerPickWeapon;
 }
 
+//TODO: Rewrite (and adapt menu)
+
+/*
 simulated event PostBeginPlay()
 {
 	local int i;
@@ -53,11 +49,6 @@ function ServerPickWeapon(class<RPGWeapon> RW)
 {
 	PickedWeapon = RW;
 	Activate();
-}
-
-function class<RPGWeapon> PickBest()
-{
-	return None;
 }
 
 simulated function ClientShowMenu()
@@ -121,3 +112,4 @@ defaultproperties
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MagicMaker'
 	ItemName="Enhanced Magic Maker"
 }
+*/

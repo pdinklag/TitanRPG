@@ -2,6 +2,8 @@ class AbilityWeaponSpeed extends RPGAbility;
 
 function ModifyRPRI()
 {
+	Super.ModifyRPRI();
+
 	RPRI.WeaponSpeed += AbilityLevel * int(BonusPerLevel * 100.0);
 }
 

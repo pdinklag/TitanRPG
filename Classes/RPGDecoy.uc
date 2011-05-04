@@ -15,6 +15,7 @@ simulated event PostBeginPlay()
 simulated event Tick(float dt)
 {
 	local RPGONSAVRiLRocket Rocket;
+	local ONSAttackCraftMissle RaptorMissile;
 
 	Super.Tick(dt);
 
@@ -30,6 +31,10 @@ simulated event Tick(float dt)
 		if(Rocket.OverrideTarget == None)
 			Rocket.OverrideTarget = Self;
 	}
+	
+	//Raptor missiles
+	foreach VisibleCollidingActors(class'ONSAttackCraftMissle', RaptorMissile, DecoyRange, Location)
+		RaptorMissile.SetHomingTarget(None);
 }
 
 simulated event Destroyed()	// Remove it from the Dual Attack craft's array //no, don't -pd

@@ -1,13 +1,13 @@
-class StatusIconUltima extends RPGStatusIcon;
+class StatusIcon_Ultima extends RPGStatusIcon;
 
 var AbilityUltima Ultima;
 
-simulated function ClientInitialize()
+function Initialize()
 {
 	Ultima = AbilityUltima(RPRI.GetAbility(class'AbilityUltima'));
 }
 
-simulated function bool IsVisible()
+function bool IsVisible()
 {
 	return (
 		Ultima != None &&
@@ -16,7 +16,7 @@ simulated function bool IsVisible()
 	);
 }
 
-simulated function string GetText()
+function string GetText()
 {
 	return "";
 }

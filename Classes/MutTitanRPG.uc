@@ -60,9 +60,6 @@ struct WeaponModifier
 var config array<WeaponModifier> WeaponModifiers;
 var int TotalModifierChance;
 
-//Available status icons
-var config array<class<RPGStatusIcon> > StatusIcons;
-
 //Stuff
 var config bool bAllowSuperWeaponReplenish; //allow RPGWeapon::FillToInitialAmmo() on superweapons
 var config array<class<Ammunition> > SuperAmmoClasses;
@@ -1493,9 +1490,4 @@ defaultproperties
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"
-	
-	StatusIcons(0)=class'StatusIconMonsters'
-	StatusIcons(1)=class'StatusIconTurrets'
-	StatusIcons(2)=class'StatusIconVehicleEject'
-	StatusIcons(3)=class'StatusIconUltima'
 }

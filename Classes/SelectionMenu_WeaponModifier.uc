@@ -3,10 +3,14 @@ class SelectionMenu_WeaponModifier extends RPGSelectionMenu;
 var class<Weapon> WeaponType;
 var array<class<RPGWeapon> > Available;
 
+//TODO: adapt
+
 /*
 	Overlay materials don't work with this thing, so I'm creating a second spinny item that is
 	slightly larger than the original, to emulate the effect if a magic's ModifierOverlay is not a FinalBlend.
 */
+
+/*
 var SpinnyWeap SpinnyOverlay; // MUST be set to null when you leave the window
 var FinalBlend OverlayFB;
 var bool bRenderOverlay;
@@ -16,7 +20,6 @@ const NUM_SKINS = 4;
 function Timer()
 {
 	SpinnyItemRotation.Yaw += 1024;
-	Super.Timer();
 }
 
 function InitFor(RPGArtifact A)
@@ -62,6 +65,8 @@ function InitFor(RPGArtifact A)
 		SpinnyItem.SetStaticMesh(PickupClass.default.StaticMesh);
 		SpinnyItem.SetDrawScale(PickupClass.default.DrawScale);
 	}
+	
+	SetTimer(0.05f, true);
 }
 
 function InternalDraw(Canvas Canvas)
@@ -129,6 +134,12 @@ function bool OKClicked(GUIComponent Sender)
 	return Super.OKClicked(Sender);
 }
 
+event Closed(GUIComponent Sender, bool bCancelled)
+{
+	KillTimer();
+	Super.Closed(Sender, bCancelled);
+}
+
 event Free()
 {
 	Available.Length = 0;
@@ -158,3 +169,4 @@ defaultproperties
 	
 	OnRendered=InternalDraw
 }
+*/

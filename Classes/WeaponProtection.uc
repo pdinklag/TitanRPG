@@ -30,7 +30,7 @@ function RPGAdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Instigat
 		Inv = ProtectionInv(Instigator.FindInventoryType(class'ProtectionInv'));
 		if(Inv == None)
 		{
-			class'Util'.static.PlayLoudEnoughSound(Instigator, ProtectionSound, 3);
+			class'Util'.static.PlayLoudEnoughSound(Instigator, ProtectionSound, 3.0f);
 
 			Instigator.Health = 1;
 			Damage = 0;

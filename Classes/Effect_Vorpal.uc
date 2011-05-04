@@ -7,9 +7,9 @@ function DoEffect()
 
 defaultproperties
 {
-	//EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GreyShader'
+	bAllowOnVehicles=True
+	
 	EffectSound=Sound'WeaponSounds.Misc.instagib_rifleshot'
 	xEmitterClass=class'RocketExplosion'
-	
 	EffectMessageClass=class'EffectMessage_Vorpal'
 }

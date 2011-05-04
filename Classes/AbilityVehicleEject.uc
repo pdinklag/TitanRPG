@@ -4,8 +4,6 @@ var config array<class<DamageType> > ProtectAgainst;
 var config float VehicleCooldown; //can't enter a vehicle before this time has passed
 var config bool bResetTranslocatorCharge;
 
-var StatusIconVehicleEject Status;
-
 var float LastEjectionTime;
 var float NextVehicleTime;
 
@@ -86,12 +84,6 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	return false; //NOT saving the vehicle
 }
 
-simulated function ClientNotifyCooldown(float Time)
-{
-	if(Status != None)
-		Status.NextVehicleTime = Level.TimeSeconds + Time;
-}
-
 function bool CanEnterVehicle(Vehicle V)
 {
 	if(Level.TimeSeconds < NextVehicleTime)
@@ -105,8 +97,15 @@ function bool CanEnterVehicle(Vehicle V)
 	return true;
 }
 
+simulated function ClientNotifyCooldown(float Time)
+{
+	//simulated client-side so status icon can use it correctly
+	NextVehicleTime = Level.TimeSeconds + Time;
+}
+
 defaultproperties
 {
+	StatusIconClass=class'StatusIcon_VehicleEject'
 	CantEnterSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
 	bResetTranslocatorCharge=True
 	VehicleCooldown=5.00

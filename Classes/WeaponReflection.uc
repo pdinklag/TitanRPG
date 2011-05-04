@@ -12,6 +12,23 @@ replication
 		BaseChance;
 }
 
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
+{
+	local RPGEffect Reflected;
+
+	if(EffectClass == class'Effect_NullEntropy')
+	{
+		if(Causer.Pawn != None && WeaponReflection(Causer.Pawn.Weapon) == None)
+		{
+			Reflected = class'Effect_NullEntropy'.static.Create(Causer.Pawn, Instigator.Controller, Duration, Modifier);
+			if(Reflected != None)
+				Reflected.Start();
+		}
+		return false;
+	}
+	return true;
+}
+
 function bool CheckReflect(Vector HitLocation, out Vector RefNormal, int Damage )
 {
 	//make the call first in case the weapon actually does the reflect on it's own.
@@ -21,7 +38,6 @@ function bool CheckReflect(Vector HitLocation, out Vector RefNormal, int Damage 
 	if(Damage > 0)
 	{
 		RefNormal=normal(HitLocation-Location);
-		//if(Rand(99) < int((Growth ** float(Modifier)) * BaseChance))
 		if(FRand() < (BaseChance + float(Modifier) * BonusPerLevel))
 		{
 			Identify();

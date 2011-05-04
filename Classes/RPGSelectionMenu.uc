@@ -49,6 +49,20 @@ static function RPGSelectionMenu ShowFor(RPGArtifact A)
 	return None;
 }
 
+static function CloseFor(RPGArtifact A)
+{
+	local RPGSelectionMenu Menu;
+	local GUIController GUIController;
+	
+	GUIController = GUIController(PlayerController(A.Instigator.Controller).Player.GUIController);
+	if(GUIController != None)
+	{
+		Menu = RPGSelectionMenu(GUIController.TopPage());
+		if(Menu != None)
+			Menu.Controller.CloseMenu(false);
+	}
+}
+
 function int DefaultItem()
 {
 	if(Favorite >= 0 && Favorite < GetNumItems())
@@ -103,27 +117,6 @@ function InitFor(RPGArtifact A)
 	chFavorite.bIgnoreChange = false;
 	
 	SelectItem();
-	
-	SetTimer(0.05f, true);
-}
-
-function Timer()
-{
-	if(
-		Artifact == None ||
-		Artifact.Instigator != Instigator ||
-		Instigator == None ||
-		Instigator.Health <= 0
-	)
-	{
-		Controller.CloseMenu(false);
-	}
-}
-
-event Closed(GUIComponent Sender, bool bCancelled)
-{
-	KillTimer();
-	Super.Closed(Sender, bCancelled);
 }
 
 event Free()
@@ -256,6 +249,7 @@ function ChangeFav(GUIComponent Sender)
 //abstract - override in subclasses
 function bool OKClicked(GUIComponent Sender)
 {
+	Artifact.ServerMenuPick(lstItems.List.Index);
 	Controller.CloseMenu(false);
 	return true;
 }

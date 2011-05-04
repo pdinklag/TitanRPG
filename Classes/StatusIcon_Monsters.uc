@@ -1,11 +1,11 @@
-class StatusIconMonsters extends RPGStatusIcon;
+class StatusIcon_Monsters extends RPGStatusIcon;
 
-simulated function bool IsVisible()
+function bool IsVisible()
 {
 	return (RPRI.NumMonsters > 0);
 }
 
-simulated function string GetText()
+function string GetText()
 {
 	return RPRI.NumMonsters $ "/" $ RPRI.MaxMonsters;
 }

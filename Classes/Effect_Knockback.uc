@@ -3,12 +3,21 @@ class Effect_Knockback extends RPGEffect;
 var vector Momentum;
 var class<DamageType> DamageType;
 
+static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Duration, optional float Modifier)
+{
+	//this causes way too funny bugs on turrets...
+	if(Other.IsA('ASTurret') || Other.IsA('ONSStationaryWeaponPawn'))
+		return false;
+
+	return Super.CanBeApplied(Other, Causer, Duration, Modifier);
+}
+
 state Activated
 {
 	function BeginState()
 	{
 		Super.BeginState();
-
+		
 		if(
 			Instigator.Physics != PHYS_Walking && 
 			Instigator.Physics != PHYS_Falling &&
@@ -58,7 +67,6 @@ state Activated
 
 defaultproperties
 {
-	//bAllowStacking=False
 	bAllowOnFlagCarriers=False
 	bAllowOnVehicles=True
 	

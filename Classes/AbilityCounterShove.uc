@@ -3,6 +3,9 @@ class AbilityCounterShove extends RPGAbility;
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local float MomentumMod;
+	
+	if(VSize(Momentum) <= 0)
+		return;
 
 	if(DamageType == class'DamTypeCounterShove' || DamageType == class'DamTypeRetaliation')
 		return;
@@ -14,7 +17,7 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 	{
 		MomentumMod = -(0.0075 * float(AbilityLevel));
 	}
-	else		
+	else
     {
 		if(AbilityLevel < 5)
 			MomentumMod = -(0.75 * float(AbilityLevel));
@@ -23,7 +26,7 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 	}
 
 	//TODO: RPGEffect
-	InstigatedBy.TakeDamage(0, Injured, Instigator.Location, Momentum * MomentumMod * Injured.Mass, class'DamTypeCounterShove');
+	InstigatedBy.TakeDamage(0, Injured, InstigatedBy.Location, (Momentum * Injured.Mass) * MomentumMod, class'DamTypeCounterShove');
 }
 
 defaultproperties

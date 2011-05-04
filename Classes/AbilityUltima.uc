@@ -92,6 +92,8 @@ function Blast_Ultima SpawnCharger(vector ChargerLocation)
 
 defaultproperties
 {
+	StatusIconClass=class'StatusIcon_Ultima'
+	
 	AbilityName="Ultima"
 	Description="When you die and you have at least scored one kill in that respective life, you will cause a huge explosion.|Level 1 waits 4 seconds after you died, each higher level wait 1 second less."
 	MaxLevel=5

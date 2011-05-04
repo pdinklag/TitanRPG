@@ -36,6 +36,10 @@ simulated event PreBeginPlay()
 			MonsterTypesRepl.ObjectArray[i] = MonsterTypes[i].MonsterClass;
 			MonsterTypesRepl.IntArray[i] = MonsterTypes[i].Level;
 			MonsterTypesRepl.IntArray[i + MonsterTypes.Length] = MonsterTypes[i].Cost;
+			
+			if(MonsterTypes[i].DisplayName == "")
+				MonsterTypes[i].DisplayName = string(MonsterTypes[i].MonsterClass.Name);
+			
 			MonsterTypesRepl.StringArray[i] = MonsterTypes[i].DisplayName;
 		}
 		MonsterTypesRepl.Replicate();
@@ -152,6 +156,8 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
+	StatusIconClass=class'StatusIcon_Monsters'
+
 	MonsterSkill=2
 	AbilityName="Conjuration"
 	Description="You are granted the Monster Summon artifact when you spawn.|Each level of this ability allows you to summon more powerful monsters."

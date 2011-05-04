@@ -12,7 +12,11 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	
 	if(Damage > 0)
 	{
-		Effect = class'Effect_NullEntropy'.static.Create(Victim, Instigator.Controller, BonusPerLevel * float(Modifier));
+		Effect = class'Effect_NullEntropy'.static.Create(
+			Victim,
+			Instigator.Controller,
+			FMax(1.0f, BonusPerLevel * float(Modifier)));
+			
 		if(Effect != None)
 		{
 			Momentum = vect(0, 0, 0);
@@ -41,7 +45,7 @@ defaultproperties
 	//bAddToOldWeapons=False
 	NullEntropyText="immobilizes human targets"
 	DamageBonus=0.050000
-	BonusPerLevel=0.5
+	BonusPerLevel=0.333333
 	MinModifier=3
 	MaxModifier=6
 	ModifierOverlay=Shader'MutantSkins.Shaders.MutantGlowShader'

@@ -2,32 +2,10 @@ class AbilityVehicleLock extends RPGAbility;
 
 function UnModifyVehicle(Vehicle V)
 {
-	local Vehicle V0;
-	local ONSVehicle OV;
-	local int i;
-
-	V0 = V;
-	
-	//Do not lock if there are any more passengers inside
-	if(ONSWeaponPawn(V) != None)
-	{
+	if(V.IsA('ONSWeaponPawn'))
 		V = ONSWeaponPawn(V).VehicleBase;
-	
-		if(V != V0 && V.Driver != None)
-			return;
-	}
 
-	OV = ONSVehicle(V);
-	if(OV != None)
-	{
-		for(i = 0; i < OV.WeaponPawns.length; i++)
-		{
-			if(OV.WeaponPawns[i] != V0 && OV.WeaponPawns[i].Driver != None)
-				return;
-		}
-	}
-
-	if(V != None)
+	if(V != None && class'Util'.static.GetNumPassengers(V) <= 1)
 		V.bTeamLocked = true;
 }
 

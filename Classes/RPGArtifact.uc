@@ -24,6 +24,10 @@ var config bool bExclusive; //if true, cannot be activated if another Artifact w
 
 var Sound CantUseSound; //played when CanActivate() fails
 
+//Selection menu
+var class<RPGSelectionMenu> SelectionMenuClass;
+var int MenuPick;
+
 var localized string Description;
 
 const MSG_Adrenaline = 0x0000;
@@ -48,10 +52,11 @@ var RPGPlayerReplicationInfo InstigatorRPRI;
 replication
 {
 	reliable if (Role < ROLE_Authority)
-		TossArtifact;
+		TossArtifact, ServerMenuPick;
 	
 	reliable if(Role == ROLE_Authority)
-		ClientNotifyCooldown, Msg;
+		ClientNotifyCooldown, Msg,
+		ClientShowMenu, ClientCloseMenu;
 }
 
 static function bool HasActiveArtifact(Pawn Other)
@@ -230,6 +235,9 @@ exec function TossArtifact()
 
 function DropFrom(vector StartLocation)
 {
+	if(Instigator != None && Instigator.Controller.IsA('PlayerController'))
+		ClientCloseMenu();
+
 	if(bActive)
 		GotoState('');
 
@@ -359,7 +367,28 @@ function ForceCooldown(float Time)
 	ClientNotifyCooldown(Time);
 }
 
-function Activate()
+function bool CheckMenuPick()
+{
+	local int x;
+
+	if(SelectionMenuClass != None && MenuPick < 0)
+	{
+		if(Instigator.Controller.IsA('PlayerController'))
+		{
+			ClientShowMenu();
+		}
+		else
+		{
+			x = MenuPickBest();
+			if(x >= 0)
+				ServerMenuPick(x);
+		}
+		return false;
+	}
+	return true;
+}
+
+function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginState of state Activated instead
 {
 	if(MinActivationTime > 0.f)
 	{
@@ -372,10 +401,13 @@ function Activate()
 		{
 			if(CanActivate())
 			{
-				CurrentCostPerSec = 0.f;
-				class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
-				//Instigator.PlaySound(ActivateSound, SLOT_Interface);
-				GotoState('Activated');
+				if(CheckMenuPick())
+				{
+					CurrentCostPerSec = 0.f;
+					class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
+					//Instigator.PlaySound(ActivateSound, SLOT_Interface);
+					GotoState('Activated');
+				}
 			}
 			else
 			{
@@ -386,13 +418,17 @@ function Activate()
 	}
 	else if(CanActivate())
 	{
-		class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
-		DoEffect();
+		if(CheckMenuPick())
+		{
+			class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
+			DoEffect();
 
-		if(CostPerSec > 0)
-			Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
+			if(CostPerSec > 0)
+				Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
 			
-		DoCooldown();
+			MenuPick = -1;
+			DoCooldown();
+		}
 	}
 	else
 	{
@@ -416,6 +452,7 @@ state Activated
 	{
 		RoundAdrenaline();
 		bActive = false;
+		MenuPick = -1;
 		
 		DoCooldown();
 	}
@@ -462,10 +499,16 @@ simulated function ClientNotifyCooldown(float Delay)
 	NextUseTime = Level.TimeSeconds + Delay;
 }
 
-event Destroyed()
+simulated event Destroyed()
 {
-	if(Instigator != None && Instigator.SelectedItem == Self)
-		Instigator.NextItem();
+	if(Role == ROLE_Authority)
+	{
+		if(Instigator != None && Instigator.SelectedItem == Self)
+			Instigator.NextItem();
+		
+		if(Instigator != None && Instigator.Controller.IsA('PlayerController'))
+			ClientCloseMenu();
+	}
 
 	Super.Destroyed();
 }
@@ -481,7 +524,7 @@ function int CountNearbyEnemies(float Radius, optional bool bSameTeam)
 	{
 		if(
 			P.Controller != None &&
-			P.Controller.bIsPlayer &&
+			//P.Controller.bIsPlayer &&
 			P.Controller.SameTeamAs(Instigator.Controller) == bSameTeam
 		)
 		{
@@ -489,6 +532,36 @@ function int CountNearbyEnemies(float Radius, optional bool bSameTeam)
 		}
 	}
 	return n;
+}
+
+//Selection menu functions
+simulated function int MenuPickBest() //for AI use
+{
+	return -1; //invalid default choice
+}
+
+function OnMenuPick(int i); //for subclasses
+
+final function ServerMenuPick(int i)
+{
+	MenuPick = i;
+	if(i >= 0)
+	{
+		OnMenuPick(i);
+		Activate();
+	}
+}
+
+simulated function ClientShowMenu()
+{
+	if(Level.NetMode != NM_DedicatedServer)
+		SelectionMenuClass.static.ShowFor(Self);
+}
+
+simulated function ClientCloseMenu()
+{
+	if(Level.NetMode != NM_DedicatedServer)
+		SelectionMenuClass.static.CloseFor(Self);
 }
 
 //called after FightEnemy
@@ -521,6 +594,7 @@ defaultproperties
 	MessageClass=Class'UnrealGame.StringMessagePlus'
 	CostPerSec=0
 	Cooldown=0
+	MenuPick=-1
 	bChargeUp=True
 	bResetCooldownOnRespawn=True
 	bExclusive=False

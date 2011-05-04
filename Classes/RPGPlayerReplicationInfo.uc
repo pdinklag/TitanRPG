@@ -3,8 +3,6 @@ class RPGPlayerReplicationInfo extends LinkedReplicationInfo
 	DependsOn(RPGAbility)
 	Config(TitanRPG);
 
-const MAX_STATUS = 8;
-
 //server
 var RPGData DataObject;
 var MutTitanRPG RPGMut;
@@ -150,7 +148,8 @@ replication
 		ClientNotifyExpGain, ClientShowHint,
 		ClientSetName, ClientGameEnded,
 		ClientCheckArtifactClass,
-		ClientSwitchToWeapon; //moved from TitanPlayerController for better compatibility
+		ClientSwitchToWeapon, //moved from TitanPlayerController for better compatibility
+		ClientCreateStatusIcon, ClientRemoveStatusIcon;
 	reliable if(Role < ROLE_Authority)
 		ServerBuyAbility, ServerNoteActivity,
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
@@ -323,14 +322,6 @@ simulated event BeginPlay()
 		
 			AIBuild.Build(Self);
 		}
-		
-		//Instantiate status icons
-		for(i = 0; i < RPGMut.StatusIcons.Length; i++)
-		{
-			Status[i] = Spawn(RPGMut.StatusIcons[i], Controller);
-			Status[i].RPRI = Self;
-			Status[i].Index = i;
-		}
 
 		//Inform others
 		PlayerLevel = Spawn(class'RPGPlayerLevelInfo');
@@ -378,6 +369,39 @@ simulated event Destroyed()
 	
 	Interaction = None;
 	RPGMut = None;
+	
+	Status.Length = 0;
+}
+
+simulated function ClientCreateStatusIcon(class<RPGStatusIcon> IconType)
+{
+	local RPGStatusIcon Icon;
+	local int i;
+	
+	for(i = 0; i < Status.Length; i++)
+	{
+		if(Status[i].class == IconType)
+			return; //already got this one
+	}
+	
+	Icon = new IconType;
+	Icon.RPRI = Self;
+	Icon.Initialize();
+	Status[Status.Length] = Icon;
+}
+
+simulated function ClientRemoveStatusIcon(class<RPGStatusIcon> IconType)
+{
+	local int i;
+	
+	for(i = 0; i < Status.Length; i++)
+	{
+		if(Status[i].class == IconType)
+		{
+			Status.Remove(i, 1);
+			return;
+		}
+	}
 }
 
 //clients only
@@ -834,7 +858,7 @@ function AwardExperience(float exp)
 	if(exp == 0)
 		return;
 	
-	Log(RPGName @ "AwardExperience" @ exp);
+	//Log(RPGName @ "AwardExperience" @ exp);
 	
 	if(bGameEnded)
 		return;
