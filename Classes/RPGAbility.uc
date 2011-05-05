@@ -11,12 +11,6 @@ var localized string
 //game-type specific disabling
 var bool bAllowed;
 
-struct AbilityStruct
-{
-	var class<RPGAbility> AbilityClass;
-	var int Level;
-};
-
 var localized string AbilityName, StatName;
 var localized string Description;
 var localized array<string> LevelDescription;
@@ -24,7 +18,13 @@ var localized array<string> LevelDescription;
 var config int StartingCost, CostAddPerLevel, MaxLevel;
 var config bool bUseLevelCost;
 var config array<int> LevelCost;
-var config int RequiredLevel;
+var config array<int> RequiredLevels;
+
+struct AbilityStruct
+{
+	var class<RPGAbility> AbilityClass;
+	var int Level;
+};
 var config array<AbilityStruct> RequiredAbilities;
 var config array<AbilityStruct> ForbiddenAbilities;
 
@@ -54,7 +54,8 @@ var int ClientSyncCounter;
 var int FinalSyncState, ClientSyncState;
 var bool bNetSyncComplete;
 
-var ReplicatedArray RequiredRepl, ForbiddenRepl, ItemsRepl, LevelCostRepl;
+//TODO: Realize with strings instead?
+var ReplicatedArray RequiredRepl, ForbiddenRepl, ReqLevelsRepl, ItemsRepl, LevelCostRepl;
 
 //Status icons
 var class<RPGStatusIcon> StatusIconClass;
@@ -63,11 +64,10 @@ replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
 		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed, FinalSyncState,
-		RequiredRepl, ForbiddenRepl, ItemsRepl, LevelCostRepl;
+		RequiredRepl, ForbiddenRepl, ReqLevelsRepl, ItemsRepl, LevelCostRepl;
 		
 	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
 		StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost,
-		RequiredLevel,
 		BonusPerLevel, bIsStat;
 	
 	reliable if(Role < ROLE_Authority)
@@ -130,6 +130,18 @@ simulated event PreBeginPlay()
 				ForbiddenRepl.IntArray[i] = ForbiddenAbilities[i].Level;
 			}
 			ForbiddenRepl.Replicate();
+			FinalSyncState++;
+		}
+
+		//Required levels
+		if(RequiredLevels.Length > 0)
+		{
+			ReqLevelsRepl = Spawn(class'ReplicatedArray', Owner);
+			ReqLevelsRepl.Length = RequiredLevels.Length;
+			for(i = 0; i < RequiredLevels.Length; i++)
+				ReqLevelsRepl.IntArray[i] = RequiredLevels[i];
+
+			ReqLevelsRepl.Replicate();
 			FinalSyncState++;
 		}
 
@@ -212,6 +224,18 @@ simulated event PostNetReceive()
 			}
 			ForbiddenRepl.SetOwner(Owner);
 			ForbiddenRepl.ServerDestroy();
+			ClientSyncState++;
+		}
+		
+		//Required levels
+		if(ReqLevelsRepl != None)
+		{
+			RequiredLevels.Length = ReqLevelsRepl.Length;
+			for(i = 0; i < RequiredLevels.Length; i++)
+				RequiredLevels[i] = ReqLevelsRepl.IntArray[i];
+
+			ReqLevelsRepl.SetOwner(Owner);
+			ReqLevelsRepl.ServerDestroy();
 			ClientSyncState++;
 		}
 		
@@ -373,8 +397,12 @@ simulated function string DescriptionText()
 
 	list.Remove(0, list.Length);
 	
+	/*
+	TODO
+	
 	if(RequiredLevel > 0)
 		list[list.Length] = ReqLevelText @ string(RequiredLevel);
+	*/
 
 	for(x = 0; x < RequiredAbilities.Length && RequiredAbilities[x].AbilityClass != None; x++)
 	{
@@ -484,8 +512,8 @@ simulated function int Cost()
 
 	if(RPRI != None)
 	{
-		//check required level
-		if(RPRI.RPGLevel < RequiredLevel)
+		//check required levels
+		if(AbilityLevel < RequiredLevels.Length && RPRI.RPGLevel < RequiredLevels[AbilityLevel])
 			return 0;
 	
 		//find forbidden abilities
@@ -622,7 +650,6 @@ function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float
 
 defaultproperties
 {
-	RequiredLevel=0
 	StartingCost=0
 	CostAddPerLevel=0
 	bUseLevelCost=False

@@ -210,7 +210,7 @@ defaultproperties
 	LevelCost(1)=20
 	LevelCost(2)=10
 	LevelCost(3)=15
-	RequiredLevel=25
+	RequiredLevels(0)=25
 	ForbiddenWeaponTypes(0)=class'XWeapons.BallLauncher'
 	ForbiddenWeaponTypes(1)=class'XWeapons.Redeemer'
 	ForbiddenWeaponTypes(2)=class'XWeapons.Painter'

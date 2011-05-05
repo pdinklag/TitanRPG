@@ -20,5 +20,5 @@ defaultproperties
 	CostAddPerLevel=5
 	MaxLevel=4
 	BonusPerLevel=0.500000
-	RequiredLevel=10
+	RequiredLevels(0)=10
 }
