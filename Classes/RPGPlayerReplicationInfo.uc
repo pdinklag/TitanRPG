@@ -898,7 +898,7 @@ function AwardExperience(float exp)
 			if(Controller != None && Controller.Pawn != None)
 				class'Util'.static.PlayLoudEnoughSound(Controller.Pawn, LevelUpSound);
 		
-			Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGLevel, PRI);
+			Level.Game.BroadCastLocalized(Self, class'LocalMessage_LevelUp', RPGLevel, PRI);
 			ClientShowHint(LevelUpText);
 			
 			if(AIBuild != None)
@@ -1258,7 +1258,8 @@ function ServerResetData()
 	
 	DataObject.SaveConfig();
 
-	Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', RPGMut.StartingLevel, PRI);
+	Level.Game.BroadCastLocalized(Self, class'LocalMessage_Reset', 0, PRI);
+	Level.Game.BroadCastLocalized(Self, class'LocalMessage_LevelUp', RPGMut.StartingLevel, PRI);
 
 	Controller.Adrenaline = 0;
 	if(Controller.Pawn != None)
@@ -1296,9 +1297,9 @@ function ServerRebuildData()
 		
 		DataObject.SaveConfig();
 		
-		Level.Game.BroadCastLocalized(Self, class'RebuildMessage', 0, PRI);
+		Level.Game.BroadCastLocalized(Self, class'LocalMessage_Rebuild', 0, PRI);
 		if(LevelLoss > 0)
-			Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', DataObject.LV, PRI);
+			Level.Game.BroadCastLocalized(Self, class'LocalMessage_LevelUp', DataObject.LV, PRI);
 		
 		Controller.Adrenaline = 0;
 		if(Controller.Pawn != None)
@@ -1320,7 +1321,7 @@ function SetLevel(int NewLevel)
 	DataObject.AL.Length = 0;
 	DataObject.SaveConfig();
 	
-	Level.Game.BroadCastLocalized(Self, class'GainLevelMessage', NewLevel, PRI);
+	Level.Game.BroadCastLocalized(Self, class'LocalMessage_LevelUp', NewLevel, PRI);
 	
 	Controller.Adrenaline = 0;
 	if(Controller.Pawn != None)

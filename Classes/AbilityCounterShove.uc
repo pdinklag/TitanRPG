@@ -38,5 +38,5 @@ defaultproperties
 	MaxLevel=5
 	RequiredAbilities(0)=(AbilityClass=Class'AbilityDamageReduction',Level=6)
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityIronLegs',Level=1)
-	GrantItem(0)=(Level=3,InventoryClass=class'ArtifactRepulsion')
+	GrantItem(0)=(Level=3,InventoryClass=class'Artifact_Repulsion')
 }

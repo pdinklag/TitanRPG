@@ -251,7 +251,7 @@ function Identify(optional bool bReIdentify)
 			if(Instigator.Controller.IsA('PlayerController'))
 			{
 				PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
-					class'NewIdentifyMessage', 0,,, Self);
+					class'LocalMessage_NewIdentify', 0,,, Self);
 			}
 		}
 

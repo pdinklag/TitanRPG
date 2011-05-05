@@ -27,7 +27,7 @@ defaultproperties
 	
 	bBotsBeAfraid=True
 	ChargeTime=2.00
-	Radius=2000
+	Radius=1536
 	ChargeEmitterClass=class'FX_BlastCharger_Bio'
 	ExplosionClass=None
 	ExplosionSound=None //none necessary really

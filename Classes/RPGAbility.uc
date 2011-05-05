@@ -48,246 +48,107 @@ var int Index, BuyOrderIndex;
 var RPGPlayerReplicationInfo RPRI;
 var int AbilityLevel;
 
-var bool bClientReceived;
-
-var int ClientSyncCounter;
-var int FinalSyncState, ClientSyncState;
-var bool bNetSyncComplete;
-
-//TODO: Realize with strings instead?
-var ReplicatedArray RequiredRepl, ForbiddenRepl, ReqLevelsRepl, ItemsRepl, LevelCostRepl;
-
 //Status icons
 var class<RPGStatusIcon> StatusIconClass;
+
+//Client
+var bool bClientReceived;
 
 replication
 {
 	reliable if(Role == ROLE_Authority && bNetInitial)
-		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed, FinalSyncState,
-		RequiredRepl, ForbiddenRepl, ReqLevelsRepl, ItemsRepl, LevelCostRepl;
-		
-	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
+		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed;
+	
+	reliable if(Role == ROLE_Authority)
 		StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost,
 		BonusPerLevel, bIsStat;
 	
 	reliable if(Role < ROLE_Authority)
-		ServerSyncComplete;
+		ServerRequestConfig;
+	
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveRequired, ClientReceiveForbidden, ClientReceiveLevelCost,
+		ClientReceiveReqLevel, ClientReceiveGrantedItem;
 }
 
-function ServerSyncComplete()
-{
-	bNetSyncComplete = true;
-	bNetNotify = false;
-}
-
-function bool ShouldReplicateInfo()
-{
-	return
-		Role == ROLE_Authority &&
-		RemoteRole != ROLE_None &&
-		Level.NetMode != NM_Standalone &&
-		Owner.IsA('PlayerController');
-}
-
-simulated event PreBeginPlay()
+function ServerRequestConfig()
 {
 	local int i;
 
+	for(i = 0; i < RequiredAbilities.Length; i++)
+		ClientReceiveRequired(i, RequiredAbilities[i]);
+		
+	for(i = 0; i < ForbiddenAbilities.Length; i++)
+		ClientReceiveForbidden(i, ForbiddenAbilities[i]);
+
+	for(i = 0; i < GrantItem.Length; i++)
+		ClientReceiveGrantedItem(i, GrantItem[i]);
+		
+	for(i = 0; i < RequiredLevels.Length; i++)
+		ClientReceiveReqLevel(i, RequiredLevels[i]);
+
+	if(bUseLevelCost)
+	{
+		for(i = 0; i < LevelCost.Length; i++)
+			ClientReceiveLevelCost(i, LevelCost[i]);
+	}
+}
+
+simulated event PostNetBeginPlay()
+{
+	Super.PostNetBeginPlay();
+
+	if(Role < ROLE_Authority && RPRI != None)
+	{
+		RPRI.ReceiveAbility(Self);
+		
+		ServerRequestConfig();
+		
+		RequiredAbilities.Length = 0;
+		ForbiddenAbilities.Length = 0;
+		RequiredLevels.Length = 0;
+		LevelCost.Length = 0;
+		GrantItem.Length = 0;
+	}
+}
+
+simulated event PostBeginPlay()
+{
 	if(StatName == "")
 		StatName = AbilityName;
 
 	if(Role == ROLE_Authority)
 		bAllowed = class'MutTitanRPG'.static.Instance(Level).GameSettings.AllowAbility(Self.class);
-	
-	Super.PreBeginPlay();
-	
-	FinalSyncState = 1; //initial sync
-	
-	if(ShouldReplicateInfo())
-	{
-		//Required
-		if(RequiredAbilities.Length > 0)
-		{
-			RequiredRepl = Spawn(class'ReplicatedArray', Owner);
-			RequiredRepl.Length = RequiredAbilities.Length;
-			for(i = 0; i < RequiredAbilities.Length; i++)
-			{
-				RequiredRepl.ObjectArray[i] = RequiredAbilities[i].AbilityClass;
-				RequiredRepl.IntArray[i] = RequiredAbilities[i].Level;
-			}
-			RequiredRepl.Replicate();
-			FinalSyncState++;
-		}
-		
-		//Forbidden
-		if(ForbiddenAbilities.Length > 0)
-		{
-			ForbiddenRepl = Spawn(class'ReplicatedArray', Owner);
-			ForbiddenRepl.Length = ForbiddenAbilities.Length;
-			for(i = 0; i < ForbiddenAbilities.Length; i++)
-			{
-				ForbiddenRepl.ObjectArray[i] = ForbiddenAbilities[i].AbilityClass;
-				ForbiddenRepl.IntArray[i] = ForbiddenAbilities[i].Level;
-			}
-			ForbiddenRepl.Replicate();
-			FinalSyncState++;
-		}
 
-		//Required levels
-		if(RequiredLevels.Length > 0)
-		{
-			ReqLevelsRepl = Spawn(class'ReplicatedArray', Owner);
-			ReqLevelsRepl.Length = RequiredLevels.Length;
-			for(i = 0; i < RequiredLevels.Length; i++)
-				ReqLevelsRepl.IntArray[i] = RequiredLevels[i];
-
-			ReqLevelsRepl.Replicate();
-			FinalSyncState++;
-		}
-
-		//Items
-		if(GrantItem.Length > 0)
-		{
-			ItemsRepl = Spawn(class'ReplicatedArray', Owner);
-			ItemsRepl.Length = GrantItem.Length;
-			for(i = 0; i < GrantItem.Length; i++)
-			{
-				ItemsRepl.ObjectArray[i] = GrantItem[i].InventoryClass;
-				ItemsRepl.IntArray[i] = GrantItem[i].Level;
-			}
-			ItemsRepl.Replicate();
-			FinalSyncState++;
-		}
-		
-		//LevelCost
-		if(bUseLevelCost)
-		{
-			LevelCostRepl = Spawn(class'ReplicatedArray', Owner);
-			LevelCostRepl.Length = LevelCost.Length;
-			for(i = 0; i < LevelCost.Length; i++)
-				LevelCostRepl.IntArray[i] = LevelCost[i];
-			
-			LevelCostRepl.Replicate();
-			FinalSyncState++;
-		}
-	}
+	if(Level.NetMode == NM_Standalone)
+		RPRI.ReceiveAbility(Self); //make sure RPG menu gets enabled in offline games
+	
+	Super.PostBeginPlay();
 }
 
-simulated function bool ShouldReceive()
+simulated function ClientReceiveRequired(int i, AbilityStruct Req)
 {
-	return Role < ROLE_Authority && !bNetSyncComplete;
+	RequiredAbilities[i] = Req;
 }
 
-/*
-	IMPORTANT!
-	Derived classes which override PostNetReceive MUST call
-	Super.PostNetReceive() AFTER it has updated the ClientSyncState
-*/
-simulated event PostNetReceive()
+simulated function ClientReceiveForbidden(int i, AbilityStruct Forbidden)
 {
-	local AbilityStruct A;
-	local GrantItemStruct Grant;
-	local int i;
+	ForbiddenAbilities[i] = Forbidden;
+}
 
-	if(ShouldReceive())
-	{
-		if(RPRI != None && !bClientReceived)
-		{
-			bClientReceived = true;
-			ClientSyncState++;
-		}
-	
-		//Required
-		if(RequiredRepl != None)
-		{
-			RequiredAbilities.Length = RequiredRepl.Length;
-			for(i = 0; i < RequiredAbilities.Length; i++)
-			{
-				A.AbilityClass = class<RPGAbility>(RequiredRepl.ObjectArray[i]);
-				A.Level = RequiredRepl.IntArray[i];
-				RequiredAbilities[i] = A;
-			}
-			RequiredRepl.SetOwner(Owner);
-			RequiredRepl.ServerDestroy();
-			ClientSyncState++;
-		}
-		
-		//Forbidden
-		if(ForbiddenRepl != None)
-		{
-			ForbiddenAbilities.Length = ForbiddenRepl.Length;
-			for(i = 0; i < ForbiddenAbilities.Length; i++)
-			{
-				A.AbilityClass = class<RPGAbility>(ForbiddenRepl.ObjectArray[i]);
-				A.Level = ForbiddenRepl.IntArray[i];
-				ForbiddenAbilities[i] = A;
-			}
-			ForbiddenRepl.SetOwner(Owner);
-			ForbiddenRepl.ServerDestroy();
-			ClientSyncState++;
-		}
-		
-		//Required levels
-		if(ReqLevelsRepl != None)
-		{
-			RequiredLevels.Length = ReqLevelsRepl.Length;
-			for(i = 0; i < RequiredLevels.Length; i++)
-				RequiredLevels[i] = ReqLevelsRepl.IntArray[i];
+simulated function ClientReceiveReqLevel(int i, int lv)
+{
+	RequiredLevels[i] = lv;
+}
 
-			ReqLevelsRepl.SetOwner(Owner);
-			ReqLevelsRepl.ServerDestroy();
-			ClientSyncState++;
-		}
-		
-		//Items
-		if(ItemsRepl != None)
-		{
-			GrantItem.Length = ItemsRepl.Length;
-			for(i = 0; i < GrantItem.Length; i++)
-			{
-				Grant.InventoryClass = class<Inventory>(ItemsRepl.ObjectArray[i]);
-				Grant.Level = ItemsRepl.IntArray[i];
-				GrantItem[i] = Grant;
-			}
-			ItemsRepl.SetOwner(Owner);
-			ItemsRepl.ServerDestroy();
-			ClientSyncState++;
-		}
-		
-		//LevelCost
-		if(LevelCostRepl != None)
-		{
-			LevelCost.Length = LevelCostRepl.Length;
-			for(i = 0; i < LevelCost.Length; i++)
-				LevelCost[i] = LevelCostRepl.IntArray[i];
+simulated function ClientReceiveLevelCost(int i, int Cost)
+{
+	LevelCost[i] = Cost;
+}
 
-			LevelCostRepl.SetOwner(Owner);
-			LevelCostRepl.ServerDestroy();
-			ClientSyncState++;
-		}
-		
-		ClientSyncCounter++;
-		
-		if(ClientSyncState >= FinalSyncState && !bNetSyncComplete)
-		{
-			RPRI.ReceiveAbility(Self);
-			ServerSyncComplete();
-			bNetSyncComplete = true;
-		}
-		else if(ClientSyncCounter > 20)
-		{
-			/*
-				in case something goes wrong, make sure the ability gets marked as received anyway,
-				so the menu becomes available.
-				
-				Should never happen.
-			*/
-			Log(Self @ "Failed to complete sync after" @ ClientSyncCounter @ "net receptions!", 'TitanRPG');
-			RPRI.ReceiveAbility(Self);
-			ServerSyncComplete();
-			bNetSyncComplete = true;
-		}
-	}
+simulated function ClientReceiveGrantedItem(int i, GrantItemStruct Grant)
+{
+	GrantItem[i] = Grant;
 }
 
 simulated function bool Buy(optional int Amount)
@@ -669,7 +530,6 @@ defaultproperties
 	
 	DrawType=DT_None
 
-	bNetNotify=True
 	bAlwaysRelevant=False
 	bOnlyRelevantToOwner=True
 	bOnlyDirtyReplication=True

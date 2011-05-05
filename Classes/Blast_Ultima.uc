@@ -53,7 +53,7 @@ function DoDamage(float LocalRadius)
 			if(P != None)
 			{
 				if(WeaponProtection(P.Weapon) != None ||
-					class'ArtifactProtection'.static.IsActiveFor(P))
+					class'Artifact_Protection'.static.IsActiveFor(P))
 				{
 					continue;
 				}

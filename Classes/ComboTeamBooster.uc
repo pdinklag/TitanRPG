@@ -51,7 +51,7 @@ function StartEffect(xPawn P)
 		Pawns[i] = Other;
 		
 		if(Other != None)
-			Effects[i] = Spawn(class'TeamBoosterEffect', Other,, Other.Location, Other.Rotation);
+			Effects[i] = Spawn(class'FX_TeamBooster', Other,, Other.Location, Other.Rotation);
 	
 		//Show the message for all team members
 		if(Other != None && Other != P && P.PlayerReplicationInfo != None)
@@ -96,7 +96,7 @@ function Timer()
 				if(Other != None)
 				{
 					if(Effects[i] == None)
-						Effects[i] = Spawn(class'TeamBoosterEffect', Other,, Other.Location, Other.Rotation);
+						Effects[i] = Spawn(class'FX_TeamBooster', Other,, Other.Location, Other.Rotation);
 				
 					if(ProcessPawn(Other))
 						n++;

@@ -1,3 +1,4 @@
+//TODO: Make Object class, needed on client end only
 class RPGAbilityCategory extends RPGAbility;
 
 simulated function int Cost()

@@ -7,57 +7,35 @@ struct GrantWeaponStruct
 };
 var config array<GrantWeaponStruct> Weapons;
 
-var ReplicatedArray WeaponsRepl;
-
 var bool bTC0X; //for BattleMode's ONSRPG compatibility
 
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetInitial)
-		WeaponsRepl;
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveGrantedWeapon;
 }
 
-simulated event PreBeginPlay()
+simulated event PostNetBeginPlay()
 {
-	local int i;
+	Super.PostNetBeginPlay();
 	
-	Super.PreBeginPlay();
-
-	if(ShouldReplicateInfo())
-	{
-		WeaponsRepl = Spawn(class'ReplicatedArray', Owner);
-		WeaponsRepl.Length = Weapons.Length;
-		for(i = 0; i < Weapons.Length; i++)
-		{
-			WeaponsRepl.ObjectArray[i] = Weapons[i].WeaponClass;
-			WeaponsRepl.IntArray[i] = Weapons[i].Level;
-		}
-		WeaponsRepl.Replicate();
-		FinalSyncState++;
-	}
+	if(Role < ROLE_Authority)
+		Weapons.Length = 0;
 }
 
-simulated event PostNetReceive()
+function ServerRequestConfig()
 {
-	local GrantWeaponStruct W;
 	local int i;
 
-	if(ShouldReceive() && WeaponsRepl != None)
-	{
-		Weapons.Length = WeaponsRepl.Length;
-		for(i = 0; i < Weapons.Length; i++)
-		{
-			W.WeaponClass = class<Weapon>(WeaponsRepl.ObjectArray[i]);
-			W.Level = WeaponsRepl.IntArray[i];
-			Weapons[i] = W;
-		}
-		
-		WeaponsRepl.SetOwner(Owner);
-		WeaponsRepl.ServerDestroy();
-		ClientSyncState++;
-	}
-	
-	Super.PostNetReceive();
+	Super.ServerRequestConfig();
+
+	for(i = 0; i < Weapons.Length; i++)
+		ClientReceiveGrantedWeapon(i, Weapons[i]);
+}
+
+simulated function ClientReceiveGrantedWeapon(int i, GrantWeaponStruct W)
+{
+	Weapons[i] = W;
 }
 
 function ModifyPawn(Pawn Other)

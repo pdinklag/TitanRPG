@@ -304,7 +304,7 @@ function float BotDesireability(Pawn Bot)
 
 defaultproperties
 {
-     bOnlyReplicateHidden=False
-     bGameRelevant=True
-     MessageClass=Class'EmptyMessage'
+    bOnlyReplicateHidden=False
+    bGameRelevant=True
+    MessageClass=Class'LocalMessage_Empty'
 }

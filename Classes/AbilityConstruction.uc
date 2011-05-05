@@ -1,5 +1,5 @@
 class AbilityConstruction extends RPGAbility
-	DependsOn(ArtifactTurretSummon);
+	DependsOn(Artifact_TurretSummon);
 
 struct TurretTypeStruct
 {
@@ -13,75 +13,47 @@ struct TurretTypeStruct
 };
 var config array<TurretTypeStruct> TurretTypes;
 
-var ReplicatedArray TurretTypesRepl;
-
 var localized string TurretPreText, TurretPostText;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetInitial)
-		TurretTypesRepl;
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveTurretType;
 }
 
-simulated event PreBeginPlay()
+simulated event PostNetBeginPlay()
 {
-	local int i;
+	Super.PostNetBeginPlay();
 	
-	Super.PreBeginPlay();
-
-	if(ShouldReplicateInfo())
-	{
-		TurretTypesRepl = Spawn(class'ReplicatedArray', Owner);
-		TurretTypesRepl.Length = TurretTypes.Length;
-		for(i = 0; i < TurretTypes.Length; i++)
-		{
-			TurretTypesRepl.ObjectArray[i] = TurretTypes[i].TurretClass;
-			TurretTypesRepl.IntArray[i] = TurretTypes[i].Level;
-			TurretTypesRepl.IntArray[i + TurretTypes.Length] = TurretTypes[i].Cost;
-			TurretTypesRepl.ObjectArray[i + TurretTypes.Length] = TurretTypes[i].StaticMesh;
-			TurretTypesRepl.FloatArray[i] = TurretTypes[i].DrawScale;
-		}
-		TurretTypesRepl.Replicate();
-		FinalSyncState++;
-	}
+	if(Role < ROLE_Authority)
+		TurretTypes.Length = 0;
 }
 
-simulated event PostNetReceive()
+function ServerRequestConfig()
 {
-	local TurretTypeStruct T;
 	local int i;
 
-	if(ShouldReceive() && TurretTypesRepl != None)
-	{
-		TurretTypes.Length = TurretTypesRepl.Length;
-		for(i = 0; i < TurretTypes.Length; i++)
-		{
-			T.TurretClass = class<Vehicle>(TurretTypesRepl.ObjectArray[i]);
-			T.Level = TurretTypesRepl.IntArray[i];
-			T.Cost = TurretTypesRepl.IntArray[i + TurretTypes.Length];
-			T.StaticMesh = StaticMesh(TurretTypesRepl.ObjectArray[i + TurretTypes.Length]);
-			T.DrawScale = TurretTypesRepl.FloatArray[i];
-			TurretTypes[i] = T;
-		}
-		
-		TurretTypesRepl.SetOwner(Owner);
-		TurretTypesRepl.ServerDestroy();
-		ClientSyncState++;
-	}
-	
-	Super.PostNetReceive();
+	Super.ServerRequestConfig();
+
+	for(i = 0; i < TurretTypes.Length; i++)
+		ClientReceiveTurretType(i, TurretTypes[i]);
+}
+
+simulated function ClientReceiveTurretType(int i, TurretTypeStruct T)
+{
+	TurretTypes[i] = T;
 }
 
 function ModifyPawn(Pawn Other)
 {
 	local int i;
-	local ArtifactTurretSummon.TurretTypeStruct ArtifactTurret;
-	local ArtifactTurretSummon Artifact;
+	local Artifact_TurretSummon.TurretTypeStruct ArtifactTurret;
+	local Artifact_TurretSummon Artifact;
 	local bool bSelect;
 	
 	Super.ModifyPawn(Other);
 	
-	Artifact = ArtifactTurretSummon(Other.FindInventoryType(class'ArtifactTurretSummon'));
+	Artifact = Artifact_TurretSummon(Other.FindInventoryType(class'Artifact_TurretSummon'));
 	if(Artifact != None)
 	{
 		bSelect = (Artifact == Other.SelectedItem);
@@ -91,7 +63,7 @@ function ModifyPawn(Pawn Other)
 	if(!bSelect)
 		bSelect = (Other.SelectedItem == None);
 	
-	Artifact = Other.Spawn(class'ArtifactTurretSummon');
+	Artifact = Other.Spawn(class'Artifact_TurretSummon');
 	if(Artifact != None)
 	{
 		Artifact.TurretTypes.Length = 0;

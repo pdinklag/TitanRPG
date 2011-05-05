@@ -1,8 +1,5 @@
 class SelectionMenu_WeaponModifier extends RPGSelectionMenu;
 
-var class<Weapon> WeaponType;
-var array<class<RPGWeapon> > Available;
-
 //TODO: adapt
 
 /*

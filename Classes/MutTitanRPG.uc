@@ -1318,7 +1318,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && Args[0] ~= "artifact" && Args.Length > 1)
 			{
-				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact" $ Args[1], class'Class'));
+				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact_" $ Args[1], class'Class'));
 				if(ArtifactClass != None)
 					class'Util'.static.GiveInventory(Cheat, ArtifactClass);
 				else

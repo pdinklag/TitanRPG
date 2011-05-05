@@ -4,7 +4,7 @@ var config float ReductionPerLevel;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
+	reliable if(Role == ROLE_Authority)
 		ReductionPerLevel;
 }
 

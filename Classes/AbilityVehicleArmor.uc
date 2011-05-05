@@ -6,7 +6,7 @@ var localized string MaxBonusText;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
+	reliable if(Role == ROLE_Authority)
 		MaxHealthBonus;
 }
 
@@ -60,5 +60,5 @@ defaultproperties
 	MaxLevel=10
 	MaxHealthBonus=0
 	BonusPerLevel=0.050000
-	GrantItem(0)=(Level=5,InventoryClass=class'ArtifactVehicleBoost')
+	GrantItem(0)=(Level=5,InventoryClass=class'Artifact_VehicleBoost')
 }

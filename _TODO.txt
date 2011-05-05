@@ -1,29 +1,31 @@
 TEST:
+- Ability descriptions
+- Blast artifacts
 - Null Entropy with two weapons of same type
 - Sturdy / CS
+- Vehicle Turn Speed
+- Exp Gain Fraction display
 
 TODO (XT):
-- Add LoopDetection to mutators!
-- NullEntropy BonusPerLevel=0.333333
+- Fix artifact class names in ini !!!!!!
 
 TODO (1.62)
 - Ballistic support (got permission)
 - OSMT integration for friendly monsters (wait for permission???)
 
 TODO (1.61)
-- XP for game events
+- XP for ONS game events
 
 - Get rid of RPGAbilityCategory instances
+- Get rid of RPGWeapon
 
 - Proximity grenades
-- Fix stat points !!!
-- Allow healing of summoned monsters
+- Fix stat points ???
 - Allow Ultima Shield for summoned monsters
 - Pull Forward weapon
 - Corrosion weapon
 - Blowback weapon (-> retal)
 - XP for damage on players
-- Iron Legs weapon
 - Manta recharge
 - Health
 
@@ -38,16 +40,11 @@ TODO (1.61)
 
 - Fix Artifacts getting lost when leaving a link turret
 
-- Split RPGAbility.ScoreKill into ScoreKill and Killed (active and passive)
-- Split HandleDamage into AdjustPlayerDamage and AdjustTargetDamage (active and passive)
-
-- Find more uses for status icons
 - Fix Healing Blast not healing if you move into a vehicle
 - Ammo system for artifacts
 - AbilityLooter
 
-- Disallow multiple connections with same name and GUID
-- Use ArrayCount(Array)
+- Disallow multiple connections with same name and GUID ?
 
 Documentation TODO:
 - EjectorSeat

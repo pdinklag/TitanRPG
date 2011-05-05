@@ -1,5 +1,5 @@
 class AbilityConjuration extends RPGAbility
-	DependsOn(ArtifactMonsterSummon);
+	DependsOn(Artifact_MonsterSummon);
 
 var config float MonsterSkill;
 
@@ -12,76 +12,47 @@ struct MonsterTypeStruct
 };
 var config array<MonsterTypeStruct> MonsterTypes;
 
-var ReplicatedArray MonsterTypesRepl;
-
 var localized string MonsterPreText, MonsterPostText;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetInitial)
-		MonsterTypesRepl;
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveMonsterType;
 }
 
-simulated event PreBeginPlay()
+simulated event PostNetBeginPlay()
 {
-	local int i;
+	Super.PostNetBeginPlay();
 	
-	Super.PreBeginPlay();
-
-	if(ShouldReplicateInfo())
-	{
-		MonsterTypesRepl = Spawn(class'ReplicatedArray', Owner);
-		for(i = 0; i < MonsterTypes.Length; i++)
-		{
-			MonsterTypesRepl.ObjectArray[i] = MonsterTypes[i].MonsterClass;
-			MonsterTypesRepl.IntArray[i] = MonsterTypes[i].Level;
-			MonsterTypesRepl.IntArray[i + MonsterTypes.Length] = MonsterTypes[i].Cost;
-			
-			if(MonsterTypes[i].DisplayName == "")
-				MonsterTypes[i].DisplayName = string(MonsterTypes[i].MonsterClass.Name);
-			
-			MonsterTypesRepl.StringArray[i] = MonsterTypes[i].DisplayName;
-		}
-		MonsterTypesRepl.Replicate();
-		FinalSyncState++;
-	}
+	if(Role < ROLE_Authority)
+		MonsterTypes.Length = 0;
 }
 
-simulated event PostNetReceive()
+function ServerRequestConfig()
 {
-	local MonsterTypeStruct M;
 	local int i;
 
-	if(ShouldReceive() && MonsterTypesRepl != None)
-	{
-		MonsterTypes.Length = MonsterTypesRepl.ObjectArray.Length;
-		for(i = 0; i < MonsterTypes.Length; i++)
-		{
-			M.MonsterClass = class<Monster>(MonsterTypesRepl.ObjectArray[i]);
-			M.Level = MonsterTypesRepl.IntArray[i];
-			M.Cost = MonsterTypesRepl.IntArray[i + MonsterTypes.Length];
-			M.DisplayName = MonsterTypesRepl.StringArray[i];
-			MonsterTypes[i] = M;
-		}
-		
-		MonsterTypesRepl.SetOwner(Owner);
-		MonsterTypesRepl.ServerDestroy();
-		ClientSyncState++;
-	}
-	
-	Super.PostNetReceive();
+	Super.ServerRequestConfig();
+
+	for(i = 0; i < MonsterTypes.Length; i++)
+		ClientReceiveMonsterType(i, MonsterTypes[i]);
+}
+
+simulated function ClientReceiveMonsterType(int i, MonsterTypeStruct M)
+{
+	MonsterTypes[i] = M;
 }
 
 function ModifyPawn(Pawn Other)
 {
 	local int i;
-	local ArtifactMonsterSummon.MonsterTypeStruct ArtifactMonster;
-	local ArtifactMonsterSummon Artifact;
+	local Artifact_MonsterSummon.MonsterTypeStruct ArtifactMonster;
+	local Artifact_MonsterSummon Artifact;
 	local bool bSelect;
 	
 	Super.ModifyPawn(Other);
 	
-	Artifact = ArtifactMonsterSummon(Other.FindInventoryType(class'ArtifactMonsterSummon'));
+	Artifact = Artifact_MonsterSummon(Other.FindInventoryType(class'Artifact_MonsterSummon'));
 	if(Artifact != None)
 	{
 		bSelect = (Artifact == Other.SelectedItem);
@@ -91,7 +62,7 @@ function ModifyPawn(Pawn Other)
 	if(!bSelect)
 		bSelect = (Other.SelectedItem == None);
 	
-	Artifact = Other.Spawn(class'ArtifactMonsterSummon');
+	Artifact = Other.Spawn(class'Artifact_MonsterSummon');
 	if(Artifact != None)
 	{
 		Artifact.bCanBeTossed = false;

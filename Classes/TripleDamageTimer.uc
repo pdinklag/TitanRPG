@@ -18,3 +18,7 @@ function Timer()
 	Pawn(Owner).DisableUDamage();
 	Destroy();
 }
+
+defaultproperties
+{
+}

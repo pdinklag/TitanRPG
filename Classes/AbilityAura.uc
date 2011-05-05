@@ -7,7 +7,7 @@ var array<FX_HealingBeam> HealEmitters;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
+	reliable if(Role == ROLE_Authority)
 		HealInterval, HealRadius;
 }
 

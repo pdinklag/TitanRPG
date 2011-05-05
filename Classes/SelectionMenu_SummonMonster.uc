@@ -14,14 +14,14 @@ static function name GetMonsterIdleAnim(class<Monster> MonsterClass, Actor RefAc
 
 function int GetNumItems()
 {
-	return ArtifactMonsterSummon(Artifact).MonsterTypes.Length;
+	return Artifact_MonsterSummon(Artifact).MonsterTypes.Length;
 }
 
 function string GetItem(int i)
 {
 	return
-		ArtifactMonsterSummon(Artifact).MonsterTypes[i].DisplayName @
-		"(" $ ArtifactMonsterSummon(Artifact).MonsterTypes[i].Cost $ ")";
+		Artifact_MonsterSummon(Artifact).MonsterTypes[i].DisplayName @
+		"(" $ Artifact_MonsterSummon(Artifact).MonsterTypes[i].Cost $ ")";
 }
 
 function int GetDefaultItemIndex()
@@ -39,7 +39,7 @@ function SelectItem()
 	{
 		if(lstItems.List.Index >= 0)
 		{
-			SelectedMonster = ArtifactMonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].MonsterClass;
+			SelectedMonster = Artifact_MonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].MonsterClass;
 			SpinnyItem.LinkMesh(SelectedMonster.default.Mesh);
 			
 			SpinnyItem.Skins.Length = SelectedMonster.default.Skins.Length;
@@ -55,13 +55,13 @@ function SelectItem()
 		}
 	}
 	
-	if(ArtifactMonsterSummon(Artifact).bUseCostAsCooldown)
+	if(Artifact_MonsterSummon(Artifact).bUseCostAsCooldown)
 	{
 		btOK.MenuState = MSAT_Blurry;
 	}
 	else
 	{
-		Cost = ArtifactMonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].Cost;
+		Cost = Artifact_MonsterSummon(Artifact).MonsterTypes[lstItems.List.Index].Cost;
 		if(Cost > PlayerOwner().Adrenaline)
 			btOK.MenuState = MSAT_Disabled;
 		else

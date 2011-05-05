@@ -234,7 +234,7 @@ function Identify(optional bool bReIdentify)
 		ClientConstructItemName(Modifier, ModifiedWeapon.class);
 	
 	if(Instigator != None)
-		Instigator.ReceiveLocalizedMessage(class'IdentifyMessage', 0, None, None, Self);
+		Instigator.ReceiveLocalizedMessage(class'LocalMessage_Identify', 0, None, None, Self);
 
 	if(ModifiedWeapon.OverlayMaterial == None)
 		SetOverlayMaterial(ModifierOverlay, -1, true);
@@ -744,7 +744,7 @@ simulated function GiveTo(Pawn Other, optional Pickup Pickup)
     if (Instigator.Controller != None && Instigator.Controller == Level.GetLocalPlayerController()) //can only do this on listen/standalone
     {
        	if (bIdentified)
-		PlayerController(Instigator.Controller).ReceiveLocalizedMessage(class'IdentifyMessage', 1,,, self);
+		PlayerController(Instigator.Controller).ReceiveLocalizedMessage(class'LocalMessage_Identify', 1,,, self);
 	else if (ModifiedWeapon.PickupClass != None)
 	    	PlayerController(Instigator.Controller).ReceiveLocalizedMessage(ModifiedWeapon.PickupClass.default.MessageClass, 0,,,ModifiedWeapon.PickupClass);
     }
@@ -1815,7 +1815,7 @@ state PendingClientWeaponSet
 	if (Instigator != None && PlayerController(Instigator.Controller) != None)
 	{
 		if (bIdentified)
-			PlayerController(Instigator.Controller).ReceiveLocalizedMessage(class'IdentifyMessage', 1,,, self);
+			PlayerController(Instigator.Controller).ReceiveLocalizedMessage(class'LocalMessage_Identify', 1,,, self);
 		else if (ModifiedWeapon.PickupClass != None)
 			PlayerController(Instigator.Controller).ReceiveLocalizedMessage(ModifiedWeapon.PickupClass.default.MessageClass, 0,,,ModifiedWeapon.PickupClass);
 	}

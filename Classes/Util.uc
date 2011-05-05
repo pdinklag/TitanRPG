@@ -136,7 +136,7 @@ static function string HighlightText(string Text, Color Highlight, Color Old)
 
 static function bool IsRound(float p)
 {
-	return (float(int(p)) - p < 0.01f);
+	return (float(int(p)) == p);
 }
 
 static function string FormatPercent(float p)

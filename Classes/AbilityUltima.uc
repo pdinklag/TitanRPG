@@ -9,7 +9,7 @@ var float TryRadiusMin, TryRadiusMax; //if spawning a charger fails, try randoml
 
 replication
 {
-	reliable if(Role == ROLE_Authority && !bNetSyncComplete)
+	reliable if(Role == ROLE_Authority)
 		BaseDelay;
 	
 	reliable if(Role == ROLE_Authority && bNetDirty)

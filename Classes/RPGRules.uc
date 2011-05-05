@@ -766,7 +766,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	local Pawn KilledVehicleDriver;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
 	local AbilityVehicleEject EjectorSeat;
-	local ArtifactDoubleModifier DoubleMod;
+	local Artifact_DoubleModifier DoubleMod;
 	
 	KillDamageType = damageType;
 	
@@ -774,7 +774,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 		return Super.PreventDeath(Killed, Killer, damageType, HitLocation);
 	
 	//FIXME hotfix, must find a better solution
-	DoubleMod = ArtifactDoubleModifier(Killed.FindInventoryType(class'ArtifactDoubleModifier'));
+	DoubleMod = Artifact_DoubleModifier(Killed.FindInventoryType(class'Artifact_DoubleModifier'));
 	if(DoubleMod != None && DoubleMod.bActive)
 		DoubleMod.GotoState('');
 	
@@ -785,12 +785,12 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 			if(PlayerController(Killer) != None)
 			{
 				PlayerController(Killer).PlayAnnouncement(EagleEyeAnnouncement, 1, true);
-				PlayerController(Killer).ReceiveLocalizedMessage(class'EagleEyeMessage');
+				PlayerController(Killer).ReceiveLocalizedMessage(class'LocalMessage_EagleEye');
 			}
 			if(PlayerController(Killed.Controller) != None)
 			{
 				PlayerController(Killed.Controller).PlayAnnouncement(DisgraceAnnouncement, 1, true);
-				PlayerController(Killed.Controller).ReceiveLocalizedMessage(class'DisgraceMessage');
+				PlayerController(Killed.Controller).ReceiveLocalizedMessage(class'LocalMessage_Disgrace');
 			}
 		}
 	}

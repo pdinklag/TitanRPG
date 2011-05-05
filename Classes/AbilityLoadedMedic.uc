@@ -2,47 +2,33 @@ class AbilityLoadedMedic extends RPGAbility;
 
 var config array<int> LevelCap;
 
-var ReplicatedArray LevelCapRepl;
-
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetInitial)
-		LevelCapRepl;
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveLevelCap;
 }
 
-simulated event PreBeginPlay()
+simulated event PostNetBeginPlay()
 {
-	local int i;
+	Super.PostNetBeginPlay();
 	
-	Super.PreBeginPlay();
-
-	if(ShouldReplicateInfo())
-	{
-		LevelCapRepl = Spawn(class'ReplicatedArray', Owner);
-		for(i = 0; i < LevelCap.Length; i++)
-			LevelCapRepl.IntArray[i] = LevelCap[i];
-		
-		LevelCapRepl.Replicate();
-		FinalSyncState++;
-	}
+	if(Role < ROLE_Authority)
+		LevelCap.Length = 0;
 }
 
-simulated event PostNetReceive()
+function ServerRequestConfig()
 {
 	local int i;
 
-	if(ShouldReceive() && LevelCapRepl != None)
-	{
-		LevelCap.Length = LevelCapRepl.IntArray.Length;
-		for(i = 0; i < LevelCap.Length; i++)
-			LevelCap[i] = LevelCapRepl.IntArray[i];
-		
-		LevelCapRepl.SetOwner(Owner);
-		LevelCapRepl.ServerDestroy();
-		ClientSyncState++;
-	}
-	
-	Super.PostNetReceive();
+	Super.ServerRequestConfig();
+
+	for(i = 0; i < LevelCap.Length; i++)
+		ClientReceiveLevelCap(i, LevelCap[i]);
+}
+
+simulated function ClientReceiveLevelCap(int i, int Cap)
+{
+	LevelCap[i] = Cap;
 }
 
 function int GetHealMax()
