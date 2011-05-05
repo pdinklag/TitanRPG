@@ -85,4 +85,5 @@ defaultproperties
 	CostAddPerLevel=5
 	MaxLevel=7
 	RequiredAbilities(0)=(AbilityClass=Class'AbilityAmmoMax',Level=10)
+	Category=class'AbilityCategory_Weapons'
 }

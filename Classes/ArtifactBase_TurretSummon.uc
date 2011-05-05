@@ -33,7 +33,7 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		if(SpawnTurret(TurretType) == None)
 		{
@@ -41,7 +41,9 @@ state Activated
 				Instigator.Controller.Adrenaline += MinActivationTime * CostPerSec;
 				
 			Msg(MSG_CouldNotSpawn);
+			return false;
 		}
+		return true;
 	}
 }
 

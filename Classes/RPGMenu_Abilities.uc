@@ -1,7 +1,11 @@
 class RPGMenu_Abilities extends RPGMenu_TabPage;
 
+var array<class<RPGAbilityCategory> > Categories; //TODO: Make configurable in some way?
+
 struct AbilityInfo
 {
+	var class<RPGAbilityCategory> Category; //if not None, this entry is a category header
+	
 	var RPGAbility LinkedAbility;
 	var string Name;
 	var int NextLevel;
@@ -47,7 +51,7 @@ function DrawAbilityInfo(Canvas Canvas, int i, float X, float Y, float W, float 
 	local float CellLeft, CellWidth;
 	local GUIStyles DStyle;
 	
-	if(AbilityInfos[i].LinkedAbility.IsA('RPGAbilityCategory'))
+	if(AbilityInfos[i].Category != None)
 		DStyle = Abilities.SectionStyle;
 	else if(bSelected)
         DStyle = Abilities.SelectedStyle;
@@ -59,7 +63,7 @@ function DrawAbilityInfo(Canvas Canvas, int i, float X, float Y, float W, float 
 	Abilities.GetCellLeftWidth(0, CellLeft, CellWidth);
 	DStyle.DrawText(Canvas, Abilities.MenuState, CellLeft, Y, CellWidth, H, TXTA_Left, AbilityInfos[i].Name, Abilities.FontScale);
 
-	if(!AbilityInfos[i].LinkedAbility.IsA('RPGAbilityCategory'))
+	if(AbilityInfos[i].LinkedAbility != None)
 	{
 		MaxLevel = AbilityInfos[i].LinkedAbility.MaxLevel;
 		Level = AbilityInfos[i].LinkedAbility.AbilityLevel;
@@ -100,31 +104,54 @@ function InitMenu()
 	local AbilityInfo AInfo;
 	local RPGAbility Ability;
 	local int OldAbilityListIndex, OldAbilityListTop;
-	local int i;
-	
+	local int i, k, n, x;
+
 	OldAbilityListIndex = Abilities.Index;
 	OldAbilityListTop = Abilities.Top;
 	
 	Abilities.Clear();
-	AbilityInfos.Remove(0, AbilityInfos.Length);
+	AbilityInfos.Length = 0;
 	
-	for(i = 0; i < RPGMenu.RPRI.AllAbilities.Length; i++)
+	for(i = 0; i < Categories.Length; i++)
 	{
-		Ability = RPGMenu.RPRI.AllAbilities[i];
-		if(!Ability.bIsStat)
+		x = AbilityInfos.Length;
+		n = 0;
+		
+		for(k = 0; k < RPGMenu.RPRI.AllAbilities.Length; k++)
 		{
-			AInfo.LinkedAbility = Ability;
-			AInfo.Name = Ability.AbilityName;
+			Ability = RPGMenu.RPRI.AllAbilities[k];
+			if(!Ability.bIsStat && Ability.Category == Categories[i])
+			{
+				n++;
+				
+				AInfo.LinkedAbility = Ability;
+				AInfo.Name = Ability.AbilityName;
+				
+				if(Ability.AbilityLevel < Ability.MaxLevel)
+					AInfo.NextLevel = Ability.AbilityLevel + 1;
+				else
+					AInfo.NextLevel = 0;
 
-			if(Ability.AbilityLevel < Ability.MaxLevel)
-				AInfo.NextLevel = Ability.AbilityLevel + 1;
-			else
-				AInfo.NextLevel = 0;
-
-			AInfo.Cost = Ability.Cost();
+				AInfo.Cost = Ability.Cost();
+	
+				AbilityInfos[AbilityInfos.Length] = AInfo;
+				Abilities.AddedItem();
+			}
+		}
+		
+		if(n > 0)
+		{
+			AInfo.LinkedAbility = None;
+			AInfo.Category = Categories[i];
+			AInfo.Cost = 0;
+			AInfo.NextLevel = 0;
+			AInfo.Name = Categories[i].default.CategoryName;
 			
-			AbilityInfos[AbilityInfos.Length] = AInfo;
+			AbilityInfos.Insert(x, 1);
+			AbilityInfos[x] = AInfo;
 			Abilities.AddedItem();
+			
+			AInfo.Category = None;
 		}
 	}
 	
@@ -163,7 +190,11 @@ function SelectAbility()
 		}	
 		
 		sbDesc.Caption = AInfo.Name;
-		lblDesc.MyScrollText.SetContent(AInfo.LinkedAbility.DescriptionText());
+		
+		if(AInfo.Category != None)
+			lblDesc.MyScrollText.SetContent(AInfo.Category.default.Description);
+		else if(AInfo.LinkedAbility != None)
+			lblDesc.MyScrollText.SetContent(AInfo.LinkedAbility.DescriptionText());
 	}
 	else
 	{
@@ -206,8 +237,11 @@ function bool BuyAbility(GUIComponent Sender)
 	{
 		AInfo = AbilityInfos[Abilities.Index];
 		
-		if(AInfo.LinkedAbility.Buy() && RPGMenu.RPRI.Role < ROLE_Authority) //simulate for a pingless update if client
-			RPGMenu.RPRI.ServerBuyAbility(AInfo.LinkedAbility);
+		if(AInfo.LinkedAbility != None)
+		{
+			if(AInfo.LinkedAbility.Buy() && RPGMenu.RPRI.Role < ROLE_Authority) //simulate for a pingless update if client
+				RPGMenu.RPRI.ServerBuyAbility(AInfo.LinkedAbility);
+		}
 	}
 
 	return true;
@@ -215,6 +249,17 @@ function bool BuyAbility(GUIComponent Sender)
 
 defaultproperties
 {
+	Categories(0)=class'AbilityCategory_Damage'
+	Categories(1)=class'AbilityCategory_Health'
+	Categories(2)=class'AbilityCategory_Weapons'
+	Categories(3)=class'AbilityCategory_Adrenaline'
+	Categories(4)=class'AbilityCategory_Vehicles'
+	Categories(5)=class'AbilityCategory_Medic'
+	Categories(6)=class'AbilityCategory_Movement'
+	Categories(7)=class'AbilityCategory_Monsters'
+	Categories(8)=class'AbilityCategory_Engineer'
+	Categories(9)=class'AbilityCategory_Misc'
+
 	Text_StatsAvailable="Available Stat Points:"
 	Text_Buy="Buy"
 	Text_BuyX="Buy $1"

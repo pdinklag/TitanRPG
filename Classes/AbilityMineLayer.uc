@@ -24,4 +24,5 @@ defaultproperties
 	LevelCost(1)=5
 	LevelCost(2)=10
 	LevelCost(3)=10
+	Category=class'AbilityCategory_Weapons'
 }

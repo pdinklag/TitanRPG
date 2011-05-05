@@ -20,7 +20,7 @@ function BotFightEnemy(Bot Bot)
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		local NavigationPoint Dest;
 		local vector PrevLocation;
@@ -49,6 +49,8 @@ state Activated
 		
 		Instigator.SetOverlayMaterial(class'TransRecall'.default.TransMaterials[EffectNum], 1.0, false);
 		Instigator.PlayTeleportEffect(false, false);
+		
+		return true;
 	}
 }
 

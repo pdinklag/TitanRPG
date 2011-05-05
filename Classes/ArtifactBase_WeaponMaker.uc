@@ -80,7 +80,7 @@ function bool CanActivate()
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		local AbilityLoadedArtifacts LA;
 		local Inventory Copy;
@@ -91,7 +91,7 @@ state Activated
 		if(OldWeapon == None)
 		{
 			Msg(MSG_UnableToGenerate);
-			return;
+			return false;
 		}
 
 		//in this case, use the new weapon class anyway.
@@ -103,7 +103,7 @@ state Activated
 		if(OldWeaponClass == None)
 		{
 			Msg(MSG_UnableToGenerate);
-			return;
+			return false;
 		}
 
 		for(x = 0; x < 50; x++)
@@ -129,14 +129,14 @@ state Activated
 		if(x == 50 || NewWeaponClass == None)
 		{
 			Msg(MSG_UnableToGenerate);
-			return;
+			return false;
 		}
 
 		Copy = spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
 		if(Copy == None)
 		{
 			Msg(MSG_UnableToGenerate);
-			return;
+			return false;
 		}
 
 		if(InstigatorRPRI != None)
@@ -154,7 +154,7 @@ state Activated
 		if(RPGWeapon(Copy) == None)
 		{
 			Msg(MSG_UnableToGenerate);
-			return;
+			return false;
 		}
 
 		//try to generate a positive weapon.
@@ -192,6 +192,8 @@ state Activated
 				Destroy();
 			}
 		}
+		
+		return true;
 	}
 }
 

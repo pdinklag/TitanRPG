@@ -45,7 +45,7 @@ function bool CanActivate()
 	return Super.CanActivate();
 }
 
-function DoEffect()	
+function bool DoEffect()	
 {
 	local rotator Dir;
 
@@ -60,6 +60,8 @@ function DoEffect()
 		Instigator.Location + Instigator.CollisionRadius * vector(Dir),
 		Dir
 	);
+	
+	return (Decoy != None);
 }
 
 defaultproperties

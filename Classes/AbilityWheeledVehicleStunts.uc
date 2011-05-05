@@ -97,4 +97,5 @@ defaultproperties
 	Description="With this ability, you can make wheeled vehicles jump.|Hold down the crouch key to charge up and then release to jump.|This ability also grants control of wheeled vehicles in mid-air.|Additional levels provide more spin, momentum, and less charge time."
 	StartingCost=10
 	MaxLevel=3
+	Category=class'AbilityCategory_Vehicles'
 }

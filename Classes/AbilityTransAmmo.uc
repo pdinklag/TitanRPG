@@ -37,4 +37,5 @@ defaultproperties
 	StartingCost=5
 	CostAddPerLevel=0
 	MaxLevel=5
+	Category=class'AbilityCategory_Weapons'
 }

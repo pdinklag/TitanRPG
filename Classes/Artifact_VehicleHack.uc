@@ -125,11 +125,12 @@ state Activated
 		Super.Tick(dt);
 	}
 
-	function DoEffect()
+	function bool DoEffect()
 	{
 		V.bTeamLocked = false;
 		V.PlaySound(UnlockedSound, SLOT_None, 1.5 * V.TransientSoundVolume,,1000,1.0);
 		Msg(MSG_Unlocked,, V);
+		return true;
 	}
 	
 	function EndState()

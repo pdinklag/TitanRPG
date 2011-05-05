@@ -33,4 +33,5 @@ defaultproperties
 	BonusPerLevel=0.250000
 	RequiredAbilities(0)=(AbilityClass=class'AbilityAmmoMax',Level=5)
 	RequiredAbilities(1)=(AbilityClass=class'AbilityHealthBonus',Level=3)
+	Category=class'AbilityCategory_Health'
 }

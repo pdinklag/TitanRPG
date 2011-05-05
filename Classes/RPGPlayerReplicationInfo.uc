@@ -1653,11 +1653,11 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	
 	if(IsFavorite(WeaponClass, ModifierClass))
 	{
-		<? printQueueFunc(GrantFavQueue); ?>
+		<? printQueueFunc('GrantFavQueue'); ?>
 	}
 	else
 	{
-		<? printQueueFunc(GrantQueue); ?>
+		<? printQueueFunc('GrantQueue'); ?>
 	}
 }
 

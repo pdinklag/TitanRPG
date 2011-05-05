@@ -35,4 +35,5 @@ defaultproperties
 	MaxLevel=3
 	StartingCost=10
 	RepairLinkLevel=2
+	Category=class'AbilityCategory_Vehicles'
 }

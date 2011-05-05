@@ -18,4 +18,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=class'AbilityAdrenalineSurge',Level=1)
 	RequiredAbilities(1)=(AbilityClass=class'AbilityEnergyLeech',Level=1)
 	RequiredAbilities(2)=(AbilityClass=class'AbilityAdrenalineRegen',Level=1)
+	Category=class'AbilityCategory_Adrenaline'
 }

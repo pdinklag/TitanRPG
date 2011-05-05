@@ -421,13 +421,15 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 		if(CheckMenuPick())
 		{
 			class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
-			DoEffect();
-
-			if(CostPerSec > 0)
-				Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
 			
+			if(DoEffect())
+			{
+				if(CostPerSec > 0)
+					Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
+			
+				DoCooldown();
+			}
 			MenuPick = -1;
-			DoCooldown();
 		}
 	}
 	else
@@ -438,7 +440,10 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 }
 
 //interface for single-hit artifacts
-function DoEffect();
+function bool DoEffect()
+{
+	return true; //return success
+}
 
 state Activated
 {

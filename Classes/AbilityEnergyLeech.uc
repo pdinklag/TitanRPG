@@ -49,4 +49,5 @@ defaultproperties
 	MaxLevel=5
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityVampire',Level=1)
 	BonusPerLevel=0.010000
+	Category=class'AbilityCategory_Adrenaline'
 }

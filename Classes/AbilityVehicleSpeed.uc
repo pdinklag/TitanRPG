@@ -85,4 +85,6 @@ defaultproperties
 	SpeedBonus(4)=(VehicleType=class'Onslaught.ONSHoverCraft',Bonus=0.05) //Manta
 	SpeedBonus(5)=(VehicleType=class'Onslaught.ONSWheeledCraft',Bonus=0.10) //HellBender, SPMA, MAS, Toilet Car
 	SpeedBonus(6)=(VehicleType=class'Onslaught.ONSTreadCraft',Bonus=0.10) //Tanks
+	
+	Category=class'AbilityCategory_Vehicles'
 }

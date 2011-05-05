@@ -47,4 +47,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=Class'AbilityAdrenalineMax',Level=10)
 	RequiredAbilities(1)=(AbilityClass=Class'AbilityDamageBonus',Level=6)
 	ForbiddenAbilities(0)=(AbilityClass=Class'AbilityLoadedWeapons',Level=1)
+	Category=class'AbilityCategory_Adrenaline'
 }

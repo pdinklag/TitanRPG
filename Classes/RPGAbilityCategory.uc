@@ -1,19 +1,8 @@
-//TODO: Make Object class, needed on client end only
-class RPGAbilityCategory extends RPGAbility;
+//only needed client-side for the abilities buy menu
+class RPGAbilityCategory extends Object abstract;
 
-simulated function int Cost()
-{
-	return 0;
-}
-
-simulated function string DescriptionText()
-{
-	return Description;
-}
+var localized string CategoryName, Description;
 
 defaultproperties
 {
-	AbilityName="Category"
-	Description="Description of Category"
 }
-	

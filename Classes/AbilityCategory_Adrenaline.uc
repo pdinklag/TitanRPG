@@ -1,7 +1,7 @@
-class AbCategoryAdren extends RPGAbilityCategory;
+class AbilityCategory_Adrenaline extends RPGAbilityCategory abstract;
 
 defaultproperties
 {
-	AbilityName="Adrenaline"
+	CategoryName="Adrenaline"
 	Description="Abilities related to adrenaline and adrenaline-consuming artifacts."
 }

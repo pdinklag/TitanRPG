@@ -22,4 +22,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=Class'AbilityHealthBonus',Level=3)
 	RequiredAbilities(1)=(AbilityClass=Class'AbilityDamageReduction',Level=5)
 	BonusPerLevel=0.150000
+	Category=class'AbilityCategory_Damage'
 }

@@ -26,4 +26,5 @@ defaultproperties
 	MaxLevel=3
 	StartingCost=5
 	BonusPerLevel=10
+	Category=class'AbilityCategory_Health'
 }

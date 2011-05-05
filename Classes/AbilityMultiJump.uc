@@ -22,4 +22,5 @@ defaultproperties
 	MaxLevel=7
 	StartingCost=10
 	BonusPerLevel=50
+	Category=class'AbilityCategory_Movement'
 }

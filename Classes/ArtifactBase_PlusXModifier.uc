@@ -60,7 +60,7 @@ function bool CanActivate()
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		if(OldWeapon != None)
 		{
@@ -69,11 +69,12 @@ state Activated
 			RPGWeapon(OldWeapon).bCanThrow = false;
 			RPGWeapon(OldWeapon).ModifiedWeapon.bCanThrow = false;
 			RPGWeapon(OldWeapon).Identify(true);
+			return true;
 		}
 		else
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 	}
 }

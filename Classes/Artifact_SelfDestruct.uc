@@ -69,20 +69,25 @@ function bool CanActivate()
 	return Super.CanActivate();
 }
 
-function DoEffect()
+function bool DoEffect()
 {
 	local SelfDestructInv SDI;
 
 	SDI = Spawn(class'SelfDestructInv');
-	SDI.V = Vehicle(Instigator);
-	SDI.Boesetaeter = Instigator.Controller;
-	SDI.CountdownTime = CountdownTime;
-	SDI.DamageRadius = DamageRadius;
-	SDI.Damage = Damage;
-	SDI.MomentumTransfer = MomentumTransfer;
-	SDI.GiveTo(Instigator);
+	if(SDI != None)
+	{
+		SDI.V = Vehicle(Instigator);
+		SDI.Boesetaeter = Instigator.Controller;
+		SDI.CountdownTime = CountdownTime;
+		SDI.DamageRadius = DamageRadius;
+		SDI.Damage = Damage;
+		SDI.MomentumTransfer = MomentumTransfer;
+		SDI.GiveTo(Instigator);
+		
+		Destroy();
+	}
 	
-	Destroy();
+	return (SDI != None);
 }
 
 defaultproperties

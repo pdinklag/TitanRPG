@@ -44,7 +44,7 @@ function bool CanActivate()
 	return Super.CanActivate();
 }
 
-function DoEffect()
+function bool DoEffect()
 {
 	local ONSVehicle OV; 
 	
@@ -110,6 +110,8 @@ function DoEffect()
 
 		SetTimer(BoostTrailLifeTime, false);
 	}
+	
+	return true;
 }
 
 function Timer()

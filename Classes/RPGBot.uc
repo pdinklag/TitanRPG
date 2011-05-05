@@ -64,8 +64,6 @@ function TryCombo(string ComboName)
 		return;
 	}
 	
-	Log(Self @ "TryCombo" @ ComboName, 'TitanRPG');
-
     if ( !Pawn.InCurrentCombo() && !NeedsAdrenaline() )
     {
         if ( ComboName ~= "Random" )

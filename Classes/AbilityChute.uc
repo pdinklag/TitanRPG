@@ -14,4 +14,5 @@ defaultproperties
 	CostAddPerLevel=0
 	MaxLevel=1
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityIronLegs',Level=1)
+	Category=class'AbilityCategory_Misc'
 }

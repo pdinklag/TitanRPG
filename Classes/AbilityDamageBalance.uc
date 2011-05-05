@@ -22,4 +22,5 @@ defaultproperties
 	MaxLevel=6
 	StartingCost=5
 	BonusPerLevel=0.025000
+	Category=class'AbilityCategory_Damage'
 }

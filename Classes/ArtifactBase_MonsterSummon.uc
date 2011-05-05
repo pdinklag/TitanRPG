@@ -26,7 +26,7 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		bSummonFailed = false;
 		if(SpawnMonster(MonsterType) == None)
@@ -37,6 +37,8 @@ state Activated
 			bSummonFailed = true;
 			Msg(MSG_CouldNotSpawn);
 		}
+		
+		return !bSummonFailed;
 	}
 }
 

@@ -42,4 +42,5 @@ defaultproperties
 	MaxRegenPerLevel=8
 	RequiredAbilities(0)=(AbilityClass=class'AbilityVehicleArmor',Level=1)
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityAdrenalineRegen',Level=1)
+	Category=class'AbilityCategory_Vehicles'
 }

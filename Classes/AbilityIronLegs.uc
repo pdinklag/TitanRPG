@@ -39,4 +39,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=class'AbilityHealthBonus',Level=3)
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityCounterShove',Level=1)
 	ForbiddenAbilities(1)=(AbilityClass=class'AbilityChute',Level=1)
+	Category=class'AbilityCategory_Misc'
 }

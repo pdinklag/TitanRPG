@@ -35,7 +35,10 @@ state Activated
 		bIgnoreUsedUp = false;
 	}
 
-	function DoEffect();
+	function bool DoEffect()
+	{
+		return true;
+	}
 
 	function EndState()
 	{

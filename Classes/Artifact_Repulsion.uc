@@ -32,7 +32,7 @@ function BotFightEnemy(Bot Bot)
 	}
 }
 
-function DoEffect()
+function bool DoEffect()
 {
 	local Effect_Repulsion Repulsion;
 	local ONSMineProjectile Mine;
@@ -75,6 +75,8 @@ function DoEffect()
 			}
 		}
 	}
+	
+	return true;
 }
 
 defaultproperties

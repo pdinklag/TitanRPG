@@ -219,4 +219,5 @@ defaultproperties
 	ForbiddenWeaponTypes(5)=class'UT2k4AssaultFull.Weapon_SpaceFighter_Skaarj'
 	ForbiddenWeaponTypes(6)=class'UT2k4Assault.Weapon_Turret_Minigun' //however this should happen...
 	ExtraSavingLevel=3
+	Category=class'AbilityCategory_Weapons'
 }

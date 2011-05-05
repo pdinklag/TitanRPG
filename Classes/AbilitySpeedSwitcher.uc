@@ -48,4 +48,5 @@ defaultproperties
 	MaxLevel=2
 	BonusPerLevel=0.500000
 	RequiredAbilities(0)=(AbilityClass=class'AbilityWeaponSpeed',Level=10)
+	Category=class'AbilityCategory_Weapons'
 }

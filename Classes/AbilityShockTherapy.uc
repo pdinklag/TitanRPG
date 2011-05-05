@@ -44,4 +44,5 @@ defaultproperties
 	MaxLevel=5
 	StartingCost=5
 	CostAddPerLevel=5
+	Category=class'AbilityCategory_Damage'
 }

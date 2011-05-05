@@ -144,4 +144,5 @@ defaultproperties
 	MonsterTypes(6)=(Level=3,MonsterClass=Class'SkaarjPack.Warlord',DisplayName="Warlord",Cost=75)
 	MonsterPreText=", you can summon the"
 	MonsterPostText="."
+	Category=class'AbilityCategory_Monsters'
 }

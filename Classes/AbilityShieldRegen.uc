@@ -75,4 +75,5 @@ defaultproperties
 	MaxLevel=6
 	StartingCost=5
 	CostAddPerLevel=5
+	Category=class'AbilityCategory_Health'
 }

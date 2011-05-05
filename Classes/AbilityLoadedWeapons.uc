@@ -162,4 +162,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=class'AbilityRegen',Level=1)
 	RequiredAbilities(1)=(AbilityClass=class'AbilityVampire',Level=1)
 	RequiredAbilities(2)=(AbilityClass=class'AbilityAmmoRegen',Level=1)
+	Category=class'AbilityCategory_Weapons'
 }

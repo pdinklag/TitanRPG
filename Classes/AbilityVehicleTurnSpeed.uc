@@ -144,4 +144,5 @@ defaultproperties
 	LevelCost(3)=10
 	MaxLevel=4
 	BonusPerLevel=0.25
+	Category=class'AbilityCategory_Vehicles'
 }

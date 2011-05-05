@@ -25,5 +25,6 @@ defaultproperties
 	Description="Increases your dodge speed by $1 per level (dodge height by $2 per level)."
 	MaxLevel=10
 	StartingCost=5
-	BonusPerLevel=0.050000
+	BonusPerLevel=0.05
+	Category=class'AbilityCategory_Movement'
 }

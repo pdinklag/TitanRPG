@@ -60,4 +60,5 @@ defaultproperties
 	RequiredAbilities(3)=(AbilityClass=Class'AbilityDamageBonus',Level=1)
 	RequiredAbilities(4)=(AbilityClass=Class'AbilityDamageReduction',Level=1)
 	RequiredAbilities(5)=(AbilityClass=Class'AbilityAmmoMax',Level=1)
+	Category=class'AbilityCategory_Misc'
 }

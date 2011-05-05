@@ -38,4 +38,5 @@ defaultproperties
 	CostAddPerLevel=5
 	MaxLevel=10
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityCounterShove',Level=1)
+	Category=class'AbilityCategory_Damage'
 }

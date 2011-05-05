@@ -35,4 +35,5 @@ defaultproperties
 	MaxLevel=3
 	RequiredAbilities(0)=(AbilityClass=Class'AbilityAdrenalineMax',Level=3)
 	ForbiddenAbilities(0)=(AbilityClass=Class'AbilityRegen',Level=1)
+	Category=class'AbilityCategory_Adrenaline'
 }

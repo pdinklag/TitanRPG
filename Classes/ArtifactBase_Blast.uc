@@ -24,10 +24,14 @@ function Blast SpawnBlast()
 	return Spawn(BlastClass, Instigator.Controller,,Instigator.Location);
 }
 
-function DoEffect()
+function bool DoEffect()
 {
-	SpawnBlast();
+	local Blast Blast;
+
+	Blast = SpawnBlast();
 	Destroy(); //TODO
+	
+	return (Blast != None);
 }
 
 defaultproperties

@@ -48,6 +48,9 @@ var int Index, BuyOrderIndex;
 var RPGPlayerReplicationInfo RPRI;
 var int AbilityLevel;
 
+//Category
+var class<RPGAbilityCategory> Category;
+
 //Status icons
 var class<RPGStatusIcon> StatusIconClass;
 
@@ -511,6 +514,8 @@ function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float
 
 defaultproperties
 {
+	Category=class'AbilityCategory_Misc'
+
 	StartingCost=0
 	CostAddPerLevel=0
 	bUseLevelCost=False

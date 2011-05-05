@@ -9,4 +9,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=class'AbilityHealthBonus',Level=3)
 	RequiredAbilities(1)=(AbilityClass=class'AbilityDamageReduction',Level=6)
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityUltima',Level=1)
+	Category=class'AbilityCategory_Misc'
 }

@@ -20,4 +20,5 @@ defaultproperties
 	MaxLevel=10
 	StartingCost=5
 	BonusPerLevel=0.05
+	Category=class'AbilityCategory_Weapons'
 }

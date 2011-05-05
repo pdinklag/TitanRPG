@@ -130,4 +130,5 @@ defaultproperties
 	ProtectAgainst(9)=class'XWeapons.DamTypeRedeemer'
 	ProtectAgainst(10)=class'DamTypeTitanUltima'
 	ProtectAgainst(11)=class'DamTypeUltima'
+	Category=class'AbilityCategory_Vehicles'
 }

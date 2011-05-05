@@ -21,4 +21,5 @@ defaultproperties
 	RequiredAbilities(0)=(AbilityClass=class'AbilityDamageBonus',Level=5)
 	ForbiddenAbilities(0)=(AbilityClass=class'AbilityEnhancedReduction',Level=1)
 	ForbiddenAbilities(1)=(AbilityClass=class'AbilityEnhancedBalance',Level=1)
+	Category=class'AbilityCategory_Damage'
 }

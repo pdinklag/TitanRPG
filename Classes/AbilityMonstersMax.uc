@@ -18,4 +18,5 @@ defaultproperties
 	LevelCost(3)=10
 	MaxLevel=4
 	RequiredAbilities(0)=(AbilityClass=class'AbilityConjuration',Level=1)
+	Category=class'AbilityCategory_Monsters'
 }

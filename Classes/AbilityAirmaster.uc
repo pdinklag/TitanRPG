@@ -21,4 +21,5 @@ defaultproperties
 	MaxLevel=4
 	BonusPerLevel=0.500000
 	RequiredLevels(0)=10
+	Category=class'AbilityCategory_Movement'
 }

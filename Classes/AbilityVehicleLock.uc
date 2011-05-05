@@ -16,4 +16,5 @@ defaultproperties
 	MaxLevel=1
 	StartingCost=10
 	RequiredAbilities(0)=(AbilityClass=class'AbilityVehicleArmor',Level=1)
+	Category=class'AbilityCategory_Vehicles'
 }

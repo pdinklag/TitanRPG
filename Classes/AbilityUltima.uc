@@ -111,4 +111,6 @@ defaultproperties
 	
 	TryRadiusMin=32
 	TryRadiusMax=48
+	
+	Category=class'AbilityCategory_Misc'
 }

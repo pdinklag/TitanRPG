@@ -50,4 +50,5 @@ defaultproperties
 	Description="Replaces the Speed adrenaline combo by Super Speed, which makes you $1 faster and has a multi-colored trail."
 	MaxLevel=1
 	StartingCost=40
+	Category=class'AbilityCategory_Movement';
 }

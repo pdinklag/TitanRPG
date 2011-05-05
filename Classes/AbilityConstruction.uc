@@ -140,4 +140,5 @@ defaultproperties
 	TurretTypes(2)=(Level=3,TurretClass=class'UT2k4AssaultFull.ASTurret_LinkTurret',Cost=150,StaticMesh=StaticMesh'<? echo($packageName); ?>.TurretPreview.LinkTurret',DrawScale=0.0625)
 	TurretPreText=", you can construct the"
 	TurretPostText="."
+	Category=class'AbilityCategory_Engineer'
 }

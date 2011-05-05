@@ -71,4 +71,5 @@ defaultproperties
 	DropItems(2)=(Level=2,Chance=15,PickupClass=class'XPickups.HealthPack')
 	DropItems(3)=(Level=3,Chance=9,PickupClass=class'XPickups.ShieldPack')
 	DropItems(4)=(Level=3,Chance=1,PickupClass=class'XPickups.UDamagePack')
+	Category=class'AbilityCategory_Misc'
 }

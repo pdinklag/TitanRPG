@@ -79,4 +79,5 @@ defaultproperties
 	HealthBonusMax=0.333333
 	HealthBonusAbsoluteCap=0
 	bAllowForVehicles=True
+	Category=class'AbilityCategory_Health'
 }

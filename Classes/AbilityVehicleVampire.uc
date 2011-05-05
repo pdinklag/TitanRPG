@@ -30,4 +30,5 @@ defaultproperties
 	LevelCost(7)=25
 	LevelCost(8)=25
 	LevelCost(9)=25
+	Category=class'AbilityCategory_Vehicles'
 }

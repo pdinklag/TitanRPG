@@ -20,4 +20,5 @@ defaultproperties
 	MaxLevel=9
 	RequiredAbilities(0)=(AbilityClass=class'AbilityLoadedMedic',Level=1)
 	BonusPerLevel=0.010000
+	Category=class'AbilityCategory_Medic'
 }

@@ -14,4 +14,5 @@ defaultproperties
 	Description="Allows you to boost dodge like in UT2003."
 	MaxLevel=1
 	StartingCost=10
+	Category=class'AbilityCategory_Movement'
 }

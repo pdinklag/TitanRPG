@@ -63,4 +63,5 @@ defaultproperties
 	StartingCost=25
 	MaxLevel=1
 	bAllowSuicide=True
+	Category=class'AbilityCategory_Misc'
 }

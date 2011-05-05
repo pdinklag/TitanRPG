@@ -63,4 +63,5 @@ defaultproperties
 	LevelCap(1)=50
 	LevelCap(2)=70
 	RequiredAbilities(0)=(AbilityClass=class'AbilityDenial',Level=1)
+	Category=class'AbilityCategory_Medic'
 }

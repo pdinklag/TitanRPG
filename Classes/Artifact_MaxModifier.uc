@@ -51,7 +51,7 @@ function bool CanActivate()
 
 state Activated
 {
-	function DoEffect()
+	function bool DoEffect()
 	{
 		local inventory Copy;
 		local class<RPGWeapon> NewWeaponClass;
@@ -62,7 +62,7 @@ state Activated
 		if(OldWeapon == None)
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 
 		if(RPGWeapon(OldWeapon) != None)
@@ -71,14 +71,14 @@ state Activated
 		if(OldWeaponClass == None)
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 
 		NewWeaponClass = class<RPGWeapon>(OldWeapon.class);
 		if(NewWeaponClass == None)
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 
 		Copy = spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
@@ -86,7 +86,7 @@ state Activated
 		if(Copy == None)
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 
 		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
@@ -105,7 +105,7 @@ state Activated
 		if(RPGWeapon(Copy) == None)
 		{
 			Msg(MSG_UnableToModify);
-			return;
+			return false;
 		}
 
 		RPGWeapon(Copy).Generate(None);
@@ -125,6 +125,7 @@ state Activated
 
 		OldWeapon.Destroy();
 		Copy.GiveTo(Instigator);
+		return true;
 	}
 }
 

@@ -43,5 +43,6 @@ defaultproperties
 	LevelCost(7)=30
 	LevelCost(8)=30
 	LevelCost(9)=30
-	BonusPerLevel=0.050000
+	BonusPerLevel=0.05
+	Category=class'AbilityCategory_Movement'
 }

@@ -34,4 +34,5 @@ defaultproperties
 	MaxLevel=10
 	StartingCost=5
 	BonusPerLevel=5
+	Category=class'AbilityCategory_Adrenaline'
 }
