@@ -1,5 +1,5 @@
 class AbilityConjuration extends RPGAbility
-	DependsOn(Artifact_MonsterSummon);
+	DependsOn(Artifact_SummonMonster);
 
 var config float MonsterSkill;
 
@@ -46,13 +46,14 @@ simulated function ClientReceiveMonsterType(int i, MonsterTypeStruct M)
 function ModifyPawn(Pawn Other)
 {
 	local int i;
-	local Artifact_MonsterSummon.MonsterTypeStruct ArtifactMonster;
-	local Artifact_MonsterSummon Artifact;
+	local Artifact_SummonMonster.MonsterTypeStruct ArtifactMonster;
+	local Artifact_SummonMonster Artifact;
 	local bool bSelect;
 	
 	Super.ModifyPawn(Other);
 	
-	Artifact = Artifact_MonsterSummon(Other.FindInventoryType(class'Artifact_MonsterSummon'));
+	/*
+	Artifact = Artifact_SummonMonster(Other.FindInventoryType(class'Artifact_MonsterSummon'));
 	if(Artifact != None)
 	{
 		bSelect = (Artifact == Other.SelectedItem);
@@ -62,7 +63,7 @@ function ModifyPawn(Pawn Other)
 	if(!bSelect)
 		bSelect = (Other.SelectedItem == None);
 	
-	Artifact = Other.Spawn(class'Artifact_MonsterSummon');
+	Artifact = Other.Spawn(class'Artifact_SummonMonster');
 	if(Artifact != None)
 	{
 		Artifact.bCanBeTossed = false;
@@ -83,6 +84,7 @@ function ModifyPawn(Pawn Other)
 		if(bSelect)
 			Other.SelectedItem = Artifact;
 	}
+	*/
 }
 
 function ModifyMonster(Monster M, Pawn Master)

@@ -49,6 +49,9 @@ var Color HintColor;
 
 var localized string ArtifactTutorialText;
 
+//Artifact selection options
+var RPGArtifact SelectionArtifact;
+
 //Status icon
 var Material StatusIconBorderMaterial;
 var Rect StatusIconBorderMaterialRect;
@@ -118,8 +121,37 @@ exec function RPGStatsMenu()
 //which prevents ConsoleCommand() from working on it
 function bool KeyEvent(EInputKey Key, EInputAction Action, float Delta)
 {
+	local int n;
+
 	if(Action != IST_Press)
 		return false;
+	
+	if(SelectionArtifact != None)
+	{
+		if(Key == IK_Escape)
+		{
+			SelectionArtifact.ServerCloseSelection();
+			SelectionArtifact = None;
+			return true;
+		}
+		else if(Key == IK_0)
+		{
+			//TODO: next page
+			return true;
+		}
+		else if(Key >= IK_1 && Key <= IK_9)
+		{
+			n = Key - IK_1; //TODO: consider page
+			
+			if(n < SelectionArtifact.GetNumOptions())
+			{
+				SelectionArtifact.ServerSelectOption(n);
+				SelectionArtifact = None;
+			}
+			
+			return true;
+		}
+	}
 	
 	if(bDefaultBindings && Key == IK_L)
 	{
@@ -179,6 +211,16 @@ function FindRPRI()
 	Log("Adding" @ RPRI.RPGName @ "to MyBuilds", 'TitanRPG');
 	Settings.MyBuilds[Settings.MyBuilds.Length] = RPRI.RPGName;
 	Settings.SaveConfig();
+}
+
+function ShowSelection(RPGArtifact A)
+{
+	SelectionArtifact = A;
+}
+
+function CloseSelection()
+{
+	SelectionArtifact = None;
 }
 
 function int GetHUDTeamIndex(HudCDeathmatch HUD)
@@ -713,6 +755,27 @@ function PostRender(Canvas Canvas)
 		if(WM != None)
 			WM.PostRender(Canvas);
 	}
+	
+	//Draw Artifact Selection
+	if(SelectionArtifact != None)
+	{
+		X = Canvas.ClipX / 2 - 100;
+		Y = Canvas.ClipY / 2 - 100;
+		Canvas.DrawColor = WhiteColor;
+		
+		for(i = 0; i < SelectionArtifact.GetNumOptions() && i < 9; i++)
+		{
+			//TODO: page
+			
+			Text = string(i + 1) @ "-" @ SelectionArtifact.GetOption(i);
+			Canvas.TextSize(Text, XL, YL);
+
+			Canvas.SetPos(X, Y);
+			Canvas.DrawTextClipped(Text);
+			
+			Y += YL;
+		}
+	}
 
 	//Reset
 	Canvas.DrawColor = Canvas.default.DrawColor;
@@ -822,6 +885,7 @@ function Remove()
 	if(RPRI.Menu != None)
 		GUIController(ViewportOwner.GUIController).RemoveMenu(RPRI.Menu);
 
+	SelectionArtifact = None;
 	RPRI = None;
 	Settings = None;
 	CharSettings = None;

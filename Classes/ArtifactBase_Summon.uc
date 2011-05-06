@@ -2,9 +2,28 @@ class ArtifactBase_Summon extends ArtifactBase_Beacon abstract;
 
 var config class<Actor> SpawnActorClass;
 
+var float RestoreAdrenaline;
+
+const MSG_FailedToSpawn = 0x0200;
+
+var localized string MsgFailedToSpawn;
+
+static function string GetMessageString(int Msg, optional int Value, optional Object Obj)
+{
+	switch(Msg)
+	{
+		case MSG_FailedToSpawn:
+			return default.MsgFailedToSpawn;
+	
+		default:
+			return Super.GetMessageString(Msg, Value, Obj);
+	}
+}
+
+
 function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator SpawnRot)
 {
-	return Instigator.Spawn(SpawnClass,,, SpawnLoc, SpawnRot);
+	return Instigator.Spawn(SpawnClass, Instigator.Controller,, SpawnLoc, SpawnRot);
 }
 
 function BeaconLanded(RPGArtifactBeacon Beacon)
@@ -13,16 +32,30 @@ function BeaconLanded(RPGArtifactBeacon Beacon)
 	local Actor A;
 	local vector SpawnLoc, SpawnDir;
 	
-	SpawnLoc = Beacon.Location;
-	SummonClass = SummonBeacon(Beacon).SummonClass;
-	
-	SpawnDir = VRand();
-	SpawnDir.Z = 0;
-	
-	A = SpawnActor(SummonClass, SpawnLoc, rotator(SpawnDir));
-	if(A == None)
+	if(Instigator != None)
 	{
-		Log("Failed to spawn" @ SummonClass);
+		SpawnLoc = Beacon.Location;
+		SummonClass = SummonBeacon(Beacon).SummonClass;
+		
+		SpawnDir = VRand();
+		SpawnDir.Z = 0;
+		
+		A = SpawnActor(SummonClass, SpawnLoc, rotator(SpawnDir));
+		if(A == None)
+		{
+			Msg(MSG_FailedToSpawn);
+			
+			//Give back adrenaline
+			if(RestoreAdrenaline > 0)
+			{
+				Instigator.Controller.Adrenaline =
+					Min(Instigator.Controller.AdrenalineMax, Instigator.Controller.Adrenaline + RestoreAdrenaline);
+			}
+			
+			//reset cooldown
+			if(NextUseTime > Level.TimeSeconds)
+				ForceCooldown(0);
+		}
 	}
 }
 
@@ -32,12 +65,16 @@ function RPGArtifactBeacon SpawnBeacon()
 	
 	Beacon = Super.SpawnBeacon();
 	if(Beacon != None)
+	{
 		SummonBeacon(Beacon).SummonClass = SpawnActorClass;
+		RestoreAdrenaline = CostPerSec;
+	}
 	
 	return Beacon;
 }
 
 defaultproperties
 {
+	MsgFailedToSpawn="Failed to spawn."
 	BeaconClass=class'SummonBeacon'
 }

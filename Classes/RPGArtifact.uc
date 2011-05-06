@@ -25,8 +25,8 @@ var config bool bExclusive; //if true, cannot be activated if another Artifact w
 var Sound CantUseSound; //played when CanActivate() fails
 
 //Selection menu
-var class<RPGSelectionMenu> SelectionMenuClass;
-var int MenuPick;
+var bool bSelection, bInSelection;
+var int SelectedOption;
 
 var localized string Description;
 
@@ -52,11 +52,10 @@ var RPGPlayerReplicationInfo InstigatorRPRI;
 replication
 {
 	reliable if (Role < ROLE_Authority)
-		TossArtifact, ServerMenuPick;
+		TossArtifact, ServerSelectOption, ServerCloseSelection;
 	
 	reliable if(Role == ROLE_Authority)
-		ClientNotifyCooldown, Msg,
-		ClientShowMenu, ClientCloseMenu;
+		ClientNotifyCooldown, Msg;
 }
 
 static function bool HasActiveArtifact(Pawn Other)
@@ -236,7 +235,7 @@ exec function TossArtifact()
 function DropFrom(vector StartLocation)
 {
 	if(Instigator != None && Instigator.Controller.IsA('PlayerController'))
-		ClientCloseMenu();
+		CloseSelection();
 
 	if(bActive)
 		GotoState('');
@@ -367,21 +366,21 @@ function ForceCooldown(float Time)
 	ClientNotifyCooldown(Time);
 }
 
-function bool CheckMenuPick()
+function bool CheckSelection()
 {
 	local int x;
 
-	if(SelectionMenuClass != None && MenuPick < 0)
+	if(bSelection && SelectedOption < 0)
 	{
 		if(Instigator.Controller.IsA('PlayerController'))
 		{
-			ClientShowMenu();
+			ShowSelection();
 		}
 		else
 		{
-			x = MenuPickBest();
+			x = SelectBestOption();
 			if(x >= 0)
-				ServerMenuPick(x);
+				ServerSelectOption(x);
 		}
 		return false;
 	}
@@ -390,7 +389,11 @@ function bool CheckMenuPick()
 
 function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginState of state Activated instead
 {
-	if(MinActivationTime > 0.f)
+	if(bInSelection)
+	{
+		CloseSelection();
+	}
+	else if(MinActivationTime > 0.f)
 	{
 		if(bActive && CanDeactivate())
 		{
@@ -401,7 +404,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 		{
 			if(CanActivate())
 			{
-				if(CheckMenuPick())
+				if(CheckSelection())
 				{
 					CurrentCostPerSec = 0.f;
 					class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
@@ -411,6 +414,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 			}
 			else
 			{
+				SelectedOption = -1;
 				if(Instigator.Controller.IsA('PlayerController'))
 					PlayerController(Instigator.Controller).ClientPlaySound(CantUseSound,,, SLOT_Interface);
 			}
@@ -418,7 +422,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 	}
 	else if(CanActivate())
 	{
-		if(CheckMenuPick())
+		if(CheckSelection())
 		{
 			class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
 			
@@ -429,11 +433,12 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 			
 				DoCooldown();
 			}
-			MenuPick = -1;
+			SelectedOption = -1;
 		}
 	}
 	else
 	{
+		SelectedOption = -1;
 		if(Instigator.Controller.IsA('PlayerController'))
 			PlayerController(Instigator.Controller).ClientPlaySound(CantUseSound,,, SLOT_Interface);
 	}
@@ -457,7 +462,7 @@ state Activated
 	{
 		RoundAdrenaline();
 		bActive = false;
-		MenuPick = -1;
+		SelectedOption = -1;
 		
 		DoCooldown();
 	}
@@ -512,7 +517,7 @@ simulated event Destroyed()
 			Instigator.NextItem();
 		
 		if(Instigator != None && Instigator.Controller.IsA('PlayerController'))
-			ClientCloseMenu();
+			CloseSelection();
 	}
 
 	Super.Destroyed();
@@ -539,34 +544,51 @@ function int CountNearbyEnemies(float Radius, optional bool bSameTeam)
 	return n;
 }
 
-//Selection menu functions
-simulated function int MenuPickBest() //for AI use
+//selection menu functions
+simulated function int SelectBestOption() //for AI use
 {
 	return -1; //invalid default choice
 }
 
-function OnMenuPick(int i); //for subclasses
+//abstract, called when something was picked
+function OnSelection(int i);
 
-final function ServerMenuPick(int i)
+//tell server this was selected
+final function ServerSelectOption(int i)
 {
-	MenuPick = i;
+	SelectedOption = i;
+	bInSelection = false;
+	
 	if(i >= 0)
 	{
-		OnMenuPick(i);
+		OnSelection(i);
 		Activate();
 	}
 }
 
-simulated function ClientShowMenu()
+//display selection options
+function ShowSelection()
 {
-	if(Level.NetMode != NM_DedicatedServer)
-		SelectionMenuClass.static.ShowFor(Self);
+	bInSelection = true;
+	InstigatorRPRI.ClientShowSelection(Self);
 }
 
-simulated function ClientCloseMenu()
+//return selection options
+simulated function int GetNumOptions(); //amount of selection options
+simulated function string GetOption(int i); //get text to display for option i
+simulated function Material GetOptionIcon(int i); //get icon for option i
+
+//close the selection
+function CloseSelection()
 {
-	if(Level.NetMode != NM_DedicatedServer)
-		SelectionMenuClass.static.CloseFor(Self);
+	InstigatorRPRI.ClientCloseSelection();
+	bInSelection = false;
+}
+
+//selection was closed client-side
+function ServerCloseSelection()
+{
+	bInSelection = false;
 }
 
 //called after FightEnemy
@@ -599,7 +621,7 @@ defaultproperties
 	MessageClass=Class'UnrealGame.StringMessagePlus'
 	CostPerSec=0
 	Cooldown=0
-	MenuPick=-1
+	SelectedOption=-1
 	bChargeUp=True
 	bResetCooldownOnRespawn=True
 	bExclusive=False

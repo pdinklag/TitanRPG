@@ -149,7 +149,8 @@ replication
 		ClientSetName, ClientGameEnded,
 		ClientCheckArtifactClass,
 		ClientSwitchToWeapon, //moved from TitanPlayerController for better compatibility
-		ClientCreateStatusIcon, ClientRemoveStatusIcon;
+		ClientCreateStatusIcon, ClientRemoveStatusIcon,
+		ClientShowSelection, ClientCloseSelection; //artifact selection menu
 	reliable if(Role < ROLE_Authority)
 		ServerBuyAbility, ServerNoteActivity,
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
@@ -1502,6 +1503,18 @@ function SaveData()
 
 	DataObject.AA = AIBuildAction;
 	DataObject.SaveConfig();
+}
+
+simulated function ClientShowSelection(RPGArtifact A)
+{
+	if(Interaction != None)
+		Interaction.ShowSelection(A);
+}
+
+simulated function ClientCloseSelection()
+{
+	if(Interaction != None)
+		Interaction.CloseSelection();
 }
 
 function AddFavorite(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass)

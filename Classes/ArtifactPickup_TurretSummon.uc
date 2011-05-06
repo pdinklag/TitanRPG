@@ -3,7 +3,7 @@ class ArtifactPickup_TurretSummon extends RPGArtifactPickup;
 defaultproperties
 {
 	DrawScale=0.125
-	InventoryType=Class'Artifact_TurretSummon'
+	//InventoryType=Class'Artifact_TurretSummon'
 	PickupMessage="You got the Turret Constructor!"
 	StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor'
 }
