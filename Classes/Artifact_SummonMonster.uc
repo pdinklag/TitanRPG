@@ -11,7 +11,13 @@ var config array<MonsterTypeStruct> MonsterTypes;
 
 const MSG_MaxMonsters = 0x1000;
 
-var localized string MsgMaxMonsters;
+var localized string MsgMaxMonsters, SelectionTitle;
+
+replication
+{
+	reliable if(Role == ROLE_Authority)
+		ClientReceiveMonsterType;
+}
 
 static function string GetMessageString(int Msg, optional int Value, optional Object Obj)
 {
@@ -23,6 +29,24 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 		default:
 			return Super.GetMessageString(Msg, Value, Obj);
 	}
+}
+
+function GiveTo(Pawn Other, optional Pickup Pickup)
+{
+	local int i;
+
+	Super.GiveTo(Other, Pickup);
+	
+	for(i = 0; i < MonsterTypes.Length; i++)
+		ClientReceiveMonsterType(i, MonsterTypes[i]);
+}
+
+simulated function ClientReceiveMonsterType(int i, MonsterTypeStruct M)
+{
+	if(i == 0)
+		MonsterTypes.Length = 0;
+
+	MonsterTypes[i] = M;
 }
 
 function bool CanActivate()
@@ -70,6 +94,11 @@ function OnSelection(int i)
 	SpawnActorClass = MonsterTypes[i].MonsterClass;
 }
 
+simulated function string GetSelectionTitle()
+{
+	return SelectionTitle;
+}
+
 simulated function int GetNumOptions()
 {
 	return MonsterTypes.Length;
@@ -82,6 +111,7 @@ simulated function string GetOption(int i)
 
 defaultproperties
 {
+	SelectionTitle="Pick a monster to summon:"
 	MsgMaxMonsters="You cannot spawn any more monsters at this time."
 
 	bSelection=true

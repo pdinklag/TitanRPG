@@ -9,6 +9,7 @@ struct MonsterTypeStruct
 	var class<Monster> MonsterClass;
 	var string DisplayName;
 	var int Cost;
+	var int Cooldown;
 };
 var config array<MonsterTypeStruct> MonsterTypes;
 
@@ -52,8 +53,7 @@ function ModifyPawn(Pawn Other)
 	
 	Super.ModifyPawn(Other);
 	
-	/*
-	Artifact = Artifact_SummonMonster(Other.FindInventoryType(class'Artifact_MonsterSummon'));
+	Artifact = Artifact_SummonMonster(Other.FindInventoryType(class'Artifact_SummonMonster'));
 	if(Artifact != None)
 	{
 		bSelect = (Artifact == Other.SelectedItem);
@@ -75,6 +75,7 @@ function ModifyPawn(Pawn Other)
 				ArtifactMonster.MonsterClass = MonsterTypes[i].MonsterClass;
 				ArtifactMonster.DisplayName = MonsterTypes[i].DisplayName;
 				ArtifactMonster.Cost = MonsterTypes[i].Cost;
+				ArtifactMonster.Cooldown = MonsterTypes[i].Cooldown;
 				
 				Artifact.MonsterTypes[Artifact.MonsterTypes.Length] = ArtifactMonster;
 			}
@@ -84,7 +85,6 @@ function ModifyPawn(Pawn Other)
 		if(bSelect)
 			Other.SelectedItem = Artifact;
 	}
-	*/
 }
 
 function ModifyMonster(Monster M, Pawn Master)

@@ -19,13 +19,13 @@ function bool IsShockDamage(class<DamageType> DamageType)
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	if(IsShockDamage(DamageType))
-		Damage = float(Damage) * BonusPerLevel * float(AbilityLevel);
+		Damage -= float(Damage) * BonusPerLevel * float(AbilityLevel);
 }
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	if(IsShockDamage(DamageType))
-		Damage = float(Damage) * ReductionPerLevel * float(AbilityLevel);
+		Damage -= float(Damage) * ReductionPerLevel * float(AbilityLevel);
 }
 
 simulated function string DescriptionText()

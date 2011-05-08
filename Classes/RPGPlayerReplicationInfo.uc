@@ -709,6 +709,8 @@ simulated function ReceiveAbility(RPGAbility Ability)
 		Warn("Received ability" @ Ability @ "twice!");
 	}
 	
+	Log("ReceiveAbility" @ Ability @ "(" $ AbilitiesReceived @ "/" @ AbilitiesTotal $ ")");
+	
 	if(AbilitiesReceived == AbilitiesTotal)
 		ClientEnableRPGMenu();
 }

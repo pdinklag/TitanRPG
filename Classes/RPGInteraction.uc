@@ -23,7 +23,7 @@ var bool bUpdateCanvas;
 
 var bool bDefaultBindings, bDefaultArtifactBindings; //use default keybinds because user didn't set any
 var float LastLevelMessageTime;
-var Color EXPBarColor, DisabledOverlay, RedColor, WhiteColor;
+var Color EXPBarColor, DisabledOverlay, RedColor, WhiteColor, WhiteTrans;
 var Color HUDColorTeam[4];
 var localized string LevelText;
 
@@ -215,6 +215,9 @@ function FindRPRI()
 
 function ShowSelection(RPGArtifact A)
 {
+	if(SelectionArtifact != None)
+		SelectionArtifact.ServerCloseSelection();
+
 	SelectionArtifact = A;
 }
 
@@ -282,7 +285,7 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	
 	if(AClass.default.IconMaterial != None)
 	{
-		if(A != None && A.bActive)
+		if(A != None && (A.bActive || A == SelectionArtifact))
 			Canvas.DrawColor = HUDColor;
 		else if(A == None || TimeSeconds < A.NextUseTime)
 			Canvas.DrawColor = DisabledOverlay;
@@ -382,8 +385,8 @@ function UpdateCanvas(Canvas Canvas)
 
 function PostRender(Canvas Canvas)
 {
-	local float XL, YL, X, Y, CurrentX, CurrentY, Size, Fade;
-	local int i, Row;
+	local float XL, YL, X, Y, CurrentX, CurrentY, Size, SizeX, Fade;
+	local int i, n, Row;
 	local string Text;
 	
 	local array<class<RPGArtifact> > Artifacts;
@@ -659,7 +662,6 @@ function PostRender(Canvas Canvas)
 			Canvas.FontScaleX = Canvas.default.FontScaleX;
 			Canvas.FontScaleY = Canvas.default.FontScaleY;
 			
-			
 			Fade = ArtifactDrawTimer - TimeSeconds;
 			
 			Canvas.DrawColor = ArtifactDrawColor;
@@ -759,17 +761,53 @@ function PostRender(Canvas Canvas)
 	//Draw Artifact Selection
 	if(SelectionArtifact != None)
 	{
-		X = Canvas.ClipX / 2 - 100;
-		Y = Canvas.ClipY / 2 - 100;
+		n = Min(9, SelectionArtifact.GetNumOptions());
+	
+		Canvas.Font = HUD.GetMediumFontFor(Canvas);
+		Canvas.FontScaleX = 0.5f;
+		Canvas.FontScaleY = 0.5f;
 		Canvas.DrawColor = WhiteColor;
 		
-		for(i = 0; i < SelectionArtifact.GetNumOptions() && i < 9; i++)
+		Text = SelectionArtifact.GetSelectionTitle();
+		Canvas.TextSize(Text, XL, YL);
+
+		SizeX = XL + YL;
+		Size = YL * float(n + 2) + 3;
+		X = (Canvas.ClipX - SizeX) * 0.5f;
+		Y = (Canvas.ClipY - Size) * 0.5f;
+		
+		Canvas.SetPos(X, Y);
+		Canvas.DrawTileStretched(Texture'InterfaceContent.Menu.BorderBoxD', SizeX, Size);
+		
+		if(SelectionArtifact.IconMaterial != None)
+		{
+			Canvas.SetPos(X + SizeX - YL * 3.5f, Y + Size - YL * 3.5);
+			Canvas.DrawColor = WhiteTrans;
+			Canvas.DrawTile(
+				SelectionArtifact.IconMaterial,
+				YL * 3.0f, YL * 3.0f,
+				0, 0,
+				SelectionArtifact.IconMaterial.MaterialUSize(),
+				SelectionArtifact.IconMaterial.MaterialVSize());
+			
+			Canvas.DrawColor = WhiteColor;
+		}
+		
+		X += YL * 0.5f;
+		Y += YL * 0.5f;
+		
+		Canvas.SetPos(X - 2, Y - 3);
+		Canvas.DrawTileStretched(Texture'InterfaceContent.Menu.SquareBoxA', XL + 2, YL + 4);
+		
+		Canvas.SetPos(X, Y);
+		Canvas.DrawTextClipped(Text);
+		Y += YL + 3;
+		
+		for(i = 0; i < n; i++)
 		{
 			//TODO: page
-			
 			Text = string(i + 1) @ "-" @ SelectionArtifact.GetOption(i);
-			Canvas.TextSize(Text, XL, YL);
-
+			
 			Canvas.SetPos(X, Y);
 			Canvas.DrawTextClipped(Text);
 			
@@ -919,6 +957,7 @@ defaultproperties
 	EXPBarColor=(B=128,G=255,R=128,A=255)
 	RedColor=(R=255,A=255)
 	WhiteColor=(B=255,G=255,R=255,A=255)
+	WhiteTrans=(B=255,G=255,R=255,A=128)
 	//Team colors (taken from HudOLTeamDeathmatch)
 	HUDColorTeam(0)=(R=200,G=0,B=0,A=255)
 	HUDColorTeam(1)=(R=50,G=64,B=200,A=255)
