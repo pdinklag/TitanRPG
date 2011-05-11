@@ -1,4 +1,4 @@
-class Artifact_EnhancedMakeMagicWeapon extends ArtifactBase_WeaponMaker;
+class Artifact_EnhancedMakeMagicWeapon extends ArtifactBase_WeaponMaker hidedropdown;
 
 var config array<class<RPGWeapon> > PossibleMagicTypes;
 

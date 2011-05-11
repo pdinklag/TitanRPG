@@ -879,15 +879,20 @@ function NotifyLogout(Controller Exiting)
 {
 	local RPGPlayerReplicationInfo RPRI;
 	
+	Log("NotifyLogout:" @ Exiting @ "(" $ Exiting.GetHumanReadableName() $ ")", 'NotifyLogout');
+	Log("Level.Game.bGameRestarted:" @ Level.Game.bGameRestarted, 'NotifyLogout');
+	
 	if(Level.Game.bGameRestarted)
 		return;
 
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Exiting);
-	if(RPRI == None)
-		return;
-
-	RPRI.SaveData();
-	RPRI.Destroy();
+	Log("RPRI:" @ RPRI, 'NotifyLogout');
+	
+	if(RPRI != None)
+	{
+		RPRI.SaveData();
+		RPRI.Destroy();
+	}
 }
 
 function Timer()

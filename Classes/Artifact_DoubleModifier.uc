@@ -1,4 +1,4 @@
-class Artifact_DoubleModifier extends RPGArtifact;
+class Artifact_DoubleModifier extends RPGArtifact hidedropdown;
 
 var RPGWeapon Weapon;
 var bool oldCanThrow;

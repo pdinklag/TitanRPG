@@ -1,4 +1,4 @@
-class Artifact_VehicleHack extends ArtifactBase_DelayedUse;
+class Artifact_VehicleHack extends ArtifactBase_DelayedUse hidedropdown;
 
 var Vehicle V;
 var Material RedOverlay, BlueOverlay, GreenOverlay, GoldOverlay;

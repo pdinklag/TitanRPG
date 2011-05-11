@@ -1,4 +1,4 @@
-class Artifact_MaxModifier extends ArtifactBase_WeaponMaker;
+class Artifact_MaxModifier extends ArtifactBase_WeaponMaker hidedropdown;
 
 const MSG_UnableToModify = 0x1000;
 const MSG_AlreadyMaxed = 0x1001;

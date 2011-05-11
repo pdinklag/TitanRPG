@@ -338,6 +338,8 @@ simulated event Destroyed()
 	local LinkedReplicationInfo LRI;
 	local int i;
 	
+	Log(Self @ "Destroyed", 'Destroyed');
+	
 	if(PRI != None)
 	{
 		if(PRI.CustomReplicationInfo == Self)
@@ -1485,6 +1487,10 @@ function LoadData(RPGData Data)
 function SaveData()
 {
 	local int x;
+	
+	Log(Self @ "SaveData", 'SaveData');
+	Log("bImposter:" @ bImposter, 'SaveData');
+	Log("XP:" @ Experience, 'SaveData');
 
 	if(bImposter)
 		return;

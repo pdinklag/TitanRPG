@@ -1,4 +1,4 @@
-class Artifact_Chute extends RPGArtifact;
+class Artifact_Chute extends RPGArtifact hidedropdown;
 
 var config float AirControl, AccelRate;
 var config float VelocityZ;

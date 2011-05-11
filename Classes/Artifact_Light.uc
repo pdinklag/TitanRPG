@@ -1,4 +1,4 @@
-class Artifact_Light extends RPGArtifact;
+class Artifact_Light extends RPGArtifact hidedropdown;
 
 var FX_PlayerLight Light;
 

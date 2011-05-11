@@ -1,4 +1,4 @@
-class Artifact_PlusTwoModifier extends ArtifactBase_PlusXModifier;
+class Artifact_PlusTwoModifier extends ArtifactBase_PlusXModifier hidedropdown;
 
 defaultproperties
 {
