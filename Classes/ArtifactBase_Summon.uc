@@ -26,6 +26,22 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 	return Instigator.Spawn(SpawnClass, Instigator.Controller,, SpawnLoc, SpawnRot);
 }
 
+function Failed()
+{
+	Msg(MSG_FailedToSpawn);
+			
+	//Give back adrenaline
+	if(RestoreAdrenaline > 0)
+	{
+		Instigator.Controller.Adrenaline =
+			Min(Instigator.Controller.AdrenalineMax, Instigator.Controller.Adrenaline + RestoreAdrenaline);
+	}
+	
+	//reset cooldown
+	if(NextUseTime > Level.TimeSeconds)
+		ForceCooldown(0);
+}
+
 function BeaconLanded(RPGArtifactBeacon Beacon)
 {
 	local class<Actor> SummonClass;
@@ -42,21 +58,13 @@ function BeaconLanded(RPGArtifactBeacon Beacon)
 		
 		A = SpawnActor(SummonClass, SpawnLoc, rotator(SpawnDir));
 		if(A == None)
-		{
-			Msg(MSG_FailedToSpawn);
-			
-			//Give back adrenaline
-			if(RestoreAdrenaline > 0)
-			{
-				Instigator.Controller.Adrenaline =
-					Min(Instigator.Controller.AdrenalineMax, Instigator.Controller.Adrenaline + RestoreAdrenaline);
-			}
-			
-			//reset cooldown
-			if(NextUseTime > Level.TimeSeconds)
-				ForceCooldown(0);
-		}
+			Failed();
 	}
+}
+
+function BeaconDestroyed(RPGArtifactBeacon Beacon)
+{
+	Failed();
 }
 
 function RPGArtifactBeacon SpawnBeacon()

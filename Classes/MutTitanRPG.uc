@@ -879,15 +879,9 @@ function NotifyLogout(Controller Exiting)
 {
 	local RPGPlayerReplicationInfo RPRI;
 	
-	Log("NotifyLogout:" @ Exiting @ "(" $ Exiting.GetHumanReadableName() $ ")", 'NotifyLogout');
-	Log("Level.Game.bGameRestarted:" @ Level.Game.bGameRestarted, 'NotifyLogout');
+	Super.NotifyLogout(Exiting);
 	
-	if(Level.Game.bGameRestarted)
-		return;
-
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Exiting);
-	Log("RPRI:" @ RPRI, 'NotifyLogout');
-	
 	if(RPRI != None)
 	{
 		RPRI.SaveData();
@@ -908,7 +902,6 @@ function Timer()
 	}
 	
 	//find level of lowest level player
-	
 	if(Level.Game.IsA('Invasion') && bAutoAdjustInvasionLevel)
 	{
 		LowestLevel = 0;

@@ -186,6 +186,7 @@ defaultproperties
 	HudColor=(B=0,G=192,R=0)
 	bAllowInVehicle=False
 	bCanBeTossed=False
+	bChargeUp=True
 	HackSound=Sound'GeneralAmbience.beep6'
 	UnlockedSound=Sound'PickupSounds.MinigunAmmoPickup'
 }

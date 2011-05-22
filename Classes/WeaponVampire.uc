@@ -18,10 +18,14 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 
 	Super.RPGAdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
 
+	if(Victim == None || Victim == Instigator)
+		return;
+
+	if(Victim.IsA('Vehicle') && Vehicle(Victim).IsVehicleEmpty())
+		return;
+
 	if(
 		Damage <= 0 ||
-		Victim == None ||
-		Victim == Instigator ||
 		Victim.Health <= 0 ||
 		WeaponMagicNullifier(Victim.Weapon) != None
 	)
@@ -31,7 +35,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	
 	Identify();
 	
-	x = float(Damage) * BonusPerLevel * float(Modifier);
+	x = FMax(0, FMin(Victim.Health, float(Damage) * BonusPerLevel * float(Modifier)));
 	
 	if(Modifier > 0)
 		Instigator.GiveHealth(Max(1, int(x)), Instigator.HealthMax * VampireMaxHealth);

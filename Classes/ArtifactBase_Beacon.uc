@@ -4,6 +4,7 @@ var class<RPGArtifactBeacon> BeaconClass;
 var RPGArtifactBeacon LastBeacon;
 
 function BeaconLanded(RPGArtifactBeacon Beacon); //abstract, called when beacon landed
+function BeaconDestroyed(RPGArtifactBeacon Beacon); //abstract, called when beacon got destroyed prematurely
 
 function RPGArtifactBeacon SpawnBeacon()
 {

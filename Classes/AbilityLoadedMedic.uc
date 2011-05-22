@@ -8,12 +8,10 @@ replication
 		ClientReceiveLevelCap;
 }
 
-simulated event PostNetBeginPlay()
+simulated function ClientReceived()
 {
-	Super.PostNetBeginPlay();
-	
-	if(Role < ROLE_Authority)
-		LevelCap.Length = 0;
+	Super.ClientReceived();
+	LevelCap.Length = 0;
 }
 
 function ServerRequestConfig()

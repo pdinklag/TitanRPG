@@ -24,6 +24,10 @@ var config bool bExclusive; //if true, cannot be activated if another Artifact w
 
 var Sound CantUseSound; //played when CanActivate() fails
 
+//Ammo
+var config int MaxUses; //num uses left
+var int NumUses;
+
 //Selection menu
 var bool bSelection, bInSelection;
 var int SelectedOption;
@@ -51,7 +55,10 @@ var RPGPlayerReplicationInfo InstigatorRPRI;
 
 replication
 {
-	reliable if (Role < ROLE_Authority)
+	reliable if(Role == ROLE_Authority && bNetDirty && MaxUses > 0)
+		NumUses;
+
+	reliable if(Role < ROLE_Authority)
 		TossArtifact, ServerSelectOption, ServerCloseSelection;
 	
 	reliable if(Role == ROLE_Authority)
@@ -88,6 +95,12 @@ static function bool IsActiveFor(Pawn Other)
 			return true;
 	}
 	return false;
+}
+
+simulated function PostBeginPlay()
+{
+	Super.PostBeginPlay();
+	NumUses = MaxUses;
 }
 
 function StripOut()
@@ -167,7 +180,7 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 	if(InstigatorRPRI != None)
 		InstigatorRPRI.ModifyArtifact(Self);
 
-	if(NextUseTime == 0 && bResetCooldownOnRespawn) //unset
+	if(Level.TimeSeconds > NextUseTime && bResetCooldownOnRespawn)
 	{
 		if(bChargeUp)
 			DoCooldown();
@@ -360,6 +373,16 @@ function DoCooldown()
 	}
 }
 
+function DoAmmo()
+{
+	if(NumUses > 0)
+	{
+		NumUses--;
+		if(NumUses <= 0)
+			Destroy(); //used up
+	}
+}
+
 function ForceCooldown(float Time)
 {
 	NextUseTime = Level.TimeSeconds + Time;
@@ -431,6 +454,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 				if(CostPerSec > 0)
 					Instigator.Controller.Adrenaline = FMax(0, Instigator.Controller.Adrenaline - CostPerSec);
 			
+				DoAmmo();
 				DoCooldown();
 			}
 			SelectedOption = -1;
@@ -464,6 +488,7 @@ state Activated
 		bActive = false;
 		SelectedOption = -1;
 		
+		DoAmmo();
 		DoCooldown();
 	}
 
@@ -623,7 +648,7 @@ defaultproperties
 	CostPerSec=0
 	Cooldown=0
 	SelectedOption=-1
-	bChargeUp=True
+	bChargeUp=False
 	bResetCooldownOnRespawn=True
 	bExclusive=False
 	HudColor=(B=0,G=255,R=255,A=255)

@@ -1,13 +1,14 @@
 TEST:
-- Ability descriptions
-- Blast artifacts
-- Null Entropy with two weapons of same type
-- Sturdy / CS
-- Vehicle Turn Speed
-- Exp Gain Fraction display
-
-TODO (XT):
-- Fix artifact class names in ini !!!!!!
+- XP saving (CHECK)
+- Status icons (CHECK)
+- Triple healing (CHECK)
+- Max uses (blasts, self destruct) (CHECK)
+- Artifact chargeups (CHECK)
+- Vampire / Energy against empty vehicles (CHECK)
+- Vampire / Energy limits (CHECK)
+- Beacon stuck / hit Pawn (CHECK)
+- CounterShove / Inf Sturdy (CHECK)
+- Monsters falling through maps (CHECK)
 
 TODO (1.62)
 - Ballistic support (got permission)

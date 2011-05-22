@@ -224,8 +224,6 @@ function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicat
 	
 	if(KilledRPRI != None)
 	{
-		Log(KillerRPRI.RPGName @ "killed" @ KilledRPRI.RPGName, 'GetKillEXP');
-		
 		Diff = FMax(0, KilledRPRI.RPGLevel - KillerRPRI.RPGLevel);
 		//Log("Level difference is" @ Diff, 'GetKillEXP');
 		
@@ -640,50 +638,10 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	}
 	
 	/*
-		PASSIVE DAMAGE MODIFICATION
-	*/
-	
-	//Abilities
-	if(injuredRPRI != None)
-	{
-		for(x = 0; x < injuredRPRI.Abilities.length; x++)
-		{
-			if(injuredRPRI.Abilities[x].bAllowed)
-				injuredRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-		}
-	}
-	
-	//RPGWeapon
-	if(RPGWeapon(injured.Weapon) != None)
-		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
-	
-	//Weapon modifier
-	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);
-	if(WM != None)
-		WM.AdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
-	
-	//Active artifacts
-	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
-			RPGArtifact(Inv).AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-	}
-	
-	/*
 		ACTIVE DAMAGE MODIFICATION
 	*/
 	if(instigatedBy != None)
 	{
-		//Abilities
-		if(instigatorRPRI != None)
-		{
-			for(x = 0; x < instigatorRPRI.Abilities.length; x++)
-			{
-				if(instigatorRPRI.Abilities[x].bAllowed)
-					instigatorRPRI.Abilities[x].AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-			}
-		}
-		
 		W = GetDamageWeapon(instigatedBy, DamageType);
 		
 		if(bDamageLog)
@@ -706,6 +664,46 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		{
 			if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
 				RPGArtifact(Inv).AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+		}
+		
+		//Abilities
+		if(instigatorRPRI != None)
+		{
+			for(x = 0; x < instigatorRPRI.Abilities.length; x++)
+			{
+				if(instigatorRPRI.Abilities[x].bAllowed)
+					instigatorRPRI.Abilities[x].AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+			}
+		}
+	}
+	
+	/*
+		PASSIVE DAMAGE MODIFICATION
+	*/
+	
+	//RPGWeapon
+	if(RPGWeapon(injured.Weapon) != None)
+		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Weapon modifier
+	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);
+	if(WM != None)
+		WM.AdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
+	
+	//Active artifacts
+	for(Inv = injured.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(Inv.IsA('RPGArtifact') && RPGArtifact(Inv).bActive)
+			RPGArtifact(Inv).AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
+	}
+	
+	//Abilities
+	if(injuredRPRI != None)
+	{
+		for(x = 0; x < injuredRPRI.Abilities.length; x++)
+		{
+			if(injuredRPRI.Abilities[x].bAllowed)
+				injuredRPRI.Abilities[x].AdjustPlayerDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		}
 	}
 	

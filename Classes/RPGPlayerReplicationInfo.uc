@@ -338,8 +338,6 @@ simulated event Destroyed()
 	local LinkedReplicationInfo LRI;
 	local int i;
 	
-	Log(Self @ "Destroyed", 'Destroyed');
-	
 	if(PRI != None)
 	{
 		if(PRI.CustomReplicationInfo == Self)
@@ -573,7 +571,15 @@ function ServerClearArtifactOrder()
 
 function ServerAddArtifactOrderEntry(ArtifactOrderStruct OrderEntry)
 {
+	local int i;
 	local Inventory Inv;
+	
+	//find if already in the list
+	for(i = 0; i < ArtifactOrder.Length; i++)
+	{
+		if(ArtifactOrder[i].ArtifactClass == OrderEntry.ArtifactClass)
+			break;
+	}
 
 	if(Controller.Pawn != None)
 	{
@@ -583,8 +589,8 @@ function ServerAddArtifactOrderEntry(ArtifactOrderStruct OrderEntry)
 			Powerups(Inv).bActivatable = !OrderEntry.bNeverShow;
 	}
 
-	if(FindOrderEntry(OrderEntry.ArtifactClass) == -1)
-		ArtifactOrder[ArtifactOrder.Length] = OrderEntry;
+	//i was set in for loop above
+	ArtifactOrder[i] = OrderEntry;
 }
 
 simulated function ResendArtifactOrder()
@@ -710,8 +716,6 @@ simulated function ReceiveAbility(RPGAbility Ability)
 	{
 		Warn("Received ability" @ Ability @ "twice!");
 	}
-	
-	Log("ReceiveAbility" @ Ability @ "(" $ AbilitiesReceived @ "/" @ AbilitiesTotal $ ")");
 	
 	if(AbilitiesReceived == AbilitiesTotal)
 		ClientEnableRPGMenu();
@@ -1488,10 +1492,6 @@ function SaveData()
 {
 	local int x;
 	
-	Log(Self @ "SaveData", 'SaveData');
-	Log("bImposter:" @ bImposter, 'SaveData');
-	Log("XP:" @ Experience, 'SaveData');
-
 	if(bImposter)
 		return;
 

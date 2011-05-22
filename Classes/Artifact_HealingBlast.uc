@@ -26,6 +26,7 @@ defaultproperties
 {
 	BlastClass=class'Blast_Heal'
 	bFriendly=True
+	MaxUses=0 //infinite
 
 	CostPerSec=0
 	Cooldown=60

@@ -29,17 +29,20 @@ function bool DoEffect()
 	local Blast Blast;
 
 	Blast = SpawnBlast();
-	Destroy(); //TODO
 	
 	return (Blast != None);
 }
 
 defaultproperties
 {
+	bChargeUp=True
+
 	AIHealthMin=50
 	AIMinTargets=2
 	bFriendly=False
 	
 	bAllowInVehicle=False
 	bCanBeTossed=False
+	
+	MaxUses=1
 }

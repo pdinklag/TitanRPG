@@ -83,8 +83,6 @@ function bool DoEffect()
 		SDI.Damage = Damage;
 		SDI.MomentumTransfer = MomentumTransfer;
 		SDI.GiveTo(Instigator);
-		
-		Destroy();
 	}
 	
 	return (SDI != None);
@@ -100,9 +98,12 @@ defaultproperties
 	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.selfdestruct'
 	ItemName="Self Destruction"
 	PickupClass=class'ArtifactPickup_SelfDestruct'
-	
+
+	bChargeUp=True
 	CountdownTime=3
 	Damage=1000
-	DamageRadius=750.000000
-	MomentumTransfer=50000.000000
+	DamageRadius=1024
+	MomentumTransfer=50000
+	
+	MaxUses=1
 }

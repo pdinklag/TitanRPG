@@ -21,12 +21,10 @@ replication
 		ClientReceiveMonsterType;
 }
 
-simulated event PostNetBeginPlay()
+simulated function ClientReceived()
 {
-	Super.PostNetBeginPlay();
-	
-	if(Role < ROLE_Authority)
-		MonsterTypes.Length = 0;
+	Super.ClientReceived();
+	MonsterTypes.Length = 0;
 }
 
 function ServerRequestConfig()

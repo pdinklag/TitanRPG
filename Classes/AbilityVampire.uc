@@ -24,7 +24,10 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 	if(!bAllowForVehicles && InstigatedBy.IsA('Vehicle'))
 		return;
 
-	Health = int(float(Damage) * BonusPerLevel * float(AbilityLevel));
+	if(Injured.IsA('Vehicle') && Vehicle(Injured).IsVehicleEmpty())
+		return;
+
+	Health = Max(Min(Injured.Health, int(float(Damage) * BonusPerLevel * float(AbilityLevel))), 0);
 	if(Health == 0 && Damage > 0)
 	{
 		Health = 1;

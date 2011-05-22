@@ -15,12 +15,10 @@ replication
 		ClientReceiveGrantedWeapon;
 }
 
-simulated event PostNetBeginPlay()
+simulated function ClientReceived()
 {
-	Super.PostNetBeginPlay();
-	
-	if(Role < ROLE_Authority)
-		Weapons.Length = 0;
+	Super.ClientReceived();
+	Weapons.Length = 0;
 }
 
 function ServerRequestConfig()

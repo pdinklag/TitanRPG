@@ -1,5 +1,5 @@
 <?
-	$versionName = "1.70 ALPHA";
+	$versionName = "1.70.03";
 	$productName = "TitanRPG $versionName";
 	
 	$packageName = "TitanRPG";

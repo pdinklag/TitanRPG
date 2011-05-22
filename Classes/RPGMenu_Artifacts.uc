@@ -147,6 +147,7 @@ function InternalOnChange(GUIComponent Sender)
 		case chNeverShow:
 			RPGMenu.RPRI.ArtifactOrder[SelectedOrderEntry].bNeverShow = chNeverShow.IsChecked();
 			bDirty = true;
+			bOrderChanged = true; //will need to resend order data once applied
 			break;
 		
 		case chShowAll:

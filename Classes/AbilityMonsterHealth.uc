@@ -10,7 +10,7 @@ replication
 
 function ModifyMonster(Monster M, Pawn Master)
 {
-	local float Growth;
+	local float Growth, HeightDifference;
 
 	M.Health = int(float(M.Health) * (1.0f + float(AbilityLevel) * BonusPerLevel));
 	M.SuperHealthMax = M.SuperHealthMax - M.HealthMax + M.Health;
@@ -19,6 +19,11 @@ function ModifyMonster(Monster M, Pawn Master)
 	if(GrowthPerLevel != 0)
 	{
 		Growth = (1.0f + GrowthPerLevel * float(AbilityLevel));
+		
+		HeightDifference = M.CollisionHeight * (Growth - 1.0f);
+		Log("HeightDifference:" @ HeightDifference);
+		M.SetLocation(M.Location + vect(0, 0, 1) * HeightDifference);
+		
 		M.SetDrawScale(M.DrawScale * Growth);
 		M.SetCollisionSize(M.CollisionRadius * Growth, M.CollisionHeight * Growth);
 		

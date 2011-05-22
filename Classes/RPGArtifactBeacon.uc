@@ -1,6 +1,9 @@
 class RPGArtifactBeacon extends Projectile;
 
+var bool bLanded;
 var ArtifactBase_Beacon Artifact;
+
+var int WallHits;
 
 simulated event PostBeginPlay()
 {
@@ -25,6 +28,8 @@ simulated event HitWall( vector HitNormal, actor Wall )
 
 		if(Role == ROLE_Authority)
 		{
+			bLanded = true;
+			
 			Artifact.BeaconLanded(Self);
 			Destroy();
 		}
@@ -33,7 +38,22 @@ simulated event HitWall( vector HitNormal, actor Wall )
 	{
 		Velocity = 0.3 * ((Velocity dot HitNormal) * HitNormal * (-2.0) + Velocity);
 		Speed = VSize(Velocity);
+		
+		if(Role == ROLE_Authority)
+		{
+			WallHits++;
+			if(WallHits > 10) //most likely stuck
+				Destroy();
+		}
 	}
+}
+
+simulated event Destroyed()
+{
+	if(Role == ROLE_Authority && !bLanded)
+		Artifact.BeaconDestroyed(Self);
+	
+	Super.Destroyed();
 }
 
 defaultproperties

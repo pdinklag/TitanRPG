@@ -15,18 +15,24 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 	{
 		return;
 	}
+
+	if(Injured.IsA('Vehicle') && Vehicle(Injured).IsVehicleEmpty())
+		return;
 	
-	AdrenalineBonus = float(Min(Damage, Injured.Health)) * BonusPerLevel * AbilityLevel;
+	AdrenalineBonus = FMax(0, (FMin(Damage, Injured.Health)) * BonusPerLevel * AbilityLevel);
 
-	InstigatedBy.Controller.Adrenaline =
-		FMin(InstigatedBy.Controller.Adrenaline + AdrenalineBonus, InstigatedBy.Controller.AdrenalineMax);
-
-	if(
-		InstigatedBy.Controller.IsA('UnrealPlayer') &&
-		InstigatedBy.Controller.Adrenaline >= InstigatedBy.Controller.AdrenalineMax
-	)
+	if(AdrenalineBonus > 0)
 	{
-		UnrealPlayer(InstigatedBy.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
+		InstigatedBy.Controller.Adrenaline =
+			FMin(InstigatedBy.Controller.Adrenaline + AdrenalineBonus, InstigatedBy.Controller.AdrenalineMax);
+
+		if(
+			InstigatedBy.Controller.IsA('UnrealPlayer') &&
+			InstigatedBy.Controller.Adrenaline >= InstigatedBy.Controller.AdrenalineMax
+		)
+		{
+			UnrealPlayer(InstigatedBy.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
+		}
 	}
 }
 

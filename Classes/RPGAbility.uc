@@ -48,14 +48,13 @@ var int Index, BuyOrderIndex;
 var RPGPlayerReplicationInfo RPRI;
 var int AbilityLevel;
 
+var bool bClientReceived;
+
 //Category
 var class<RPGAbilityCategory> Category;
 
 //Status icons
 var class<RPGStatusIcon> StatusIconClass;
-
-//Client
-var bool bClientReceived;
 
 replication
 {
@@ -97,22 +96,34 @@ function ServerRequestConfig()
 	}
 }
 
+simulated function ClientReceived()
+{
+	RPRI.ReceiveAbility(Self);
+	bClientReceived = true;
+	
+	ServerRequestConfig();
+	
+	RequiredAbilities.Length = 0;
+	ForbiddenAbilities.Length = 0;
+	RequiredLevels.Length = 0;
+	LevelCost.Length = 0;
+	GrantItem.Length = 0;
+}
+
 simulated event PostNetBeginPlay()
 {
 	Super.PostNetBeginPlay();
 
-	if(Role < ROLE_Authority && RPRI != None)
-	{
-		RPRI.ReceiveAbility(Self);
-		
-		ServerRequestConfig();
-		
-		RequiredAbilities.Length = 0;
-		ForbiddenAbilities.Length = 0;
-		RequiredLevels.Length = 0;
-		LevelCost.Length = 0;
-		GrantItem.Length = 0;
-	}
+	if(Role < ROLE_Authority && !bClientReceived && RPRI != None)
+		ClientReceived();
+}
+
+simulated event Tick(float dt)
+{
+	Super.Tick(dt);
+	
+	if(Role < ROLE_Authority && !bClientReceived && RPRI != None)
+		ClientReceived();
 }
 
 simulated event PostBeginPlay()
@@ -405,8 +416,6 @@ simulated function int Cost()
 
 function ModifyRPRI()
 {
-	if(StatusIconClass != None)
-		RPRI.ClientCreateStatusIcon(StatusIconClass);
 }
 
 function ModifyPawn(Pawn Other)
@@ -414,6 +423,9 @@ function ModifyPawn(Pawn Other)
 	local int x;
 	
 	Instigator = Other;
+	
+	if(StatusIconClass != None)
+		RPRI.ClientCreateStatusIcon(StatusIconClass);
 	
 	for(x = 0; x < default.GrantItem.Length; x++)
 	{

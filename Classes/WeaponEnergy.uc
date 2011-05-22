@@ -24,27 +24,30 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	if(Victim == None || Victim == Instigator)
 		return;
 	
+	if(Victim.IsA('Vehicle') && Vehicle(Victim).IsVehicleEmpty())
+		return;
+	
 	Identify();
-
-	if(Damage > Victim.Health)
-		AdrenalineBonus = Victim.Health;
-	else
-		AdrenalineBonus = Damage;
-
-	AdrenalineBonus *= BonusPerLevel * float(Modifier);
-
-	//Adrenaline full
-	if(
-		UnrealPlayer(Instigator.Controller) != None &&
-		Instigator.Controller.Adrenaline < Instigator.Controller.AdrenalineMax &&
-	    Instigator.Controller.Adrenaline + AdrenalineBonus >= Instigator.Controller.AdrenalineMax &&
-		!Instigator.InCurrentCombo()
-	)
+	
+	AdrenalineBonus = FMax(0, FMin(Damage, Victim.Health));
+	
+	if(AdrenalineBonus > 0)
 	{
-		UnrealPlayer(Instigator.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
-	}
+		AdrenalineBonus *= BonusPerLevel * float(Modifier);
 
-	Instigator.Controller.Adrenaline = FMin(Instigator.Controller.Adrenaline + AdrenalineBonus, Instigator.Controller.AdrenalineMax);
+		//Adrenaline full
+		if(
+			UnrealPlayer(Instigator.Controller) != None &&
+			Instigator.Controller.Adrenaline < Instigator.Controller.AdrenalineMax &&
+			Instigator.Controller.Adrenaline + AdrenalineBonus >= Instigator.Controller.AdrenalineMax &&
+			!Instigator.InCurrentCombo()
+		)
+		{
+			UnrealPlayer(Instigator.Controller).ClientDelayedAnnouncementNamed('Adrenalin', 15);
+		}
+
+		Instigator.Controller.Adrenaline = FMin(Instigator.Controller.Adrenaline + AdrenalineBonus, Instigator.Controller.AdrenalineMax);
+	}
 }
 
 simulated function string GetWeaponNameExtra()
