@@ -157,6 +157,7 @@ simulated function ClientReceiveReqLevel(int i, int lv)
 
 simulated function ClientReceiveLevelCost(int i, int Cost)
 {
+	Log(Self @ "ClientReceiveLevelCost" @ i @ Cost $ ", bUseLevelCost =" @ bUseLevelCost);
 	LevelCost[i] = Cost;
 }
 

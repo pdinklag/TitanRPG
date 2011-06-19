@@ -379,6 +379,8 @@ simulated function ClientCreateStatusIcon(class<RPGStatusIcon> IconType)
 	local RPGStatusIcon Icon;
 	local int i;
 	
+	Log(Self @ "ClientCreateStatusIcon" @ IconType);
+	
 	for(i = 0; i < Status.Length; i++)
 	{
 		if(Status[i].class == IconType)
@@ -1494,6 +1496,8 @@ function SaveData()
 	
 	if(bImposter)
 		return;
+	
+	Log(RPGName @ "SaveData");
 
 	DataObject.LV = RPGLevel;
 	DataObject.PA = PointsAvailable;
