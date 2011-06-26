@@ -70,12 +70,14 @@ replication
 	
 	reliable if(Role == ROLE_Authority)
 		ClientReceiveRequired, ClientReceiveForbidden, ClientReceiveLevelCost,
-		ClientReceiveReqLevel, ClientReceiveGrantedItem;
+		ClientReceiveReqLevel, ClientReceiveGrantedItem, ClientReceiveBasicSettings;
 }
 
 function ServerRequestConfig()
 {
 	local int i;
+	
+	ClientReceiveBasicSettings(StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost, BonusPerLevel);
 
 	for(i = 0; i < RequiredAbilities.Length; i++)
 		ClientReceiveRequired(i, RequiredAbilities[i]);
@@ -94,6 +96,16 @@ function ServerRequestConfig()
 		for(i = 0; i < LevelCost.Length; i++)
 			ClientReceiveLevelCost(i, LevelCost[i]);
 	}
+}
+
+simulated function ClientReceiveBasicSettings(
+	int xStartingCost, int xCostAddPerLevel, int xMaxLevel, bool xbUseLevelCost, float xBonusPerLevel)
+{
+	StartingCost = xStartingCost;
+	CostAddPerLevel = xCostAddPerLevel;
+	MaxLevel = xMaxLevel;
+	bUseLevelCost = xbUseLevelCost;
+	BonusPerLevel = xBonusPerLevel;
 }
 
 simulated function ClientReceived()
