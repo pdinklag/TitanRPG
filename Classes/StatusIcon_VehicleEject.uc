@@ -2,9 +2,10 @@ class StatusIcon_VehicleEject extends RPGStatusIcon;
 
 var AbilityVehicleEject EjectorSeat;
 
-function Initialize()
+function Tick(float dt)
 {
 	EjectorSeat = AbilityVehicleEject(RPRI.GetAbility(class'AbilityVehicleEject'));
+	bShouldTick = (EjectorSeat == None);
 }
 
 function bool IsVisible()
@@ -24,4 +25,5 @@ function string GetText()
 defaultproperties
 {
 	IconMaterial=Texture'<? echo($packageName); ?>.StatusIcons.Eject'
+	bShouldTick=True
 }

@@ -54,11 +54,5 @@ defaultproperties
 	StartingCost=20
 	CostAddPerLevel=5
 	MaxLevel=2
-	RequiredAbilities(0)=(AbilityClass=Class'AbilityWeaponSpeed',Level=1)
-	RequiredAbilities(1)=(AbilityClass=Class'AbilityHealthBonus',Level=1)
-	RequiredAbilities(2)=(AbilityClass=Class'AbilityAdrenalineMax',Level=1)
-	RequiredAbilities(3)=(AbilityClass=Class'AbilityDamageBonus',Level=1)
-	RequiredAbilities(4)=(AbilityClass=Class'AbilityDamageReduction',Level=1)
-	RequiredAbilities(5)=(AbilityClass=Class'AbilityAmmoMax',Level=1)
 	Category=class'AbilityCategory_Misc'
 }

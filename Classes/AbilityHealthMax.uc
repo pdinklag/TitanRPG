@@ -1,4 +1,4 @@
-class AbilityHealthBonus extends RPGAbility;
+class AbilityHealthMax extends RPGAbility;
 
 function ModifyPawn(Pawn Other)
 {
@@ -8,7 +8,6 @@ function ModifyPawn(Pawn Other)
 	
 	HealthBonus = AbilityLevel * int(BonusPerLevel);
 
-	Other.Health = Other.default.Health + HealthBonus;
 	Other.HealthMax = Other.default.HealthMax + HealthBonus;
 	Other.SuperHealthMax = Other.HealthMax + (Other.default.SuperHealthMax - Other.default.HealthMax);
 }
@@ -20,9 +19,9 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
-	AbilityName="Health"
-	StatName="Health Bonus"
-	Description="Increases your starting and maximum health by $1 per level."
+	AbilityName="Max Health"
+	StatName="Max Health Bonus"
+	Description="Increases your maximum health by $1 per level. Your starting health is not affected by this ability."
 	MaxLevel=3
 	StartingCost=5
 	BonusPerLevel=10

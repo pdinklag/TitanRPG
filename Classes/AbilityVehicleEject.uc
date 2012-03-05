@@ -110,7 +110,7 @@ defaultproperties
 	bResetTranslocatorCharge=True
 	VehicleCooldown=5.00
 	AbilityName="Ejector Seat"
-	Description="Ejects you from your vehicle when it's destroyed."
+	Description="Ejects you from your vehicle when it's destroyed. You have to wait a short while before you can enter another vehicle."
 	LevelDescription(0)="Level 1 ejects you from the driver's seat when your vehicle gets destroyed."
 	LevelDescription(1)="Level 2 also ejects you from any other seat in a vehicle as well as from defensive turrets."
 	MaxLevel=2

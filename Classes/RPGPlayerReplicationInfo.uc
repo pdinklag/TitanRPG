@@ -764,6 +764,12 @@ simulated event Tick(float dt)
 				}
 			}
 		}
+		
+		//Tick status icons
+		for(x = 0; x < Status.Length; x++) {
+			if(Status[x].bShouldTick)
+				Status[x].Tick(dt);
+		}
 	}
 	
 	if(Controller == None)

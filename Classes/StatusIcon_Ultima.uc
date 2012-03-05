@@ -2,9 +2,10 @@ class StatusIcon_Ultima extends RPGStatusIcon;
 
 var AbilityUltima Ultima;
 
-function Initialize()
+function Tick(float dt)
 {
 	Ultima = AbilityUltima(RPRI.GetAbility(class'AbilityUltima'));
+	bShouldTick = (Ultima == None);
 }
 
 function bool IsVisible()
@@ -24,4 +25,5 @@ function string GetText()
 defaultproperties
 {
 	IconMaterial=Texture'<? echo($packageName); ?>.StatusIcons.Ultima'
+	bShouldTick=True
 }

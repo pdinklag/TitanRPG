@@ -31,7 +31,5 @@ defaultproperties
 	StartingCost=5
 	CostAddPerLevel=5
 	MaxLevel=6
-	RequiredAbilities(0)=(AbilityClass=class'AbilityHealthBonus',Level=1)
-	ForbiddenAbilities(0)=(AbilityClass=class'AbilityAdrenalineRegen',Level=1)
 	Category=class'AbilityCategory_Health'
 }

@@ -44,7 +44,6 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
-	RequiredAbilities(0)=(AbilityClass=class'AbilityHealthBonus',Level=3)
 	BonusPerLevel=25
 	AbilityName="Shields Up!"
 	StatName="Max Shield Bonus"
