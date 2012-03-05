@@ -85,7 +85,7 @@ defaultproperties
 	
 	MinModifier=1
 	MaxModifier=4
-	ModifierOverlay=ColorModifier'<? echo($packageName); ?>.Matrix.MatrixColorModifier'
+	ModifierOverlay=ColorModifier'TitanRPG.Matrix.MatrixColorModifier'
 	PatternPos="Matrix $W"
 	//AI
 	AIRatingBonus=0.025000

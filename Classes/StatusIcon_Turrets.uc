@@ -12,5 +12,5 @@ function string GetText()
 
 defaultproperties
 {
-	IconMaterial=Texture'<? echo($packageName); ?>.StatusIcons.Turret'
+	IconMaterial=Texture'TitanRPG.StatusIcons.Turret'
 }

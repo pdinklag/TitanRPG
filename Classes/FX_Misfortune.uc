@@ -30,7 +30,7 @@ simulated event PostBeginPlay()
 
 defaultproperties
 {
-	MisfortuneSound=Sound'<? echo($packageName); ?>.SoundEffects.Explosion'
+	MisfortuneSound=Sound'TitanRPG.SoundEffects.Explosion'
      Begin Object Class=SpriteEmitter Name=ExplosionParticles
          FadeOut=True
          RespawnDeadParticles=False

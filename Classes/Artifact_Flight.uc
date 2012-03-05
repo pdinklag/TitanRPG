@@ -67,6 +67,6 @@ defaultproperties
 	ArtifactID="Flight"
 	Description="Makes you fly."
 	PickupClass=Class'ArtifactPickup_Flight'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Flight'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Flight'
 	ItemName="Flight"
 }

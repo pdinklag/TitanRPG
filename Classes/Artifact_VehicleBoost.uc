@@ -153,6 +153,6 @@ defaultproperties
 	ArtifactID="NitroBoost"
 	Description="Gives a boost to your vehicle."
 	PickupClass=Class'ArtifactPickup_VehicleBoost'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.nitroboost'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.nitroboost'
 	ItemName="Nitro Boost"
 }

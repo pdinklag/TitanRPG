@@ -660,5 +660,5 @@ defaultproperties
 	MSG_Text_Expired="You have run out of adrenaline."
 	MSG_Text_NotInVehicle="You cannot use this artifact in a vehicle."
 	MSG_Text_Exclusive="You already have another exclusive artifact activated."
-	CantUseSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
+	CantUseSound=Sound'TitanRPG.Interface.CantUse'
 }

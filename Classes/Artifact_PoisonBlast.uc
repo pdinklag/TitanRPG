@@ -9,6 +9,6 @@ defaultproperties
 	ArtifactID="PoisonBlast"
 	Description="Poisons nearby enemies."
 	PickupClass=Class'ArtifactPickup_PoisonBlast'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.poisonblast'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.poisonblast'
 	ItemName="Poison Blast"
 }

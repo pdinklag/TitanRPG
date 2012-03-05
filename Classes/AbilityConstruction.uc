@@ -139,8 +139,8 @@ defaultproperties
 	MaxLevel=3
 	/*
 	TurretTypes(0)=(Level=1,TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=100,StaticMesh=StaticMesh'AS_Weapons_SM.FloorTurretStaticEditor',DrawScale=0.125)
-	TurretTypes(1)=(Level=2,TurretClass=class'UT2k4AssaultFull.ASTurret_BallTurret',Cost=125,StaticMesh=StaticMesh'<? echo($packageName); ?>.TurretPreview.BallTurret',DrawScale=1.00)
-	TurretTypes(2)=(Level=3,TurretClass=class'UT2k4AssaultFull.ASTurret_LinkTurret',Cost=150,StaticMesh=StaticMesh'<? echo($packageName); ?>.TurretPreview.LinkTurret',DrawScale=0.0625)
+	TurretTypes(1)=(Level=2,TurretClass=class'UT2k4AssaultFull.ASTurret_BallTurret',Cost=125,StaticMesh=StaticMesh'TitanRPG.TurretPreview.BallTurret',DrawScale=1.00)
+	TurretTypes(2)=(Level=3,TurretClass=class'UT2k4AssaultFull.ASTurret_LinkTurret',Cost=150,StaticMesh=StaticMesh'TitanRPG.TurretPreview.LinkTurret',DrawScale=0.0625)
 	TurretPreText=", you can construct the"
 	TurretPostText="."
 	*/

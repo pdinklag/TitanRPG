@@ -72,7 +72,7 @@ defaultproperties
 	ArtifactID="Decoy"
 	bCanBeTossed=False
 	Description="Distracts incoming homing missiles."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Decoy'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Decoy'
 	ItemName="Decoy"
 	PickupClass=Class'ArtifactPickup_Decoy'
 }

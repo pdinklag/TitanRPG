@@ -52,7 +52,7 @@ defaultproperties
 	BonusPerLevel=0.250000
 	MinModifier=1
 	MaxModifier=1
-	ModifierOverlay=Shader'<? echo($packageName); ?>.Overlays.GreenShader'
+	ModifierOverlay=Shader'TitanRPG.Overlays.GreenShader'
 	PatternPos="Repair $W of Infinity"
 	bCanThrow=False
 }

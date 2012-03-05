@@ -74,7 +74,7 @@ defaultproperties
 	bAllowOnFlagCarriers=False
 	bAllowOnVehicles=False
 
-	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GreyShader'
+	EffectOverlay=Shader'TitanRPG.Overlays.GreyShader'
 	EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
 	xEmitterClass=class'FX_IceSmoke'
 	

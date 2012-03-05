@@ -100,7 +100,7 @@ defaultproperties
 	MaxHealth=50
 	MinModifier=1
 	MaxModifier=6
-	ModifierOverlay=Shader'<? echo($packageName); ?>.Overlays.BlueShader'
+	ModifierOverlay=Shader'TitanRPG.Overlays.BlueShader'
 	PatternPos="Healing $W"
 	//AI
 	AIRatingBonus=0.000000

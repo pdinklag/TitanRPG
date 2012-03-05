@@ -2,7 +2,7 @@ class MutTitanRPG extends Mutator
 	config(TitanRPG);
 
 //Import resources
-#exec OBJ LOAD FILE=Resources/TitanRPG_rc.u PACKAGE=<? echo($packageName); ?>
+#exec OBJ LOAD FILE=Resources/TitanRPG_rc.u PACKAGE=TitanRPG
 
 //Saving
 var config array<string> IgnoreNameTag;
@@ -109,7 +109,7 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 	}
 	
 	//Fallback, for seamless transitions from 1.5 or earlier
-	Loaded = class<RPGAbility>(DynamicLoadObject("<? echo($packageName); ?>.Ability" $ Alias, class'Class'));
+	Loaded = class<RPGAbility>(DynamicLoadObject("TitanRPG.Ability" $ Alias, class'Class'));
 
 	if(Loaded == None)
 		Log("WARNING: Could not resolve ability alias:" @ Alias, 'TitanRPG');
@@ -189,7 +189,7 @@ event PreBeginPlay()
 	class'XGame.xPawn'.default.ControllerClass = class'RPGBot';
 	
 	if(Level.Game.PlayerControllerClassName ~= "XGame.xPlayer") //don't replace another mod's xPlayer replacement
-		Level.Game.PlayerControllerClassName = "<? echo($packageName); ?>.TitanPlayerController";
+		Level.Game.PlayerControllerClassName = "TitanRPG.TitanPlayerController";
 
 	//Find specific settings for this gametype
 	GameSettings = new(None, GetGameSettingsName(Level.Game)) class'RPGGameSettings';
@@ -286,15 +286,15 @@ function string GetInventoryClassOverride(string InventoryClassName)
 	}
 
 	if(InventoryClassName ~= "XWeapons.RocketLauncher")
-		return "<? echo($packageName); ?>.RPGRocketLauncher";
+		return "TitanRPG.RPGRocketLauncher";
 	else if(InventoryClassName ~= "XWeapons.ShieldGun" || InventoryClassName ~= "OLTeamGames.OLTeamsShieldGun")
-		return "<? echo($packageName); ?>.RPGShieldGun";
+		return "TitanRPG.RPGShieldGun";
 	else if(InventoryClassName ~= "XWeapons.LinkGun" || InventoryClassName ~= "OLTeamGames.OLTeamsLinkGun")
-		return "<? echo($packageName); ?>.RPGLinkGun";
+		return "TitanRPG.RPGLinkGun";
 	else if(InventoryClassName ~= "Onslaught.ONSMineLayer" || InventoryClassName ~= "OLTeamGames.OLTeamsONSMineLayer")
-		return "<? echo($packageName); ?>.RPGMineLayer";
+		return "TitanRPG.RPGMineLayer";
 	else if(InventoryClassName ~= "XWeapons.BallLauncher")
-		return "<? echo($packageName); ?>.RPGBallLauncher";
+		return "TitanRPG.RPGBallLauncher";
 
 	return InventoryClassName;
 }
@@ -344,7 +344,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Ball Launcher
 	if(Other.IsA('xBombFlag'))
 	{
-		xBombFlag(Other).BombLauncherClassName = "<? echo($packageName); ?>.RPGBallLauncher";
+		xBombFlag(Other).BombLauncherClassName = "TitanRPG.RPGBallLauncher";
 		return true;
 	}
 	
@@ -360,7 +360,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		//Replace weapon pickup
 		if(Other.IsA('WeaponPickup') && !Other.IsA('RPGWeaponPickup') && !Other.IsA('TransPickup'))
 		{
-			RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponPickup"));
+			RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "TitanRPG.RPGWeaponPickup"));
 			if(RPGPickup != None)
 			{
 				RPGPickup.FindPickupBase();
@@ -373,7 +373,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
 		{
 			Locker = WeaponLocker(Other);
-			RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "<? echo($packageName); ?>.RPGWeaponLocker"));
+			RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "TitanRPG.RPGWeaponLocker"));
 			
 			if(RPGLocker != None)
 			{
@@ -1122,7 +1122,7 @@ function Mutate(string MutateString, PlayerController Sender)
 				else
 					Game = string(Level.Game.class);
 				
-				Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=<? echo($packageName); ?>.MutTitanRPG", false);
+				Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=TitanRPG.MutTitanRPG", false);
 				return;
 			}
 			else if(Args[0] ~= "genhelp")
@@ -1234,7 +1234,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && Args[0] ~= "wm" && Args.Length > 1)
 			{
-				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("<? echo($packageName); ?>.WeaponModifier_" $ Args[1], class'Class'));
+				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("TitanRPG.WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
 				{
 					WM = WMClass.static.Modify(
@@ -1251,7 +1251,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && Args[0] ~= "effect" && Args.Length > 1)
 			{
-				EffectClass = class<RPGEffect>(DynamicLoadObject("<? echo($packageName); ?>.Effect_" $ Args[1], class'Class'));
+				EffectClass = class<RPGEffect>(DynamicLoadObject("TitanRPG.Effect_" $ Args[1], class'Class'));
 				if(EffectClass != None)
 				{
 					Effect = EffectClass.static.Create(Cheat, Sender);
@@ -1271,7 +1271,7 @@ function Mutate(string MutateString, PlayerController Sender)
 				if(Args[1] ~= "None")
 					NewWeaponClass = class'RPGWeapon';
 				else
-					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("<? echo($packageName); ?>.Weapon" $ Args[1], class'Class'));
+					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("TitanRPG.Weapon" $ Args[1], class'Class'));
 
 				if(NewWeaponClass != None)
 				{
@@ -1316,7 +1316,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && Args[0] ~= "artifact" && Args.Length > 1)
 			{
-				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("<? echo($packageName); ?>.Artifact_" $ Args[1], class'Class'));
+				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("TitanRPG.Artifact_" $ Args[1], class'Class'));
 				if(ArtifactClass != None)
 					class'Util'.static.GiveInventory(Cheat, ArtifactClass);
 				else
@@ -1453,8 +1453,8 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 
 	Super.GetServerDetails(ServerState);
 
-	KVP.Key = "TitanRPG version";
-	KVP.Value = "<? echo($versionName); ?>";
+	KVP.Key = "Version";
+	KVP.Value = FriendlyName;
 	
 	ServerState.ServerInfo[ServerState.ServerInfo.Length] = KVP;
 }
@@ -1484,7 +1484,7 @@ defaultproperties
 	SuperAmmoClasses(2)=class'XWeapons.TransAmmo'
 	bAddToServerPackages=True
 	GroupName="TitanRPG"
-	FriendlyName="<? echo($productName); ?>"
+	FriendlyName="TitanRPG 1.70.4" //also used in Server Browser
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"

@@ -59,7 +59,7 @@ defaultproperties
 	KnockbackText="knocks targets away"
 	MinModifier=2
 	MaxModifier=6
-	ModifierOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
+	ModifierOverlay=Shader'TitanRPG.Overlays.RedShader'
 	PatternPos="$W of Knockback"
 	//AI
 	AIRatingBonus=0

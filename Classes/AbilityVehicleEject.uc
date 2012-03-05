@@ -106,7 +106,7 @@ simulated function ClientNotifyCooldown(float Time)
 defaultproperties
 {
 	StatusIconClass=class'StatusIcon_VehicleEject'
-	CantEnterSound=Sound'<? echo($packageName); ?>.Interface.CantUse'
+	CantEnterSound=Sound'TitanRPG.Interface.CantUse'
 	bResetTranslocatorCharge=True
 	VehicleCooldown=5.00
 	AbilityName="Ejector Seat"

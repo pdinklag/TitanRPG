@@ -45,6 +45,6 @@ defaultproperties
 	ArtifactID="EnhancedMaker"
 	bCanBeTossed=False
 	Description="Enchants a weapon with a rare magic."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Enhanced'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Enhanced'
 	ItemName="Enhanced Magic Maker"
 }

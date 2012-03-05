@@ -9,6 +9,6 @@ defaultproperties
 	StaticMesh=StaticMesh'Editor.TexPropSphere'
 	bAcceptsProjectors=False
 	DrawScale=0.075000
-	Skins(0)=Shader'<? echo($packageName); ?>.ArtifactPickupSkins.GlobeShader'
+	Skins(0)=Shader'TitanRPG.ArtifactPickupSkins.GlobeShader'
 	AmbientGlow=255
 }

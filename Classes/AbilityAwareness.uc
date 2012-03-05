@@ -21,7 +21,7 @@ simulated function ClientCreateInteraction()
 
 		Interaction = AwarenessInteraction(
 			PC.Player.InteractionMaster.AddInteraction(
-				"<? echo($packageName); ?>.AwarenessInteraction", PC.Player));
+				"TitanRPG.AwarenessInteraction", PC.Player));
 	}
 	
 	if(Interaction != None)

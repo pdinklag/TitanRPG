@@ -108,6 +108,6 @@ defaultproperties
 	ArtifactID="Magnet"
 	Description="Allows you to walk on walls."
 	PickupClass=Class'ArtifactPickup_Magnet'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.magnet'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.magnet'
 	ItemName="Magnet"
 }

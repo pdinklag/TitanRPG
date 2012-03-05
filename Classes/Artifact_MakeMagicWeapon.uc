@@ -43,6 +43,6 @@ defaultproperties
 	ArtifactID="MagicWeaponMaker"
 	Description="Randomly enchants a weapon."
 	PickupClass=Class'ArtifactPickup_MakeMagicWeapon'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MagicMaker'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.MagicMaker'
 	ItemName="Magic Weapon Maker"
 }

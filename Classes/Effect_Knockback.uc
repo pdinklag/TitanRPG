@@ -75,6 +75,6 @@ defaultproperties
 	Modifier=1.00
 
 	EffectSound=Sound'WeaponSounds.Misc.ballgun_launch'
-	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
+	EffectOverlay=Shader'TitanRPG.Overlays.RedShader'
 	EffectMessageClass=class'EffectMessage_Knockback'
 }

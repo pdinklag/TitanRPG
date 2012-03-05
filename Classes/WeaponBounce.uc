@@ -137,7 +137,7 @@ defaultproperties
 	MinModifier=0
 	MaxModifier=5
 	ModifierOverlay=Combiner'IllumShaders.IllumAComb'
-	BounceSound=Sound'<? echo($packageName); ?>.SoundEffects.boing'
+	BounceSound=Sound'TitanRPG.SoundEffects.boing'
 	PatternPos="Bouncy $W"
 	PatternNeg="Bouncy $W"
 	//AI

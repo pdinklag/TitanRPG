@@ -139,6 +139,6 @@ defaultproperties
 	ArtifactID="Max"
 	bCanBeTossed=False
 	Description="Maximizes the magic level of your weapon."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MaxMod'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.MaxMod'
 	ItemName="Max Magic Modifier"
 }

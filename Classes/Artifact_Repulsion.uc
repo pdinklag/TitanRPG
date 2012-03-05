@@ -87,7 +87,7 @@ defaultproperties
 	MaxKnockbackMomentum=1500
 	MinKnockbackMomentum=250
 	KnockbackSound=Sound'WeaponSounds.Misc.ballgun_launch'
-	KnockbackOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
+	KnockbackOverlay=Shader'TitanRPG.Overlays.RedShader'
 	Cooldown=5
 	CostPerSec=25
 	HudColor=(B=255,G=128,R=128)
@@ -95,6 +95,6 @@ defaultproperties
 	Description="Knocks nearby enemies away."
 	ActivateSound=Sound'WeaponSounds.BaseFiringSounds.BShieldGunFire'
 	PickupClass=Class'ArtifactPickup_Repulsion'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Repulsion'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Repulsion'
 	ItemName="Repulsion"
 }

@@ -105,8 +105,8 @@ defaultproperties
 	bHarmful=False
 	bAllowOnVehicles=True
 
-	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.BlueShader'
-	EffectSound=Sound'<? echo($packageName); ?>.SoundEffects.Heal'
+	EffectOverlay=Shader'TitanRPG.Overlays.BlueShader'
+	EffectSound=Sound'TitanRPG.SoundEffects.Heal'
 	xEmitterClass=class'FX_Heal'
 	
 	EffectMessageClass=class'EffectMessage_Heal'

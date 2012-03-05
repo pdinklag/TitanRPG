@@ -17,6 +17,6 @@ defaultproperties
 	bCanBeTossed=False
 	bAvoidRepetition=False
 	Description="Generates a medic weapon."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MedicMaker'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.MedicMaker'
 	ItemName="Medic Weapon Maker"
 }

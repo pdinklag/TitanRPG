@@ -110,7 +110,7 @@ exec function RPGStatsMenu()
 
 		if(RPRI != None)
 		{
-			ViewportOwner.GUIController.OpenMenu("<? echo($packageName); ?>.RPGMenu");
+			ViewportOwner.GUIController.OpenMenu("TitanRPG.RPGMenu");
 			RPGMenu(GUIController(ViewportOwner.GUIController).TopPage()).InitFor(RPRI);
 		}
 	}

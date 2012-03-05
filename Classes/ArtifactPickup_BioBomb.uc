@@ -4,6 +4,6 @@ defaultproperties
 {
 	InventoryType=Class'Artifact_BioBomb'
 	PickupMessage="You got the Bio Bomb!"
-	StaticMesh=StaticMesh'<? echo($packageName); ?>.ArtifactPickupStatics.BioBomb'
+	StaticMesh=StaticMesh'TitanRPG.ArtifactPickupStatics.BioBomb'
 	DrawScale=0.220000
 }

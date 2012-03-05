@@ -98,6 +98,6 @@ defaultproperties
 	bCanBeTossed=False
 	bExclusive=True
 	Description="Doubles your weapon's magic level."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.DoubleMod'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.DoubleMod'
 	ItemName="Double Magic Modifier"
 }

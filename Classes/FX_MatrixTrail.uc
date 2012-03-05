@@ -48,7 +48,7 @@ defaultproperties
 		StartSizeRange=(X=(Min=3.000000,Max=5.000000))
 		ParticlesPerSecond=5.000000
 		InitialParticlesPerSecond=10.000000
-		Texture=Texture'<? echo($packageName); ?>.Effects.AlienChars'
+		Texture=Texture'TitanRPG.Effects.AlienChars'
 		TextureUSubdivisions=8
 		TextureVSubdivisions=8
 		LifetimeRange=(Min=1.600000,Max=1.700000)

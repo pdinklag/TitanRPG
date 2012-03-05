@@ -1087,8 +1087,8 @@ defaultproperties
 {
 	bDamageLog=False
 
-	DisgraceAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.Disgrace'
-	EagleEyeAnnouncement=Sound'<? echo($packageName); ?>.TranslocSounds.EagleEye'
+	DisgraceAnnouncement=Sound'TitanRPG.TranslocSounds.Disgrace'
+	EagleEyeAnnouncement=Sound'TitanRPG.TranslocSounds.EagleEye'
 	DirectDamageTypes(0)=class'DamTypeEmo'
 	DirectDamageTypes(1)=class'DamTypePoison'
 	DirectDamageTypes(2)=class'DamTypeRetaliation'

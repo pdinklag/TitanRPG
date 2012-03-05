@@ -34,6 +34,6 @@ defaultproperties
 	ArtifactID="Healing Blast"
 	Description="Heals nearby teammates."
 	PickupClass=Class'ArtifactPickup_HealingBlast'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.HealingBomb'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.HealingBomb'
 	ItemName="Healing Blast"
 }

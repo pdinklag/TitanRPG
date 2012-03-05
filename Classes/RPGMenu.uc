@@ -24,7 +24,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 	for(i = 0; i < Panels.Length; i++)
 	{
 		//Prepend package name to class name
-		Panels[i].ClassName = "<? echo($packageName); ?>." $ Panels[i].ClassName;
+		Panels[i].ClassName = "TitanRPG." $ Panels[i].ClassName;
 		
 		Log("Adding tab:" @ Panels[i].ClassName, 'DEBUG');
 		Tabs.AddTabItem(Panels[i]);

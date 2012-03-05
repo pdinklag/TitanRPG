@@ -58,7 +58,7 @@ defaultproperties
 	Colors(4)=(R=255,G=0,B=255)	//MAGENTA
 	Colors(5)=(R=255,G=0,B=0)		//RED
 	Speed=1.000000
-    Skins(0)=Texture'<? echo($packageName); ?>.Effects.Trail'
+    Skins(0)=Texture'TitanRPG.Effects.Trail'
     mColorRange(0)=(R=255,G=255,B=255,A=255)
     mColorRange(1)=(R=255,G=255,B=255,A=255)
 }

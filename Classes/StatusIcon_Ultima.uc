@@ -24,6 +24,6 @@ function string GetText()
 
 defaultproperties
 {
-	IconMaterial=Texture'<? echo($packageName); ?>.StatusIcons.Ultima'
+	IconMaterial=Texture'TitanRPG.StatusIcons.Ultima'
 	bShouldTick=True
 }

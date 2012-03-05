@@ -114,14 +114,14 @@ defaultproperties
 
 	AttachmentClass=class'ChuteAttachment'
 	
-	OpenSound=Sound'<? echo($packageName); ?>.Chute.chuteopen'
+	OpenSound=Sound'TitanRPG.Chute.chuteopen'
 	
 	MinActivationTime=1.000000
 	CostPerSec=0
 	HudColor=(R=192,G=128,B=64)
 	ArtifactID="Chute"
 	Description="Opens up a parachute, softening your landing."
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Chute'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Chute'
 	ItemName="Parachute"
 	
 	MsgOnlyIfFalling="You can only open the parachute if you are falling."

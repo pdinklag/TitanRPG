@@ -70,7 +70,7 @@ defaultproperties
 	BonusPerLevel=0.500000
 	MinModifier=2
 	MaxModifier=6
-	ModifierOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
+	ModifierOverlay=Shader'TitanRPG.Overlays.RedShader'
 	PatternPos="$W of Knockback"
 	//AI
 	AIRatingBonus=0.000000

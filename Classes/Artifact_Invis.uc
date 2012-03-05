@@ -96,7 +96,7 @@ state Activated
 
 defaultproperties
 {
-	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.Invisible'
+	ActivateSound=Sound'TitanRPG.SoundEffects.Invisible'
 	MSG_Text_InvisCombo="You are already in the Invisible combo."
 	EnemyRadius=1024.00
 	ExtraCostPerEnemy=2
@@ -107,6 +107,6 @@ defaultproperties
 	ArtifactID="Invis"
 	Description="Makes you invisible when enemies are distant."
 	PickupClass=Class'ArtifactPickup_Invis'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.invis'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.invis'
 	ItemName="Invisibility"
 }

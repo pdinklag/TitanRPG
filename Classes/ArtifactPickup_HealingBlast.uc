@@ -4,6 +4,6 @@ defaultproperties
 {
 	InventoryType=Class'Artifact_HealingBlast'
 	PickupMessage="You got the Healing Bomb!"
-	StaticMesh=StaticMesh'<? echo($packageName); ?>.ArtifactPickupStatics.HealingBomb'
+	StaticMesh=StaticMesh'TitanRPG.ArtifactPickupStatics.HealingBomb'
 	DrawScale=0.220000
 }

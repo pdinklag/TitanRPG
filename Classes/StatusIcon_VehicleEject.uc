@@ -24,6 +24,6 @@ function string GetText()
 
 defaultproperties
 {
-	IconMaterial=Texture'<? echo($packageName); ?>.StatusIcons.Eject'
+	IconMaterial=Texture'TitanRPG.StatusIcons.Eject'
 	bShouldTick=True
 }

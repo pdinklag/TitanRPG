@@ -47,7 +47,7 @@ defaultproperties
 	DamageBonus=0.05
 	MinModifier=4
 	MaxModifier=6
-	ModifierOverlay=Shader'<? echo($packageName); ?>.Overlays.GreyShader'
+	ModifierOverlay=Shader'TitanRPG.Overlays.GreyShader'
 	PatternPos="Freezing $W"
 	//AI
 	AIRatingBonus=0.05

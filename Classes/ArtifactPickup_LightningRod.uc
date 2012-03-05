@@ -5,6 +5,6 @@ defaultproperties
 	InventoryType=Class'Artifact_LightningRod'
 	PickupMessage="You got the Lightning Rod!"
 	PickupSound=Sound'PickupSounds.SniperAmmoPickup'
-	StaticMesh=StaticMesh'<? echo($packageName); ?>.ArtifactPickupStatics.Rod'
+	StaticMesh=StaticMesh'TitanRPG.ArtifactPickupStatics.Rod'
 	DrawScale=0.250000
 }

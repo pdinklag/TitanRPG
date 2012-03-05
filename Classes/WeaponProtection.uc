@@ -61,7 +61,7 @@ simulated function string GetWeaponNameExtra()
 
 defaultproperties
 {
-	ProtectionSound=Sound'<? echo($packageName); ?>.SoundEffects.Protection' //Sound'WeaponSounds.Misc.instagib_rifleshot'
+	ProtectionSound=Sound'TitanRPG.SoundEffects.Protection' //Sound'WeaponSounds.Misc.instagib_rifleshot'
 	DRText="$1 dmg reduction"
 	ProtectionText="Ultima Shield, instant kill protection"
 	DamageBonus=0.025000

@@ -59,7 +59,7 @@ simulated event HitWall( vector HitNormal, actor Wall )
 
 defaultproperties
 {
-	StaticMesh=StaticMesh'<? echo($packageName); ?>.Pokeball.PokeballStatic' //oh my
+	StaticMesh=StaticMesh'TitanRPG.Pokeball.PokeballStatic' //oh my
     DrawScale=0.03125
 	
 	RotationRate=(Pitch=-49152,Yaw=0,Roll=0)
@@ -68,8 +68,8 @@ defaultproperties
 	
 	bRotateToDesired=true
 	
-	TeamSkin(0)=Combiner'<? echo($packageName); ?>.Pokeball.RedCombiner'
-	TeamSkin(1)=Combiner'<? echo($packageName); ?>.Pokeball.BlueCombiner'
-	TeamSkin(2)=Combiner'<? echo($packageName); ?>.Pokeball.GreenCombiner'
-	TeamSkin(3)=Combiner'<? echo($packageName); ?>.Pokeball.GoldCombiner'
+	TeamSkin(0)=Combiner'TitanRPG.Pokeball.RedCombiner'
+	TeamSkin(1)=Combiner'TitanRPG.Pokeball.BlueCombiner'
+	TeamSkin(2)=Combiner'TitanRPG.Pokeball.GreenCombiner'
+	TeamSkin(3)=Combiner'TitanRPG.Pokeball.GoldCombiner'
 }

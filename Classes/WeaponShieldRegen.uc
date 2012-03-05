@@ -50,7 +50,7 @@ defaultproperties
 	RegenInterval=2.00
 	MinModifier=1
 	MaxModifier=5
-	//ModifierOverlay=TexEnvMap'<? echo($packageName); ?>.Overlays.goldenv' - for another weapon
+	//ModifierOverlay=TexEnvMap'TitanRPG.Overlays.goldenv' - for another weapon
 	ModifierOverlay=TexEnvMap'PickupSkins.Shaders.TexEnvMap2'
 	//AI
 	AIRatingBonus=0.05

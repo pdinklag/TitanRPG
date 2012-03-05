@@ -8,6 +8,6 @@ defaultproperties
 	DamageType=class'DamTypeRepulsion'
 
 	EffectSound=None
-	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.RedShader'
+	EffectOverlay=Shader'TitanRPG.Overlays.RedShader'
 	EffectMessageClass=class'EffectMessage_Repulsion'
 }

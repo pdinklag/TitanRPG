@@ -9,6 +9,6 @@ defaultproperties
 	ArtifactID="BioBomb"
 	Description="Causes a bio glob explosion."
 	PickupClass=Class'ArtifactPickup_BioBomb'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.biobomb'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.biobomb'
 	ItemName="Bio Bomb"
 }

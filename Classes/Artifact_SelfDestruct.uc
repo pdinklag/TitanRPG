@@ -95,7 +95,7 @@ defaultproperties
 	TeamMembersText="You cannot destruct the vehicle while other team members are in it."
 	ArtifactID="SelfDestruct"
 	bCanBeTossed=False
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.selfdestruct'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.selfdestruct'
 	ItemName="Self Destruction"
 	PickupClass=class'ArtifactPickup_SelfDestruct'
 

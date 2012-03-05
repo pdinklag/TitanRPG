@@ -206,7 +206,7 @@ state Activated
 
 defaultproperties
 {
-	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.Rod'
+	ActivateSound=Sound'TitanRPG.SoundEffects.Rod'
 	bAllowInVehicle=False
 	bMustBeMoving=True
 	TargetRadius=2048.000000
@@ -221,6 +221,6 @@ defaultproperties
 	ArtifactID="Rod"
 	Description="Fires lightnings at nearby enemies."
 	PickupClass=Class'ArtifactPickup_LightningRod'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.rod'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.rod'
 	ItemName="Lightning Rod"
 }

@@ -9,6 +9,6 @@ defaultproperties
 	ArtifactID="FreezeBomb"
 	Description="Immobilizes nearby enemies."
 	PickupClass=Class'ArtifactPickup_FreezeBomb'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.FreezeBomb'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.FreezeBomb'
 	ItemName="Freeze Bomb"
 }

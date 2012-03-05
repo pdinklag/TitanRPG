@@ -28,7 +28,7 @@ simulated event PostNetBeginPlay()
 defaultproperties
 {
 	Team=255
-	Skins(0)=Texture'<? echo($packageName); ?>.Effects.Cross'
+	Skins(0)=Texture'TitanRPG.Effects.Cross'
 	TeamColor(0)=(R=255,G=0,B=0,A=255)
 	TeamColor(1)=(R=0,G=0,B=255,A=255)
 	TeamColor(2)=(R=0,G=255,B=0,A=255)

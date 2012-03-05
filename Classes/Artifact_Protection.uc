@@ -96,9 +96,9 @@ state Activated
 
 defaultproperties
 {
-	ActivateSound=Sound'<? echo($packageName); ?>.SoundEffects.ProtectionArtifact'
+	ActivateSound=Sound'TitanRPG.SoundEffects.ProtectionArtifact'
 	bAllowWithFlag=False
-	EffectOverlay=Shader'<? echo($packageName); ?>.Overlays.GlobeOverlay'
+	EffectOverlay=Shader'TitanRPG.Overlays.GlobeOverlay'
 	DamageReduction=0.666667
 	NotWithFlagMessage="You cannot use this artifact while carrying $1."
 	FlagText="the flag"
@@ -110,6 +110,6 @@ defaultproperties
 	bExclusive=True
 	Description="Reduces all incoming damage."
 	PickupClass=Class'ArtifactPickup_Protection'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.Globe'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Globe'
 	ItemName="Protection"
 }

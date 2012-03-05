@@ -295,7 +295,7 @@ simulated event BeginPlay()
 					
 					if(PlayerController(Controller) != None)
 						PlayerController(Controller).ClientOpenMenu(
-							"<? echo($packageName); ?>.RPGImposterMessageWindow");
+							"TitanRPG.RPGImposterMessageWindow");
 						
 					//Level.Game.ChangeName(Controller, string(Rand(65535)), true); //That's gotta suck, having a number for a name
 					Level.Game.ChangeName(Controller, Controller.GetHumanReadableName() $ "_Imposter", true);
@@ -1638,38 +1638,6 @@ function ProcessGrantQueue()
 	GrantQueue.Length = 0;
 }
 
-//Demonstrating the power of umake!
-<?
-	function printQueueFunc($queueName)
-	{
-?>
-		for(i = 0; i < <? echo($queueName); ?>.Length; i++)
-		{
-			if(
-				<? echo($queueName); ?>[i].WeaponClass == GW.WeaponClass &&
-				<? echo($queueName); ?>[i].ModifierClass == GW.ModifierClass
-			)
-			{
-				//override in queue weapon if this modifier is higher, otherwise discard
-				if(GW.Modifier > <? echo($queueName); ?>[i].Modifier)
-				{
-					<? echo($queueName); ?>[i].Modifier = GW.Modifier;
-					
-					if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > <? echo($queueName); ?>[i].Ammo[0])
-						<? echo($queueName); ?>[i].Ammo[0] = GW.Ammo[0];
-
-					if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > <? echo($queueName); ?>[i].Ammo[1])
-						<? echo($queueName); ?>[i].Ammo[1] = GW.Ammo[1];
-				}
-				return;
-			}
-		}
-		
-		<? echo($queueName); ?>[<? echo($queueName); ?>.Length] = GW;
-<?
-	}
-?>
-
 //Add to weapon grant queue
 function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, optional int Ammo1, optional int Ammo2)
 {
@@ -1684,11 +1652,55 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	
 	if(IsFavorite(WeaponClass, ModifierClass))
 	{
-		<? printQueueFunc('GrantFavQueue'); ?>
+		for(i = 0; i < GrantFavQueue.Length; i++)
+		{
+			if(
+				GrantFavQueue[i].WeaponClass == GW.WeaponClass &&
+				GrantFavQueue[i].ModifierClass == GW.ModifierClass
+			)
+			{
+				//override in queue weapon if this modifier is higher, otherwise discard
+				if(GW.Modifier > GrantFavQueue[i].Modifier)
+				{
+					GrantFavQueue[i].Modifier = GW.Modifier;
+					
+					if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > GrantFavQueue[i].Ammo[0])
+						GrantFavQueue[i].Ammo[0] = GW.Ammo[0];
+
+					if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > GrantFavQueue[i].Ammo[1])
+						GrantFavQueue[i].Ammo[1] = GW.Ammo[1];
+				}
+				return;
+			}
+		}
+		
+		GrantFavQueue[GrantFavQueue.Length] = GW;
 	}
 	else
 	{
-		<? printQueueFunc('GrantQueue'); ?>
+		for(i = 0; i < GrantQueue.Length; i++)
+		{
+			if(
+				GrantQueue[i].WeaponClass == GW.WeaponClass &&
+				GrantQueue[i].ModifierClass == GW.ModifierClass
+			)
+			{
+				//override in queue weapon if this modifier is higher, otherwise discard
+				if(GW.Modifier > GrantQueue[i].Modifier)
+				{
+					GrantQueue[i].Modifier = GW.Modifier;
+					
+					if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > GrantQueue[i].Ammo[0])
+						GrantQueue[i].Ammo[0] = GW.Ammo[0];
+
+					if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > GrantQueue[i].Ammo[1])
+						GrantQueue[i].Ammo[1] = GW.Ammo[1];
+				}
+				return;
+			}
+		}
+		
+		GrantQueue[GrantQueue.Length] = GW;
 	}
 }
 
@@ -1805,7 +1817,7 @@ defaultproperties
 	WeaponSpeed=0
 	HealingExpMultiplier=0 //gotten from RPGRules
 
-	LevelUpSound=Sound'<? echo($packageName); ?>.SoundEffects.LevelUp'
+	LevelUpSound=Sound'TitanRPG.SoundEffects.LevelUp'
 
 	bNetNotify=True
 	bAlwaysRelevant=False

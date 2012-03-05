@@ -120,7 +120,7 @@ defaultproperties
 	Description="Summons a friendly monster of your choice."
 	ItemName="Summoning Charm"
 	PickupClass=Class'ArtifactPickup_MonsterSummon'
-	IconMaterial=Texture'<? echo($packageName); ?>.ArtifactIcons.MonsterSummon'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.MonsterSummon'
 	HudColor=(B=96,G=64,R=192)
 	CostPerSec=0
 	Cooldown=0
