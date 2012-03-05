@@ -1,94 +1,58 @@
-TEST:
-- XP saving (CHECK)
-- Status icons (CHECK)
-- Triple healing (CHECK)
-- Max uses (blasts, self destruct) (CHECK)
-- Artifact chargeups (CHECK)
-- Vampire / Energy against empty vehicles (CHECK)
-- Vampire / Energy limits (CHECK)
-- Beacon stuck / hit Pawn (CHECK)
-- CounterShove / Inf Sturdy (CHECK)
-- Monsters falling through maps (CHECK)
+TitanRPG 1.80
+=============
 
-TODO (1.62)
-- Ballistic support (got permission)
-- OSMT integration for friendly monsters (wait for permission???)
+DONE:
+- [ABILITY] Split Starting Health <-> Max Health
+- [BUGFIX] Several status icons didn't work
 
-TODO (1.61)
+IDEAS FROM TAM:
+- [ABILITY] Bad Aura (damage to nearby players)
+- [ABILITY] Shield Jumping
+- [ABILITY] Split Mine Layer <-> Max Mines
+- [ABILITY] Energy Injection (adrenaline from passive damage)
+- [ABILITY] Anti Telefrag / Translocator
+- [ABILITY] Smart Healing -> Smart Pickups ("Collector")
+- [ABILITY] Combos
+- [ABILITY] Monster Vampirism ("Energy Link")
+- [ABILITY] Rage
+- [ABILITY] Rocket Load
+- [ABILITY] TAM damage negation (overtime, camping)
+- [ARTIFACT] Grenade Bomb
+- [ARTIFACT] Flak Shell Bomb
+- [ARTIFACT] Storm Cloud
+- [EFFECT] Desease (drains health, spreads to any player)
+- [WEAPON] Bouncy Bio Globs
+- [WEAPON] Disorientation
+
+NEW IDEAS:
+- OSMT integration for friendly monsters
+- [ADRENALINE] New concept as generic "Mana", less limited to use of LA
+- [ABILITY] Manta jump recharge
+- [ABILITY] Monster Survival
+- [ABILITY] Proximity Grenades
+- [ARTIFACT] Vehicle Summoning
+- [WEAPON] Corrosion (vehicle poison)
+- [WEAPON] Radioactivity
+- [WEAPON] Pull Forward
+
+FINISH:
+- "Favorite RPG Weapon" feature
+- Weapon Modifier system (-> Ballistic support)
+- Engineering class
+- RPGBots for Invasion
 - XP for ONS game events
-
-- Get rid of RPGAbilityCategory instances
-- Get rid of RPGWeapon
-
-- Proximity grenades
-- Fix stat points ???
-- Allow Ultima Shield for summoned monsters
-- Pull Forward weapon
-- Corrosion weapon
-- Blowback weapon (-> retal)
 - XP for damage on players
-- Manta recharge
-- Health
-
-- "Favorite RPG Weapon" feature (GUI)
-- GUI settings for status icons
 - Visualize countdowns in classic artifact view
-
-- Get RPGBots into Invasion / InvasionPro
-
-- bAllowSuicide in Ultima
-- Fix additional momentum boost with magic weapons after rpg processing (Iron Legs / CS issue)
-
-- Fix Artifacts getting lost when leaving a link turret
-
-- Fix Healing Blast not healing if you move into a vehicle
 - Ammo system for artifacts
-- AbilityLooter
+- Looter ability
 
-- Disallow multiple connections with same name and GUID ?
-
-Documentation TODO:
-- EjectorSeat
-- StatusIcons
-- ArtifactInvis
-- ArtifactUDamage
-- EXP_DestroyVehicle
-- EXP_FriendlyMonsterKill
-- RPGArtifact: Cooldown, bChargeUp, bResetCooldownAfterRespawn, bExclusive
-- AbilityShockTherapy
-- AbilityMineLayer
-- AbilityLooter
-- Mines
-- Drone
-- German translation
-- ArtifactMakeSelectedMagicWeapon
-- Stats
-- AbilityTurretsMax
-- OLTeamGames
-- ArtifactTurretSummonBase
-- EXP_TurretKill
-- KillTurrets
-- KillMonsters
-- RPGSelectionMenu
-
-Release Config TODO:
-- Ejector Seat
-- StatusIcons
-- ArtifactUDamage
-- ArtifactInvis
-- RepairLinkLevel on AbilityLoadedVehicles
-- Find and replace "UseDelay" -> "Cooldown"
-- EXP_TurretKill
-- AbCategoryEngineer
-- AbilityTurretsMax
-- AbilityConstruction
-- MutTitanRPG.MaxTurrets
-- MutTitanRPG.DisallowModifiersFor
-- WeaponMatrix.bAffectsTranslocator
-- ArtifactTurretSummon
-- WeaponBounce
-- WeaponShieldRegen
-- ArtifactTurretSummonBase
+BUGS:
+- Artifact Order is slightly broken at first spawn
+- RPG Data isn't always saved at the end of the match?
+- Charge-up "cooldowns" don't work
+- Cooldowns reset when you leave a vehicle
+- Abilities don't work in secondary seats
+- You lose your artifacts when entering a link turret
 
 DONE 1.61:
 - Got rid of RPGGameStats
