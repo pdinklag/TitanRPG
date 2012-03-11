@@ -4,9 +4,10 @@ TitanRPG is a complete standalone roleplaying game mutator for Unreal Tournament
 
 Building
 --------
-TitanRPG can be built like any other UT2004 package:
+TitanRPG can be built like any other UT2004 package. The following steps are necessary:
 
-* Add *TitanRPG* to the `EditPackages` list in your `UT2004.ini`.
+* Clone the repository into your UT2004 installation directory (so that the TitanRPG directory is on the same level as e.g. *System* or *Animations*).
+* Add `OnslaughtBP` and `TitanRPG` to the `EditPackages` list in your `UT2004.ini` file.
 * Switch to your installation's `System` directory.
 * Remove any existing `TitanRPG.u` file.
 * Execute the command line `ucc make`.
