@@ -763,7 +763,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 	local Controller KilledController;
 	local Pawn KilledVehicleDriver;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
-	local AbilityVehicleEject EjectorSeat;
+	local Ability_VehicleEject EjectorSeat;
 	local Artifact_DoubleModifier DoubleMod;
 	
 	KillDamageType = damageType;
@@ -826,7 +826,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 			while(Inv != None)
 			{
 				W = Weapon(Inv);
-				if(W != None && class'AbilityDenial'.static.CanSaveWeapon(W))
+				if(W != None && class'Ability_Denial'.static.CanSaveWeapon(W))
 				{
 					RW = RPGWeapon(W);
 					if(RW != None)
@@ -875,7 +875,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 				return true;
 			}
 			
-			EjectorSeat = AbilityVehicleEject(KilledRPRI.GetOwnedAbility(class'AbilityVehicleEject'));
+			EjectorSeat = Ability_VehicleEject(KilledRPRI.GetOwnedAbility(class'Ability_VehicleEject'));
 			if(EjectorSeat != None && EjectorSeat.HasJustEjected())
 			{
 				//get data

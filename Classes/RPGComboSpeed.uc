@@ -5,14 +5,14 @@ function StartEffect(xPawn P)
 {
 	local RPGPlayerReplicationInfo RPRI;
 	local class<xEmitter> EmitterClass;
-	local AbilitySpeed SpeedAbility;
+	local Ability_Speed SpeedAbility;
 	
 	EmitterClass = class'SpeedTrail';
 
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
 	if(RPRI != None)
 	{
-		SpeedAbility = AbilitySpeed(RPRI.GetOwnedAbility(class'AbilitySpeed'));
+		SpeedAbility = Ability_Speed(RPRI.GetOwnedAbility(class'Ability_Speed'));
 		
 		//Colored trail
 		if(SpeedAbility != None && SpeedAbility.ShouldColorSpeedTrail())

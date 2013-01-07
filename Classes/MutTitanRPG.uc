@@ -101,7 +101,7 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 	local class<RPGAbility> Loaded;
 	local int i;
 
-	Alias = Repl(Alias, "#", "Ability");
+	Alias = Repl(Alias, "#", "Ability_");
 	for(i = 0; i < Abilities.Length; i++)
 	{
 		if(string(Abilities[i].Name) ~= Alias)
@@ -119,7 +119,7 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 
 static final function string GetAbilityAlias(class<RPGAbility> AbilityClass)
 {
-	return Repl(string(AbilityClass.Name), "Ability", "#");
+	return Repl(string(AbilityClass.Name), "Ability_", "#");
 }
 
 static final function string GetGameSettingsName(GameInfo Game)

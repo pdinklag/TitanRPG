@@ -28,9 +28,9 @@ simulated function WeaponTick(float dt)
 
 function int GetMaxHealthBonus()
 {
-	local AbilityLoadedMedic LM;
+	local Ability_LoadedMedic LM;
 
-	LM = AbilityLoadedMedic(HolderRPRI.GetOwnedAbility(class'AbilityLoadedMedic'));
+	LM = Ability_LoadedMedic(HolderRPRI.GetOwnedAbility(class'Ability_LoadedMedic'));
 	if(LM != None)
 		return LM.GetHealMax();
 	else

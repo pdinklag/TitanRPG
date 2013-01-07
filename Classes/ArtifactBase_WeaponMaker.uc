@@ -82,7 +82,7 @@ state Activated
 {
 	function bool DoEffect()
 	{
-		local AbilityLoadedArtifacts LA;
+		local Ability_LoadedArtifacts LA;
 		local Inventory Copy;
 		local class<RPGWeapon> NewWeaponClass;
 		local class<Weapon> OldWeaponClass;
@@ -179,7 +179,7 @@ state Activated
 		OldWeapon.Destroy();
 		Copy.GiveTo(Instigator);
 
-		LA = AbilityLoadedArtifacts(InstigatorRPRI.GetOwnedAbility(class'AbilityLoadedArtifacts'));
+		LA = Ability_LoadedArtifacts(InstigatorRPRI.GetOwnedAbility(class'Ability_LoadedArtifacts'));
 		if(LA == None || !LA.ProtectArtifacts())
 		{
 			if(bCanBreak && Rand(3) == 0) //25% chance

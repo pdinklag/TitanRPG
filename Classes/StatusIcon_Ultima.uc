@@ -1,10 +1,10 @@
 class StatusIcon_Ultima extends RPGStatusIcon;
 
-var AbilityUltima Ultima;
+var Ability_Ultima Ultima;
 
 function Tick(float dt)
 {
-	Ultima = AbilityUltima(RPRI.GetAbility(class'AbilityUltima'));
+	Ultima = Ability_Ultima(RPRI.GetAbility(class'Ability_Ultima'));
 	bShouldTick = (Ultima == None);
 }
 

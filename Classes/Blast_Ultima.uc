@@ -34,7 +34,7 @@ function DoDamage(float LocalRadius)
 			if(TB != None && TB.Instigator != None)
 			{
 				RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(TB.Instigator.Controller);
-				if(RPRI != None && RPRI.HasAbility(class'AbilityUltimaShield') > 0)
+				if(RPRI != None && RPRI.HasAbility(class'Ability_UltimaShield') > 0)
 					continue;
 			}
 
@@ -42,7 +42,7 @@ function DoDamage(float LocalRadius)
 			if (P != None && Vehicle(P) == None && P.PlayerReplicationInfo != None)
 			{
 				RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
-				if(RPRI != None && RPRI.HasAbility(class'AbilityUltimaShield') > 0)
+				if(RPRI != None && RPRI.HasAbility(class'Ability_UltimaShield') > 0)
 					continue;
 			}
 		}

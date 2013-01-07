@@ -1,10 +1,10 @@
 class StatusIcon_VehicleEject extends RPGStatusIcon;
 
-var AbilityVehicleEject EjectorSeat;
+var Ability_VehicleEject EjectorSeat;
 
 function Tick(float dt)
 {
-	EjectorSeat = AbilityVehicleEject(RPRI.GetAbility(class'AbilityVehicleEject'));
+	EjectorSeat = Ability_VehicleEject(RPRI.GetAbility(class'Ability_VehicleEject'));
 	bShouldTick = (EjectorSeat == None);
 }
 

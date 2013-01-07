@@ -2,7 +2,7 @@ class Artifact_HealingBlast extends ArtifactBase_Blast;
 
 function Blast SpawnBlast()
 {
-	local AbilityLoadedMedic LM;
+	local Ability_LoadedMedic LM;
 	local RPGPlayerReplicationInfo RPRI;
 	local Blast_Heal Blast;
 
@@ -12,7 +12,7 @@ function Blast SpawnBlast()
 		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 		if(RPRI != None)
 		{
-			LM = AbilityLoadedMedic(RPRI.GetOwnedAbility(class'AbilityLoadedMedic'));
+			LM = Ability_LoadedMedic(RPRI.GetOwnedAbility(class'Ability_LoadedMedic'));
 			if(LM != None)
 				Blast.MaxHealth = LM.GetHealMax();
 			
