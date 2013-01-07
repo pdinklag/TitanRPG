@@ -78,6 +78,19 @@ function Scored(float ScoreDiff)
 {
 	local int i;
 	local RPGPlayerReplicationInfo RPRI;
+    local TransLauncher TL;
+    
+    //Return translocator beacon to scorer
+    TL = TransLauncher(Holder.Pawn.FindInventoryType(class'TransLauncher'));
+    if(TL != None)
+    {
+        if(TL.TransBeacon != None && !TL.TransBeacon.Disrupted())
+        {
+            TL.TransBeacon.bNoAI = true;
+            TL.TransBeacon.Destroy();
+            TL.TransBeacon = None;
+        }
+    }
 	
 	//XP for scorer
 	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Holder);
