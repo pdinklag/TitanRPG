@@ -1,4 +1,4 @@
-class WeaponPoison extends RPGWeapon
+class Weapon_Poison extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

@@ -1,4 +1,4 @@
-class WeaponPenetrating extends RPGWeapon
+class Weapon_Penetrating extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

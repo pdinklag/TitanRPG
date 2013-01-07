@@ -31,12 +31,12 @@ function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn
 defaultproperties
 {
 	bAllowInVehicle=False
-	PossibleMagicTypes(0)=Class'WeaponNullEntropy'
-	PossibleMagicTypes(1)=Class'WeaponFreeze'
-	PossibleMagicTypes(2)=Class'WeaponQuickfoot'
-	PossibleMagicTypes(3)=Class'WeaponRage'
-	PossibleMagicTypes(4)=Class'WeaponVorpal'
-	PossibleMagicTypes(5)=Class'WeaponInfSturdy'
+	PossibleMagicTypes(0)=Class'Weapon_NullEntropy'
+	PossibleMagicTypes(1)=Class'Weapon_Freeze'
+	PossibleMagicTypes(2)=Class'Weapon_Quickfoot'
+	PossibleMagicTypes(3)=Class'Weapon_Rage'
+	PossibleMagicTypes(4)=Class'Weapon_Vorpal'
+	PossibleMagicTypes(5)=Class'Weapon_InfSturdy'
 	bCanBreak=False
 	bAvoidRepetition=True
 	MinActivationTime=1.000000

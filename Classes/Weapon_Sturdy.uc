@@ -1,4 +1,4 @@
-class WeaponSturdy extends RPGWeapon
+class Weapon_Sturdy extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 	
@@ -37,6 +37,6 @@ defaultproperties
 	PatternNeg="Sturdy $W"
 	//AI
 	AIRatingBonus=0.012500
-	CountersMagic(0)=class'WeaponKnockback'
+	CountersMagic(0)=class'Weapon_Knockback'
 	CountersDamage(0)=class'DamTypeCounterShove'
 }

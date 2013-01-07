@@ -1,4 +1,4 @@
-class WeaponSuperHealer extends WeaponHealer
+class Weapon_SuperHealer extends Weapon_Healer
 	HideDropDown
 	CacheExempt;
 
@@ -48,7 +48,7 @@ simulated function string GetWeaponNameExtra()
 	
 	text $= MedicText;
 	text $= ", ";
-	text $= class'WeaponInfinity'.default.InfAmmoText;
+	text $= class'Weapon_Infinity'.default.InfAmmoText;
 	return text;
 }
 

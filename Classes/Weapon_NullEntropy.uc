@@ -1,4 +1,4 @@
-class WeaponNullEntropy extends RPGWeapon
+class Weapon_NullEntropy extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 	

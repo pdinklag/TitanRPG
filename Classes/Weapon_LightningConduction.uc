@@ -1,4 +1,4 @@
-class WeaponLightningConduction extends RPGWeapon
+class Weapon_LightningConduction extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

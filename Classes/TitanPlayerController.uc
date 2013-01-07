@@ -169,7 +169,7 @@ function SendMessage(PlayerReplicationInfo Recipient, name MessageType, byte Mes
 		//Check if Recipient is currently holding a Healing gun.
 		if(
 			Controller(Recipient.Owner).Pawn != None && 
-			WeaponHealer(Controller(Recipient.Owner).Pawn.Weapon) != None)
+			Weapon_Healer(Controller(Recipient.Owner).Pawn.Weapon) != None)
 		{
 			return; //Shut up.
 		}

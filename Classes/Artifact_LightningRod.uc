@@ -35,7 +35,7 @@ function BotFightEnemy(Bot Bot)
 		if(HasActiveArtifact(Instigator))
 			return;
 			
-		if(WeaponLightningConduction(Bot.Enemy.Weapon) != None)
+		if(Weapon_LightningConduction(Bot.Enemy.Weapon) != None)
 			return;
 	
 		if(
@@ -65,7 +65,7 @@ function BotFightEnemy(Bot Bot)
 	else
 	{
 		if(
-			WeaponLightningConduction(Bot.Enemy.Weapon) != None ||
+			Weapon_LightningConduction(Bot.Enemy.Weapon) != None ||
 			VSize(Bot.Enemy.Location - Instigator.Location) > TargetRadius)
 		{
 			Activate();

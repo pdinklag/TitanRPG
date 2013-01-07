@@ -1,4 +1,4 @@
-class WeaponHealer extends RPGWeapon
+class Weapon_Healer extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

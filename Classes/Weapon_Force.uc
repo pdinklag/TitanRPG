@@ -1,4 +1,4 @@
-class WeaponForce extends RPGWeapon
+class Weapon_Force extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

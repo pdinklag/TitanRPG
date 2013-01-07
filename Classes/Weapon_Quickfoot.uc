@@ -1,4 +1,4 @@
-class WeaponQuickfoot extends RPGWeapon
+class Weapon_Quickfoot extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

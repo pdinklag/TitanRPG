@@ -1,4 +1,4 @@
-class WeaponDamage extends RPGWeapon
+class Weapon_Damage extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

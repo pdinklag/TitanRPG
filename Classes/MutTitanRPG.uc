@@ -1271,7 +1271,7 @@ function Mutate(string MutateString, PlayerController Sender)
 				if(Args[1] ~= "None")
 					NewWeaponClass = class'RPGWeapon';
 				else
-					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("TitanRPG.Weapon" $ Args[1], class'Class'));
+					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("TitanRPG.Weapon_" $ Args[1], class'Class'));
 
 				if(NewWeaponClass != None)
 				{

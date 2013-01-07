@@ -121,7 +121,7 @@ function TryCombo(string ComboName)
 function YellAt(Pawn Moron)
 {
 	//don't yell if being healed
-	if(WeaponHealer(Moron.Weapon) == None)
+	if(Weapon_Healer(Moron.Weapon) == None)
 	{
 		if(bInvasion)
 			Super.YellAt(Moron);

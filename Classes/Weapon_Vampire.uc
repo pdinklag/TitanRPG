@@ -1,4 +1,4 @@
-class WeaponVampire extends RPGWeapon
+class Weapon_Vampire extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -27,7 +27,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	if(
 		Damage <= 0 ||
 		Victim.Health <= 0 ||
-		WeaponMagicNullifier(Victim.Weapon) != None
+		Weapon_MagicNullifier(Victim.Weapon) != None
 	)
 	{
 		return;

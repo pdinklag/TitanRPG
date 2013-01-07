@@ -1,4 +1,4 @@
-class WeaponInfSturdy extends WeaponInfinity
+class Weapon_InfSturdy extends Weapon_Infinity
 	HideDropDown
 	CacheExempt;
 
@@ -19,7 +19,7 @@ simulated function string GetWeaponNameExtra()
 	if(text != "")
 		text $= ", ";
 	
-	text $= class'WeaponSturdy'.default.SturdinessText;
+	text $= class'Weapon_Sturdy'.default.SturdinessText;
 	return text;
 }
 
@@ -39,6 +39,6 @@ defaultproperties
 	ForbiddenWeaponTypes(4)=Class'OnslaughtFull.ONSPainter'
 	//AI
 	AIRatingBonus=0.100000
-	CountersMagic(0)=class'WeaponKnockback'
+	CountersMagic(0)=class'Weapon_Knockback'
 	CountersDamage(0)=class'DamTypeCounterShove'
 }

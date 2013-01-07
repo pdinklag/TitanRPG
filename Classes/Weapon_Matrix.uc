@@ -1,4 +1,4 @@
-class WeaponMatrix extends RPGWeapon
+class Weapon_Matrix extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -29,7 +29,7 @@ simulated event WeaponTick(float dt)
 			
 			if(P.Instigator != None)
 			{
-				if(WeaponMagicNullifier(P.Instigator.Weapon) != None)
+				if(Weapon_MagicNullifier(P.Instigator.Weapon) != None)
 					continue;
 				
 				if(P.Instigator.Controller != None && P.Instigator.Controller.SameTeamAs(Instigator.Controller))

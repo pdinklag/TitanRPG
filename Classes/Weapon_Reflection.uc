@@ -1,4 +1,4 @@
-class WeaponReflection extends RPGWeapon
+class Weapon_Reflection extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -18,7 +18,7 @@ function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float
 
 	if(EffectClass == class'Effect_NullEntropy')
 	{
-		if(Causer.Pawn != None && WeaponReflection(Causer.Pawn.Weapon) == None)
+		if(Causer.Pawn != None && Weapon_Reflection(Causer.Pawn.Weapon) == None)
 		{
 			Reflected = class'Effect_NullEntropy'.static.Create(Causer.Pawn, Instigator.Controller, Duration, Modifier);
 			if(Reflected != None)
@@ -76,7 +76,7 @@ defaultproperties
 	bCanHaveZeroModifier=True
 	//AI
 	AIRatingBonus=0.025000
-	CountersMagic(0)=class'WeaponNullEntropy'
+	CountersMagic(0)=class'Weapon_NullEntropy'
 	CountersDamage(0)=class'DamTypeShockBeam'
 	CountersDamage(1)=class'DamTypeShockBall'
 	CountersDamage(2)=class'DamTypeLinkPlasma'

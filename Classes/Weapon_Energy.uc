@@ -1,4 +1,4 @@
-class WeaponEnergy extends RPGWeapon
+class Weapon_Energy extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

@@ -387,9 +387,9 @@ simulated function ModeTick(float dt)
 			//Check whether we're using a Repair Link Gun
 			for (Inv = Instigator.Inventory; Inv != None; Inv = Inv.Inventory)
 			{
-				if(WeaponRepair(Inv) != None && WeaponRepair(Inv).ModifiedWeapon == Weapon)
+				if(Weapon_Repair(Inv) != None && Weapon_Repair(Inv).ModifiedWeapon == Weapon)
 				{
-					AdjustedDamage *= 1.0 + WeaponRepair(Inv).BonusPerLevel; //The actual Repair gun effect
+					AdjustedDamage *= 1.0 + Weapon_Repair(Inv).BonusPerLevel; //The actual Repair gun effect
 					break;
 				}
 			}

@@ -1,4 +1,4 @@
-class WeaponRetaliation extends RPGWeapon
+class Weapon_Retaliation extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -14,7 +14,7 @@ function RPGAdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Instigat
 	if(DamageType == class'DamTypeCounterShove' || DamageType == class'DamTypeRetaliation')
 		return;
 		
-	if(WeaponMagicNullifier(InstigatedBy.Weapon) != None)
+	if(Weapon_MagicNullifier(InstigatedBy.Weapon) != None)
 		return;
 
 	if(InstigatedBy != None && InstigatedBy != Instigator && !InstigatedBy.Controller.SameTeamAs(Instigator.Controller))

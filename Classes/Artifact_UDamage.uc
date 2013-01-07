@@ -49,7 +49,7 @@ function BotFightEnemy(Bot Bot)
 			if(Bot.Adrenaline >= 100)
 				Chance += 0.05; //max 0.8
 				
-			if(WeaponRetaliation(Bot.Enemy.Weapon) != None)
+			if(Weapon_Retaliation(Bot.Enemy.Weapon) != None)
 				Chance -= 0.25;
 				
 			if(Bot.Enemy.Health >= 75)

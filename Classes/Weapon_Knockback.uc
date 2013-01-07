@@ -1,4 +1,4 @@
-class WeaponKnockback extends RPGWeapon
+class Weapon_Knockback extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

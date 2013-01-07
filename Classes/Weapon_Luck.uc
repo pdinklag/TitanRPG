@@ -1,4 +1,4 @@
-class WeaponLuck extends RPGWeapon
+class Weapon_Luck extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

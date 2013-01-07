@@ -1,4 +1,4 @@
-class WeaponSpam extends WeaponInfinity
+class Weapon_Spam extends Weapon_Infinity
 	HideDropDown
 	CacheExempt;
 

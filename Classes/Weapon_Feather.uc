@@ -1,4 +1,4 @@
-class WeaponFeather extends RPGWeapon
+class Weapon_Feather extends RPGWeapon
 	CacheExempt
 	HideDropDown;
 

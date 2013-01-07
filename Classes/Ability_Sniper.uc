@@ -7,7 +7,7 @@ function ModifyPawn(Pawn Other)
 	Super.ModifyPawn(Other);
 
 	if(AbilityLevel >= 2)
-		RPGWeaponClass = class'WeaponStealth';
+		RPGWeaponClass = class'Weapon_Stealth';
 	else
 		RPGWeaponClass = class'RPGWeapon';
 	

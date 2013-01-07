@@ -1,4 +1,4 @@
-class WeaponStealth extends RPGWeapon
+class Weapon_Stealth extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -305,4 +305,3 @@ defaultproperties
 	
 	StealthBonusText="Stealth damage x$1!"
 }
-

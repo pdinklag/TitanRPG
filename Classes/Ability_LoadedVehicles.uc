@@ -17,7 +17,7 @@ function ModifyPawn(Pawn Other)
 	if(AbilityLevel >= RepairLinkLevel)
 	{
 		RPRI.QueueWeapon(
-			class'RPGLinkGun', class'WeaponRepair', class'WeaponRepair'.static.GetRandomModifierLevel());
+			class'RPGLinkGun', class'Weapon_Repair', class'Weapon_Repair'.static.GetRandomModifierLevel());
 	}
 }
 

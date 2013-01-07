@@ -52,7 +52,7 @@ function DoDamage(float LocalRadius)
 			P = Pawn(victims);
 			if(P != None)
 			{
-				if(WeaponProtection(P.Weapon) != None ||
+				if(Weapon_Protection(P.Weapon) != None ||
 					class'Artifact_Protection'.static.IsActiveFor(P))
 				{
 					continue;

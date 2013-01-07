@@ -1,4 +1,4 @@
-class WeaponRepair extends WeaponInfinity
+class Weapon_Repair extends Weapon_Infinity
 	HideDropDown
 	CacheExempt;
 	

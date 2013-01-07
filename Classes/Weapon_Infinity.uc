@@ -1,4 +1,4 @@
-class WeaponInfinity extends RPGWeapon
+class Weapon_Infinity extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

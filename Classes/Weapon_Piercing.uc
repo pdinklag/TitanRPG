@@ -1,4 +1,4 @@
-class WeaponPiercing extends RPGWeapon
+class Weapon_Piercing extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -36,7 +36,7 @@ function RPGAdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, 
 	
 	DamageBonus = Old;
 	
-	if(WeaponMagicNullifier(Victim.Weapon) != None)
+	if(Weapon_MagicNullifier(Victim.Weapon) != None)
 		return;
 	
 	if(Victim.ShieldStrength > 0 && DamageType.default.bArmorStops)

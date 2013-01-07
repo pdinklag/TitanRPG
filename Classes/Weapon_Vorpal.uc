@@ -1,4 +1,4 @@
-class WeaponVorpal extends RPGWeapon
+class Weapon_Vorpal extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

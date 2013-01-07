@@ -1,4 +1,4 @@
-class WeaponShieldRegen extends RPGWeapon
+class Weapon_ShieldRegen extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
@@ -55,4 +55,3 @@ defaultproperties
 	//AI
 	AIRatingBonus=0.05
 }
-

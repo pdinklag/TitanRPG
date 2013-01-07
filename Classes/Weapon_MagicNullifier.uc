@@ -1,4 +1,4 @@
-class WeaponMagicNullifier extends RPGWeapon
+class Weapon_MagicNullifier extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 	
@@ -45,9 +45,9 @@ defaultproperties
 	ModifierOverlay=Shader'AW-2k4XP.Weapons.ShockShieldShader'
 	PatternPos="Magic Nullifying $W"
 	//AI
-	CountersMagic(0)=class'WeaponFreeze'
-	CountersMagic(1)=class'WeaponNullEntropy'
-	CountersMagic(2)=class'WeaponPoison'
-	CountersMagic(3)=class'WeaponKnockback'
+	CountersMagic(0)=class'Weapon_Freeze'
+	CountersMagic(1)=class'Weapon_NullEntropy'
+	CountersMagic(2)=class'Weapon_Poison'
+	CountersMagic(3)=class'Weapon_Knockback'
 	AIRatingBonus=0.025000
 }

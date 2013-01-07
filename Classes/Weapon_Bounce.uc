@@ -1,4 +1,4 @@
-class WeaponBounce extends RPGWeapon
+class Weapon_Bounce extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 

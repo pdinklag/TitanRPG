@@ -1,4 +1,4 @@
-class WeaponFreeze extends RPGWeapon
+class Weapon_Freeze extends RPGWeapon
 	HideDropDown
 	CacheExempt;
 
