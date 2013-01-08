@@ -1157,11 +1157,6 @@ function Mutate(string MutateString, PlayerController Sender)
 				Level.ServerTravel(Args[1] $ "?Game=" $ Game $ "?Mutator=TitanRPG.MutTitanRPG", false);
 				return;
 			}
-			else if(Args[0] ~= "genhelp")
-			{
-				class'HelpGenerator'.static.GenerateHelp(Self);
-				return;
-			}
 		}
 
 		//cheats
