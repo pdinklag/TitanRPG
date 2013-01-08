@@ -3,7 +3,7 @@ class Ability_Enchanter extends RPGAbility;
 //allowed weapon types
 var config array<class<Weapon> > ForbiddenWeapons;
 
-function bool AllowGrantWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, int Ammo1, int Ammo2) {
+function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon> ModifierClass, out int Modifier, out int Ammo1, out int Ammo2) {
     local int x;
 
     if(ModifierClass == class'RPGWeapon' && class'Util'.static.InArray(WeaponClass, ForbiddenWeapons) == -1) {
@@ -20,13 +20,8 @@ function bool AllowGrantWeapon(class<Weapon> WeaponClass, class<RPGWeapon> Modif
                 break;
             }
         }
-        
-        //override
-        RPRI.QueueWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2);
-        return false;
-    } else {
-        return true;
     }
+    return true;
 }
 
 defaultproperties

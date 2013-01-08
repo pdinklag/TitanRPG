@@ -535,11 +535,10 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 
 /*
     Called by RPGPlayerReplicationInfo when a weapon is about to be granted to the
-    owning player. If this function returns true, the weapon will be granted.
-    If it returns false, it will not be granted. Return false and queue a new weapon to
-    override this, but watch out for endless loops!
+    owning player. If this function returns true, the weapon will be granted with the applied.
+    modifications. If it returns false, it will not be granted at all.
 */
-function bool AllowGrantWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, int Ammo1, int Ammo2) {
+function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon> ModifierClass, out int Modifier, out int Ammo1, out int Ammo2) {
     return true;
 }
 

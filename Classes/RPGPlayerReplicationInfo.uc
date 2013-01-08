@@ -1608,6 +1608,7 @@ function GrantQueuedWeapon(GrantWeapon GW)
 	{
 		RW.SetModifier(GW.Modifier);
 		RW.GiveTo(Controller.Pawn);
+        RW.FillToInitialAmmo();
 		RW.Identify(true); //TODO bNoUnidentified
 		
 		if(GW.Ammo[0] != 0) RW.SetAmmo(0, GW.Ammo[0]);
@@ -1644,10 +1645,14 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 	local int i;
 	local GrantWeapon GW;
     
+    if(ModifierClass == None) {
+        ModifierClass = class'RPGWeapon';
+    }
+    
     for(i = 0; i < Abilities.Length; i++) {
         if(Abilities[i].bAllowed) {
-            if(!Abilities[i].AllowGrantWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
-                return; //not allowed (possibly overridden
+            if(!Abilities[i].ModifyGrantedWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
+                return; //not granted
             }
         }
     }

@@ -16,7 +16,7 @@ defaultproperties
 {
 	AbilityName="Arsenal"
 	StatName="Max Ammo Bonus"
-	Description="Increases your maximum ammunition for any weapon type (except for super weapons) by $1 per level."
+	Description="Increases your maximum, starting and picked up ammunition for any weapon type (except for super weapons) by $1 per level."
 	MaxLevel=10
 	StartingCost=5
 	BonusPerLevel=0.05
