@@ -18,7 +18,7 @@ defaultproperties
 	Description="Allows you to gain experience for healing teammates with Medic items.|Each level grants an additional $1 experience from healing."
 	StartingCost=10
 	MaxLevel=9
-	RequiredAbilities(0)=(AbilityClass=class'Ability_LoadedMedic',Level=1)
-	BonusPerLevel=0.010000
+	RequiredAbilities(0)=(AbilityClass=class'Ability_Medic',Level=1)
+	BonusPerLevel=0.01
 	Category=class'AbilityCategory_Medic'
 }

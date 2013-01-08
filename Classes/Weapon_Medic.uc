@@ -1,4 +1,4 @@
-class Weapon_SuperHealer extends Weapon_Healer
+class Weapon_Medic extends Weapon_Healer
 	HideDropDown
 	CacheExempt;
 
@@ -28,9 +28,9 @@ simulated function WeaponTick(float dt)
 
 function int GetMaxHealthBonus()
 {
-	local Ability_LoadedMedic LM;
+	local Ability_Medic LM;
 
-	LM = Ability_LoadedMedic(HolderRPRI.GetOwnedAbility(class'Ability_LoadedMedic'));
+	LM = Ability_Medic(HolderRPRI.GetOwnedAbility(class'Ability_Medic'));
 	if(LM != None)
 		return LM.GetHealMax();
 	else

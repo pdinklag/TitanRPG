@@ -1,11 +1,11 @@
-class Artifact_MakeSuperHealer extends ArtifactBase_WeaponMaker hidedropdown;
+class Artifact_MakeMedicWeapon extends ArtifactBase_WeaponMaker hidedropdown;
 
 function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
 {
-	if(Weapon_SuperHealer(Other.Weapon) != None)
+	if(Weapon_Medic(Other.Weapon) != None)
 		return class'RPGWeapon';
 	else
-		return class'Weapon_SuperHealer';
+		return class'Weapon_Medic';
 }
 
 defaultproperties

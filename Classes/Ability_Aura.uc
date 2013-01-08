@@ -102,7 +102,7 @@ defaultproperties
 	StartingCost=10
 	CostAddPerLevel=0
 	MaxLevel=5
-	RequiredAbilities(0)=(AbilityClass=Class'Ability_LoadedMedic',Level=3)
+	RequiredAbilities(0)=(AbilityClass=Class'Ability_Medic',Level=3)
 	Category=class'AbilityCategory_Medic'
 }
 
