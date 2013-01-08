@@ -442,8 +442,13 @@ function ModifyPawn(Pawn Other)
 	
 	for(x = 0; x < default.GrantItem.Length; x++)
 	{
-		if(AbilityLevel >= default.GrantItem[x].Level)
-			class'Util'.static.GiveInventory(Other, default.GrantItem[x].InventoryClass);
+		if(AbilityLevel >= default.GrantItem[x].Level) {
+            if(ClassIsChildOf(default.GrantItem[x].InventoryClass, class'Weapon')) {
+                RPRI.QueueWeapon(class<Weapon>(default.GrantItem[x].InventoryClass), class'RPGWeapon', 0, 0, 0);
+            } else {
+                class'Util'.static.GiveInventory(Other, default.GrantItem[x].InventoryClass);
+            }
+        }
 	}
 }
 
@@ -526,6 +531,16 @@ function bool PreventSever(Pawn Killed, name boneName, int Damage, class<DamageT
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
 	return false;
+}
+
+/*
+    Called by RPGPlayerReplicationInfo when a weapon is about to be granted to the
+    owning player. If this function returns true, the weapon will be granted.
+    If it returns false, it will not be granted. Return false and queue a new weapon to
+    override this, but watch out for endless loops!
+*/
+function bool AllowGrantWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, int Modifier, int Ammo1, int Ammo2) {
+    return true;
 }
 
 /*

@@ -46,6 +46,5 @@ defaultproperties
 	BonusPerLevel=0.500000
 	RequiredAbilities(0)=(AbilityClass=Class'Ability_AdrenalineMax',Level=10)
 	RequiredAbilities(1)=(AbilityClass=Class'Ability_DamageBonus',Level=6)
-	ForbiddenAbilities(0)=(AbilityClass=Class'Ability_LoadedWeapons',Level=1)
 	Category=class'AbilityCategory_Adrenaline'
 }

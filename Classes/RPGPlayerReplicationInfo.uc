@@ -1643,7 +1643,15 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 {
 	local int i;
 	local GrantWeapon GW;
-	
+    
+    for(i = 0; i < Abilities.Length; i++) {
+        if(Abilities[i].bAllowed) {
+            if(!Abilities[i].AllowGrantWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
+                return; //not allowed (possibly overridden
+            }
+        }
+    }
+
 	GW.WeaponClass = WeaponClass;
 	GW.ModifierClass = ModifierClass;
 	GW.Modifier = Modifier;
