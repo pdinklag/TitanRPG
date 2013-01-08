@@ -1,4 +1,4 @@
-class Ability_LoadedVehicles extends RPGAbility;
+class Ability_VehicleTools extends RPGAbility;
 
 var config int RepairLinkLevel;
 
