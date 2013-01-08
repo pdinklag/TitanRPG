@@ -100,7 +100,13 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 {
 	local class<RPGAbility> Loaded;
 	local int i;
-
+    
+    //Config ability
+    if(Left(Alias, 1) == "@") {
+        return class'RPGConfigAbility'.static.Resolve(Mid(Alias, 1));
+    }
+    
+    //Normal abilities
 	Alias = Repl(Alias, "#", "Ability_");
 	for(i = 0; i < Abilities.Length; i++)
 	{
@@ -119,7 +125,14 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 
 static final function string GetAbilityAlias(class<RPGAbility> AbilityClass)
 {
-	return Repl(string(AbilityClass.Name), "Ability_", "#");
+    local class<RPGGeneratedAbility> GenClass;
+
+    GenClass = class<RPGGeneratedAbility>(AbilityClass);
+    if(GenClass != None) {
+        return "@" $ GenClass.default.Module.ModuleName;
+    } else {
+        return Repl(string(AbilityClass.Name), "Ability_", "#");
+    }
 }
 
 static final function string GetGameSettingsName(GameInfo Game)
@@ -153,6 +166,9 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 
 event PreBeginPlay()
 {
+    local array<string> ConfigAbilityNames;
+    local RPGConfigAbility Module;
+    local class<RPGAbility> AbilityClass;
 	local int i, x;
 	
 	if(!Level.Game.IsA('Invasion'))
@@ -164,7 +180,23 @@ event PreBeginPlay()
 	//Register stats as abilities internally, makes replication easier
 	for(i = 0; i < Stats.Length; i++)
 		Abilities[Abilities.Length] = Stats[i];
-	
+
+    //Generate ability modules
+    class'RPGConfigAbility'.static.ResetAll();
+    
+    ConfigAbilityNames = class'RPGConfigAbility'.static.GetPerObjectNames("TitanRPG", string(class'RPGConfigAbility'.name));
+    for(i = 0; i < ConfigAbilityNames.Length; i++) {
+        Module = new(None, ConfigAbilityNames[i]) class'RPGConfigAbility';
+        Module.ModuleName = ConfigAbilityNames[i];
+        AbilityClass = Module.InitAbility();
+        if(AbilityClass != None) {
+            Abilities[Abilities.Length] = AbilityClass;
+        } else {
+            Warn("Failed to initialize ability for module" @ Module.ModuleName);
+            break;
+        }
+    }
+
 	//Check abilities
 	x = 0;
 	i = 0;
