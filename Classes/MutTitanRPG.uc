@@ -1484,7 +1484,7 @@ defaultproperties
 	SuperAmmoClasses(2)=class'XWeapons.TransAmmo'
 	bAddToServerPackages=True
 	GroupName="TitanRPG"
-	FriendlyName="TitanRPG 1.70.4" //also used in Server Browser
+	FriendlyName="TitanRPG 1.70.5" //also used in Server Browser
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"
