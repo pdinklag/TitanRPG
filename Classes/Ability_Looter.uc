@@ -17,7 +17,7 @@ function ScoreKill(Controller Killed, class<DamageType> DamageType)
 	local Pawn Victim;
 	
 	Victim = Killed.Pawn;
-	if(Victim != None)
+	if(Victim != None && Victim.IsA('xPawn'))
 	{
 		for(i = 0; i < DropItems.Length; i++)
 		{
@@ -46,10 +46,10 @@ function ScoreKill(Controller Killed, class<DamageType> DamageType)
 			}
 			
 			//Spawn pickup
-			Pickup = Spawn(PickupClass, None, '', Victim.Location);
+			Pickup = Spawn(PickupClass, None, '', Victim.Location + Victim.CollisionHeight * vect(0, 0, 1));
 			Pickup.InitDroppedPickupFor(Pickup.Inventory);
-			Pickup.Velocity = VRand() * RandRange(10.0f, 20.0f);
-			Pickup.Velocity.Z = FMin(5.0f, Abs(Pickup.Velocity.Z));
+			Pickup.Velocity = VRand() * RandRange(100.0f, 200.0f);
+			Pickup.Velocity.Z = FMin(200, Abs(Pickup.Velocity.Z));
 		}
 	}
 }
