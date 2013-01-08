@@ -28,6 +28,8 @@ var Sound CantUseSound; //played when CanActivate() fails
 var config int MaxUses; //num uses left
 var int NumUses;
 
+var bool bHeld; //true if this artifact was ever held by anybody (used for initial charge-up)
+
 //Selection menu
 var bool bSelection, bInSelection;
 var int SelectedOption;
@@ -179,14 +181,14 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 	
 	if(InstigatorRPRI != None)
 		InstigatorRPRI.ModifyArtifact(Self);
+        
+    if(bChargeUp && !bHeld) {
+        DoCooldown();
+    }
+    
+    bHeld = True;
 
-	if(Level.TimeSeconds > NextUseTime && bResetCooldownOnRespawn)
-	{
-		if(bChargeUp)
-			DoCooldown();
-	}
-	else
-	{
+	if(Level.TimeSeconds < NextUseTime) {
 		ClientNotifyCooldown(NextUseTime - Level.TimeSeconds);
 	}
 	
