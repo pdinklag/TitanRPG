@@ -11,7 +11,6 @@ struct StoredWeapon
 };
 var array<StoredWeapon> StoredWeapons;
 
-
 /*
 	This isn't beautiful, but I can't think of any other way to describe this...
 	ExtraSavingLevel determines the level from which on weapons are saved when
@@ -21,23 +20,10 @@ var array<StoredWeapon> StoredWeapons;
 	but in TitanRPG it's not featured before level 3.
 */
 var config int ExtraSavingLevel;
-
-var bool bTC0X; //for BattleMode's ONSRPG compatibility
+var config int StoreAllLevel;
 
 simulated function int Cost()
 {
-    if(RPRI != None && AbilityLevel == (MaxLevel - 1)) //extra requirement for the final level
-    {
-
-		if(
-			RPRI.HasAbility(class'Ability_LoadedArtifacts') == 0 &&
-			(!bTC0X || RPRI.HasAbility(class'Ability_LoadedMedic') == 0) //in ONSRPG, Loaded Medic works too
-		)
-		{
-			return 0;
-		}
-    }
-	
     return Super.Cost();
 }
 
@@ -100,7 +86,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	if(AbilityLevel > 1)
 	{
 		W = None;
-		if(AbilityLevel >= MaxLevel)
+		if(AbilityLevel >= StoreAllLevel)
 		{
 			//store all weapons
 			for(Inv = Killed.Inventory; Inv != None; Inv = Inv.Inventory)
@@ -198,13 +184,12 @@ function ModifyPawn(Pawn Other)
 
 defaultproperties
 {
-	bTC0X=False
 	AbilityName="Denial"
 	LevelDescription(0)="Level 1 of this ability prevents you from dropping your weapon when you die."
 	LevelDescription(1)="Level 2 allows you to respawn with the weapon and ammo you were using when you died (unless you died in a vehicle or if you were holding a super weapon or the Ball Launcher)."
 	LevelDescription(2)="Level 3 saves your last selected weapon even when you die in a vehicle. If you were holding the Ball Launcher, your previously selected weapon is saved."
 	LevelDescription(3)="If you have Loaded Artifacts, you may buy Level 4 which always saves all of your weapons (save for super weapons)."
-	MaxLevel=4
+	MaxLevel=3
 	bUseLevelCost=true
 	LevelCost(0)=10
 	LevelCost(1)=20
@@ -219,5 +204,6 @@ defaultproperties
 	ForbiddenWeaponTypes(5)=class'UT2k4AssaultFull.Weapon_SpaceFighter_Skaarj'
 	ForbiddenWeaponTypes(6)=class'UT2k4Assault.Weapon_Turret_Minigun' //however this should happen...
 	ExtraSavingLevel=3
+	StoreAllLevel=4
 	Category=class'AbilityCategory_Weapons'
 }

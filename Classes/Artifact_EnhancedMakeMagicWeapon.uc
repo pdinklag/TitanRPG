@@ -37,7 +37,6 @@ defaultproperties
 	PossibleMagicTypes(3)=Class'Weapon_Rage'
 	PossibleMagicTypes(4)=Class'Weapon_Vorpal'
 	PossibleMagicTypes(5)=Class'Weapon_InfSturdy'
-	bCanBreak=False
 	bAvoidRepetition=True
 	MinActivationTime=1.000000
 	CostPerSec=150

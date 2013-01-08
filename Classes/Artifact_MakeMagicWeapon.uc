@@ -35,7 +35,6 @@ function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn
 
 defaultproperties
 {
-	bCanBreak=True
 	bAvoidRepetition=True
 	MinActivationTime=1.000000
 	CostPerSec=25

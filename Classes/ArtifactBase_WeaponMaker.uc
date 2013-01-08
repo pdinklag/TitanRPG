@@ -1,7 +1,6 @@
 class ArtifactBase_WeaponMaker extends ArtifactBase_DelayedUse
 	abstract;
 
-var config bool bCanBreak;
 var config bool bAvoidRepetition;
 
 var config array<class<Weapon> > ForbiddenWeaponTypes;
@@ -82,7 +81,7 @@ state Activated
 {
 	function bool DoEffect()
 	{
-		local Ability_LoadedArtifacts LA;
+		//local Ability_LoadedArtifacts LA;
 		local Inventory Copy;
 		local class<RPGWeapon> NewWeaponClass;
 		local class<Weapon> OldWeaponClass;
@@ -179,6 +178,8 @@ state Activated
 		OldWeapon.Destroy();
 		Copy.GiveTo(Instigator);
 
+        //Former breaking logic
+        /*
 		LA = Ability_LoadedArtifacts(InstigatorRPRI.GetOwnedAbility(class'Ability_LoadedArtifacts'));
 		if(LA == None || !LA.ProtectArtifacts())
 		{
@@ -192,6 +193,7 @@ state Activated
 				Destroy();
 			}
 		}
+        */
 		
 		return true;
 	}
