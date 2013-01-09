@@ -1,4 +1,4 @@
-class WeaponModifier_Sturdy extends WeaponModifier_Infinity;
+class WeaponModifier_Sturdy extends RPGWeaponModifier;
 
 var localized string SturdyText;
 
@@ -16,8 +16,6 @@ simulated function BuildDescription()
 
 defaultproperties
 {
-	bAllowForSpecials=False
-
 	SturdyText="sturdiness"
 	bCanHaveZeroModifier=True
 	DamageBonus=0.040000

@@ -34,7 +34,7 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 		return;
 	}
 
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < Weapon.NUM_FIRE_MODES; i++) {
         FireMode = Weapon.GetFireMode(i);
 		if (InstantFire(FireMode) != None && InstantFire(FireMode).DamageType == DamageType) {
 			//HACK - compensate for shock rifle not firing on crosshair

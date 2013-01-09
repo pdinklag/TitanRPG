@@ -86,9 +86,9 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 			if(WF != None)
 			{
 				if(WF.IsA('ProjectileFire'))
-					ProjectileFire(WF).SpawnProjectile(HitLocation, ReflectDir);
+					ProjectileFire(WF).SpawnProjectile(HitLocation + Instigator.CollisionRadius * vector(ReflectDir), ReflectDir);
 				else if(WF.IsA('InstantFire'))
-					InstantFire(WF).DoTrace(HitLocation, ReflectDir);
+					InstantFire(WF).DoTrace(HitLocation + Instigator.CollisionRadius * vector(ReflectDir), ReflectDir);
 			}
 			else
 			{
