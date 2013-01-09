@@ -25,11 +25,14 @@ function RPGTick(float dt) {
 			
 			if(P.Instigator != None)
 			{
+                if(!class'DevoidEffect_Matrix'.static.CanBeApplied(P.Instigator, Instigator.Controller))
+                    continue;
+            
 				if(Weapon_MagicNullifier(P.Instigator.Weapon) != None)
 					continue;
 				
-				if(P.Instigator.Controller != None && P.Instigator.Controller.SameTeamAs(Instigator.Controller))
-					continue;
+				//if(P.Instigator.Controller != None && P.Instigator.Controller.SameTeamAs(Instigator.Controller))
+				//	continue;
 			}
 
 			Identify();

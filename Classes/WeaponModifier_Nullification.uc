@@ -5,6 +5,8 @@ var localized string MagicNullText;
 function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
 {
 	if(
+        EffectClass == class'DevoidEffect_Matrix' ||
+        EffectClass == class'DevoidEffect_Vampire' ||
 		EffectClass == class'Effect_Freeze' ||
 		EffectClass == class'Effect_Knockback' ||
 		EffectClass == class'Effect_NullEntropy' ||

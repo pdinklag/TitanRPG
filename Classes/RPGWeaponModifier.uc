@@ -42,9 +42,9 @@ var string Description;
 
 replication
 {
-	reliable if(Role == ROLE_Authority && bNetOwner && bNetDirty)
+	reliable if(Role == ROLE_Authority && bNetDirty)
 		Weapon, bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
-	
+    
 	reliable if(Role == ROLE_Authority)
 		ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
 }
