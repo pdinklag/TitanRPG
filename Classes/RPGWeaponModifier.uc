@@ -6,6 +6,7 @@ class RPGWeaponModifier extends ReplicationInfo abstract
 
 //Weapon
 var Weapon Weapon;
+var RPGPlayerReplicationInfo RPRI;
 var bool bActive;
 
 //Modifier level
@@ -166,17 +167,23 @@ function SetModifier(int x)
 	if(bIdentified)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Weapon.class, Modifier);
+		ClientConstructItemName(Instigator, Weapon.class, Modifier);
 	}
 	
 	if(bWasActive)
 		SetActive(true);
 }
 
-simulated function ClientConstructItemName(class<Weapon> SyncWeaponClass, int SyncModifier)
+simulated function ClientConstructItemName(Pawn Inst, class<Weapon> SyncWeaponClass, int SyncModifier)
 {
-	if(Role < ROLE_Authority)
-		Weapon.ItemName = ConstructItemName(SyncWeaponClass, SyncModifier);
+	if(Role < ROLE_Authority) {
+        Weapon.ItemName = ConstructItemName(SyncWeaponClass, SyncModifier);
+
+        Inst.PendingWeapon = Weapon;
+        Weapon.PutDown();
+        
+        Description = ""; 
+    }
 }
 
 simulated event PostBeginPlay()
@@ -198,6 +205,12 @@ simulated event PostBeginPlay()
 		
 		Weapon.bCanThrow = bCanThrow;
 		Instigator = Weapon.Instigator;
+        
+        if(Instigator.PlayerReplicationInfo != None) {
+            RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Instigator.PlayerReplicationInfo);
+        } else {
+            RPRI = None;
+        }
 	}
 }
 
@@ -234,7 +247,8 @@ simulated event Tick(float dt)
 		
 		if(bActive)
 			RPGTick(dt);
-	}
+	} else {
+    }
 }
 
 function Identify(optional bool bReIdentify)
@@ -242,17 +256,20 @@ function Identify(optional bool bReIdentify)
 	if(!bIdentified || bReIdentify)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Weapon.class, Modifier);
+		ClientConstructItemName(Instigator, Weapon.class, Modifier);
 
 		if(bActive)
 		{
 			SetOverlay();
 		
+            //The weapon is re-selected, that should be information enough
+            /*
 			if(Instigator.Controller.IsA('PlayerController'))
 			{
 				PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
 					class'LocalMessage_NewIdentify', 0,,, Self);
 			}
+            */
 		}
 
 		bIdentified = true;
@@ -307,6 +324,7 @@ simulated function PostRender(Canvas C); //called client-side by the Interaction
 
 function RPGTick(float dt); //called only if weapon is active
 
+//TODO hook
 function WeaponFire(byte Mode); //called when weapon just fired
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
@@ -404,7 +422,7 @@ defaultproperties
 	bSkipActorPropertyReplication=True
 	bOnlyDirtyReplication=True
 	bReplicateMovement=False
-	bReplicateInstigator=True
+	bReplicateInstigator=False //gotta do that myself
 	bMovable=False
 	bHidden=True
 	

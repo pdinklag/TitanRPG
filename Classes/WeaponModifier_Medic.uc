@@ -13,10 +13,8 @@ function RPGTick(float dt)
 
 function int GetMaxHealthBonus()
 {
-	local RPGPlayerReplicationInfo RPRI;
 	local Ability_Medic LM;
 
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
 	if(RPRI != None)
 	{
 		LM = Ability_Medic(RPRI.GetOwnedAbility(class'Ability_Medic'));

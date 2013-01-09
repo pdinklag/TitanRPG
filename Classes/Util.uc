@@ -454,6 +454,18 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat, 'TitanRPG');
 }
 
+static function SetWeaponAmmo(Weapon W, int Mode, int Ammo) {
+    local int Diff;
+    
+    Diff = Ammo - W.AmmoAmount(Mode);
+    Log("SetWeaponAmmo" @ W @ Mode @ Ammo @ "- Diff =" @ Diff);
+    if(Diff > 0) {
+        W.AddAmmo(Diff, Mode);
+    } else if(Diff < 0) {
+        W.ConsumeAmmo(Mode, -Diff);
+    }
+}
+
 defaultproperties
 {
 	HighlightColor=(R=255,G=255,B=255,A=255);

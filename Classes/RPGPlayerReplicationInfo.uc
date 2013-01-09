@@ -1601,19 +1601,34 @@ function ServerFavoriteWeapon()
 //grant queued weapons
 function GrantQueuedWeapon(GrantWeapon GW)
 {
+    local Weapon W;
 	local RPGWeapon RW;
 
-	RW = RPGWeapon(CreateWeapon(GW.WeaponClass, GW.ModifierClass));
-	if(RW != None)
-	{
-		RW.SetModifier(GW.Modifier);
-		RW.GiveTo(Controller.Pawn);
-        RW.FillToInitialAmmo();
-		RW.Identify(true); //TODO bNoUnidentified
-		
-		if(GW.Ammo[0] != 0) RW.SetAmmo(0, GW.Ammo[0]);
-		if(GW.Ammo[1] != 0) RW.SetAmmo(1, GW.Ammo[1]);
-	}
+    if(RPGMut.bAllowMagicWeapons) {
+        RW = RPGWeapon(CreateWeapon(GW.WeaponClass, GW.ModifierClass));
+        if(RW != None)
+        {
+            RW.SetModifier(GW.Modifier);
+            RW.Identify(true); //TODO bNoUnidentified
+        }
+        W = RW;
+    } else {
+        W = Controller.Pawn.Spawn(GW.WeaponClass);
+    }
+
+    if(W != None) {
+        W.GiveTo(Controller.Pawn);
+        W.FillToInitialAmmo();
+        
+        //TODO -1 for max out
+        if(GW.Ammo[0] > 0) {
+            class'Util'.static.SetWeaponAmmo(W, 0, GW.Ammo[0]);
+        }
+        
+        if(GW.Ammo[1] > 0) {
+            class'Util'.static.SetWeaponAmmo(W, 1, GW.Ammo[1]);
+        }
+    }
 }
 
 function ProcessGrantQueue()
@@ -1644,7 +1659,7 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
 {
 	local int i;
 	local GrantWeapon GW;
-    
+
     if(ModifierClass == None) {
         ModifierClass = class'RPGWeapon';
     }
@@ -1655,6 +1670,10 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeapon> ModifierClass, 
                 return; //not granted
             }
         }
+    }
+    
+    if(!RPGMut.bAllowMagicWeapons) {
+        GW.ModifierClass = None;
     }
 
 	GW.WeaponClass = WeaponClass;

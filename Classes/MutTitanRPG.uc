@@ -387,6 +387,21 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return true;
 	}
 	
+    //Override locker weapons
+    if(Other.IsA('WeaponLocker')) {
+        Locker = WeaponLocker(Other);
+    
+        for(i = 0; i < Locker.Weapons.length; i++) {
+            if(Locker.Weapons[i].WeaponClass != None) {
+                ClassName = String(Locker.Weapons[i].WeaponClass);
+                NewClassName = GetInventoryClassOverride(ClassName);
+
+                if(!(NewClassName ~= ClassName))
+                    Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+            }
+        }
+    }
+    
 	if(bAllowMagicWeapons)
 	{
 		//Replace weapon pickup
@@ -405,26 +420,14 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
 		{
 			Locker = WeaponLocker(Other);
-			RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "TitanRPG.RPGWeaponLocker"));
-			
-			if(RPGLocker != None)
-			{
-				RPGLocker.SetLocation(Locker.Location);
-				RPGLocker.ReplacedLocker = Locker;
-				Locker.GotoState('Disabled');
-			}
-
-			for(i = 0; i < Locker.Weapons.length; i++)
-			{
-				if(Locker.Weapons[i].WeaponClass != None)
-				{
-					ClassName = String(Locker.Weapons[i].WeaponClass);
-					NewClassName = GetInventoryClassOverride(ClassName);
-					
-					if(!(NewClassName ~= ClassName))
-						Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
-				}
-			}
+            RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "TitanRPG.RPGWeaponLocker"));
+            
+            if(RPGLocker != None)
+            {
+                RPGLocker.SetLocation(Locker.Location);
+                RPGLocker.ReplacedLocker = Locker;
+                Locker.GotoState('Disabled');
+            }
 			return true;
 		}
 		
@@ -462,10 +465,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 			}
 		}
 		
-		//Hack for AmmoMax (from UT2004RPG, not sure exactly what this is needed for)
-		if(GameSettings.WeaponModifierChance <= 0)
-			W.bNoAmmoInstances = false;
-		
+		//W.bNoAmmoInstances = false; //always use ammo instances (will be required for weapon modifiers)!
 		return true;
 	}
 	
@@ -1264,11 +1264,13 @@ function Mutate(string MutateString, PlayerController Sender)
 				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("TitanRPG.WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
 				{
-					WM = WMClass.static.Modify(
-						Cheat.Weapon, WMClass.static.GetRandomModifierLevel(), true, false, true);
-
+                    x = WMClass.static.GetRandomModifierLevel();
+                
 					if(Args.Length > 2 && Args[2] != "")
-						WM.SetModifier(int(Args[2]));
+						x = int(Args[2]);
+                
+					WM = WMClass.static.Modify(
+						Cheat.Weapon, x, true, false, true);
 				}
 				else
 				{
