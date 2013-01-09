@@ -151,6 +151,7 @@ simulated function ModeTick(float dt)
 	local Inventory Inv;
 	local HealableDamageInv Healable;
 	local RPGPlayerReplicationInfo RPRI;
+    local RPGWeaponModifier WM;
 
     if ( !bIsFiring )
     {
@@ -393,6 +394,13 @@ simulated function ModeTick(float dt)
 					break;
 				}
 			}
+            
+            //Check whether we're using a Repair weapon modifier
+            WM = class'RPGWeaponModifier'.static.GetFor(Weapon);
+            if(WeaponModifier_Repair(WM) != None) {
+                WM.Identify();
+                AdjustedDamage *= 1.0 + WM.Modifier * WM.BonusPerLevel; //The actual Repair gun effect
+            }
 			
 			if(Instigator.HasUDamage())
 				AdjustedDamage *= 2;
