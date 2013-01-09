@@ -240,6 +240,18 @@ function NotifyTakeHit(pawn InstigatedBy, vector HitLocation, int Damage, class<
 	}
 }
 
+simulated function float RateWeapon(Weapon w)
+{
+    local RPGWeaponModifier WM;
+
+    WM = class'RPGWeaponModifier'.static.GetFor(W);
+    if(WM != None) {
+        return (WM.GetAIRating() + FRand() * 0.05);
+    } else {
+        return Super.RateWeapon(w);
+    }
+}
+
 //InvasionPro
 event Tick( float DeltaTime )
 {

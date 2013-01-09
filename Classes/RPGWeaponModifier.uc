@@ -345,7 +345,6 @@ function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float
 	return true;
 }
 
-//TODO: hook into RPGBot
 function float GetAIRating()
 {
 	return Weapon.GetAIRating() * (1.0f + AIRatingBonus);
