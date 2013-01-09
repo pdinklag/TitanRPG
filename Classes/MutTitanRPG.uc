@@ -327,6 +327,8 @@ function string GetInventoryClassOverride(string InventoryClassName)
 		return "TitanRPG.RPGMineLayer";
 	else if(InventoryClassName ~= "XWeapons.BallLauncher")
 		return "TitanRPG.RPGBallLauncher";
+	else if(InventoryClassName ~= "UTClassic.ClassicSniperRifle")
+		return "TitanRPG.RPGClassicSniperRifle";
 
 	return InventoryClassName;
 }

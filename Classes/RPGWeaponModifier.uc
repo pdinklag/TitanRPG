@@ -46,7 +46,7 @@ replication
 		Weapon, bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
     
 	reliable if(Role == ROLE_Authority)
-		ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
+		ClientSetInstigator, ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
 }
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
@@ -247,7 +247,11 @@ simulated event Tick(float dt)
 		
 		if(bActive)
 			RPGTick(dt);
-	} else {
+	}
+    
+    if(Role < ROLE_Authority || Level.NetMode == NM_Standalone) {
+        if(bActive)
+            ClientRPGTick(dt);
     }
 }
 
@@ -285,6 +289,7 @@ function SetActive(bool bActivate)
 		if(bIdentified)
 			SetOverlay();
 		
+        ClientSetInstigator();
 		ClientStartEffect();
 	}
 	else if(!bActivate && bActive)
@@ -317,12 +322,17 @@ simulated function ClientSetOverlay()
 function StartEffect(); //weapon gets drawn
 function StopEffect(); //weapon gets put down
 
+simulated function ClientSetInstigator() {
+    Instigator = Weapon.Instigator;
+}
+
 simulated function ClientStartEffect();
 simulated function ClientStopEffect();
 
 simulated function PostRender(Canvas C); //called client-side by the Interaction
 
 function RPGTick(float dt); //called only if weapon is active
+simulated function ClientRPGTick(float dt);
 
 //TODO hook
 function WeaponFire(byte Mode); //called when weapon just fired
