@@ -9,8 +9,6 @@ state Activated
 {
 	function BeginState()
 	{
-		Duration = 1; //don't destroy immediately, so stacking can be handled properly
-		
 		Super.BeginState();
 		
 		DoEffect();
@@ -24,4 +22,5 @@ state Activated
 
 defaultproperties
 {
+    TimerInterval=0 //display message only one
 }

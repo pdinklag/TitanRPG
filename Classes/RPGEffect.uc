@@ -36,11 +36,9 @@ var Material EffectOverlay;
 var class<xEmitter> xEmitterClass;
 
 var class<RPGEffectMessage> EffectMessageClass;
-
-//TODO: StatusIcon
+var class<RPGStatusIcon> StatusIconClass;
 
 //Timing
-var bool bStart;
 var float LastStartTime;
 var float LastEffectTime;
 var float EffectLimitInterval; //to avoid sounds and effects being spammed like hell
@@ -246,6 +244,8 @@ state Activated
 
 	function BeginState()
 	{
+        local RPGPlayerReplicationInfo RPRI;
+    
 		if(ShouldDisplayEffect())
 		{
 			if(EffectSound != None && Level.TimeSeconds - LastStartTime >= EffectLimitInterval)
@@ -256,10 +256,17 @@ state Activated
 			
 			DisplayEffect();
 		}
+        
+        if(StatusIconClass != None) {
+            RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Instigator.PlayerReplicationInfo);
+            if(RPRI != None) {
+                RPRI.ClientCreateStatusIcon(StatusIconClass);
+            }
+        }
 		
 		LastStartTime = Level.TimeSeconds;
 		
-		if(Duration >= TimerInterval)
+		if(Duration >= TimerInterval && TimerInterval > 0)
 			SetTimer(TimerInterval, true);
 	}
 	
@@ -276,12 +283,6 @@ state Activated
 			Destroy();
 			return;
 		}
-		
-		if(bStart)
-		{
-			Timer();
-			bStart = false;
-		}
 	
 		if(!bPermanent)
 		{
@@ -294,6 +295,15 @@ state Activated
 	
 	function EndState()
 	{
+        local RPGPlayerReplicationInfo RPRI;
+    
+        if(StatusIconClass != None) {
+            RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Instigator.PlayerReplicationInfo);
+            if(RPRI != None) {
+                RPRI.ClientRemoveStatusIcon(StatusIconClass);
+            }
+        }
+    
 		SetTimer(0, false);
 	}
 	
