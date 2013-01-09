@@ -458,7 +458,6 @@ static function SetWeaponAmmo(Weapon W, int Mode, int Ammo) {
     local int Diff;
     
     Diff = Ammo - W.AmmoAmount(Mode);
-    Log("SetWeaponAmmo" @ W @ Mode @ Ammo @ "- Diff =" @ Diff);
     if(Diff > 0) {
         W.AddAmmo(Diff, Mode);
     } else if(Diff < 0) {
