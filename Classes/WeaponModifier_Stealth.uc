@@ -244,7 +244,7 @@ defaultproperties
     StealthSound=SoundGroup'WeaponSounds.Translocator.TranslocatorModuleRegeneration'
 
     StealthDelay=2.000000
-    StealthText="silencer, stealth after crouching for $1 seconds"
+    StealthText="silencer, stealth when crouching"
     DamageBonus=0.000000
     MinModifier=1
     MaxModifier=1
