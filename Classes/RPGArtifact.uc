@@ -67,6 +67,18 @@ replication
 		ClientNotifyCooldown, Msg;
 }
 
+static function array<RPGArtifact> GetActiveArtifacts(Pawn Other) {
+    local Inventory Inv;
+    local array<RPGArtifact> List;
+    
+	for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
+	{
+		if(RPGArtifact(Inv) != None && RPGArtifact(Inv).bActive)
+			List[List.Length] = RPGArtifact(Inv);
+	}
+    return List;
+}
+
 static function bool HasActiveArtifact(Pawn Other)
 {
 	local Inventory Inv;
@@ -198,6 +210,15 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 //New interface to allow damage scaling for artifacts -pd
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType);
+
+/*
+	Called by RPGEffect when it is about to be applied.
+	Returns whether or not this effect can be applied when this ability is being owned.
+*/
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
+{
+	return true;
+}
 
 function bool HandlePickupQuery(Pickup Item)
 {
