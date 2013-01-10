@@ -52,7 +52,7 @@ simulated function bool ClientFunction()
 	}
 }
 
-function ShouldDestroy() {
+function bool ShouldDestroy() {
     if(target == None) {
         return true;
     } else {

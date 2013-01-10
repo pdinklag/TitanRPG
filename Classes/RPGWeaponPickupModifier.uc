@@ -83,8 +83,6 @@ function DoPickup(Pawn Other) {
     
     if(Pickup == None || Pickup.bDeleteMe) {
         Destroy();
-    } else if(bRandomize) {
-        RandomizeModifier();
     }
 }
 

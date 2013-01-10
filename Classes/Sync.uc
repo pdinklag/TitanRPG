@@ -40,7 +40,7 @@ simulated event Tick(float dt)
 simulated function bool ClientFunction();
 
 //return true if this should be destroyed (server)
-function ShouldDestroy();
+function bool ShouldDestroy();
 
 defaultproperties
 {
