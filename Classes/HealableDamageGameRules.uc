@@ -10,6 +10,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	DamageRV = Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 
 	if(
+        DamageRV > 0 &&
 		injured != None &&
 		!injured.IsA('Monster') &&
 		instigatedBy != None &&

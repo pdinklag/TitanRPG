@@ -6,8 +6,9 @@ struct ReflectMapStruct
 	var class<WeaponFire> WeaponFire;
 };
 var config array<ReflectMapStruct> ReflectMap;
-
 var config float BaseChance;
+
+var bool bLock;
 
 var localized string ReflectionText;
 
@@ -79,21 +80,32 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 		WFClass = MapDamageType(DamageType);
 		if(WFClass != None && FRand() < (BaseChance + float(Modifier) * BonusPerLevel))
 		{
-			Identify();
-			ReflectDir = rotator(HitLocation - Weapon.Location);
-			
-			WF = FindWeaponFire(InstigatedBy, WFClass);
-			if(WF != None)
-			{
-				if(WF.IsA('ProjectileFire'))
-					ProjectileFire(WF).SpawnProjectile(HitLocation + Instigator.CollisionRadius * vector(ReflectDir), ReflectDir);
-				else if(WF.IsA('InstantFire'))
-					InstantFire(WF).DoTrace(HitLocation + Instigator.CollisionRadius * vector(ReflectDir), ReflectDir);
-			}
-			else
-			{
-				Log("Couldn't find" @ WFClass @ "for" @ InstigatedBy, 'DEBUG');
-			}
+            if(bLock) {
+                Warn("Reflection: Recursion!!");
+            } else {
+                bLock = true;
+            
+                Identify();
+                ReflectDir = rotator(HitLocation - Weapon.Location);
+                
+                WF = FindWeaponFire(InstigatedBy, WFClass);
+                if(WF != None)
+                {
+                    if(WF.IsA('ProjectileFire')) {
+                        Log("Reflection: SpawnProjectile" @ WF);
+                        ProjectileFire(WF).SpawnProjectile(Instigator.Location + Instigator.CollisionHeight * vector(ReflectDir), ReflectDir);
+                    } else if(WF.IsA('InstantFire')) {
+                        Log("Reflection: DoTrace using " @ WF);
+                        InstantFire(WF).SpawnBeamEffect(Instigator.Location + Instigator.CollisionHeight * vector(ReflectDir), ReflectDir, HitLocation, vector(ReflectDir), 0);
+                    }
+                }
+                else
+                {
+                    Log("Couldn't find" @ WFClass @ "for" @ InstigatedBy, 'DEBUG');
+                }
+                
+                bLock = false;
+            }
 			
 			Damage = 0;
 			Momentum = vect(0, 0, 0);
