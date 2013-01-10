@@ -73,6 +73,7 @@ var config array<String> AdminGUID;
 
 //INIT stuff
 var bool bGameStarted;
+var array<WeaponPickup> WeaponPickupQueue;
 
 //Instance
 static final function MutTitanRPG Instance(LevelInfo Level)
@@ -342,6 +343,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     local RPGWeaponModifier WM;
     local RPGWeaponPickupModifier WPM;
 	local Weapon W;
+    local WeaponPickup WP;
 	local string ClassName, NewClassName;
 
 	if(Other == None)
@@ -391,7 +393,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return true;
 	}
 	
-    //Override locker weapons
+    //Replace locker weapons
     if(Other.IsA('WeaponLocker')) {
         Locker = WeaponLocker(Other);
     
@@ -406,12 +408,31 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
         }
     }
     
+    //Replace weapon base weapons
+    if(Other.IsA('xWeaponBase'))
+    {
+        ClassName = string(xWeaponBase(Other).WeaponType);
+        NewClassName = GetInventoryClassOverride(ClassName);
+
+        if(!(NewClassName ~= ClassName))
+            xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+        
+        return true;
+    }
+    
+    //Modified weapon pickup
     if(Other.IsA('WeaponPickup')) {
-        if(Other.Instigator != None && Other.Instigator.Weapon != None) {
-            WM = class'RPGWeaponModifier'.static.GetFor(Other.Instigator.Weapon);
+        WP = WeaponPickup(Other);
+    
+        //Thrown weapon
+        if(WP.Instigator != None && WP.Instigator.Weapon != None) {
+            WM = class'RPGWeaponModifier'.static.GetFor(WP.Instigator.Weapon);
             if(WM != None) {
-                WPM = class'RPGWeaponPickupModifier'.static.Modify(WeaponPickup(Other), WM);
+                WPM = class'RPGWeaponPickupModifier'.static.Modify(WP, WM);
             }
+        } else {
+            //Add to queue
+            WeaponPickupQueue[WeaponPickupQueue.Length] = WP;
         }
     }
     
@@ -441,18 +462,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
                 RPGLocker.ReplacedLocker = Locker;
                 Locker.GotoState('Disabled');
             }
-			return true;
-		}
-		
-		//Replace weapon base weapons
-		if(Other.IsA('xWeaponBase'))
-		{
-			ClassName = string(xWeaponBase(Other).WeaponType);
-			NewClassName = GetInventoryClassOverride(ClassName);
-
-			if(!(NewClassName ~= ClassName))
-				xWeaponBase(Other).WeaponType = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
-			
 			return true;
 		}
 	}
@@ -538,6 +547,7 @@ function Actor ReplaceWithActor(actor Other, string aClassName)
 
 event Tick(float dt)
 {
+    local int i;
 	local Weapon W;
 	local Projectile Proj;
 
@@ -562,6 +572,15 @@ event Tick(float dt)
 				Proj.Tag = 'Processed'; //make sure it's only processed once
 		}
 	}
+    
+    //Weapon pickups
+    for(i = 0; i < WeaponPickupQueue.Length; i++) {
+        if(WeaponPickupQueue[i].PickUpBase != None) {
+            //Randomize pickup base
+            class'RPGWeaponPickupModifier'.static.Randomize(WeaponPickupQueue[i]);
+        }
+    }
+    WeaponPickupQueue.Length = 0;
 }
 
 function RPGPlayerReplicationInfo CheckRPRI(Controller C)

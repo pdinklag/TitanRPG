@@ -6,6 +6,9 @@ var class<RPGWeaponModifier> ModifierClass;
 var class<WeaponAttachment> AttachmentClass;
 var int ModifierLevel;
 
+var bool bPickupWasHidden;
+var bool bRandomize;
+
 static function RPGWeaponPickupModifier Modify(WeaponPickup WP, RPGWeaponModifier WM) {
     local RPGWeaponPickupModifier WPM;
 
@@ -16,11 +19,20 @@ static function RPGWeaponPickupModifier Modify(WeaponPickup WP, RPGWeaponModifie
     
     if(WM.bIdentified && WM.default.ModifierOverlay != None && class<WeaponAttachment>(WM.Weapon.AttachmentClass) != None) {
         WPM.AttachmentClass = class<WeaponAttachment>(WM.Weapon.AttachmentClass);
-        WPM.Enable('Tick');
-    } else {
-        WPM.Disable('Tick');
+        WPM.Sync();
     }
     
+    return WPM;
+}
+
+static function RPGWeaponPickupModifier Randomize(WeaponPickup WP) {
+    local RPGWeaponPickupModifier WPM;
+
+    WPM = WP.Spawn(class'RPGWeaponPickupModifier', WP);
+    WPM.Pickup = WP;
+    WPM.AttachmentClass = class<WeaponAttachment>(WP.InventoryType.default.AttachmentClass);
+    WPM.bRandomize = true;
+
     return WPM;
 }
 
@@ -35,17 +47,24 @@ static function RPGWeaponPickupModifier GetFor(WeaponPickup WP) {
 	return None;
 }
 
-simulated event Tick(float dt) {
-    if(AttachmentClass != None) {
-        class'Sync_PickupModifier'.static.Sync(Pickup, ModifierClass, AttachmentClass);
+event Tick(float dt) {
+    if(Pickup == None) {
+        Destroy();
     }
-    
-    Disable('Tick');
+}
+
+function Sync() {
+    class'Sync_PickupModifier'.static.Sync(Pickup, ModifierClass, AttachmentClass);
 }
 
 //Called when a pawn picks me up, simulates Touch, SpawnCopy, AnnouncePickup
 function DoPickup(Pawn Other) {
     local Inventory Copy;
+    
+    if(bRandomize) {
+        ModifierClass = class'WeaponModifier_Vorpal'; //TODO: random
+        ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
+    }
 
     Copy = Spawn(Pickup.InventoryType, Other);
     if(Copy != None) {
@@ -60,8 +79,13 @@ function DoPickup(Pawn Other) {
     
     //TODO possibly modify message class and message
     Pickup.AnnouncePickup(Other);
-    Pickup.Destroy();
-    Destroy();
+    Pickup.SetRespawn();
+    
+    if(Pickup == None || Pickup.bDeleteMe) {
+        Destroy();
+    } else if(bRandomize) {
+        RandomizeModifier();
+    }
 }
 
 defaultproperties {
