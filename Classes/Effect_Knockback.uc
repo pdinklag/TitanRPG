@@ -8,6 +8,10 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	//this causes way too funny bugs on turrets...
 	if(Other.IsA('ASTurret') || Other.IsA('ONSStationaryWeaponPawn'))
 		return false;
+    
+    //Don't allow if Other is the driver of a vehicle
+    if(Other.DrivenVehicle != None)
+        return false;
 
 	return Super.CanBeApplied(Other, Causer, Duration, Modifier);
 }
