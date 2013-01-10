@@ -260,8 +260,13 @@ simulated event Tick(float dt)
 	}
     
     if(Role < ROLE_Authority || Level.NetMode == NM_Standalone) {
-        if(bActive)
-            ClientRPGTick(dt);
+        if(bActive) {
+            if(Weapon != None) {
+                ClientRPGTick(dt);
+            } else {
+                Destroy();
+            }
+        }
     }
 }
 

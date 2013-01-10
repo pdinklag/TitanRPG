@@ -185,27 +185,29 @@ simulated function ApplyEffect(bool b) {
     local int i;
     local WeaponFire WF;
     
-    if(b) {
-        Weapon.bShowChargingBar = true;
-        for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
-        {
-            WF = Weapon.GetFireMode(i);
+    if(Weapon != None) {
+        if(b) {
+            Weapon.bShowChargingBar = true;
+            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
+            {
+                WF = Weapon.GetFireMode(i);
 
-            WF.FireSound = None;
-            WF.ReloadSound = None;
-            WF.FlashEmitterClass = None;
-            WF.SmokeEmitterClass = None;
-        }
-    } else {
-        Weapon.bShowChargingBar = Weapon.default.bShowChargingBar;
-        for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
-        {
-            WF = Weapon.GetFireMode(i);
-            
-            WF.FireSound = WF.default.FireSound;
-            WF.ReloadSound = WF.default.ReloadSound;
-            WF.FlashEmitterClass = WF.default.FlashEmitterClass;
-            WF.SmokeEmitterClass = WF.default.SmokeEmitterClass;
+                WF.FireSound = None;
+                WF.ReloadSound = None;
+                WF.FlashEmitterClass = None;
+                WF.SmokeEmitterClass = None;
+            }
+        } else {
+            Weapon.bShowChargingBar = Weapon.default.bShowChargingBar;
+            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
+            {
+                WF = Weapon.GetFireMode(i);
+                
+                WF.FireSound = WF.default.FireSound;
+                WF.ReloadSound = WF.default.ReloadSound;
+                WF.FlashEmitterClass = WF.default.FlashEmitterClass;
+                WF.SmokeEmitterClass = WF.default.SmokeEmitterClass;
+            }
         }
     }
 }
