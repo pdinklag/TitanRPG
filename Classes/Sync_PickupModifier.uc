@@ -53,6 +53,14 @@ simulated function bool ClientFunction() {
 	}
 }
 
+function ShouldDestroy() {
+    if(Target == None) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 defaultproperties {
     Lifetime=30 //pickups usually don't exist that long
 }

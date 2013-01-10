@@ -52,6 +52,14 @@ simulated function bool ClientFunction()
 	}
 }
 
+function ShouldDestroy() {
+    if(target == None) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 defaultproperties
 {
 	Lifetime = 9999.00 //for a LONG while

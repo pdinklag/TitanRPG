@@ -23,7 +23,7 @@ simulated event Tick(float dt)
 	Super.Tick(dt);
 
 	LifeTime -= dt;
-	if(LifeTime <= 0.0f)
+	if(LifeTime <= 0.0f || (Role == ROLE_Authority && ShouldDestroy()))
 	{
 		Destroy();
 		return;
@@ -38,6 +38,9 @@ simulated event Tick(float dt)
 
 //return true if this should be destroyed (client)
 simulated function bool ClientFunction();
+
+//return true if this should be destroyed (server)
+function ShouldDestroy();
 
 defaultproperties
 {
