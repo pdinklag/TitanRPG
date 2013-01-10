@@ -339,6 +339,8 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	local RPGWeaponPickup RPGPickup;
 	local WeaponLocker Locker;
 	local RPGWeaponLocker RPGLocker;
+    local RPGWeaponModifier WM;
+    local RPGWeaponPickupModifier WPM;
 	local Weapon W;
 	local string ClassName, NewClassName;
 
@@ -400,6 +402,15 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 
                 if(!(NewClassName ~= ClassName))
                     Locker.Weapons[i].WeaponClass = class<Weapon>(DynamicLoadObject(NewClassName, class'Class'));
+            }
+        }
+    }
+    
+    if(Other.IsA('WeaponPickup')) {
+        if(Other.Instigator != None && Other.Instigator.Weapon != None) {
+            WM = class'RPGWeaponModifier'.static.GetFor(Other.Instigator.Weapon);
+            if(WM != None) {
+                WPM = class'RPGWeaponPickupModifier'.static.Modify(WeaponPickup(Other), WM);
             }
         }
     }

@@ -42,8 +42,11 @@ var string Description;
 
 replication
 {
+    reliable if(Role == ROLE_Authority && bNetInitial)
+        Weapon;
+
 	reliable if(Role == ROLE_Authority && bNetDirty)
-		Weapon, bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
+		bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
     
 	reliable if(Role == ROLE_Authority)
 		ClientSetInstigator, ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
@@ -167,22 +170,28 @@ function SetModifier(int x)
 	if(bIdentified)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Instigator, Weapon.class, Modifier);
+		ClientConstructItemName(Instigator, Modifier);
 	}
 	
 	if(bWasActive)
 		SetActive(true);
 }
 
-simulated function ClientConstructItemName(Pawn Inst, class<Weapon> SyncWeaponClass, int SyncModifier)
+simulated function ClientConstructItemName(Pawn Inst, int SyncModifier)
 {
 	if(Role < ROLE_Authority) {
-        Weapon.ItemName = ConstructItemName(SyncWeaponClass, SyncModifier);
+        if(Weapon != None) {
+            Weapon.ItemName = ConstructItemName(Weapon.class, SyncModifier);
 
-        Inst.PendingWeapon = Weapon;
-        Weapon.PutDown();
-        
-        Description = ""; 
+            if(Inst.Weapon == Weapon) {
+                Inst.PendingWeapon = Weapon;
+                Weapon.PutDown();
+            }
+            
+            Description = "";
+        } else {
+            Warn("No weapon!");
+        }
     }
 }
 
@@ -218,8 +227,9 @@ simulated event PostNetBeginPlay()
 {
 	Super.PostNetBeginPlay();
 	
-	if(Role < ROLE_Authority)
+	if(Role < ROLE_Authority) {
 		SetOwner(Weapon);
+    }
 }
 
 simulated event Tick(float dt)
@@ -232,7 +242,7 @@ simulated event Tick(float dt)
 			Destroy();
 			return;
 		}
-		
+        
 		if(Instigator != None)
 		{
 			if(!bActive && Instigator.Weapon == Weapon)
@@ -260,7 +270,7 @@ function Identify(optional bool bReIdentify)
 	if(!bIdentified || bReIdentify)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Instigator, Weapon.class, Modifier);
+		ClientConstructItemName(Instigator, Modifier);
 
 		if(bActive)
 		{

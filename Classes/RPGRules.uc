@@ -728,7 +728,19 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
 	local RPGPlayerReplicationInfo RPRI;
+    local RPGWeaponPickupModifier WPM;
 	local int x;
+    
+    //modified weapon
+    if(item.IsA('WeaponPickup')) {
+        WPM = class'RPGWeaponPickupModifier'.static.GetFor(WeaponPickup(item));
+        if(WPM != None) {
+            WPM.DoPickup(Other);
+            
+            bAllowPickup = 0;
+            return true;
+        }
+    }
 
 	//increase value of ammo pickups based on Max Ammo stat
 	if(Other.Controller != None)
