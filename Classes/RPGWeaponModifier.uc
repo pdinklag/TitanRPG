@@ -22,6 +22,10 @@ var config float DamageBonus, BonusPerLevel;
 var bool bIdentified;
 var Material ModifierOverlay;
 
+//Overlay Sync (server only)
+var bool bUpdateOverlay;
+var Sync_OverlayMaterial SyncFirstPerson, SyncThirdPerson;
+
 //Item name
 var localized string PatternPos, PatternNeg;
 
@@ -49,7 +53,7 @@ replication
 		bActive, Modifier, DamageBonus, BonusPerLevel, bIdentified;
     
 	reliable if(Role == ROLE_Authority)
-		ClientSetInstigator, ClientStartEffect, ClientStopEffect, ClientConstructItemName, ClientSetOverlay;
+		ClientSetInstigator, ClientStartEffect, ClientStopEffect, ClientConstructItemName;
 }
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
@@ -84,12 +88,14 @@ static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool b
 	
 	WM = W.Spawn(default.class, W);
 	WM.bActive = (W.Instigator.Weapon == W);
-	
-	if(WM != None)
+
+	if(WM != None) {
 		WM.SetModifier(Modifier);
-	
-	if(bIdentify)
+    }
+
+	if(bIdentify) {
 		WM.Identify();
+    }
 
 	return WM;
 }
@@ -165,29 +171,23 @@ function SetModifier(int x)
 	if(Modifier < 0 || Modifier > MaxModifier)
 		Weapon.bCanThrow = false; //cannot throw negative or enhanced weapons
 	else
-		Weapon.bCanThrow = bCanThrow;
+		Weapon.bCanThrow = Weapon.default.bCanThrow && bCanThrow;
 	
 	if(bIdentified)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Instigator, Modifier);
+		ClientConstructItemName(Modifier);
 	}
 	
 	if(bWasActive)
 		SetActive(true);
 }
 
-simulated function ClientConstructItemName(Pawn Inst, int SyncModifier)
+simulated function ClientConstructItemName(int SyncModifier)
 {
 	if(Role < ROLE_Authority) {
         if(Weapon != None) {
             Weapon.ItemName = ConstructItemName(Weapon.class, SyncModifier);
-
-            if(Inst.Weapon == Weapon) {
-                Inst.PendingWeapon = Weapon;
-                Weapon.PutDown();
-            }
-            
             Description = "";
         } else {
             Warn("No weapon!");
@@ -275,21 +275,17 @@ function Identify(optional bool bReIdentify)
 	if(!bIdentified || bReIdentify)
 	{
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
-		ClientConstructItemName(Instigator, Modifier);
+		ClientConstructItemName(Modifier);
 
 		if(bActive)
 		{
 			SetOverlay();
-		
-            //The weapon is re-selected, that should be information enough
-            /*
-			if(Instigator.Controller.IsA('PlayerController'))
-			{
-				PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
-					class'LocalMessage_NewIdentify', 0,,, Self);
-			}
-            */
 		}
+        
+        if(Instigator.Controller.IsA('PlayerController')) {
+            PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
+                class'LocalMessage_NewIdentify', 0,,, Self);
+        }
 
 		bIdentified = true;
 	}
@@ -316,21 +312,19 @@ function SetActive(bool bActivate)
 	bActive = bActivate;
 }
 
-simulated function SetOverlay()
+function SetOverlay()
 {
-	Weapon.SetOverlayMaterial(ModifierOverlay, 9999, true);
+    if(SyncFirstPerson != None)
+        SyncFirstPerson.Destroy();
 
-	if(WeaponAttachment(Weapon.ThirdPersonActor) != None)
-		Weapon.ThirdPersonActor.SetOverlayMaterial(ModifierOverlay, 999, true);
-	
-	if(Role == ROLE_Authority)
-		ClientSetOverlay();
-}
-
-simulated function ClientSetOverlay()
-{
-	if(Role < ROLE_Authority)
-		SetOverlay();
+    SyncFirstPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon, ModifierOverlay, 9999, true);
+    
+    if(SyncThirdPerson != None)
+        SyncThirdPerson.Destroy();
+    
+    if(WeaponAttachment(Weapon.ThirdPersonActor) != None) {
+        SyncThirdPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, ModifierOverlay, 9999, true);
+    }
 }
 
 //interface
@@ -442,7 +436,7 @@ defaultproperties
 	RemoteRole=ROLE_SimulatedProxy
 	NetUpdateFrequency=4.00
 	bAlwaysRelevant=True
-	bOnlyRelevantToOwner=False
+	bOnlyRelevantToOwner=True
 	bSkipActorPropertyReplication=True
 	bOnlyDirtyReplication=True
 	bReplicateMovement=False
