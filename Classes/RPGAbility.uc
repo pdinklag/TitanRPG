@@ -443,7 +443,7 @@ function ModifyPawn(Pawn Other)
 	{
 		if(AbilityLevel >= default.GrantItem[x].Level) {
             if(ClassIsChildOf(default.GrantItem[x].InventoryClass, class'Weapon')) {
-                RPRI.QueueWeapon(class<Weapon>(default.GrantItem[x].InventoryClass), class'RPGWeapon', 0, 0, 0);
+                RPRI.QueueWeapon(class<Weapon>(default.GrantItem[x].InventoryClass), None, 0, 0, 0);
             } else {
                 class'Util'.static.GiveInventory(Other, default.GrantItem[x].InventoryClass);
             }
@@ -537,7 +537,7 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     owning player. If this function returns true, the weapon will be granted with the applied.
     modifications. If it returns false, it will not be granted at all.
 */
-function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon> ModifierClass, out int Modifier, out int Ammo1, out int Ammo2) {
+function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeaponModifier> ModifierClass, out int Modifier, out int Ammo1, out int Ammo2) {
     return true;
 }
 

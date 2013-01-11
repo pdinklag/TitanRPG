@@ -22,25 +22,22 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 
 function bool CanActivate()
 {
-	if(Instigator != None)
+    local RPGWeaponModifier WM;
+
+	if(Instigator != None && Instigator.Weapon != None)
 	{
-		OldWeapon = RPGWeapon(Instigator.Weapon);
-		if(OldWeapon != None)
-		{
-			if(RPGWeapon(OldWeapon).MinModifier == RPGWeapon(OldWeapon).MaxModifier)
-			{
+        WM = class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon);
+        if(WM != None) {
+			if(WM.MinModifier == WM.MaxModifier) {
 				Msg(MSG_UnableToModify);
 				return false;
 			}
 		
-			if(RPGWeapon(OldWeapon).Modifier >= RPGWeapon(OldWeapon).MaxModifier)
-			{
+			if(WM.Modifier >= WM.MaxModifier) {
 				Msg(MSG_AlreadyMaxed);
 				return false;
 			}
-		}
-		else
-		{
+		} else {
 			Msg(MSG_UnableToModify);
 			return false;
 		}
@@ -53,78 +50,20 @@ state Activated
 {
 	function bool DoEffect()
 	{
-		local inventory Copy;
-		local class<RPGWeapon> NewWeaponClass;
-		local class<Weapon> OldWeaponClass;
-		local int x;
-		local RPGPlayerReplicationInfo RPRI;
+        local RPGWeaponModifier WM;
 
-		if(OldWeapon == None)
-		{
+		if(OldWeapon == None) {
 			Msg(MSG_UnableToModify);
 			return false;
 		}
-
-		if(RPGWeapon(OldWeapon) != None)
-			OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
-
-		if(OldWeaponClass == None)
-		{
+        
+        WM = class'RPGWeaponModifier'.static.GetFor(OldWeapon);
+		if(WM == None) {
 			Msg(MSG_UnableToModify);
 			return false;
 		}
-
-		NewWeaponClass = class<RPGWeapon>(OldWeapon.class);
-		if(NewWeaponClass == None)
-		{
-			Msg(MSG_UnableToModify);
-			return false;
-		}
-
-		Copy = spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
-
-		if(Copy == None)
-		{
-			Msg(MSG_UnableToModify);
-			return false;
-		}
-
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-		if (RPRI != None && RPGWeapon(oldWeapon) != None)
-		{
-			for (x = 0; x < RPRI.OldRPGWeapons.length; x++)
-			{
-				if(RPGWeapon(oldWeapon).ModifiedWeapon == RPRI.OldRPGWeapons[x].Weapon)
-				{
-					RPRI.OldRPGWeapons.Remove(x, 1);
-					break;
-				}
-			}
-		}
-
-		if(RPGWeapon(Copy) == None)
-		{
-			Msg(MSG_UnableToModify);
-			return false;
-		}
-
-		RPGWeapon(Copy).Generate(None);
-		RPGWeapon(Copy).Modifier = RPGWeapon(Copy).MaxModifier;
-		RPGWeapon(Copy).SetModifiedWeapon(spawn(OldWeaponClass, Instigator,,, rot(0,0,0)), true);
-
-		//stupid hack for speedy weapons since I can't seem to get them to work with DetachFromPawn correctly. :P
-		//if(WeaponQuickfoot(OldWeapon) != None) //FIXME
-		//	(WeaponQuickfoot(OldWeapon)).deactivate();
-
-		OldWeapon.DetachFromPawn(Instigator);
-		if(RPGWeapon(OldWeapon) != None)
-		{
-			RPGWeapon(OldWeapon).ModifiedWeapon.Destroy();
-			RPGWeapon(OldWeapon).ModifiedWeapon = None;
-		}
-
-		OldWeapon.Destroy();
-		Copy.GiveTo(Instigator);
+        
+        WM.SetModifier(WM.MaxModifier, true);
 		return true;
 	}
 }

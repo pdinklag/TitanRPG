@@ -59,25 +59,25 @@ function Sync() {
 
 //Called when a pawn picks me up, simulates Touch, SpawnCopy, AnnouncePickup
 function DoPickup(Pawn Other) {
-    local Inventory Copy;
+    local Weapon Copy;
     
-    if(bRandomize) {
-        ModifierClass = class'WeaponModifier_Vorpal'; //TODO: random
-        ModifierLevel = ModifierClass.static.GetRandomModifierLevel();
-    }
-
-    Copy = Spawn(Pickup.InventoryType, Other);
+    //Simulate pickup
+    Copy = Weapon(Pickup.SpawnCopy(Other));
     if(Copy != None) {
-        Copy.GiveTo(Other, Pickup);
         Copy.PickupFunction(Other);
+        if(bRandomize) {
+            //TODO: PDP protection
+            ModifierClass = class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(
+                class<Weapon>(Pickup.InventoryType), Other);
+                
+            ModifierLevel = -100;
+        }
         
-        if(Copy.IsA('Weapon')) {
-            //apply modifier
-            ModifierClass.static.Modify(Weapon(Copy), ModifierLevel, true);
+        if(ModifierClass != None) {
+            ModifierClass.static.Modify(Copy, ModifierLevel, true);
         }
     }
-    
-    //TODO possibly modify message class and message
+
     Pickup.AnnouncePickup(Other);
     Pickup.SetRespawn();
     

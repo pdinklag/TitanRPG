@@ -766,11 +766,12 @@ simulated function GiveTo(Pawn Other, optional Pickup Pickup)
 			Ammo[m] = ModifiedWeapon.Ammo[m];
     }
 	
-	CheckFavorite();
+	//CheckFavorite();
 }
 
 function CheckFavorite()
 {	
+    /*
 	if(HolderRPRI != None)
 		bFavorite = HolderRPRI.IsFavorite(ModifiedWeapon.class, Self.class);
 	else
@@ -778,6 +779,7 @@ function CheckFavorite()
 	
 	if(bFavorite)
 		Log(Self.class @ "/" @ ModifiedWeapon.class $ ": This is a favorite weapon!", 'TitanRPG');
+    */
 }
 
 function GiveAmmo(int m, WeaponPickup WP, bool bJustSpawned)
@@ -1484,6 +1486,7 @@ simulated function SetOverlayMaterial(Material mat, float time, bool bOverride)
 
 function DropFrom(vector StartLocation)
 {
+    /*
     local int m;
     local Pickup Pickup;
     local Inventory Inv;
@@ -1591,6 +1594,8 @@ function DropFrom(vector StartLocation)
 	{
     	Destroy();
 	}
+    */
+    Destroy(); //kaputt! :D
 }
 
 simulated function ClientWeaponThrown()

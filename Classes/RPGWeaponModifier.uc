@@ -44,6 +44,9 @@ var bool bOmitModifierInName;
 var localized string DamageBonusText;
 var string Description;
 
+//Sync
+var bool bDelayedIdentify; //used when granted on spawn
+
 replication
 {
     reliable if(Role == ROLE_Authority && bNetInitial)
@@ -58,6 +61,9 @@ replication
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 {
+    if(class'Util'.static.InArray(WeaponType, class'MutTitanRPG'.default.DisallowModifiersFor) >= 0)
+        return false;
+
 	if(!default.bAllowForSpecials &&
 		(
 			WeaponType.default.InventoryGroup == 0 || //Super weapons
@@ -72,42 +78,51 @@ static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 	return (class'Util'.static.InArray(WeaponType, default.ForbiddenWeaponTypes) == -1);
 }
 
-static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bAdd, optional bool bForce)
+static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bForce)
 {
 	local RPGWeaponModifier WM;
 	
 	if(!bForce && !AllowedFor(W.class, W.Instigator))
 		return None;
 	
-	if(!bAdd)
-	{
-		WM = GetFor(W);
-		if(WM != None)
-			WM.Destroy();
-	}
+    RemoveModifier(W); //remove existing
 	
 	WM = W.Spawn(default.class, W);
-	WM.bActive = (W.Instigator.Weapon == W);
-
 	if(WM != None) {
-		WM.SetModifier(Modifier);
-    }
+        if(Modifier == -100) {
+            //Random
+            Modifier = GetRandomModifierLevel();
+        }
 
-	if(bIdentify) {
-		WM.Identify();
+        WM.SetModifier(Modifier);
+
+        if(bIdentify) {
+            WM.Identify(false, true);
+        }
     }
 
 	return WM;
 }
 
-static function RPGWeaponModifier GetFor(Weapon W)
+static function RemoveModifier(Weapon W) {
+    local RPGWeaponModifier WM;
+
+    WM = GetFor(W, true);
+    if(WM != None) {
+        WM.Destroy();
+    }
+}
+
+static function RPGWeaponModifier GetFor(Weapon W, optional bool bAny)
 {
 	local RPGWeaponModifier WM;
 
-	if(W != None)
-	{
-		foreach W.ChildActors(class'RPGWeaponModifier', WM)
-			return WM;
+	if(W != None) {
+		foreach W.ChildActors(class'RPGWeaponModifier', WM) {
+            if(bAny || ClassIsChildOf(WM.class, default.class)) {
+                return WM;
+            }
+        }
 	}
 	return None;
 }
@@ -116,6 +131,9 @@ static function string ConstructItemName(class<Weapon> WeaponClass, int Modifier
 {
 	local string NewItemName;
 	local string Pattern;
+    
+	if(default.PatternNeg == "")
+		default.PatternNeg = default.PatternPos;
 	
 	if(Modifier >= 0)
 		Pattern = default.PatternPos;
@@ -150,15 +168,15 @@ static function int GetRandomModifierLevel()
 	return x;
 }
 
-function int GetRandomPositiveModifierLevel()
+static function int GetRandomPositiveModifierLevel()
 {
-	if(MaxModifier == 0)
+	if(default.MaxModifier <= 0)
 		return 0;
 	else
-		return Rand(MaxModifier) + 1;
+		return Rand(default.MaxModifier) + 1;
 }
 
-function SetModifier(int x)
+function SetModifier(int x, optional bool bIdentify)
 {
 	local bool bWasActive;
 	
@@ -173,8 +191,9 @@ function SetModifier(int x)
 	else
 		Weapon.bCanThrow = Weapon.default.bCanThrow && bCanThrow;
 	
-	if(bIdentified)
-	{
+    if(bIdentify) {
+        Identify(true);
+    } else if(bIdentified) {
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
 		ClientConstructItemName(Modifier);
 	}
@@ -198,9 +217,6 @@ simulated function ClientConstructItemName(int SyncModifier)
 simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	
-	if(PatternNeg == "")
-		PatternNeg = PatternPos;
 	
 	if(Role == ROLE_Authority)
 	{
@@ -232,26 +248,26 @@ simulated event PostNetBeginPlay()
     }
 }
 
-simulated event Tick(float dt)
-{
-	if(Role == ROLE_Authority)
-	{
-		if(Weapon == None)
-		{
+simulated event Tick(float dt) {
+	if(Role == ROLE_Authority) {
+		if(Weapon == None) {
 			SetActive(false);
 			Destroy();
 			return;
 		}
         
-		if(Instigator != None)
-		{
-			if(!bActive && Instigator.Weapon == Weapon)
+        if(bDelayedIdentify) {
+            bDelayedIdentify = false;
+            Identify(true, true);
+        }
+        
+		if(Instigator != None) {
+			if(!bActive && Instigator.Weapon == Weapon) {
 				SetActive(true);
-			else if(bActive && Instigator.Weapon != Weapon)
+			} else if(bActive && Instigator.Weapon != Weapon) {
 				SetActive(false);
-		}
-		else if(bActive)
-		{
+            }
+		} else if(bActive) {
 			SetActive(false);
 		}
 		
@@ -270,7 +286,7 @@ simulated event Tick(float dt)
     }
 }
 
-function Identify(optional bool bReIdentify)
+function Identify(optional bool bReIdentify, optional bool bOmitMessage)
 {
 	if(!bIdentified || bReIdentify)
 	{
@@ -282,7 +298,7 @@ function Identify(optional bool bReIdentify)
 			SetOverlay();
 		}
         
-        if(Instigator.Controller.IsA('PlayerController')) {
+        if(!bOmitMessage && Instigator.Controller.IsA('PlayerController')) {
             PlayerController(Instigator.Controller).ReceiveLocalizedMessage(
                 class'LocalMessage_NewIdentify', 0,,, Self);
         }
@@ -371,8 +387,7 @@ function float GetAIRating()
 
 simulated event Destroyed()
 {
-	SetActive(false);
-	
+    SetActive(false);
 	Super.Destroyed();
 }
 

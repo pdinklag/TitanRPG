@@ -15,22 +15,9 @@ function BotWhatNext(Bot Bot)
 	}
 }
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
+function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
 {
-	local MutTitanRPG RPGMut;
-	local int x, Chance;
-	
-	RPGMut = class'MutTitanRPG'.static.Instance(Level);
-
-	Chance = Rand(RPGMut.TotalModifierChance);
-	for (x = 0; x < RPGMut.WeaponModifiers.Length; x++)
-	{
-		Chance -= RPGMut.WeaponModifiers[x].Chance;
-		if (Chance < 0 && RPGMut.WeaponModifiers[x].WeaponClass.static.AllowedFor(WeaponType, Other))
-			return RPGMut.WeaponModifiers[x].WeaponClass;
-	}
-
-	return class'RPGWeapon';
+	return class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(WeaponType, Other, true);
 }
 
 defaultproperties

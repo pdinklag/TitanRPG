@@ -1,42 +1,44 @@
 class Artifact_EnhancedMakeMagicWeapon extends ArtifactBase_WeaponMaker hidedropdown;
 
-var config array<class<RPGWeapon> > PossibleMagicTypes;
+var config array<class<RPGWeaponModifier> > PossibleModifiers;
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
+function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
 {
 	local Inventory Inv;
 	local bool bAlreadyPresent;
-	local class<RPGWeapon> RWClass;
+	local class<RPGWeaponModifier> WMClass;
 	local int Tries;
 	
 	//try to not generate a weapon the user already has
 	for(Tries = 0; Tries < 50; Tries++)
 	{
-		RWClass = PossibleMagicTypes[Rand(PossibleMagicTypes.Length)];
+		WMClass = PossibleModifiers[Rand(PossibleModifiers.Length)];
 		
 		bAlreadyPresent = false;
 		for(Inv = Instigator.Inventory; Inv != None && !bAlreadyPresent; Inv = Inv.Inventory)
 		{
-			if(Inv.class == RWClass && RPGWeapon(Inv).ModifiedWeapon.class == WeaponType)
+			if(Inv.IsA('Weapon') && WMClass.static.GetFor(Weapon(Inv)) != None) {
 				bAlreadyPresent = true;
+                //can't break here because yay UnrealScript
+            }
 		}
 		
 		if(!bAlreadyPresent)
 			break;
 	}
 	
-	return RWClass;
+	return WMClass;
 }
 
 defaultproperties
 {
 	bAllowInVehicle=False
-	PossibleMagicTypes(0)=Class'Weapon_NullEntropy'
-	PossibleMagicTypes(1)=Class'Weapon_Freeze'
-	PossibleMagicTypes(2)=Class'Weapon_Quickfoot'
-	PossibleMagicTypes(3)=Class'Weapon_Rage'
-	PossibleMagicTypes(4)=Class'Weapon_Vorpal'
-	PossibleMagicTypes(5)=Class'Weapon_InfSturdy'
+	PossibleModifiers(0)=Class'WeaponModifier_NullEntropy'
+	PossibleModifiers(1)=Class'WeaponModifier_Freeze'
+	PossibleModifiers(2)=Class'WeaponModifier_Speed'
+	PossibleModifiers(3)=Class'WeaponModifier_Rage'
+	PossibleModifiers(4)=Class'WeaponModifier_Vorpal'
+	PossibleModifiers(5)=Class'WeaponModifier_InfSturdy'
 	bAvoidRepetition=True
 	MinActivationTime=1.000000
 	CostPerSec=150

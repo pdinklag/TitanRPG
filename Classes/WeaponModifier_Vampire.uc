@@ -23,7 +23,6 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 simulated function BuildDescription() {
 	Super.BuildDescription();
     
-    Log("Modifier =" @ Modifier);
     if(Modifier >= 0) {
         AddToDescription(VampireText, BonusPerLevel);
     } else {

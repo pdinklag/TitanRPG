@@ -5,7 +5,7 @@ var config array<class<Weapon> > ForbiddenWeaponTypes;
 struct StoredWeapon
 {
 	var class<Weapon> WeaponClass;
-	var class<RPGWeapon> ModifierClass;
+	var class<RPGWeaponModifier> ModifierClass;
 	var int Modifier;
 	var int Ammo[2];
 };
@@ -30,19 +30,13 @@ simulated function int Cost()
 static function bool CanSaveWeapon(Weapon W)
 {
 	local int x;
-	local class<Weapon> WClass;
 
 	if(W == None)
 		return false;
 		
-	if(RPGWeapon(W) != None)
-		WClass = RPGWeapon(W).ModifiedWeapon.class;
-	else
-		WClass = W.class;
-
 	for(x = 0; x < default.ForbiddenWeaponTypes.Length; x++)
 	{
-		if(ClassIsChildof(WClass, default.ForbiddenWeaponTypes[x]))
+		if(ClassIsChildof(W.class, default.ForbiddenWeaponTypes[x]))
 			return false;
 	}
 
@@ -63,28 +57,21 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 			return false;
 	}
 	
-	if(AbilityLevel >= ExtraSavingLevel && Killed.IsA('Vehicle'))
-		Killed = Vehicle(Killed).Driver;
+	if(Killed.IsA('Vehicle')) {
+        if(AbilityLevel >= ExtraSavingLevel) {
+            Killed = Vehicle(Killed).Driver;
+        } else {
+            return false;
+        }
+    }
 
-	if(RPGWeapon(Killed.Weapon) != None)
-	{
-		if(Painter(RPGWeapon(Killed.Weapon).ModifiedWeapon) == None &&
-			Redeemer(RPGWeapon(Killed.Weapon).ModifiedWeapon) == None)
-			RPRI.Controller.LastPawnWeapon = RPGWeapon(Killed.Weapon).ModifiedWeapon.Class;
-		else
-			RPRI.Controller.LastPawnWeapon = None;
-	}
-	else if(Painter(Killed.Weapon) != None || Redeemer(Killed.Weapon) != None)
-	{
+	if(Painter(Killed.Weapon) != None || Redeemer(Killed.Weapon) != None) {
 		RPRI.Controller.LastPawnWeapon = None;
-	}
-	else if(Killed.Weapon != None)
-	{
+	} else if(Killed.Weapon != None) {
 		RPRI.Controller.LastPawnWeapon = Killed.Weapon.Class;
 	}
 	
-	if(AbilityLevel > 1)
-	{
+	if(AbilityLevel > 1) {
 		W = None;
 		if(AbilityLevel >= StoreAllLevel)
 		{
@@ -112,10 +99,9 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 			if(AbilityLevel >= ExtraSavingLevel)
 			{
 				//when carrying the ball launcher, save the old weapon
-				if(RPGBallLauncher(W) != None)
+				if(RPGBallLauncher(W) != None) {
 					W = RPGBallLauncher(W).RestoreWeapon;
-				else if(RPGWeapon(W) != None && RPGBallLauncher(RPGWeapon(W).ModifiedWeapon) != None)
-					W = RPGBallLauncher(RPGWeapon(W).ModifiedWeapon).RestoreWeapon;
+                }
 			}
 
 			if(W != None)
@@ -132,28 +118,24 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 
 function TryStoreWeapon(Weapon W)
 {
-	local RPGWeapon RW;
+	local RPGWeaponModifier WM;
 	local StoredWeapon SW;
 	
 	if(W == None || !CanSaveWeapon(W))
 		return;
 	
-	RW = RPGWeapon(W);
-	if(RW != None)
-	{
-		SW.WeaponClass = RW.ModifiedWeapon.class;
-		SW.ModifierClass = RW.class;
-		SW.Modifier = RW.Modifier;
-		SW.Ammo[0] = RW.AmmoAmount(0);
-		SW.Ammo[1] = RW.AmmoAmount(1);
-	}
-	else
-	{
-		SW.WeaponClass = W.class;
+    SW.WeaponClass = W.class;
+
+    SW.Ammo[0] = W.AmmoAmount(0);
+    SW.Ammo[1] = W.AmmoAmount(1);
+    
+	WM = class'RPGWeaponModifier'.static.GetFor(W);
+	if(WM != None) {
+        SW.ModifierClass = WM.class;
+        SW.Modifier = WM.Modifier;
+	} else {
 		SW.ModifierClass = None;
 		SW.Modifier = 0;
-		SW.Ammo[0] = W.AmmoAmount(0);
-		SW.Ammo[1] = W.AmmoAmount(1);
 	}
 	
 	StoredWeapons[StoredWeapons.Length] = SW;

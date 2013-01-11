@@ -727,15 +727,52 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
+    local Weapon Copy;
+    local WeaponLocker Locker;
 	local RPGPlayerReplicationInfo RPRI;
     local RPGWeaponPickupModifier WPM;
-	local int x;
+    local class<RPGWeaponModifier> ModifierClass;
+	local int x, i;
     
     //modified weapon
     if(item.IsA('WeaponPickup')) {
         WPM = class'RPGWeaponPickupModifier'.static.GetFor(WeaponPickup(item));
         if(WPM != None) {
             WPM.DoPickup(Other);
+            
+            bAllowPickup = 0;
+            return true;
+        }
+    }
+    
+    //Weapon Locker
+    if(item.IsA('WeaponLocker')) {
+        Locker = WeaponLocker(item);
+        
+        //Find entry
+        x = -1;
+        for(i = 0; i < Locker.Weapons.Length; i++) {
+            if(Locker.Weapons[i].WeaponClass == Locker.InventoryType) {
+                x = i;
+                break;
+            }
+        }
+        
+        if(x >= 0) {
+            //Simulate weapon locker
+            Copy = Weapon(Locker.SpawnCopy(Other));
+            if (Copy != None) {
+                Copy.PickupFunction(Other);
+                if (Locker.Weapons[x].ExtraAmmo > 0) {
+                    Copy.AddAmmo(Locker.Weapons[x].ExtraAmmo, 0);
+                }
+                
+                //TODO: PDP protection
+                ModifierClass = class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(Copy.class, Other);
+                if(ModifierClass != None) {
+                    ModifierClass.static.Modify(Copy, -100, RPGMut.GameSettings.bNoUnidentified);
+                }
+            }
             
             bAllowPickup = 0;
             return true;
@@ -769,7 +806,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 {
 	local Inventory Inv;
 	local Weapon W;
-	local RPGWeapon RW;
+	local RPGWeaponModifier WM;
 	local bool bAlreadyPrevented;
 	local int x;
 	local Controller KilledController;
@@ -840,9 +877,9 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 				W = Weapon(Inv);
 				if(W != None && class'Ability_Denial'.static.CanSaveWeapon(W))
 				{
-					RW = RPGWeapon(W);
-					if(RW != None)
-						KilledRPRI.QueueWeapon(RW.ModifiedWeapon.class, RW.class, RW.Modifier);
+                    WM = class'RPGWeaponModifier'.static.GetFor(W);
+					if(WM != None)
+						KilledRPRI.QueueWeapon(W.class, WM.class, WM.Modifier);
 					else
 						KilledRPRI.QueueWeapon(W.class, None, 0);
 				}

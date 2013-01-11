@@ -82,101 +82,48 @@ state Activated
 	function bool DoEffect()
 	{
 		//local Ability_LoadedArtifacts LA;
-		local Inventory Copy;
-		local class<RPGWeapon> NewWeaponClass;
-		local class<Weapon> OldWeaponClass;
+        local RPGWeaponModifier WM;
+		local class<RPGWeaponModifier> OldModifier, NewModifier;
 		local int x, tries;
 
-		if(OldWeapon == None)
-		{
+		if(OldWeapon == None) {
 			Msg(MSG_UnableToGenerate);
 			return false;
 		}
 
-		//in this case, use the new weapon class anyway.
-		if(OldWeapon.isA('RPGWeapon'))
-			OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
-		else
-			OldWeaponClass = OldWeapon.class;
+        WM = class'RPGWeaponModifier'.static.GetFor(OldWeapon);
+        if(WM != None) {
+            OldModifier = WM.class;
+        }
 
-		if(OldWeaponClass == None)
-		{
-			Msg(MSG_UnableToGenerate);
-			return false;
-		}
-
-		for(x = 0; x < 50; x++)
-		{
-			if(bAvoidRepetition)
-			{
+		for(x = 0; x < 50; x++) {
+			if(bAvoidRepetition) {
 				//try to generate a weapon of different magic than the old one
-				for(tries = 0; tries < 50; tries++)
-				{
-					NewWeaponClass = GetRandomWeaponModifier(OldWeaponClass, Instigator);
+				for(tries = 0; tries < 50; tries++) {
+					NewModifier = GetRandomWeaponModifier(OldWeapon.class, Instigator);
 					
-					if(NewWeaponClass != OldWeapon.class)
+					if(NewModifier != OldModifier) {
 						tries = 50; //break inner loop
+                    }
 				}
-			}
-			else
-				NewWeaponClass = GetRandomWeaponModifier(OldWeaponClass, Instigator);
-				
-			if(NewWeaponClass.static.AllowedFor(OldWeaponClass, Instigator))
+			} else {
+				NewModifier = GetRandomWeaponModifier(OldWeapon.class, Instigator);
+            }
+            
+			if(NewModifier != None && NewModifier.static.AllowedFor(OldWeapon.class, Instigator))
 				break;
 		}
 		
-		if(x == 50 || NewWeaponClass == None)
-		{
+		if(x == 50) {
 			Msg(MSG_UnableToGenerate);
 			return false;
 		}
 
-		Copy = spawn(NewWeaponClass, Instigator,,, rot(0,0,0));
-		if(Copy == None)
-		{
-			Msg(MSG_UnableToGenerate);
-			return false;
-		}
-
-		if(InstigatorRPRI != None)
-		{
-			for (x = 0; x < InstigatorRPRI.OldRPGWeapons.length; x++)
-			{
-				if(oldWeapon == InstigatorRPRI.OldRPGWeapons[x].Weapon)
-				{
-					InstigatorRPRI.OldRPGWeapons.Remove(x, 1);
-					break;
-				}
-			}
-		}
-
-		if(RPGWeapon(Copy) == None)
-		{
-			Msg(MSG_UnableToGenerate);
-			return false;
-		}
-
-		//try to generate a positive weapon.
-		for(x = 0; x < 50; x++)
-		{
-			RPGWeapon(Copy).Generate(None);
-			if(RPGWeapon(Copy).Modifier > -1)
-				break;
-		}
-
-		RPGWeapon(Copy).SetModifiedWeapon(spawn(OldWeaponClass, Instigator,,, rot(0,0,0)), true);
-		//stupid hack for speedy weapons since I can't seem to get them to work with DetachFromPawn correctly. :P
-		//if(OldWeapon.isA('WeaponQuickfoot')) //FIXME
-		//	(WeaponQuickfoot(OldWeapon)).deactivate();
-		
-		OldWeapon.DetachFromPawn(Instigator);
-		if(RPGWeapon(OldWeapon) != None)
-		{
-			RPGWeapon(OldWeapon).ModifiedWeapon.Destroy();
-			RPGWeapon(OldWeapon).ModifiedWeapon = None;
-		}
-		OldWeapon.Destroy();
-		Copy.GiveTo(Instigator);
+        if(NewModifier != None) {
+            NewModifier.static.Modify(OldWeapon, NewModifier.static.GetRandomPositiveModifierLevel(), true);
+        } else {
+            class'RPGWeaponModifier'.static.RemoveModifier(OldWeapon);
+        }
 
         //Former breaking logic
         /*
@@ -199,7 +146,7 @@ state Activated
 	}
 }
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other);
+function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other);
 
 defaultproperties
 {

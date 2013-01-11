@@ -1,7 +1,7 @@
 class Artifact_DoubleModifier extends RPGArtifact hidedropdown;
 
-var RPGWeapon Weapon;
-var bool oldCanThrow;
+var RPGWeaponModifier WeaponModifier;
+var bool OldCanThrow;
 
 const MSG_UnableToModify = 0x1000;
 
@@ -21,15 +21,19 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 
 function bool CanActivate()
 {
-	local RPGWeapon OldWeapon;
+	local RPGWeaponModifier WM;
 
-	OldWeapon = RPGWeapon(Instigator.Weapon);
-	if(OldWeapon == None || OldWeapon.MinModifier == OldWeapon.MaxModifier)
-	{
+	if(Instigator.Weapon == None) {
 		Msg(MSG_UnableToModify);
 		return false;
 	}
-
+    
+    WM = class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon);
+    if(WM == None || WM.MinModifier == WM.MaxModifier) {
+		Msg(MSG_UnableToModify);
+		return false;
+    }
+    
 	return Super.CanActivate();
 }
 
@@ -39,20 +43,13 @@ state Activated
 	{
 		Super.BeginState();
 
-		Weapon = RPGWeapon(Instigator.Weapon);
-		if(Weapon == None)
-		{
+        WeaponModifier = class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon);
+		if(WeaponModifier == None) {
 			GotoState('');
-		}
-		else
-		{
-			Weapon.SetModifier(Weapon.Modifier * 2);
-
-			oldCanThrow = Weapon.bCanThrow;
-			Weapon.bCanThrow = false;
-			Weapon.ModifiedWeapon.bCanThrow = false;
-			//class'IdentifierInv'.static.Identify(Weapon);
-			Weapon.Identify(true);
+		} else {
+            OldCanThrow = Instigator.Weapon.bCanThrow;
+			WeaponModifier.SetModifier(WeaponModifier.Modifier * 2, true);
+			Instigator.Weapon.bCanThrow = false;
 		}
 	}
 
@@ -60,27 +57,15 @@ state Activated
 	{
 		Super.Tick(dt);
 	
-		if(Instigator.Weapon != Weapon)
+		if(Instigator.Weapon != WeaponModifier.Weapon)
 			GotoState('');
 	}
 
 	function EndState()
 	{
-		if(Weapon != None)
-		{
-			Weapon.SetModifier(Weapon.Modifier / 2);
-			
-			/*
-				EXPLOIT FIX: If the Instigator entered a vehicle, SetModifier will reactivate the weapon modifier, stacking the modifier
-				for the Instigator. Therefore, stop the effect immediately.
-			*/
-			if(Instigator.DrivenVehicle != None)
-				Weapon.StopEffect();
-			
-			Weapon.bCanThrow = oldCanThrow;
-			Weapon.ModifiedWeapon.bCanThrow = oldCanThrow;
-			//class'IdentifierInv'.static.Identify(Weapon);
-			Weapon.Identify(true);
+		if(WeaponModifier != None) {
+			WeaponModifier.SetModifier(WeaponModifier.Modifier / 2, true);
+			WeaponModifier.Weapon.bCanThrow = OldCanThrow;
 		}
 
 		Super.EndState();

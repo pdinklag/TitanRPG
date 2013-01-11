@@ -138,6 +138,7 @@ function InitDroppedPickupFor(Inventory Inv)
 
 function Inventory SpawnCopy( pawn Other )
 {
+    /*
 	local Inventory Copy;
 	local RPGPlayerReplicationInfo RPRI;
 	local RPGWeapon OldWeapon;
@@ -200,6 +201,8 @@ function Inventory SpawnCopy( pawn Other )
 		OldWeapon.RemoveReference();
 
 	return Copy;
+    */
+    return None; //this will break, and we do want it to break
 }
 
 function Destroyed()

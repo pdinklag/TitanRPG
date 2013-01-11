@@ -12,8 +12,6 @@ var float NextSaveTime;
 //General
 var RPGRules Rules;
 
-var config bool bAllowMagicWeapons;
-
 var config bool bAllowCheats;
 var config int StartingLevel, StartingStatPoints;
 var config int PointsPerLevel;
@@ -53,7 +51,7 @@ var config int RebuildMaxLevelLoss;
 //var config float WeaponModifierChance; //moved to RPGGameSettings
 struct WeaponModifier
 {
-	var class<RPGWeapon> WeaponClass;
+	var class<RPGWeaponModifier> ModifierClass;
 	var int Chance;
 };
 
@@ -337,9 +335,7 @@ function string GetInventoryClassOverride(string InventoryClassName)
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
 	local int i;
-	local RPGWeaponPickup RPGPickup;
 	local WeaponLocker Locker;
-	local RPGWeaponLocker RPGLocker;
     local RPGWeaponModifier WM;
     local RPGWeaponPickupModifier WPM;
 	local Weapon W;
@@ -435,36 +431,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
             WeaponPickupQueue[WeaponPickupQueue.Length] = WP;
         }
     }
-    
-	if(bAllowMagicWeapons)
-	{
-		//Replace weapon pickup
-		if(Other.IsA('WeaponPickup') && !Other.IsA('RPGWeaponPickup') && !Other.IsA('TransPickup'))
-		{
-			RPGPickup = RPGWeaponPickup(ReplaceWithActor(Other, "TitanRPG.RPGWeaponPickup"));
-			if(RPGPickup != None)
-			{
-				RPGPickup.FindPickupBase();
-				RPGPickup.GetPropertiesFrom(class<WeaponPickup>(Other.class));
-			}
-			return false;
-		}
-		
-		//Replace weapon locker (TODO: only if magic weapon chance > 0 ???)
-		if(Other.IsA('WeaponLocker') && !Other.IsA('RPGWeaponLocker'))
-		{
-			Locker = WeaponLocker(Other);
-            RPGLocker = RPGWeaponLocker(ReplaceWithActor(Other, "TitanRPG.RPGWeaponLocker"));
-            
-            if(RPGLocker != None)
-            {
-                RPGLocker.SetLocation(Locker.Location);
-                RPGLocker.ReplacedLocker = Locker;
-                Locker.GotoState('Disabled');
-            }
-			return true;
-		}
-	}
 	
 	//Weapon
 	if(Other.IsA('Weapon'))
@@ -656,9 +622,7 @@ function ModifyPlayer(Pawn Other)
 	local RPGPlayerReplicationInfo RPRI;
 	local int x;
 	local Inventory Inv;
-	local array<Weapon> StartingWeapons;
-	local class<Weapon> StartingWeaponClass;
-	local RPGWeapon MagicWeapon;
+	local class<RPGWeaponModifier> ModifierClass;
 	
 	Super.ModifyPlayer(Other);
 
@@ -689,44 +653,19 @@ function ModifyPlayer(Pawn Other)
 			class'Util'.static.GiveInventory(Other, DefaultArtifacts[x]);
 	}
 
-	if(GameSettings.WeaponModifierChance > 0)
-	{
-		x = 0;
-		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
-		{
-			if(Weapon(Inv) != None)
-			{
-				if(RPGWeapon(Inv) == None)
-					StartingWeapons[StartingWeapons.length] = Weapon(Inv);
-			}
-			
-			if(++x > 1000)
-				break;
-		}
-
-		for(x = 0; x < StartingWeapons.length; x++)
-		{
-			StartingWeaponClass = StartingWeapons[x].Class;
-			
-			// don't affect the translocator because it breaks bots
-			if(!ClassIsChildOf(StartingWeaponClass, class'TransLauncher'))
-			{
-				StartingWeapons[x].Destroy();
-				if (GameSettings.bMagicalStartingWeapons)
-					MagicWeapon = Spawn(GetRandomWeaponModifier(StartingWeaponClass, Other), Other,,, rot(0,0,0));
-				else
-					MagicWeapon = Spawn(class'RPGWeapon', Other,,, rot(0,0,0));
-				
-				MagicWeapon.Generate(None);
-				MagicWeapon.SetModifiedWeapon(spawn(StartingWeaponClass,Other,,,rot(0,0,0)), GameSettings.bNoUnidentified);
-				MagicWeapon.GiveTo(Other);
-			}
-		}
-		Other.Controller.ClientSwitchToBestWeapon();
-	}
-
-	if(RPGWeapon(Other.Weapon) != None)
-		RPGWeapon(Other.Weapon).StartEffect();
+    //Modify starting weapons
+    if(GameSettings.WeaponModifierChance > 0 && GameSettings.bMagicalStartingWeapons) {
+        for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory) {
+            if(Inv.IsA('Weapon')) {
+                ModifierClass = GetRandomWeaponModifier(Weapon(Inv).class, Other);
+                if(ModifierClass != None) {
+                    ModifierClass.static.Modify(Weapon(Inv), -100, GameSettings.bNoUnidentified);
+                }
+            }
+        }
+        
+        Other.Controller.ClientSwitchToBestWeapon();
+    }
 
 	//set pawn's properties
 	RPRI.ModifyPlayer(Other);
@@ -922,21 +861,23 @@ function ValidateData(RPGPlayerReplicationInfo RPRI)
 	}
 }
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other, optional bool bForceModifier)
+function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other, optional bool bForceModifier)
 {
 	local int x, Chance;
 
-	if(bForceModifier || FRand() < GameSettings.WeaponModifierChance)
-	{
-		Chance = Rand(TotalModifierChance);
-		for (x = 0; x < WeaponModifiers.Length; x++)
-		{
-			Chance -= WeaponModifiers[x].Chance;
-			if (Chance < 0 && WeaponModifiers[x].WeaponClass.static.AllowedFor(WeaponType, Other))
-				return WeaponModifiers[x].WeaponClass;
-		}
-	}
-	return class'RPGWeapon';
+    if(WeaponModifiers.Length > 0) {
+        if(bForceModifier || FRand() < GameSettings.WeaponModifierChance)
+        {
+            Chance = Rand(TotalModifierChance);
+            for (x = 0; x < WeaponModifiers.Length; x++)
+            {
+                Chance -= WeaponModifiers[x].Chance;
+                if (Chance < 0 && WeaponModifiers[x].ModifierClass.static.AllowedFor(WeaponType, Other))
+                    return WeaponModifiers[x].ModifierClass;
+            }
+        }
+    }
+	return None;
 }
 
 function NotifyLogout(Controller Exiting)
@@ -1059,8 +1000,6 @@ function Mutate(string MutateString, PlayerController Sender)
 	local array<string> Args;
 	local bool bIsAdmin, bIsSuperAdmin;
 	local int i, x;
-	local RPGWeapon RW;
-	local class<RPGWeapon> NewWeaponClass;
 	local class<RPGArtifact> ArtifactClass;
 	local RPGWeaponModifier WM;
 	local class<RPGWeaponModifier> WMClass;
@@ -1291,7 +1230,7 @@ function Mutate(string MutateString, PlayerController Sender)
 				Invasion(Level.Game).WaveCountDown = 15;
 				Invasion(Level.Game).WaveNum++;
 			}
-			else if(Cheat != None && Args[0] ~= "wm" && Args.Length > 1)
+			else if(Cheat != None && (Args[0] ~= "make" || Args[0] ~= "wm") && Args.Length > 1)
 			{
 				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("TitanRPG.WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
@@ -1302,7 +1241,7 @@ function Mutate(string MutateString, PlayerController Sender)
 						x = int(Args[2]);
                 
 					WM = WMClass.static.Modify(
-						Cheat.Weapon, x, true, false, true);
+						Cheat.Weapon, x, true, true);
 				}
 				else
 				{
@@ -1324,38 +1263,6 @@ function Mutate(string MutateString, PlayerController Sender)
 				else
 				{
 					Sender.ClientMessage("Effect class '" $ Args[1] $ "' not found!");
-				}
-				return;
-			}
-			else if(Cheat != None && Args[0] ~= "make" && Args.Length > 1)
-			{
-				if(Args[1] ~= "None")
-					NewWeaponClass = class'RPGWeapon';
-				else
-					NewWeaponClass = class<RPGWeapon>(DynamicLoadObject("TitanRPG.Weapon_" $ Args[1], class'Class'));
-
-				if(NewWeaponClass != None)
-				{
-					RW = RPRI.EnchantWeapon(Cheat.Weapon, NewWeaponClass);
-					RW.GiveTo(Cheat);
-					
-					if(Args.Length > 2 && Args[2] != "")
-						RW.SetModifier(int(Args[2]));
-					
-					RW.Identify(true);
-				}
-				else
-				{
-					Sender.ClientMessage("Weapon class '" $ Args[1] $ "' not found!");
-				}
-				return;
-			}
-			else if(Cheat != None && Args[0] ~= "mod" && Args.Length > 1)
-			{
-				if(RPGWeapon(Cheat.Weapon) != None)
-				{
-					RPGWeapon(Cheat.Weapon).SetModifier(int(Args[1]));
-					RPGWeapon(Cheat.Weapon).Identify(true);
 				}
 				return;
 			}
@@ -1522,8 +1429,6 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 
 defaultproperties
 {
-	bAllowMagicWeapons=True
-
 	bLevelCap=True
 
 	MinHumanPlayersForExp=0
@@ -1545,7 +1450,7 @@ defaultproperties
 	SuperAmmoClasses(2)=class'XWeapons.TransAmmo'
 	bAddToServerPackages=True
 	GroupName="TitanRPG"
-	FriendlyName="TitanRPG 1.70.5" //also used in Server Browser
+	FriendlyName="TitanRPG 1.71" //also used in Server Browser
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"

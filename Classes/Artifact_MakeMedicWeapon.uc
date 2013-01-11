@@ -1,11 +1,11 @@
 class Artifact_MakeMedicWeapon extends ArtifactBase_WeaponMaker hidedropdown;
 
-function class<RPGWeapon> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
+function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other)
 {
-	if(Weapon_Medic(Other.Weapon) != None)
-		return class'RPGWeapon';
+	if(class'WeaponModifier_Medic'.static.GetFor(Other.Weapon) != None)
+		return None;
 	else
-		return class'Weapon_Medic';
+		return class'WeaponModifier_Medic';
 }
 
 defaultproperties

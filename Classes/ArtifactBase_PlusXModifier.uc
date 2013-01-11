@@ -29,28 +29,24 @@ static function string GetMessageString(int Msg, optional int Value, optional Ob
 
 function bool CanActivate()
 {
-	OldWeapon = RPGWeapon(Instigator.Weapon);
-	if(OldWeapon != None)
-	{
-		if(RPGWeapon(OldWeapon).MinModifier == RPGWeapon(OldWeapon).MaxModifier)
-		{
-			Msg(MSG_UnableToModify);
-			return false;
-		}
-	
-		if(RPGWeapon(OldWeapon).Modifier < RPGWeapon(OldWeapon).MaxModifier)
-		{
-			Msg(MSG_MustBeMaxed);
-			return false;
-		}
-		else if(RPGWeapon(OldWeapon).Modifier > RPGWeapon(OldWeapon).MaxModifier)
-		{
-			Msg(MSG_AlreadyHigher);
-			return false;
-		}
+    local RPGWeaponModifier WM;
+    
+	if(Instigator.Weapon != None) {
+        WM = class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon);
+        if(WM == None || WM.MinModifier == WM.MaxModifier) {
+            Msg(MSG_UnableToModify);
+            return false;
+        }
+    
+        if(WM.Modifier < WM.MaxModifier) {
+            Msg(MSG_MustBeMaxed);
+            return false;
+        } else if(WM.Modifier > WM.MaxModifier) {
+            Msg(MSG_AlreadyHigher);
+            return false;
+        }
 	}
-	else
-	{
+	else {
 		Msg(MSG_UnableToModify);
 		return false;
 	}
@@ -62,17 +58,19 @@ state Activated
 {
 	function bool DoEffect()
 	{
-		if(OldWeapon != None)
-		{
-			RPGWeapon(OldWeapon).SetModifier(RPGWeapon(OldWeapon).MaxModifier + X);
-
-			RPGWeapon(OldWeapon).bCanThrow = false;
-			RPGWeapon(OldWeapon).ModifiedWeapon.bCanThrow = false;
-			RPGWeapon(OldWeapon).Identify(true);
-			return true;
+        local RPGWeaponModifier WM;
+    
+		if(OldWeapon != None) {
+            WM = class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon);
+            if(WM != None) {
+                WM.SetModifier(WM.MaxModifier + X, true);
+                return true;
+            } else {
+                Msg(MSG_UnableToModify);
+                return false;
+            }
 		}
-		else
-		{
+		else {
 			Msg(MSG_UnableToModify);
 			return false;
 		}
