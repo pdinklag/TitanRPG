@@ -2,7 +2,7 @@ class BouncyShockBall extends ShockProjectile;
 
 simulated event HitWall(vector HitNormal, actor Wall)
 {
-	if(!class'Weapon_Bounce'.static.Bounce(Self, HitNormal, Wall))
+	if(!class'WeaponModifier_Bounce'.static.Bounce(Self, HitNormal, Wall))
 		Super.HitWall(HitNormal, Wall);
 }
 

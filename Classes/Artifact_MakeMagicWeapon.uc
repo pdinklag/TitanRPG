@@ -7,7 +7,7 @@ function BotWhatNext(Bot Bot)
 		!HasActiveArtifact(Instigator) &&
 		Bot.Enemy == None &&
 		Instigator.Weapon != None &&
-		Instigator.Weapon.class == class'RPGWeapon' && //no magic
+		class'RPGWeaponModifier'.static.GetFor(Instigator.Weapon) == None && //no magic
 		FRand() < 0.25
 	)
 	{

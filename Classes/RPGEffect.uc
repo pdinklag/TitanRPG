@@ -96,10 +96,6 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 		return false;
 	}
 
-	//RPG Weapon
-	if(RPGWeapon(Other.Weapon) != None && !RPGWeapon(Other.Weapon).AllowEffect(default.class, Causer, Duration, Modifier))
-		return false;
-
 	//Weapon Modifier
 	WM = class'RPGWeaponModifier'.static.GetFor(Other.Weapon);
 	if(WM != None && !WM.AllowEffect(default.class, Causer, Duration, Modifier))

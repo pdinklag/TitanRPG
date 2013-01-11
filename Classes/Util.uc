@@ -121,14 +121,6 @@ static function array<Controller> GetAllPassengerControllers(Vehicle V)
 	return Passengers;
 }
 
-static final function Weapon GetWeapon(Inventory Inv)
-{
-	if(RPGWeapon(Inv) != None)
-		return RPGWeapon(Inv).ModifiedWeapon;
-	else
-		return Weapon(Inv);
-}
-
 static function string HighlightText(string Text, Color Highlight, Color Old)
 {
 	return class'GameInfo'.static.MakeColorCode(Highlight) $ Text $ class'GameInfo'.static.MakeColorCode(Old);
@@ -426,13 +418,13 @@ static function Weapon TraceBackWeapon(Pawn P, class<WeaponDamageType> DamageTyp
 	local Weapon W;
 	local Inventory Inv;
 	
-	W = GetWeapon(P.Weapon);
+	W = P.Weapon;
 	if(W != None && ClassIsChildOf(W.class, DamageType.default.WeaponClass))
 		return P.Weapon;
 
 	for(Inv = P.Inventory; Inv != None; Inv = Inv.Inventory)
 	{
-		W = GetWeapon(Inv);
+		W = Weapon(Inv);
 		if(W != None && ClassIsChildOf(W.class, DamageType.default.WeaponClass))
 			return Weapon(Inv);
 	}

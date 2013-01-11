@@ -1081,8 +1081,8 @@ function ModifyPlayer(Pawn Other)
 		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
 		{
 			if(
-				(LastSelectedWeapon.ModifierClass == None && Inv.class == LastSelectedWeapon.WeaponClass) ||
-				(Inv.class == LastSelectedWeapon.ModifierClass && RPGWeapon(Inv).ModifiedWeapon.class == LastSelectedWeapon.WeaponClass)
+                Inv.class == LastSelectedWeapon.WeaponClass &&
+                (LastSelectedWeapon.ModifierClass == None || LastSelectedWeapon.ModifierClass.static.GetFor(Weapon(Inv)) != None)
 			)
 			{
 				ClientSwitchToWeapon(Weapon(Inv));
@@ -1438,10 +1438,7 @@ simulated function PerformWeaponSwitch(Weapon W)
 			Log("Failed to switch weapon on client side - Weapon is NONE.", 'TitanRPG');
 			return;
 		}
-			
-		if(RPGWeapon(W) != None && RPGWeapon(W).ModifiedWeapon == None)
-			return;
-			
+
 		if(Pawn.PendingWeapon != None && Pawn.PendingWeapon.bForceSwitch)
 			return;
 

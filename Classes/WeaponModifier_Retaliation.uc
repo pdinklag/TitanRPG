@@ -11,8 +11,9 @@ local int RetalDamage;
 
 	if(DamageType == class'DamTypeCounterShove' || DamageType == class'DamTypeRetaliation')
 		return;
-		
-	if(Weapon_MagicNullifier(InstigatedBy.Weapon) != None)
+	
+    //TODO effect system
+	if(class'WeaponModifier_Nullification'.static.GetFor(InstigatedBy.Weapon) != None)
 		return;
 
 	if(InstigatedBy != None && InstigatedBy != Instigator && !InstigatedBy.Controller.SameTeamAs(Instigator.Controller))

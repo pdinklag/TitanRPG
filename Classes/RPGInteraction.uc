@@ -713,21 +713,11 @@ function PostRender(Canvas Canvas)
 				//Get new description
 				if(P.PendingWeapon != None)
 				{
-					if(P.PendingWeapon.IsA('RPGWeapon') && RPGWeapon(P.PendingWeapon).bIdentified)
-					{
-						LastWeaponExtra = RPGWeapon(P.PendingWeapon).GetWeaponNameExtra();
-						
-						if(RPGWeapon(P.PendingWeapon).bFavorite)
-							LastWeaponExtra = "<3" @ LastWeaponExtra @ "<3";
-					}
-					else
-					{
-						WM = class'RPGWeaponModifier'.static.GetFor(P.PendingWeapon);
-						if(WM != None)
-							LastWeaponExtra = WM.GetDescription();
-						else
-							LastWeaponExtra = "";
-					}
+                    WM = class'RPGWeaponModifier'.static.GetFor(P.PendingWeapon);
+                    if(WM != None)
+                        LastWeaponExtra = WM.GetDescription();
+                    else
+                        LastWeaponExtra = "";
 				}
 			}
 		}

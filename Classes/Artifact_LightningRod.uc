@@ -35,7 +35,7 @@ function BotFightEnemy(Bot Bot)
 		if(HasActiveArtifact(Instigator))
 			return;
 			
-		if(Weapon_LightningConduction(Bot.Enemy.Weapon) != None)
+		if(class'WeaponModifier_LightningConduction'.static.GetFor(Bot.Enemy.Weapon) != None)
 			return;
 	
 		if(
@@ -65,7 +65,7 @@ function BotFightEnemy(Bot Bot)
 	else
 	{
 		if(
-			Weapon_LightningConduction(Bot.Enemy.Weapon) != None ||
+			class'WeaponModifier_LightningConduction'.static.GetFor(Bot.Enemy.Weapon) != None ||
 			VSize(Bot.Enemy.Location - Instigator.Location) > TargetRadius)
 		{
 			Activate();
@@ -87,22 +87,10 @@ function BotWhatNext(Bot Bot)
 
 function bool CanActivate()
 {
-	local Weapon W;
-
-	//Get current actual Weapon -pd
-	if(RPGWeapon(Instigator.Weapon) != None)
-		W = RPGWeapon(Instigator.Weapon).ModifiedWeapon;
-	else
-		W = Instigator.Weapon;
-
 	//Don't allow rodding with a translocator -pd
-	if(W != None)
-	{
-		if(W.IsA('TransLauncher'))
-		{
-			Msg(MSG_NotWithTrans);
-			return false;
-		}	
+	if(TransLauncher(Instigator.Weapon) != None) {
+        Msg(MSG_NotWithTrans);
+        return false;
 	}
 
 	return Super.CanActivate();
@@ -119,18 +107,10 @@ state Activated
 		local vector HitLocation, HitNormal;
 		local rotator Dir;
 		local Actor TracedActor;
-		local Weapon W;
 		local int FinalDamage;
 
 		//If the Instigator switches to a translocator, turn the rod off! -pd
-		if(RPGWeapon(Instigator.Weapon) != None)
-			W = RPGWeapon(Instigator.Weapon).ModifiedWeapon;
-		else
-			W = Instigator.Weapon;
-
-		if(W != None)
-		{
-			if(W.IsA('TransLauncher'))
+		if(TransLauncher(Instigator.Weapon) != None) {
 				Activate();	//Don't be confused, this deactivates it...
 		}
 		

@@ -16,117 +16,6 @@ event ModeDoFire()
     Super.ModeDoFire();
 }
 
-//From old RPGLinkFire
-function bool IsLinkable(Actor Other)
-{
-    local Pawn P;
-    local LinkGun LG;
-    local LinkFire LF;
-    local int sanity;
-
-    if (Other.IsA('Pawn') && Other.bProjTarget)
-    {
-        P = Pawn(Other);
-
-        if (P.Weapon == None || (!P.Weapon.IsA('LinkGun') && (RPGWeapon(P.Weapon) == None || !RPGWeapon(P.Weapon).ModifiedWeapon.IsA('LinkGun'))) )
-	{
-		if (Vehicle(P) != None)
-			return P.TeamLink(Instigator.GetTeamNum());
-		return false;
-	}
-
-        // pro-actively prevent link cycles from happening
-        LG = LinkGun(P.Weapon);
-        if (LG == None)
-        	LG = LinkGun(RPGWeapon(P.Weapon).ModifiedWeapon);
-        LF = LinkFire(LG.GetFireMode(1));
-        while (LF != None && LF.LockedPawn != None && LF.LockedPawn != P && sanity < 20)
-        {
-            if (LF.LockedPawn == Instigator)
-                return false;
-            LG = LinkGun(LF.LockedPawn.Weapon);
-            if (LG == None)
-            {
-            	if (RPGWeapon(LF.LockedPawn.Weapon) != None)
-            		LG = LinkGun(RPGWeapon(LF.LockedPawn.Weapon).ModifiedWeapon);
-            	if (LG == None)
-	                break;
-	    }
-            LF = LinkFire(LG.GetFireMode(1));
-            sanity++;
-        }
-
-        return (Level.Game.bTeamGame && P.GetTeamNum() == Instigator.GetTeamNum());
-    }
-    return false;
-}
-
-//=============================================================================
-// AddLink
-//
-// Copy from RPGLinkFire.AddLink(). Prevents the infinite loop from occurring.
-//=============================================================================
-
-function bool AddLink(int Size, Pawn Starter)
-{
-  local Inventory Inv;
-
-  if (LockedPawn != None && !bFeedbackDeath) {
-    if (LockedPawn == Starter)
-      return false;
-
-    for (Inv = LockedPawn.Inventory; Inv != None; Inv = Inv.Inventory) {
-      if (LinkGun(Inv) != None)
-        break;
-      else if (RPGWeapon(Inv) != None && LinkGun(RPGWeapon(Inv).ModifiedWeapon) != None) {
-        Inv = RPGWeapon(Inv).ModifiedWeapon;
-        break;
-      }
-    }
-
-    // Make sure the LinkGun you find actually belongs to the LockedPawn.
-    if (Inv != None && Inv.Owner == LockedPawn) {
-      if (LinkFire(LinkGun(Inv).GetFireMode(1)).AddLink(Size, Starter))
-        LinkGun(Inv).Links += Size;
-      else
-        return false;
-    }
-  }
-
-  return true;
-}
-
-
-//=============================================================================
-// RemoveLink
-//
-// Copy from RPGLinkFire.RemoveLink(). Prevents the infinite loop from
-// occurring.
-//=============================================================================
-
-function RemoveLink(int Size, Pawn Starter)
-{
-  local Inventory Inv;
-
-  if (LockedPawn != None && !bFeedbackDeath && LockedPawn != Starter) {
-    for (Inv = LockedPawn.Inventory; Inv != None; Inv = Inv.Inventory) {
-      if (LinkGun(Inv) != None)
-        break;
-      else if (RPGWeapon(Inv) != None && LinkGun(RPGWeapon(Inv).ModifiedWeapon) != None) {
-        Inv = RPGWeapon(Inv).ModifiedWeapon;
-        break;
-      }
-    }
-
-    // Make sure the LinkGun you find actually belongs to the LockedPawn.
-    if (Inv != None && Inv.Owner == LockedPawn)
-    {
-      LinkFire(LinkGun(Inv).GetFireMode(1)).RemoveLink(Size, Starter);
-      LinkGun(Inv).Links -= Size;
-    }
-  }
-}
-
 //=============================================================================
 // ModeTick
 //
@@ -148,7 +37,6 @@ simulated function ModeTick(float dt)
 	local DestroyableObjective HealObjective;
 	local Vehicle LinkedVehicle;
 	local int OldHealth;
-	local Inventory Inv;
 	local HealableDamageInv Healable;
 	local RPGPlayerReplicationInfo RPRI;
     local RPGWeaponModifier WM;
@@ -384,20 +272,10 @@ simulated function ModeTick(float dt)
 		if ( LinkedVehicle != None && bDoHit )
 		{
 			AdjustedDamage = Damage * (1.5*Linkgun.Links+1) * Instigator.DamageScaling;
-			
-			//Check whether we're using a Repair Link Gun
-			for (Inv = Instigator.Inventory; Inv != None; Inv = Inv.Inventory)
-			{
-				if(Weapon_Repair(Inv) != None && Weapon_Repair(Inv).ModifiedWeapon == Weapon)
-				{
-					AdjustedDamage *= 1.0 + Weapon_Repair(Inv).BonusPerLevel; //The actual Repair gun effect
-					break;
-				}
-			}
             
             //Check whether we're using a Repair weapon modifier
-            WM = class'RPGWeaponModifier'.static.GetFor(Weapon);
-            if(WeaponModifier_Repair(WM) != None) {
+            WM = class'WeaponModifier_Repair'.static.GetFor(Weapon);
+            if(WM != None) {
                 WM.Identify();
                 AdjustedDamage *= 1.0 + WM.Modifier * WM.BonusPerLevel; //The actual Repair gun effect
             }

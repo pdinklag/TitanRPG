@@ -1,6 +1,6 @@
 class RPGMenu_Abilities extends RPGMenu_TabPage;
 
-var array<class<RPGAbilityCategory> > Categories; //TODO: Make configurable in some way?
+var array<class<RPGAbilityCategory> > Categories;
 
 struct AbilityInfo
 {

@@ -16,7 +16,7 @@ function BotFightEnemy(Bot Bot)
 
 	if(
 		Bot.bEnemyIsVisible &&
-		Weapon_Sturdy(Bot.Enemy.Weapon) == None &&
+		class'WeaponModifier_Sturdy'.static.GetFor(Bot.Enemy.Weapon) == None &&
 		VSize(Bot.Enemy.Location - Instigator.Location) <= BlastRadius
 	)
 	{

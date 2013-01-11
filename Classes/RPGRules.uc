@@ -71,7 +71,7 @@ var config float EXP_DamagePowercore;
 //AS
 var config float EXP_ObjectiveCompleted;
 
-//TODO: Win game, ONS events, AS events, DOM events, Necromancy
+//TODO: Win game, ONS events, AS events, DOM events
 
 //Misc
 var config float EXP_Resurrection; //resurrection using the Necromancy combo
@@ -156,7 +156,7 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 	}
 	else
 	{
-		Head = LinkGun(class'Util'.static.GetWeapon(InstigatorRPRI.Controller.Pawn.Weapon));
+		Head = LinkGun(InstigatorRPRI.Controller.Pawn.Weapon);
 		if(Head == None)
 		{
 			// Instigator is not using a Link Gun
@@ -170,7 +170,7 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 			{
 				if(C.Pawn != None && C.Pawn.Weapon != None)
 				{
-					Link = LinkGun(class'Util'.static.GetWeapon(C.Pawn.Weapon));
+					Link = LinkGun(C.Pawn.Weapon);
 					if(Link != None && Link.LinkedTo(Head))
 					{
 						RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
@@ -368,8 +368,6 @@ function ScoreKill(Controller Killer, Controller Killed)
 					RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillWeaponType);
 			}
 		
-			//TODO: Adjust adrenaline for lightning rod kills
-		
 			if(KillerRPRI != None)
 			{
 				/*
@@ -506,8 +504,6 @@ function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
 		//for most cases, checking the currently held weapon will suffice
 		if(Other.Weapon != None && ClassIsChildOf(Other.Weapon.class, WClass))
 			return Other.Weapon;
-		else if(RPGWeapon(Other.Weapon) != None && ClassIsChildOf(RPGWeapon(Other.Weapon).ModifiedWeapon.class, WClass))
-			return Other.Weapon;
 		
 		//if not, browse the inventory
 		for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory)
@@ -516,8 +512,6 @@ function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
 				continue; //already checked
 			
 			if(ClassIsChildOf(Inv.class, WClass))
-				return Weapon(Inv);
-			else if(Inv.IsA('RPGWeapon') && ClassIsChildOf(RPGWeapon(Inv).ModifiedWeapon.class, WClass))
 				return Weapon(Inv);
 		}
 	}
@@ -649,10 +643,6 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		
 		if(W != None)
 		{
-			//RPGWeapon
-			if(RPGWeapon(W) != None)
-				RPGWeapon(W).RPGAdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
-			
 			//Weapon modifier
 			WM = class'RPGWeaponModifier'.static.GetFor(W);
 			if(WM != None)
@@ -680,10 +670,6 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 	/*
 		PASSIVE DAMAGE MODIFICATION
 	*/
-	
-	//RPGWeapon
-	if(RPGWeapon(injured.Weapon) != None)
-		RPGWeapon(injured.Weapon).RPGAdjustPlayerDamage(Damage, OriginalDamage, instigatedBy, HitLocation, Momentum, DamageType);
 	
 	//Weapon modifier
 	WM = class'RPGWeaponModifier'.static.GetFor(injured.Weapon);

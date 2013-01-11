@@ -34,7 +34,8 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 	
 	DamageBonus = Old;
 	
-	if(Weapon_MagicNullifier(Injured.Weapon) != None)
+    //TODO effect system
+	if(class'WeaponModifier_Nullification'.static.GetFor(Injured.Weapon) != None)
 		return;
 	
 	if(Injured.ShieldStrength > 0 && DamageType.default.bArmorStops)

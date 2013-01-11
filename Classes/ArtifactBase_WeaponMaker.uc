@@ -49,11 +49,7 @@ function bool CanActivate()
 		return false;
 
 	OldWeapon = Instigator.Weapon;
-	
-	if(RPGWeapon(OldWeapon) != None)
-		OldWeaponClass = RPGWeapon(OldWeapon).ModifiedWeapon.class;
-	else if(OldWeapon != None)
-		OldWeaponClass = OldWeapon.class;
+	OldWeaponClass = OldWeapon.class;
 
 	if(OldWeapon != None)
 	{

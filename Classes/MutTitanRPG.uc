@@ -442,11 +442,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		{
 			if(W.FireModeClass[i] != None)
 			{
-				if(W.FireModeClass[i] == class'PainterFire')
-					W.FireModeClass[i] = class'RPGPainterFire';
-				else if (W.FireModeClass[i] == class'ONSPainterFire')
-					W.FireModeClass[i] = class'RPGONSPainterFire';
-				else if (W.FireModeClass[i] == class'ONSAVRiLFire')
+				if (W.FireModeClass[i] == class'ONSAVRiLFire')
 					W.FireModeClass[i] = class'RPGONSAVRiLFire';
 				else if(W.FireModeClass[i] == class'TransFire' || string(W.FireModeClass[i]) ~= "OLTeamGames.OLTeamsTransFire")
 					W.FireModeClass[i] = class'RPGTransFire';
@@ -514,8 +510,6 @@ function Actor ReplaceWithActor(actor Other, string aClassName)
 event Tick(float dt)
 {
     local int i;
-	local Weapon W;
-	local Projectile Proj;
 
 	//If stats are disabled, create the game stats override here
 	if(!bGameStarted && !Level.Game.bWaitingToStartMatch)
@@ -525,6 +519,7 @@ event Tick(float dt)
 	}
 	
 	//Projectiles
+    /*
 	foreach DynamicActors(class'Projectile', Proj)
 	{
 		if(Proj.Tag == Proj.class.Name && Proj.Instigator != None)
@@ -538,8 +533,10 @@ event Tick(float dt)
 				Proj.Tag = 'Processed'; //make sure it's only processed once
 		}
 	}
+    */
     
     //Weapon pickups
+    //TODO move to RPGRules
     for(i = 0; i < WeaponPickupQueue.Length; i++) {
         if(WeaponPickupQueue[i].PickUpBase != None) {
             //Randomize pickup base
@@ -726,8 +723,9 @@ function DriverEnteredVehicle(Vehicle V, Pawn P)
 	}
 	
 	//stop the weapon magic effect, if present (DetachFromPawn does not get called)
-	if(RPGWeapon(P.Weapon) != None)
-		RPGWeapon(P.Weapon).StopEffect();
+    //TODO test
+	//if(RPGWeapon(P.Weapon) != None)
+	//	RPGWeapon(P.Weapon).StopEffect();
 
 	//hack - temporarily give the pawn its Controller back because RPGArtifact.Activate() needs it
 	P.Controller = V.Controller;
@@ -1313,12 +1311,6 @@ function Mutate(string MutateString, PlayerController Sender)
 				
 				Log("WeaponInfo:", 'TitanRPG');
 				Log("Class = " $ W.class, 'TitanRPG');
-				
-				if(W.IsA('RPGWeapon'))
-				{
-					W = RPGWeapon(W).ModifiedWeapon;
-					Log("Actual class: " $ W.class, 'TitanRPG');
-				}
 				
 				Log("InventoryGroup = " $ W.InventoryGroup, 'TitanRPG');
 				Log("", 'TitanRPG');

@@ -2,7 +2,7 @@ class RPGBot extends InvasionBot; //optimized for InvasionPro 1.3 which is assum
 
 var RPGAIBuild AIBuild;
 
-var RPGWeapon LastWeaponMagicSuffered;
+var RPGWeaponModifier LastModifierSuffered;
 var class<DamageType> LastDamageTypeSuffered;
 
 var RPGArtifact PickedArtifact;
@@ -121,7 +121,7 @@ function TryCombo(string ComboName)
 function YellAt(Pawn Moron)
 {
 	//don't yell if being healed
-	if(Weapon_Healer(Moron.Weapon) == None)
+	if(class'WeaponModifier_Heal'.static.GetFor(Moron.Weapon) == None)
 	{
 		if(bInvasion)
 			Super.YellAt(Moron);
@@ -236,7 +236,7 @@ function NotifyTakeHit(pawn InstigatedBy, vector HitLocation, int Damage, class<
 		LastDamageTypeSuffered = damageType;
 		
 		if(class<WeaponDamageType>(damageType) != None)
-			LastWeaponMagicSuffered = RPGWeapon(InstigatedBy.Weapon);
+			LastModifierSuffered = class'RPGWeaponModifier'.static.GetFor(InstigatedBy.Weapon);
 	}
 }
 

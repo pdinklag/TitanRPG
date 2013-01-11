@@ -20,10 +20,7 @@ function ModifyWeapon(Weapon Weapon)
 	local float Modifier;
 	
 	Modifier = 1.0 + (BonusPerLevel * AbilityLevel);
-	
-	if(Weapon.IsA('RPGWeapon'))
-		Weapon = RPGWeapon(Weapon).ModifiedWeapon;
-	
+
 	Weapon.BringUpTime = Weapon.default.BringUpTime / Modifier;
 	Weapon.PutDownTime = Weapon.default.PutDownTime / Modifier;
 	Weapon.MinReloadPct = Weapon.default.MinReloadPct / Modifier;

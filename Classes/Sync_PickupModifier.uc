@@ -28,7 +28,6 @@ static function Sync_PickupModifier Sync(WeaponPickup Pickup, class<RPGWeaponMod
         Pickup.LinkMesh(AttachmentClass.default.Mesh);
         Pickup.SetDrawType(DT_Mesh);
         
-        //TODO AVRiL draw scale
         if(ClassIsChildOf(AttachmentClass, class'xWeaponAttachment') &&
             AttachmentClass.default.DrawScale != class'xWeaponAttachment'.default.DrawScale) {
         

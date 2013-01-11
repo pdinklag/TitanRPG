@@ -380,9 +380,43 @@ function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float
 	return true;
 }
 
-function float GetAIRating()
-{
-	return Weapon.GetAIRating() * (1.0f + AIRatingBonus);
+function float GetAIRating() {
+    local RPGBot B;
+    local int x;
+    local float Rating;
+
+    Rating = Weapon.GetAIRating();
+
+    if(MaxModifier == 0) {
+        Rating += AIRatingBonus;
+    } else {
+        Rating += AIRatingBonus * Modifier;
+    }
+
+    Rating += DamageBonus * Modifier;
+
+    B = RPGBot(Instigator.Controller);
+    if(B != None) {
+        if(B.LastModifierSuffered != None) {
+            for(x = 0; x < CountersModifier.Length; x++) {
+                if(CountersModifier[x] == B.LastModifierSuffered) {
+                    Rating *= 2.5;
+                    break;
+                }
+            }
+        }
+
+        if(B.LastDamageTypeSuffered != None) {
+            for(x = 0; x < CountersDamage.Length; x++) {
+                if(CountersDamage[x] == B.LastDamageTypeSuffered) {
+                    Rating *= 2.5;
+                    break;
+                }
+            }
+        }
+    }
+    
+    return Rating;
 }
 
 simulated event Destroyed()

@@ -4,7 +4,7 @@ simulated function UpdateLinkColor()
 {
 	local RPGLinkGun LinkGun;
 	
-	LinkGun = RPGLinkGun(class'Util'.static.GetWeapon(Instigator.Weapon));
+	LinkGun = RPGLinkGun(Instigator.Weapon);
 
 	if(LinkGun != None && LinkGun.bOLTeamGames)
 	{
@@ -46,7 +46,7 @@ simulated event ThirdPersonEffects()
 	local RPGLinkGun LinkGun;
     local rotator R;
 	
-	LinkGun = RPGLinkGun(class'Util'.static.GetWeapon(Instigator.Weapon));
+	LinkGun = RPGLinkGun(Instigator.Weapon);
 	if(LinkGun != None && LinkGun.bOLTeamGames)
 	{
 		if ( Level.NetMode != NM_DedicatedServer && FlashCount > 0 )

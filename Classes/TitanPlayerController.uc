@@ -1,40 +1,5 @@
 class TitanPlayerController extends XPlayer;
 
-//Fixed GetWeapon function to work with RPGWeapons as well!
-exec function GetWeapon(class<Weapon> NewWeaponClass )
-{
-	local Weapon W;
-    local Inventory Inv;
-    local int Count;
-
-    if ( (Pawn == None) || (Pawn.Inventory == None) || (NewWeaponClass == None) )
-        return;
-	
-    if ( Pawn.PendingWeapon != None && Pawn.PendingWeapon.bForceSwitch )
-        return;
-
-    for ( Inv=Pawn.Inventory; Inv!=None; Inv=Inv.Inventory )
-    {
-		W = class'Util'.static.GetWeapon(Inv);	
-
-        if ( W != None && ClassIsChildOf(W.class, NewWeaponClass) && Inv != Pawn.Weapon )
-        {
-            Pawn.PendingWeapon = Weapon(Inv); //NOT W, which could be the ModifiedWeapon of an RPGWeapon
-            if ( !Pawn.PendingWeapon.HasAmmo() )
-            {
-                ClientMessage(Pawn.PendingWeapon.ItemName $ Pawn.PendingWeapon.MessageNoAmmo );
-                Pawn.PendingWeapon = None;
-                return;
-            }
-            Pawn.Weapon.PutDown();
-            return;
-        }
-		Count++;
-		if ( Count > 1000 )
-			return;
-    }
-}
-
 //Allowing jump/crouch for up/down flying control!
 state PlayerFlying
 {
@@ -169,7 +134,7 @@ function SendMessage(PlayerReplicationInfo Recipient, name MessageType, byte Mes
 		//Check if Recipient is currently holding a Healing gun.
 		if(
 			Controller(Recipient.Owner).Pawn != None && 
-			Weapon_Healer(Controller(Recipient.Owner).Pawn.Weapon) != None)
+			class'WeaponModifier_Heal'.static.GetFor(Controller(Recipient.Owner).Pawn.Weapon) != None)
 		{
 			return; //Shut up.
 		}

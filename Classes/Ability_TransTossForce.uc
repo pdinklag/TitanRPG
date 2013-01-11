@@ -7,9 +7,6 @@ function ModifyWeapon(Weapon Weapon)
 	local int i;
 	local WeaponFire WF;
 
-	if(RPGWeapon(Weapon) != None)
-		Weapon = RPGWeapon(Weapon).ModifiedWeapon;
-		
 	for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
 	{
 		WF = Weapon.GetFireMode(i);
