@@ -759,6 +759,8 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 
             bAllowPickup = 0;
             return true;
+        } else {
+            //do nothing / normal pickup
         }
     }
     
