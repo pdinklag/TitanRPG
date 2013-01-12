@@ -54,8 +54,9 @@ defaultproperties
 	SpamText="$1 fire rate"
 	DamageBonus=0.000000
 	BonusPerLevel=0.050000
-	MinModifier=1
+	MinModifier=-3
 	MaxModifier=5
+    bCanHaveZeroModifier=False
 	ModifierOverlay=FinalBlend'X_AW-Shaders.Shaders.StainAgain' //PARTY =D
 	PatternPos="$W of SPAM"
 	PatternNeg="$W of FAIL"

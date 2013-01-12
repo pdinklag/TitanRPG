@@ -67,10 +67,9 @@ simulated function BuildDescription()
 defaultproperties
 {
 	PiercingText="pierces shield, extra damage against vehicles"
-	bCanHaveZeroModifier=True
 	DamageBonus=0.05
 	BonusPerLevel=0.10
-	MinModifier=-3
+	MinModifier=1
 	MaxModifier=8
 	ModifierOverlay=Shader'UT2004Weapons.Shaders.BlueShockFall'
 	PatternPos="Piercing $W"

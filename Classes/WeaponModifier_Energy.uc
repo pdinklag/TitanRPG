@@ -51,6 +51,7 @@ defaultproperties
 	AdrenBonusText="$1 adrenaline gain"
 	MinModifier=-3
 	MaxModifier=4
+    bCanHaveZeroModifier=False
 	ModifierOverlay=Shader'XGameShaders.PlayerShaders.LightningHit'
 	PatternPos="$W of Energy"
 	PatternNeg="Draining $W"

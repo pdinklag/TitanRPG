@@ -56,6 +56,7 @@ defaultproperties
 	MaxFallSpeedBonus=0.030000
 	MinModifier=-3
 	MaxModifier=10
+    bCanHaveZeroModifier=False
 	ModifierOverlay=Shader'XGameShaders.BRShaders.BombIconBS'
 	PatternPos="$W of Feather"
 	PatternNeg="$W of Burden"

@@ -67,6 +67,7 @@ defaultproperties
 	ProjSpeedText="$1 projectile speed"
 	MinModifier=-4
 	MaxModifier=10
+    bCanHaveZeroModifier=False
 	ModifierOverlay=Shader'XGameShaders.PlayerShaders.PlayerTransRed'
 	PatternPos="$W of Force"
 	PatternNeg="$W of Slow Motion"

@@ -36,6 +36,7 @@ defaultproperties
 	BonusPerLevel=0.030000
 	MinModifier=-3
 	MaxModifier=7
+    bCanHaveZeroModifier=False
 	ModifierOverlay=Shader'XGameShaders.BRShaders.BombIconBS'
 	PatternPos="$W of Speed"
 	PatternNeg="$W of Slowness"
