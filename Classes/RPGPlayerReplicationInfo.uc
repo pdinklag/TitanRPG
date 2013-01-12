@@ -10,12 +10,7 @@ var MutTitanRPG RPGMut;
 var bool bImposter;
 
 //PDP protection
-struct ThrownWeaponInfo
-{
-	var class<Weapon> WeaponClass;
-    var class<RPGWeaponModifier> ModifierClass;
-};
-var array<ThrownWeaponInfo> ThrownWeapons;
+var array<class<Weapon> > ThrownWeapons;
 
 var RPGAIBuild AIBuild;
 var int AIBuildAction;
@@ -1013,15 +1008,9 @@ function bool ServerBuyAbility(RPGAbility Ability, optional int Amount)
 	}
 }
 
-function RegisterThrownWeapon(Weapon W) {
-    local RPGWeaponModifier WM;
-    local ThrownWeaponInfo Info;
-    
-    WM = class'RPGWeaponModifier'.static.GetFor(W);
-    if(WM != None) {
-        Info.WeaponClass = W.class;
-        Info.ModifierClass = WM.class;
-        ThrownWeapons[ThrownWeapons.Length] = Info;
+function AddThrownWeapon(class<Weapon> WeaponClass) {
+    if(!HasThrownWeapon(WeaponClass)) {
+        ThrownWeapons[ThrownWeapons.Length] = WeaponClass;
     }
 }
 
@@ -1029,22 +1018,22 @@ function RemoveThrownWeapon(class<Weapon> WeaponClass) {
     local int i;
     
     for(i = 0; i < ThrownWeapons.Length; i++) {
-        if(ThrownWeapons[i].WeaponClass == WeaponClass) {
+        if(ThrownWeapons[i] == WeaponClass) {
             ThrownWeapons.Remove(i, 1);
             return;
         }
     }
 }
 
-function class<RPGWeaponModifier> LookupThrownWeapon(class<Weapon> WeaponClass) {
+function bool HasThrownWeapon(class<Weapon> WeaponClass) {
     local int i;
     
     for(i = 0; i < ThrownWeapons.Length; i++) {
-        if(ThrownWeapons[i].WeaponClass == WeaponClass) {
-            return ThrownWeapons[i].ModifierClass;
+        if(ThrownWeapons[i] == WeaponClass) {
+            return true;
         }
     }
-    return None;
+    return false;
 }
 
 function ModifyPlayer(Pawn Other)

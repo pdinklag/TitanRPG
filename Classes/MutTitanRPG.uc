@@ -337,6 +337,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	local WeaponLocker Locker;
     local RPGWeaponModifier WM;
     local RPGWeaponPickupModifier WPM;
+    local RPGPlayerReplicationInfo RPRI;
 	local Weapon W;
     local WeaponPickup WP;
 	local string ClassName, NewClassName;
@@ -421,6 +422,13 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     
         //Thrown weapon
         if(WP.Instigator != None && WP.Instigator.Weapon != None) {
+            //Add to thrown weapons
+            RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(WP.Instigator.Controller);
+            if(RPRI != None) {
+                RPRI.AddThrownWeapon(WP.Instigator.Weapon.class);
+            }
+        
+            //Apply modifier
             WM = class'RPGWeaponModifier'.static.GetFor(WP.Instigator.Weapon);
             if(WM != None) {
                 WPM = class'RPGWeaponPickupModifier'.static.Modify(WP, WM);
@@ -843,10 +851,24 @@ function ValidateData(RPGPlayerReplicationInfo RPRI)
 	}
 }
 
+function bool CheckPDP(Pawn Other, class<Weapon> WeaponType) {
+    local RPGPlayerReplicationInfo RPRI;
+
+    //PDP protection
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
+    if(RPRI != None && RPRI.HasThrownWeapon(WeaponType)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 function class<RPGWeaponModifier> GetRandomWeaponModifier(class<Weapon> WeaponType, Pawn Other, optional bool bForceModifier)
 {
 	local int x, Chance;
 
+    //Generate
+    //TODO: fair algorithm (this one favors those first in the list)
     if(WeaponModifiers.Length > 0) {
         if(bForceModifier || FRand() < GameSettings.WeaponModifierChance)
         {

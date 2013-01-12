@@ -717,10 +717,17 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     local RPGWeaponPickupModifier WPM;
 	local int x;
     
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
+    
     //Modified weapon pickup
     if(item.IsA('WeaponPickup')) {
         WPM = class'RPGWeaponPickupModifier'.static.GetFor(WeaponPickup(item));
         if(WPM != None) {
+            //Remove thrown weapon
+            if(RPRI != None) {
+                RPRI.RemoveThrownWeapon(class<Weapon>(item.InventoryType));
+            }
+        
             //Simulate using modifier
             class'RPGWeaponPickupModifier'.static.SimulateWeaponPickup(
                 WeaponPickup(item),
@@ -729,10 +736,13 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
                 WPM.ModifierLevel,
                 WPM.bIdentified);
             
-            if(item == None || item.bDeleteMe) {
+            if(item == None || item.bDeleteMe || item.bPendingDelete) {
                 WPM.Destroy();
             }
-        } else {
+            
+            bAllowPickup = 0;
+            return true;
+        } else if(RPGMut.CheckPDP(Other, class<Weapon>(item.InventoryType))) {
             //Simulate using random
             class'RPGWeaponPickupModifier'.static.SimulateWeaponPickup(
                 WeaponPickup(item),
@@ -740,14 +750,14 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
                 RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other),
                 -100,
                 RPGMut.GameSettings.bNoUnidentified);
+
+            bAllowPickup = 0;
+            return true;
         }
-        
-        bAllowPickup = 0;
-        return true;
     }
     
     //Weapon Locker
-    if(item.IsA('WeaponLocker')) {
+    if(item.IsA('WeaponLocker') && RPGMut.CheckPDP(Other, class<Weapon>(item.InventoryType))) {
         //Simulate
         if(class'RPGWeaponPickupModifier'.static.SimulateWeaponLocker(
             WeaponLocker(item),
@@ -762,24 +772,20 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     }
 
 	//increase value of ammo pickups based on Max Ammo stat
-	if(Other.Controller != None)
-	{
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
-		if (RPRI != None)
-		{
-			if (Ammo(item) != None)
-				Ammo(item).AmmoAmount = int(Ammo(item).default.AmmoAmount * (1.0 + float(RPRI.AmmoMax) / 100.f));
+    if (RPRI != None)
+    {
+        if (Ammo(item) != None)
+            Ammo(item).AmmoAmount = int(Ammo(item).default.AmmoAmount * (1.0 + float(RPRI.AmmoMax) / 100.f));
 
-			for (x = 0; x < RPRI.Abilities.length; x++)
-			{
-				if(RPRI.Abilities[x].bAllowed)
-				{
-					if(RPRI.Abilities[x].OverridePickupQuery(Other, item, bAllowPickup))
-						return true;
-				}
-			}
-		}
-	}
+        for (x = 0; x < RPRI.Abilities.length; x++)
+        {
+            if(RPRI.Abilities[x].bAllowed)
+            {
+                if(RPRI.Abilities[x].OverridePickupQuery(Other, item, bAllowPickup))
+                    return true;
+            }
+        }
+    }
 
 	return Super.OverridePickupQuery(Other, item, bAllowPickup);
 }
