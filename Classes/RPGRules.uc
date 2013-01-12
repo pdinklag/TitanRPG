@@ -713,53 +713,49 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 
 function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup)
 {
-    local Weapon Copy;
-    local WeaponLocker Locker;
 	local RPGPlayerReplicationInfo RPRI;
     local RPGWeaponPickupModifier WPM;
-    local class<RPGWeaponModifier> ModifierClass;
-	local int x, i;
+	local int x;
     
-    //modified weapon
+    //Modified weapon pickup
     if(item.IsA('WeaponPickup')) {
         WPM = class'RPGWeaponPickupModifier'.static.GetFor(WeaponPickup(item));
         if(WPM != None) {
-            WPM.DoPickup(Other);
+            //Simulate using modifier
+            class'RPGWeaponPickupModifier'.static.SimulateWeaponPickup(
+                WeaponPickup(item),
+                Other,
+                WPM.ModifierClass,
+                WPM.ModifierLevel,
+                WPM.bIdentified);
             
-            bAllowPickup = 0;
-            return true;
+            if(item == None || item.bDeleteMe) {
+                WPM.Destroy();
+            }
+        } else {
+            //Simulate using random
+            class'RPGWeaponPickupModifier'.static.SimulateWeaponPickup(
+                WeaponPickup(item),
+                Other,
+                RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other),
+                -100,
+                RPGMut.GameSettings.bNoUnidentified);
         }
+        
+        bAllowPickup = 0;
+        return true;
     }
     
     //Weapon Locker
     if(item.IsA('WeaponLocker')) {
-        Locker = WeaponLocker(item);
-        
-        //Find entry
-        x = -1;
-        for(i = 0; i < Locker.Weapons.Length; i++) {
-            if(Locker.Weapons[i].WeaponClass == Locker.InventoryType) {
-                x = i;
-                break;
-            }
-        }
-        
-        if(x >= 0) {
-            //Simulate weapon locker
-            Copy = Weapon(Locker.SpawnCopy(Other));
-            if (Copy != None) {
-                Copy.PickupFunction(Other);
-                if (Locker.Weapons[x].ExtraAmmo > 0) {
-                    Copy.AddAmmo(Locker.Weapons[x].ExtraAmmo, 0);
-                }
-                
-                //TODO: PDP protection
-                ModifierClass = class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(Copy.class, Other);
-                if(ModifierClass != None) {
-                    ModifierClass.static.Modify(Copy, -100, RPGMut.GameSettings.bNoUnidentified);
-                }
-            }
-            
+        //Simulate
+        if(class'RPGWeaponPickupModifier'.static.SimulateWeaponLocker(
+            WeaponLocker(item),
+            Other,
+            RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other),
+            -100,
+            RPGMut.GameSettings.bNoUnidentified)) {
+         
             bAllowPickup = 0;
             return true;
         }

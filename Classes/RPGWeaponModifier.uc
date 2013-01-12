@@ -63,6 +63,8 @@ static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 {
     if(class'Util'.static.InArray(WeaponType, class'MutTitanRPG'.default.DisallowModifiersFor) >= 0)
         return false;
+    
+    //TODO: PDP protection
 
 	if(!default.bAllowForSpecials &&
 		(

@@ -71,7 +71,6 @@ var config array<String> AdminGUID;
 
 //INIT stuff
 var bool bGameStarted;
-var array<WeaponPickup> WeaponPickupQueue;
 
 //Instance
 static final function MutTitanRPG Instance(LevelInfo Level)
@@ -426,9 +425,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
             if(WM != None) {
                 WPM = class'RPGWeaponPickupModifier'.static.Modify(WP, WM);
             }
-        } else {
-            //Add to queue
-            WeaponPickupQueue[WeaponPickupQueue.Length] = WP;
         }
     }
 	
@@ -509,8 +505,6 @@ function Actor ReplaceWithActor(actor Other, string aClassName)
 
 event Tick(float dt)
 {
-    local int i;
-
 	//If stats are disabled, create the game stats override here
 	if(!bGameStarted && !Level.Game.bWaitingToStartMatch)
 	{
@@ -534,16 +528,6 @@ event Tick(float dt)
 		}
 	}
     */
-    
-    //Weapon pickups
-    //TODO move to RPGRules
-    for(i = 0; i < WeaponPickupQueue.Length; i++) {
-        if(WeaponPickupQueue[i].PickUpBase != None) {
-            //Randomize pickup base
-            class'RPGWeaponPickupModifier'.static.Randomize(WeaponPickupQueue[i]);
-        }
-    }
-    WeaponPickupQueue.Length = 0;
 }
 
 function RPGPlayerReplicationInfo CheckRPRI(Controller C)

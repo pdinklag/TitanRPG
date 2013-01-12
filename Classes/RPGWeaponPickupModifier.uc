@@ -5,9 +5,7 @@ var WeaponPickup Pickup;
 var class<RPGWeaponModifier> ModifierClass;
 var class<WeaponAttachment> AttachmentClass;
 var int ModifierLevel;
-
-var bool bPickupWasHidden;
-var bool bRandomize;
+var bool bIdentified;
 
 static function RPGWeaponPickupModifier Modify(WeaponPickup WP, RPGWeaponModifier WM) {
     local RPGWeaponPickupModifier WPM;
@@ -16,23 +14,13 @@ static function RPGWeaponPickupModifier Modify(WeaponPickup WP, RPGWeaponModifie
     WPM.Pickup = WP;
     WPM.ModifierClass = WM.Class;
     WPM.ModifierLevel = WM.Modifier;
+    WPM.bIdentified = WM.bIdentified;
     
-    if(WM.bIdentified && WM.default.ModifierOverlay != None && class<WeaponAttachment>(WM.Weapon.AttachmentClass) != None) {
+    if(WPM.bIdentified && WM.default.ModifierOverlay != None && class<WeaponAttachment>(WM.Weapon.AttachmentClass) != None) {
         WPM.AttachmentClass = class<WeaponAttachment>(WM.Weapon.AttachmentClass);
         WPM.Sync();
     }
     
-    return WPM;
-}
-
-static function RPGWeaponPickupModifier Randomize(WeaponPickup WP) {
-    local RPGWeaponPickupModifier WPM;
-
-    WPM = WP.Spawn(class'RPGWeaponPickupModifier', WP);
-    WPM.Pickup = WP;
-    WPM.AttachmentClass = class<WeaponAttachment>(WP.InventoryType.default.AttachmentClass);
-    WPM.bRandomize = true;
-
     return WPM;
 }
 
@@ -47,6 +35,60 @@ static function RPGWeaponPickupModifier GetFor(WeaponPickup WP) {
 	return None;
 }
 
+static function SimulateWeaponPickup(WeaponPickup Pickup, Pawn Other, class<RPGWeaponModifier> ModifierClass, int ModifierLevel, bool bIdentify) {
+    local Weapon Copy;
+    
+    Pickup.TriggerEvent(Pickup.Event, Pickup, Other);
+    
+    Copy = Weapon(Pickup.SpawnCopy(Other));
+    Pickup.AnnouncePickup(Other);
+    Pickup.SetRespawn();
+    
+    if(Copy != None) {
+        Copy.PickupFunction(Other);
+        
+        if(ModifierClass != None) {
+            ModifierClass.static.Modify(Copy, ModifierLevel, bIdentify);
+        }
+    }
+}
+static function bool SimulateWeaponLocker(WeaponLocker Locker, Pawn Other, class<RPGWeaponModifier> ModifierClass, int ModifierLevel, bool bIdentify) {
+    local Weapon Copy;
+    local RPGWeaponModifier WM;
+    local int i, x;
+    
+    //Find entry
+    x = -1;
+    for(i = 0; i < Locker.Weapons.Length; i++) {
+        if(Locker.Weapons[i].WeaponClass == Locker.InventoryType) {
+            x = i;
+            break;
+        }
+    }
+    
+    if(x >= 0) {
+        //Simulate weapon locker
+        Copy = Weapon(Locker.SpawnCopy(Other));
+        if (Copy != None) {
+            Copy.PickupFunction(Other);
+            if (Locker.Weapons[x].ExtraAmmo > 0) {
+                Copy.AddAmmo(Locker.Weapons[x].ExtraAmmo, 0);
+            }
+
+            if(ModifierClass != None) {
+                WM = ModifierClass.static.Modify(Copy, ModifierLevel, false);
+                if(bIdentify && WM != None) {
+                    WM.bDelayedIdentify = true;
+                }
+            }
+        }
+
+        return true;
+    } else {
+        return false;
+    }
+}
+
 event Tick(float dt) {
     if(Pickup == None) {
         Destroy();
@@ -55,35 +97,6 @@ event Tick(float dt) {
 
 function Sync() {
     class'Sync_PickupModifier'.static.Sync(Pickup, ModifierClass, AttachmentClass);
-}
-
-//Called when a pawn picks me up, simulates Touch, SpawnCopy, AnnouncePickup
-function DoPickup(Pawn Other) {
-    local Weapon Copy;
-    
-    //Simulate pickup
-    Copy = Weapon(Pickup.SpawnCopy(Other));
-    if(Copy != None) {
-        Copy.PickupFunction(Other);
-        if(bRandomize) {
-            //TODO: PDP protection
-            ModifierClass = class'MutTitanRPG'.static.Instance(Level).GetRandomWeaponModifier(
-                class<Weapon>(Pickup.InventoryType), Other);
-                
-            ModifierLevel = -100;
-        }
-        
-        if(ModifierClass != None) {
-            ModifierClass.static.Modify(Copy, ModifierLevel, true);
-        }
-    }
-
-    Pickup.AnnouncePickup(Other);
-    Pickup.SetRespawn();
-    
-    if(Pickup == None || Pickup.bDeleteMe) {
-        Destroy();
-    }
 }
 
 defaultproperties {
