@@ -5,62 +5,83 @@
 	However, in RPG, overlays can be pretty important (e.g. Invulnerability),
 	so this class serves as a secure method to set an overlay on an actor.
 */
-
 class Sync_OverlayMaterial extends Sync;
 
-var Actor target;
-var Material mat;
-var float time;
+var Actor Target;
+var Material Mat;
+var float Duration;
 var bool bOverride;
 
 replication
 {
 	reliable if(Role == ROLE_Authority)
-		target, mat, time, bOverride;
+		Target, Mat, Duration, bOverride;
 }
 
-static function Sync_OverlayMaterial Sync(Actor target, Material mat, float time, optional bool bOverride)
+static function Discard(Actor Target) {
+    local Sync_OverlayMaterial Sync, X;
+    
+    foreach Target.ChildActors(class'Sync_OverlayMaterial', Sync) {
+        X = Sync;
+        break;
+    }
+    
+    if(X != None) {
+        X.Destroy();
+    }
+}
+
+static function Sync_OverlayMaterial Sync(Actor Target, Material Mat, float Duration, optional bool bOverride)
 {
 	local Sync_OverlayMaterial Sync;
 
-	Sync = target.Spawn(class'Sync_OverlayMaterial');
-	Sync.target = target;
-	Sync.mat = mat;
+    Discard(Target); //Discard any existing
+    
+	Sync = Target.Spawn(class'Sync_OverlayMaterial', Target);
+    
+	Sync.Target = Target;
+	Sync.Mat = Mat;
 	
-	if(time < 0)
-		time = 1000000; //a million aka indefinitely
+	if(Duration < 0)
+		Duration = 86400; //24 hours...
 	
-	Sync.time = time;
+	Sync.Duration = Duration;
 	Sync.bOverride = bOverride;
+    
+    //Net
+    Sync.LifeTime = Duration;
+    if(Target.bOnlyRelevantToOwner) {
+        Sync.bOnlyRelevantToOwner = true;
+        Sync.bAlwaysRelevant = false;
+    }
 	
 	//server
-	target.SetOverlayMaterial(mat, time, bOverride);
+	Target.SetOverlayMaterial(Mat, Duration, bOverride);
 	
 	return Sync;
 }
 
 simulated function bool ClientFunction()
 {
-	if(target == None)
-	{
+	if(Target == None) {
 		return false;
-	}
-	else
-	{
-		target.SetOverlayMaterial(mat, time, bOverride);
+	} else {
+		Target.SetOverlayMaterial(Mat, Duration, bOverride);
 		return true;
 	}
 }
 
 function bool ShouldDestroy() {
-    if(target == None) {
+    if(Target == None) {
         return true;
     } else {
         return false;
     }
 }
 
-defaultproperties
-{
-	Lifetime = 9999.00 //for a LONG while
+simulated event Destroyed() {
+    Super.Destroyed();
+}
+
+defaultproperties {
 }

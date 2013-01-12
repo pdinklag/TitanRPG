@@ -333,13 +333,13 @@ function SetOverlay()
     if(SyncFirstPerson != None)
         SyncFirstPerson.Destroy();
 
-    SyncFirstPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon, ModifierOverlay, 9999, true);
+    SyncFirstPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon, ModifierOverlay, -1, true);
     
     if(SyncThirdPerson != None)
         SyncThirdPerson.Destroy();
     
     if(WeaponAttachment(Weapon.ThirdPersonActor) != None) {
-        SyncThirdPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, ModifierOverlay, 9999, true);
+        SyncThirdPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, ModifierOverlay, -1, true);
     }
 }
 
@@ -484,7 +484,7 @@ defaultproperties
 	
 	RemoteRole=ROLE_SimulatedProxy
 	NetUpdateFrequency=4.00
-	bAlwaysRelevant=True
+	bAlwaysRelevant=False
 	bOnlyRelevantToOwner=True
 	bSkipActorPropertyReplication=True
 	bOnlyDirtyReplication=True
