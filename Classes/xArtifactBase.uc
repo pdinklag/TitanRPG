@@ -1,6 +1,7 @@
 class xArtifactBase extends xPickUpBase placeable;
 
 var() class<RPGArtifact> ArtifactType;
+var() float RespawnTime;
 
 simulated event PostBeginPlay()
 {
@@ -12,8 +13,18 @@ simulated event PostBeginPlay()
 	SetLocation(Location + vect(0, 0, -1));
 }
 
+function SpawnPickup() {
+    Super.SpawnPickup();
+    
+    if(myPickup != None) {
+        //Artifact pickups don't have a respawn time by default
+        myPickup.RespawnTime = RespawnTime;
+    }
+}
+
 defaultproperties
 {
+    RespawnTime=30.00
 	bDelayedSpawn=False
 
     DrawScale=0.8
