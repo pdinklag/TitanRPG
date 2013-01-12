@@ -249,6 +249,8 @@ simulated event PostNetBeginPlay()
 }
 
 simulated event Tick(float dt) {
+    local xPawn X;
+
 	if(Role == ROLE_Authority) {
 		if(Weapon == None) {
 			SetActive(false);
@@ -271,8 +273,20 @@ simulated event Tick(float dt) {
 			SetActive(false);
 		}
 		
-		if(bActive)
+		if(bActive) {
+            X = xPawn(Instigator);
+            if(X != None) {
+                if(X.HasUDamage()) {
+                    if(Weapon.OverlayMaterial != X.UDamageWeaponMaterial) {
+                        SetOverlay(X.UDamageWeaponMaterial);
+                    }
+                } else if(Weapon.OverlayMaterial != ModifierOverlay && !X.bInvis) {
+                    SetOverlay();
+                }
+            }
+            
 			RPGTick(dt);
+        }
 	}
     
     if(Role < ROLE_Authority || Level.NetMode == NM_Standalone) {
@@ -328,18 +342,22 @@ function SetActive(bool bActivate)
 	bActive = bActivate;
 }
 
-function SetOverlay()
+function SetOverlay(optional Material Mat)
 {
+    if(Mat == None) {
+        Mat = ModifierOverlay;
+    }
+
     if(SyncFirstPerson != None)
         SyncFirstPerson.Destroy();
 
-    SyncFirstPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon, ModifierOverlay, -1, true);
+    SyncFirstPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon, Mat, -1, true);
     
     if(SyncThirdPerson != None)
         SyncThirdPerson.Destroy();
     
     if(WeaponAttachment(Weapon.ThirdPersonActor) != None) {
-        SyncThirdPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, ModifierOverlay, -1, true);
+        SyncThirdPerson = class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, Mat, -1, true);
     }
 }
 
