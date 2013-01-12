@@ -446,6 +446,45 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat, 'TitanRPG');
 }
 
+//Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
+static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
+    local Inventory Prev, Inv, X;
+    local array<Weapon> GiveBack;
+    local int i;
+    
+    //first off, remove (but store) all weapons of the same type
+    Prev = None;
+    Inv = Other.Inventory;
+    while(Inv != None) {
+        if(Inv.class == W.class) {
+            X = Inv;
+            Inv = X.Inventory;
+            
+            if(Prev != None) {
+                Prev.Inventory = X.Inventory;
+            } else {
+                Other.Inventory = X.Inventory;
+            }
+            
+            X.Inventory = None;
+            GiveBack[GiveBack.Length] = Weapon(X);
+        } else {
+            Prev = Inv;
+            Inv = Inv.Inventory;
+        }
+    }
+    
+    //now, give the weapon to the pawn
+    W.GiveTo(Other, Pickup);
+    
+    //finally, re-add the old weapons
+    for(i = 0; i < GiveBack.Length; i++) {
+        X = GiveBack[i];
+        X.Inventory = Other.Inventory;
+        Other.Inventory = X;
+    }
+}
+
 static function SetWeaponAmmo(Weapon W, int Mode, int Ammo) {
     local int Diff;
     

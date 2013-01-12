@@ -54,6 +54,7 @@ struct GrantWeapon
 	var class<RPGWeaponModifier> ModifierClass;
 	var int Modifier;
 	var int Ammo[2]; //extra ammo per fire mode. 0 = none, -1 = full
+    var bool bForce;
 };
 var array<GrantWeapon> GrantQueue, GrantFavQueue;
 
@@ -1633,7 +1634,8 @@ function GrantQueuedWeapon(GrantWeapon GW) {
             }
         }
     
-        W.GiveTo(Controller.Pawn);
+        //W.GiveTo(Controller.Pawn);
+        class'Util'.static.ForceGiveTo(Controller.Pawn, W);
         W.FillToInitialAmmo();
         
         //TODO -1 for max out
@@ -1671,15 +1673,17 @@ function ProcessGrantQueue()
 }
 
 //Add to weapon grant queue
-function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> ModifierClass, int Modifier, optional int Ammo1, optional int Ammo2)
+function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> ModifierClass, int Modifier, optional int Ammo1, optional int Ammo2, optional bool bForce)
 {
 	local int i;
 	local GrantWeapon GW;
-
-    for(i = 0; i < Abilities.Length; i++) {
-        if(Abilities[i].bAllowed) {
-            if(!Abilities[i].ModifyGrantedWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
-                return; //not granted
+    
+    if(!bForce) {
+        for(i = 0; i < Abilities.Length; i++) {
+            if(Abilities[i].bAllowed) {
+                if(!Abilities[i].ModifyGrantedWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
+                    return; //not granted
+                }
             }
         }
     }
@@ -1689,56 +1693,52 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
 	GW.Modifier = Modifier;
 	GW.Ammo[0] = Ammo1;
 	GW.Ammo[1] = Ammo2;
+    GW.bForce = bForce;
 	
-	if(IsFavorite(WeaponClass, ModifierClass))
-	{
-		for(i = 0; i < GrantFavQueue.Length; i++)
-		{
-			if(
-				GrantFavQueue[i].WeaponClass == GW.WeaponClass &&
-				GrantFavQueue[i].ModifierClass == GW.ModifierClass
-			)
-			{
-				//override in queue weapon if this modifier is higher, otherwise discard
-				if(GW.Modifier > GrantFavQueue[i].Modifier)
-				{
-					GrantFavQueue[i].Modifier = GW.Modifier;
-					
-					if(GW.Ammo[0] == -1 || GW.Ammo[0] > GrantFavQueue[i].Ammo[0])
-						GrantFavQueue[i].Ammo[0] = GW.Ammo[0];
+	if(IsFavorite(WeaponClass, ModifierClass)) {
+        if(!bForce) {
+            for(i = 0; i < GrantFavQueue.Length; i++) {
+                if(
+                    GrantFavQueue[i].WeaponClass == GW.WeaponClass &&
+                    GrantFavQueue[i].ModifierClass == GW.ModifierClass
+                ) {
+                    //override in queue weapon if this modifier is higher, otherwise discard
+                    if(GW.Modifier > GrantFavQueue[i].Modifier) {
+                        GrantFavQueue[i].Modifier = GW.Modifier;
+                        
+                        if(GW.Ammo[0] == -1 || GW.Ammo[0] > GrantFavQueue[i].Ammo[0])
+                            GrantFavQueue[i].Ammo[0] = GW.Ammo[0];
 
-					if(GW.Ammo[1] == -1 || GW.Ammo[1] > GrantFavQueue[i].Ammo[1])
-						GrantFavQueue[i].Ammo[1] = GW.Ammo[1];
-				}
-				return;
-			}
-		}
+                        if(GW.Ammo[1] == -1 || GW.Ammo[1] > GrantFavQueue[i].Ammo[1])
+                            GrantFavQueue[i].Ammo[1] = GW.Ammo[1];
+                    }
+                    return;
+                }
+            }
+        }
 		
 		GrantFavQueue[GrantFavQueue.Length] = GW;
-	}
-	else
-	{
-		for(i = 0; i < GrantQueue.Length; i++)
-		{
-			if(
-				GrantQueue[i].WeaponClass == GW.WeaponClass &&
-				GrantQueue[i].ModifierClass == GW.ModifierClass
-			)
-			{
-				//override in queue weapon if this modifier is higher, otherwise discard
-				if(GW.Modifier > GrantQueue[i].Modifier)
-				{
-					GrantQueue[i].Modifier = GW.Modifier;
-					
-					if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > GrantQueue[i].Ammo[0])
-						GrantQueue[i].Ammo[0] = GW.Ammo[0];
+	} else {
+        if(!bForce) {
+            for(i = 0; i < GrantQueue.Length; i++) {
+                if(
+                    GrantQueue[i].WeaponClass == GW.WeaponClass &&
+                    GrantQueue[i].ModifierClass == GW.ModifierClass
+                ) {
+                    //override in queue weapon if this modifier is higher, otherwise discard
+                    if(GW.Modifier > GrantQueue[i].Modifier) {
+                        GrantQueue[i].Modifier = GW.Modifier;
+                        
+                        if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > GrantQueue[i].Ammo[0])
+                            GrantQueue[i].Ammo[0] = GW.Ammo[0];
 
-					if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > GrantQueue[i].Ammo[1])
-						GrantQueue[i].Ammo[1] = GW.Ammo[1];
-				}
-				return;
-			}
-		}
+                        if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > GrantQueue[i].Ammo[1])
+                            GrantQueue[i].Ammo[1] = GW.Ammo[1];
+                    }
+                    return;
+                }
+            }
+        }
 		
 		GrantQueue[GrantQueue.Length] = GW;
 	}

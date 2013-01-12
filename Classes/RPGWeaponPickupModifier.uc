@@ -35,12 +35,25 @@ static function RPGWeaponPickupModifier GetFor(WeaponPickup WP) {
 	return None;
 }
 
-static function SimulateWeaponPickup(WeaponPickup Pickup, Pawn Other, class<RPGWeaponModifier> ModifierClass, int ModifierLevel, bool bIdentify) {
+static function SimulateWeaponPickup(WeaponPickup Pickup, Pawn Other, class<RPGWeaponModifier> ModifierClass, int ModifierLevel, bool bIdentify, optional bool bForceGive) {
     local Weapon Copy;
     
     Pickup.TriggerEvent(Pickup.Event, Pickup, Other);
     
-    Copy = Weapon(Pickup.SpawnCopy(Other));
+    if(bForceGive) {
+        //Simulate Pickup.SpawnCopy
+        if(Pickup.Inventory != None) {
+            Copy = Weapon(Pickup.Inventory);
+            Pickup.Inventory = None;
+        } else {
+            Copy = Weapon(Other.Spawn(Pickup.InventoryType, Other));
+        }
+        
+        class'Util'.static.ForceGiveTo(Other, Copy, Pickup);
+    } else {
+        Copy = Weapon(Pickup.SpawnCopy(Other));
+    }
+    
     Pickup.AnnouncePickup(Other);
     Pickup.SetRespawn();
     

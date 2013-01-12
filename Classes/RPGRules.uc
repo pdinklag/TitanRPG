@@ -734,7 +734,8 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
                 Other,
                 WPM.ModifierClass,
                 WPM.ModifierLevel,
-                WPM.bIdentified);
+                WPM.bIdentified,
+                true);
             
             if(item == None || item.bDeleteMe || item.bPendingDelete) {
                 WPM.Destroy();
