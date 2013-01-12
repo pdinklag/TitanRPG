@@ -103,7 +103,7 @@ defaultproperties
 	CostPerSec=4
 	MinActivationTime=1.000000
 	bExclusive=True
-	HudColor=(B=192,G=192,R=192,A=128)
+	HudColor=(B=192,G=192,R=192)
 	ArtifactID="Invis"
 	Description="Makes you invisible when enemies are distant."
 	PickupClass=Class'ArtifactPickup_Invis'
