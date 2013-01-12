@@ -269,7 +269,7 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	Canvas.Style = 5;
 	HUDColor = GetHUDTeamColor(HUD);
 	
-	if(A != None && bSelected)
+	if(A != None && A.class == AClass && bSelected)
 		Canvas.DrawColor = HUD.HudColorHighlight;
 	else
 		Canvas.DrawColor = HUDColor;
@@ -285,9 +285,9 @@ function DrawArtifactBox(class<RPGArtifact> AClass, RPGArtifact A, Canvas Canvas
 	
 	if(AClass.default.IconMaterial != None)
 	{
-		if(A != None && (A.bActive || A == SelectionArtifact))
+		if(A != None && A.class == AClass && (A.bActive || A == SelectionArtifact))
 			Canvas.DrawColor = HUDColor;
-		else if(A == None || TimeSeconds < A.NextUseTime)
+		else if(A == None || A.class != AClass || TimeSeconds < A.NextUseTime)
 			Canvas.DrawColor = DisabledOverlay;
 		else
 			Canvas.DrawColor = WhiteColor;
@@ -607,7 +607,7 @@ function PostRender(Canvas Canvas)
 				AClass = RPRI.ArtifactOrder[i].ArtifactClass;
 				A = RPGArtifact(P.FindInventoryType(AClass));
 				
-				if(AClass != None && !RPRI.ArtifactOrder[i].bNeverShow && (A != None || RPRI.ArtifactOrder[i].bShowAlways))
+				if(AClass != None && !RPRI.ArtifactOrder[i].bNeverShow && ((A != None && A.class == AClass) || RPRI.ArtifactOrder[i].bShowAlways))
 				{
 					if(++Row > Settings.IconsPerRow)
 					{
@@ -620,7 +620,7 @@ function PostRender(Canvas Canvas)
 					X = CurrentX;
 					Y = CurrentY;
 					
-					if(A != None && A == P.SelectedItem)
+					if(A != None && A.class == AClass && A == P.SelectedItem)
 					{
 						if(Settings.IconsPerRow > 1)
 						{
@@ -638,7 +638,7 @@ function PostRender(Canvas Canvas)
 						}
 					}
 					
-					DrawArtifactBox(AClass, A, Canvas, HUD, X, Y, Size, A != None && A == P.SelectedItem);
+					DrawArtifactBox(AClass, A, Canvas, HUD, X, Y, Size, A != None && A.class == AClass && A == P.SelectedItem);
 					CurrentY += Size;
 				}
 			}
