@@ -715,6 +715,11 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 {
 	local RPGPlayerReplicationInfo RPRI;
     local RPGWeaponPickupModifier WPM;
+    local class<Ammunition> AmmoClass;
+    local Weapon W;
+    local array<Weapon> Weapons;
+    local Inventory Inv;
+    local float AmmoAmount;
 	local int x;
     
     RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
@@ -775,9 +780,6 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 	//increase value of ammo pickups based on Max Ammo stat
     if (RPRI != None)
     {
-        if (Ammo(item) != None)
-            Ammo(item).AmmoAmount = int(Ammo(item).default.AmmoAmount * (1.0 + float(RPRI.AmmoMax) / 100.f));
-
         for (x = 0; x < RPRI.Abilities.length; x++)
         {
             if(RPRI.Abilities[x].bAllowed)
@@ -785,6 +787,43 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
                 if(RPRI.Abilities[x].OverridePickupQuery(Other, item, bAllowPickup))
                     return true;
             }
+        }
+    }
+    
+    if(item.IsA('Ammo')) {
+        //Handle ammo
+        AmmoAmount = Ammo(item).AmmoAmount;
+        AmmoClass = class<Ammunition>(item.InventoryType);
+        
+        //Find all weapons that can use this ammo type
+        for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory) {
+            W = Weapon(Inv);
+            if(W != None && (W.GetAmmoClass(0) == AmmoClass || W.GetAmmoClass(1) == AmmoClass)) {
+                Weapons[Weapons.Length] = W;
+            }
+        }
+        
+        if(Weapons.Length > 0) {
+            //Equal share for everyone!
+            AmmoAmount /= Weapons.Length;
+            
+            //Give ammo
+            for(x = 0; x < Weapons.Length; x++) {
+                if(Weapons[x].GetAmmoClass(0) == AmmoClass) {
+                    Weapons[x].AddAmmo(int(AmmoAmount), 0);
+                } else if(Weapons[x].GetAmmoClass(1) == AmmoClass) {
+                    Weapons[x].AddAmmo(int(AmmoAmount), 1);
+                }
+            }
+            
+            //Simulate stuff
+            item.AnnouncePickup(Other);
+            item.SetRespawn();
+            
+            bAllowPickup = 0;
+            return true;
+        } else {
+            //no weapons for this type of ammo, proceed with usual scavenger pickup
         }
     }
 
