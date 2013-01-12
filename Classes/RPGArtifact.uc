@@ -422,11 +422,15 @@ function bool CheckSelection()
 {
 	local int x;
 
-	if(bSelection && SelectedOption < 0)
+	if(bSelection && SelectedOption < 0 && GetNumOptions() > 0)
 	{
 		if(Instigator.Controller.IsA('PlayerController'))
 		{
-			ShowSelection();
+            if(GetNumOptions() > 1) {
+                ShowSelection();
+            } else {
+                ServerSelectOption(0);
+            }
 		}
 		else
 		{

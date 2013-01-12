@@ -69,7 +69,7 @@ var bool bTeamChanged; //set by RPGRules, reset each spawn
 var Weapon LastPawnWeapon;
 
 //stuff that belongs to me
-var array<Vehicle> Turrets;
+var array<ASTurret> Turrets;
 var array<Monster> Monsters;
 var array<ONSMineProjectile> Mines;
 
@@ -1131,7 +1131,7 @@ function ServerKillMonsters()
 	NumMonsters = 0;
 }
 
-function AddTurret(Vehicle T)
+function AddTurret(ASTurret T)
 {
 	local int i;
 	

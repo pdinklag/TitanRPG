@@ -466,7 +466,7 @@ function ModifyMonster(Monster M, Pawn Master);
 
 /* Modify a turret constructed by the owning player.
  */
-function ModifyTurret(Vehicle T, Pawn Other);
+function ModifyTurret(ASTurret T, Pawn Other);
 
 
 function ModifyVehicle(Vehicle V);

@@ -2,6 +2,7 @@
 class FriendlyMonsterController extends MonsterController;
 
 var Controller Master;
+var int TeamNum;
 
 var float MasterFollowDistance;
 
@@ -35,14 +36,17 @@ function SetMaster(Controller NewMaster)
 {
 	Master = NewMaster;
 	FPRI.Master = Master.PlayerReplicationInfo;
+    
+	if(Master.PlayerReplicationInfo != None && Master.PlayerReplicationInfo.Team != None) {
+		TeamNum = Master.PlayerReplicationInfo.Team.TeamIndex;
+	} else {
+		TeamNum = 255;
+    }
 }
 
 simulated function int GetTeamNum()
 {
-	if(Master.PlayerReplicationInfo != None && Master.PlayerReplicationInfo.Team != None)
-		return Master.PlayerReplicationInfo.Team.TeamIndex;
-	else
-		return 255;
+	return TeamNum;
 }
 
 function bool FindNewEnemy()
@@ -177,6 +181,7 @@ event Tick(float dt)
 	)
 	{
 		Pawn.Suicide();
+        Destroy();
 		return;
 	}
 }
