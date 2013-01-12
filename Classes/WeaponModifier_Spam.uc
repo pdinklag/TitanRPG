@@ -12,8 +12,9 @@ replication
 
 simulated function ClientAdjustFireRate(float Scale)
 {
-	if(Role < ROLE_Authority)
+	if(Role < ROLE_Authority) {
 		class'Util'.static.AdjustWeaponFireRate(Weapon, Scale);
+    }
 }
 
 function StartEffect()
