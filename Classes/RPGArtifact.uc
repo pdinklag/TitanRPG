@@ -155,10 +155,13 @@ function SortIn()
 						if(i == -1 || i > OrderEntry)
 						{
 							Self.Inventory = Inv;
-							if(Prev != None)
+							if(Prev != None) {
 								Prev.Inventory = Self;
-							else
+                                Prev.NetUpdateTime = Level.TimeSeconds - 1;
+							} else {
 								Instigator.Inventory = Self;
+                                Instigator.NetUpdateTime = Level.TimeSeconds - 1;
+                            }
 							
 							bAdded = true;
 							break;
@@ -175,10 +178,13 @@ function SortIn()
 		//Add to end instead
 		for(Inv = Instigator.Inventory; Inv != None && Inv.Inventory != None; Inv = Inv.Inventory);
 
-		if(Inv != None)
+		if(Inv != None) {
 			Inv.Inventory = Self;
-		else
+            Inv.NetUpdateTime = Level.TimeSeconds - 1;
+		} else {
 			Instigator.Inventory = Self;
+            Instigator.NetUpdateTime = Level.TimeSeconds - 1;
+        }
 	}
 }
 

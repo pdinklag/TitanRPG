@@ -446,42 +446,60 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat, 'TitanRPG');
 }
 
-//Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
-static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
-    local Inventory Prev, Inv, X;
-    local array<Weapon> GiveBack;
-    local int i;
+static function array<Weapon> GetWeapons(Pawn Other, class<Weapon> WeaponClass) {
+    local array<Weapon> Weapons;
+    local Inventory Inv;
     
-    //first off, remove (but store) all weapons of the same type
-    Prev = None;
-    Inv = Other.Inventory;
-    while(Inv != None) {
-        if(Inv.class == W.class) {
-            X = Inv;
-            Inv = X.Inventory;
-            
-            if(Prev != None) {
-                Prev.Inventory = X.Inventory;
-            } else {
-                Other.Inventory = X.Inventory;
-            }
-            
-            X.Inventory = None;
-            GiveBack[GiveBack.Length] = Weapon(X);
-        } else {
-            Prev = Inv;
-            Inv = Inv.Inventory;
+    for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory) {
+        if(Inv.class == WeaponClass) {
+            Weapons[Weapons.Length] = Weapon(Inv);
         }
     }
     
-    //now, give the weapon to the pawn
-    W.GiveTo(Other, Pickup);
+    return Weapons;
+}
+
+//Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
+static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
+    local Weapon Pivot;
+    local Actor Inv, Prev;
     
-    //finally, re-add the old weapons
-    for(i = 0; i < GiveBack.Length; i++) {
-        X = GiveBack[i];
-        X.Inventory = Other.Inventory;
-        Other.Inventory = X;
+    Prev = Other;
+    Inv = Other.Inventory;
+    while(Inv != None) {
+        if(Inv.class == W.class) {
+            break; //found one
+        }
+        
+        Prev = Inv;
+        Inv = Inv.Inventory;
+    }
+    
+    if(Inv != None) {
+        Pivot = Weapon(Inv);
+        
+        //cut of linked list (we assume that weapons are ordered and that the new weapon will be added here)
+        Prev.Inventory = None;
+        W.GiveTo(Other, Pickup);
+        
+        //re-add
+        if(W.Inventory != None) {
+            //shouldn't happen, but who knows...
+            Warn("Item order changed - putting Pivot to end of list!");
+            
+            Prev = W;
+            for(Inv = W.Inventory; Inv != None; Inv = Inv.Inventory) {
+                Prev = Inv;
+            }
+            
+            Prev.Inventory = Pivot;
+        } else {
+            W.Inventory = Pivot;
+            W.NetUpdateTime = W.Level.TimeSeconds - 1;
+        }
+    } else {
+        //simply give to pawn
+        W.GiveTo(Other, Pickup);
     }
 }
 
