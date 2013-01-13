@@ -53,7 +53,6 @@ defaultproperties
 	StartingCost=5
 	CostAddPerLevel=5
 	MaxLevel=5
-	ForbiddenAbilities(0)=(AbilityClass=class'Ability_Vampire',Level=1)
 	BonusPerLevel=0.010000
 	Category=class'AbilityCategory_Adrenaline'
 }

@@ -13,8 +13,6 @@ defaultproperties
 {
 	AbilityName="Vehicle Vampirism"
 	Description="Whenever you damage an opponent from a vehicle or turret, it gets repaired for $1 of the damage per level (up to its starting health amount + $2$3). You can't gain health from self-damage."
-	ForbiddenAbilities(0)=(AbilityClass=class'Ability_VehicleSpeed',Level=1)
-	RequiredAbilities(0)=(AbilityClass=class'Ability_DamageBonus',Level=5)
 	BonusPerLevel=0.050000
 	HealthBonusMax=0.500000
 	HealthBonusAbsoluteCap=1000

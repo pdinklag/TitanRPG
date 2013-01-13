@@ -16,6 +16,6 @@ defaultproperties {
 	BonusPerLevel=0.10
 	StartingCost=5
 	MaxLevel=5
-	RequiredAbilities(0)=(AbilityClass=class'Ability_Construction',Level=1)
+	RequiredAbilities(0)=(AbilityClass=class'Ability_TurretSummon',Level=1)
 	Category=class'AbilityCategory_Engineer'
 }

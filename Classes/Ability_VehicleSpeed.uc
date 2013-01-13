@@ -72,7 +72,6 @@ defaultproperties
 	StatName="Vehicle Speed Bonus"
 	Description="Increases your vehicle speed by $1 per level$2."
 	DescriptionAmendment=", dependent on the vehicle type"
-	ForbiddenAbilities(0)=(AbilityClass=class'Ability_VehicleVampire',Level=1)
 	StartingCost=10
 	MaxLevel=10
 	FallbackSpeedBonus=0.05

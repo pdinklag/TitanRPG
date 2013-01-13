@@ -14,6 +14,6 @@ defaultproperties
 	StartingCost=5
 	CostAddPerLevel=5
 	MaxLevel=5
-	RequiredAbilities(0)=(AbilityClass=class'Ability_Conjuration',Level=1)
+	RequiredAbilities(0)=(AbilityClass=class'Ability_MonsterSummon',Level=1)
 	Category=class'AbilityCategory_Monsters'
 }

@@ -76,8 +76,6 @@ defaultproperties
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=10
-	ForbiddenAbilities(0)=(AbilityClass=class'Ability_EnergyLeech',Level=1)
-	RequiredAbilities(0)=(AbilityClass=class'Ability_DamageBonus',Level=6)
 	BonusPerLevel=0.050000
 	HealthBonusMax=0.333333
 	HealthBonusAbsoluteCap=0

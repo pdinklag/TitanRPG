@@ -117,7 +117,6 @@ defaultproperties
 	bUseLevelCost=true
 	LevelCost(0)=20
 	LevelCost(1)=10
-	RequiredAbilities(0)=(AbilityClass=class'Ability_VehicleArmor',Level=1)
 	ProtectAgainst(0)=class'Onslaught.DamTypeONSVehicle'
 	ProtectAgainst(1)=class'Onslaught.DamTypeONSVehicleExplosion'
 	ProtectAgainst(2)=class'Onslaught.DamTypeDestroyedVehicleRoadKill'

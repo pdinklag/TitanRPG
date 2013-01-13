@@ -170,14 +170,13 @@ defaultproperties
 	LevelDescription(0)="Level 1 of this ability prevents you from dropping your weapon when you die."
 	LevelDescription(1)="Level 2 allows you to respawn with the weapon and ammo you were using when you died (unless you died in a vehicle or if you were holding a super weapon or the Ball Launcher)."
 	LevelDescription(2)="Level 3 saves your last selected weapon even when you die in a vehicle. If you were holding the Ball Launcher, your previously selected weapon is saved."
-	LevelDescription(3)="If you have Loaded Artifacts, you may buy Level 4 which always saves all of your weapons (save for super weapons)."
+	LevelDescription(3)="Level 4 always saves all of your weapons (except for super weapons)."
 	MaxLevel=4
 	bUseLevelCost=true
 	LevelCost(0)=10
 	LevelCost(1)=20
 	LevelCost(2)=10
 	LevelCost(3)=15
-	RequiredLevels(0)=25
 	ForbiddenWeaponTypes(0)=class'XWeapons.BallLauncher'
 	ForbiddenWeaponTypes(1)=class'XWeapons.Redeemer'
 	ForbiddenWeaponTypes(2)=class'XWeapons.Painter'

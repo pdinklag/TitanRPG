@@ -1,4 +1,4 @@
-class Ability_Construction extends RPGAbility
+class Ability_TurretSummon extends RPGAbility
 	DependsOn(Artifact_SummonTurret);
 
 struct TurretTypeStruct
@@ -121,7 +121,7 @@ simulated function string DescriptionText() {
 defaultproperties {
 	StatusIconClass=class'StatusIcon_Turrets'
 
-	AbilityName="Construction"
+	AbilityName="Turret Construction"
 	Description="You are granted the Turret Construction artifact when you spawn.|Each level of this ability allows you to summon more turrets."
 	StartingCost=10
 	CostAddPerLevel=5

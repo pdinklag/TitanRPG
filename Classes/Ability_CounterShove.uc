@@ -36,7 +36,7 @@ defaultproperties
 	StartingCost=5
 	CostAddPerLevel=5
 	MaxLevel=5
-	RequiredAbilities(0)=(AbilityClass=Class'Ability_DamageReduction',Level=6)
 	ForbiddenAbilities(0)=(AbilityClass=class'Ability_IronLegs',Level=1)
+    ForbiddenAbilities(1)=(AbilityClass=class'Ability_Retaliation',Level=1)
 	Category=class'AbilityCategory_Misc'
 }

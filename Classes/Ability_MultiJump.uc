@@ -11,7 +11,7 @@ function ModifyPawn(Pawn Other)
 		xPawn(Other).MultiJumpRemaining = 1 + AbilityLevel;
 
 		// Also increase a bit the amount they jump each time
-		xPawn(Other).MultiJumpBoost = BonusPerLevel * AbilityLevel;
+		//xPawn(Other).MultiJumpBoost = BonusPerLevel * AbilityLevel;
 	}
 }
 

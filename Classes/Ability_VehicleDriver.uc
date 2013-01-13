@@ -1,4 +1,4 @@
-class Ability_VehicleTools extends RPGAbility;
+class Ability_VehicleDriver extends RPGAbility;
 
 var config int RepairLinkLevel;
 
@@ -31,8 +31,8 @@ simulated function string DescriptionText()
 
 defaultproperties
 {
-	AbilityName="Vehicle Toolbox"
-	Description="Grants items useful to vehicle users."
+	AbilityName="Driver"
+	Description="Grants items useful to vehicle users and unlocks vehicle abilities."
 	RepairLinkLevelDescription="Level $1 grants the Repair Link Gun when you spawn."
 	MaxLevel=3
 	StartingCost=10

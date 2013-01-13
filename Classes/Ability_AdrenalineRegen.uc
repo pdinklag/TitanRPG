@@ -33,7 +33,5 @@ defaultproperties
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=3
-	RequiredAbilities(0)=(AbilityClass=Class'Ability_AdrenalineMax',Level=3)
-	ForbiddenAbilities(0)=(AbilityClass=Class'Ability_Regen',Level=1)
 	Category=class'AbilityCategory_Adrenaline'
 }

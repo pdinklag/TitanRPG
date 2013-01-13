@@ -1,4 +1,4 @@
-class Ability_Conjuration extends RPGAbility
+class Ability_MonsterSummon extends RPGAbility
 	DependsOn(Artifact_SummonMonster);
 
 var config float MonsterSkill;

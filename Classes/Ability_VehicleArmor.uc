@@ -60,6 +60,5 @@ defaultproperties
 	MaxLevel=10
 	MaxHealthBonus=0
 	BonusPerLevel=0.050000
-	GrantItem(0)=(Level=5,InventoryClass=class'Artifact_VehicleBoost')
 	Category=class'AbilityCategory_Vehicles'
 }
