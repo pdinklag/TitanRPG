@@ -280,7 +280,11 @@ simulated event Tick(float dt) {
                     if(Weapon.OverlayMaterial != X.UDamageWeaponMaterial) {
                         SetOverlay(X.UDamageWeaponMaterial);
                     }
-                } else if(Weapon.OverlayMaterial != ModifierOverlay && !X.bInvis) {
+                } else if(X.bInvis) {
+                    if(Weapon.OverlayMaterial != X.InvisMaterial) {
+                        SetOverlay(X.InvisMaterial);
+                    }
+                } else if(Weapon.OverlayMaterial != ModifierOverlay) {
                     SetOverlay();
                 }
             }
