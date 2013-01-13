@@ -4,7 +4,7 @@ function ModifyRPRI()
 {
 	Super.ModifyRPRI();
 
-	RPRI.MaxMines += int(BonusPerLevel) * AbilityLevel;
+	RPRI.MaxMines += int(BonusPerLevel) * (AbilityLevel - 1);
 }
 
 simulated function string DescriptionText()
@@ -16,8 +16,8 @@ defaultproperties
 {
 	AbilityName="Mine Field"
 	BonusPerLevel=1
-	Description="Each level of this ability will increase the amount of parasite mines you can deploy at a time by $1."
-	MaxLevel=4
+	Description="Each level of this ability, except for the first, will increase the amount of parasite mines you can deploy at a time by $1."
+	MaxLevel=5
 	GrantItem(0)=(Level=1,InventoryClass=class'TitanRPG.RPGMineLayer')
 	bUseLevelCost=True
 	LevelCost(0)=5
