@@ -38,5 +38,5 @@ defaultproperties
 	MaxLevel=5
 	ForbiddenAbilities(0)=(AbilityClass=class'Ability_IronLegs',Level=1)
     ForbiddenAbilities(1)=(AbilityClass=class'Ability_Retaliation',Level=1)
-	Category=class'AbilityCategory_Misc'
+	Category=class'AbilityCategory_Damage'
 }

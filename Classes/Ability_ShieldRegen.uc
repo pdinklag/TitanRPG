@@ -2,7 +2,7 @@ class Ability_ShieldRegen extends RPGAbility;
 
 var config float ShieldRegenInterval;
 var config int NoDamageDelay; //intervals that you must not have taken any damage
-var config int MaxShieldPerLevel, StartShield;
+var config int MaxShieldPerLevel;
 var config int RegenPerLevel;
 
 var int LastHealth, LastShield, ElapsedNoDamage;
@@ -10,16 +10,13 @@ var int LastHealth, LastShield, ElapsedNoDamage;
 replication
 {
 	reliable if(Role == ROLE_Authority)
-		ShieldRegenInterval, NoDamageDelay, MaxShieldPerLevel, StartShield, RegenPerLevel;
+		ShieldRegenInterval, NoDamageDelay, MaxShieldPerLevel, RegenPerLevel;
 }
 
 function ModifyPawn(Pawn Other)
 {
 	Super.ModifyPawn(Other);
-	
-    if(Other.GetShieldStrength() < StartShield * AbilityLevel)
-		Other.AddShieldStrength(StartShield * AbilityLevel - Other.GetShieldStrength());
-	
+
 	SetTimer(ShieldRegenInterval, true);
 }
 
@@ -57,21 +54,18 @@ function Timer()
 simulated function string DescriptionText()
 {
 	return repl(
-				repl(
-					repl(Super.DescriptionText(), "$1", BonusPerLevel),
-				"$2", MaxShieldPerLevel),
-			"$3", StartShield);
+                repl(Super.DescriptionText(), "$1", BonusPerLevel),
+            "$2", MaxShieldPerLevel);
 }
 
 defaultproperties
 {
 	ShieldRegenInterval=1.00
 	MaxShieldPerLevel=10
-	StartShield=5
 	NoDamageDelay=1
 	BonusPerLevel=1
 	AbilityName="Shield Regeneration"
-	Description="Regenerates $1 shield per level per second up to $2 times the level, provided you haven't suffered damage recently. Your shield starts at $3 times your level."
+	Description="Regenerates $1 shield per level per second up to $2 times the level, provided you haven't suffered damage recently."
 	MaxLevel=6
 	StartingCost=5
 	CostAddPerLevel=5

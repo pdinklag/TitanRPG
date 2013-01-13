@@ -15,7 +15,7 @@ simulated function string DescriptionText()
 defaultproperties
 {
 	AbilityName="Experienced Healing"
-	Description="Allows you to gain experience for healing teammates with Medic items.|Each level grants an additional $1 experience from healing."
+	Description="You gain $1 additional experience from healing per level."
 	StartingCost=10
 	MaxLevel=9
 	RequiredAbilities(0)=(AbilityClass=class'Ability_Medic',Level=1)

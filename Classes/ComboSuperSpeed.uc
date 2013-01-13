@@ -37,7 +37,7 @@ function StopEffect(xPawn P)
 
 defaultproperties
 {
-	SpeedBonus=0.533333 //+33%
+	SpeedBonus=0.6
 	JumpZBonus=0.5 //original speed combo value
 	Duration=16
     ExecMessage="Super Speed!"

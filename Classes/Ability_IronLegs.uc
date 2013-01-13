@@ -37,5 +37,5 @@ defaultproperties
 	MaxFallSpeedBonus=0.200000
 	MomentumReduction=0.200000
 	ForbiddenAbilities(0)=(AbilityClass=class'Ability_CounterShove',Level=1)
-	Category=class'AbilityCategory_Misc'
+	Category=class'AbilityCategory_Damage'
 }

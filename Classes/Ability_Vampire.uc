@@ -76,7 +76,7 @@ defaultproperties
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=10
-	BonusPerLevel=0.050000
+	BonusPerLevel=0.05
 	HealthBonusMax=0.333333
 	HealthBonusAbsoluteCap=0
 	bAllowForVehicles=True

@@ -1,4 +1,4 @@
-class Ability_ShieldStrength extends RPGAbility;
+class Ability_ShieldMax extends RPGAbility;
 
 //server -> client
 var float ShieldMax;

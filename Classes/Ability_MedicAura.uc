@@ -1,4 +1,4 @@
-class Ability_Aura extends RPGAbility;
+class Ability_MedicAura extends RPGAbility;
 
 var config float HealInterval;
 var config float HealRadius;
