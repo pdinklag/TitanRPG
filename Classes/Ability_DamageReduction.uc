@@ -2,7 +2,7 @@ class Ability_DamageReduction extends RPGAbility;
 
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	Damage = float(Damage) / (1.0 + float(AbilityLevel) * BonusPerLevel);
+	Damage = float(Damage) * (1.0 - float(AbilityLevel) * BonusPerLevel);
 }
 
 simulated function string DescriptionText()
