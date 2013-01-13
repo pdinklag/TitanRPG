@@ -13,16 +13,17 @@ function ServerRequestConfig() {
 
     Super.ServerRequestConfig();
     
-    ClientReceiveAbilityInfo(AbilityName, Description, LevelDescription.Length);
+    ClientReceiveAbilityInfo(AbilityName, Description, Category, LevelDescription.Length);
     
     for(i = 0; i < LevelDescription.Length; i++) {
         ClientReceiveLevelDescription(i, LevelDescription[i]);
     }
 }
 
-simulated function ClientReceiveAbilityInfo(string AName, string ADescription, int NumLevelDescriptions) {
+simulated function ClientReceiveAbilityInfo(string AName, string ADescription, class<RPGAbilityCategory> ACategory, int NumLevelDescriptions) {
     AbilityName = AName;
     Description = ADescription;
+    Category = ACategory;
     LevelDescription.Length = NumLevelDescriptions;
 }
 

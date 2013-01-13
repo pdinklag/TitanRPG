@@ -9,7 +9,7 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 defaultproperties
 {
 	DamageBonus=0.10
-	MinModifier=1
+	MinModifier=-3
 	MaxModifier=6
 	ModifierOverlay=Combiner'AWGlobal.Shaders.Combiner4'
 	PatternPos="$W of Damage"

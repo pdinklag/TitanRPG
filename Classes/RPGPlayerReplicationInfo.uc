@@ -1627,6 +1627,13 @@ function GrantQueuedWeapon(GrantWeapon GW) {
 
     W = Controller.Pawn.Spawn(GW.WeaponClass);
     if(W != None) {
+        if(GW.ModifierClass == None && !GW.bForce) {
+            GW.ModifierClass = RPGMut.GetRandomWeaponModifier(
+                GW.WeaponClass, Controller.Pawn);
+            
+            GW.Modifier = -100;
+        }
+    
         if(GW.ModifierClass != None) {
             WM = GW.ModifierClass.static.Modify(W, GW.Modifier, false);
             if(WM != None) {

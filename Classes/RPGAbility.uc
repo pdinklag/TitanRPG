@@ -62,8 +62,7 @@ replication
 		RPRI, AbilityLevel, Index, BuyOrderIndex, bAllowed;
 	
 	reliable if(Role == ROLE_Authority)
-		StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost,
-		BonusPerLevel, bIsStat;
+		bIsStat;
 	
 	reliable if(Role < ROLE_Authority)
 		ServerRequestConfig;
