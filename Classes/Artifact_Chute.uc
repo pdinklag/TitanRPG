@@ -49,6 +49,11 @@ function bool CanDeactivate()
 	return Super.CanDeactivate();
 }
 
+function BotWhatNext(Bot Bot) {
+    //if it can be activated, it's probably required!
+    Activate();
+}
+
 state Activated
 {
 	function BeginState()
