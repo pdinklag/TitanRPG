@@ -2,33 +2,38 @@ class Ability_AdrenalineSurge extends RPGAbility;
 
 function ScoreKill(Controller Killed, class<DamageType> DamageType)
 {
-	if(Level.Game.IsA('Invasion') && Monster(Killed.Pawn) != None)
-	{
-		Instigator.Controller.AwardAdrenaline(Monster(Killed.Pawn).ScoringValue * BonusPerLevel * AbilityLevel);
-	}
-	else
-	{
-		if(Killed != Instigator.Controller && !Killed.SameTeamAs(Instigator.Controller))
-		{
-			if(UnrealPlayer(Instigator.Controller) != None && UnrealPlayer(Instigator.Controller).MultiKillLevel > 0)
-				Instigator.Controller.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
-			
-			if(UnrealPawn(Killed.Pawn) != None && UnrealPawn(Killed.Pawn).spree > 4)
-				Instigator.Controller.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
+    local Controller C;
 
-			if(
-				Instigator.Controller.PlayerReplicationInfo.Kills == 1 &&
-				TeamPlayerReplicationInfo(Instigator.Controller.PlayerReplicationInfo) != None &&
-				TeamPlayerReplicationInfo(Instigator.Controller.PlayerReplicationInfo).bFirstBlood
-			)
-			{
-				Instigator.Controller.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
-			}
-		
-			if(Killed.bIsPlayer)
-				Instigator.Controller.AwardAdrenaline(Deathmatch(Level.Game).ADR_Kill * BonusPerLevel * AbilityLevel);
-		}
-	}
+    C = Instigator.Controller;
+    if(C != None) {
+        if(Level.Game.IsA('Invasion') && Monster(Killed.Pawn) != None)
+        {
+            C.AwardAdrenaline(Monster(Killed.Pawn).ScoringValue * BonusPerLevel * AbilityLevel);
+        }
+        else
+        {
+            if(Killed != C && !Killed.SameTeamAs(C))
+            {
+                if(UnrealPlayer(C) != None && UnrealPlayer(C).MultiKillLevel > 0)
+                    C.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
+                
+                if(UnrealPawn(Killed.Pawn) != None && UnrealPawn(Killed.Pawn).spree > 4)
+                    C.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
+
+                if(
+                    C.PlayerReplicationInfo.Kills == 1 &&
+                    TeamPlayerReplicationInfo(C.PlayerReplicationInfo) != None &&
+                    TeamPlayerReplicationInfo(C.PlayerReplicationInfo).bFirstBlood
+                )
+                {
+                    C.AwardAdrenaline(Deathmatch(Level.Game).ADR_MajorKill * BonusPerLevel * AbilityLevel);
+                }
+            
+                if(Killed.bIsPlayer)
+                    C.AwardAdrenaline(Deathmatch(Level.Game).ADR_Kill * BonusPerLevel * AbilityLevel);
+            }
+        }
+    }
 }
 
 simulated function string DescriptionText()

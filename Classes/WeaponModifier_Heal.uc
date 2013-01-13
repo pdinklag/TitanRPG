@@ -6,6 +6,8 @@ var localized string HealText;
 
 static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other)
 {
+    return Super.AllowedFor(Weapon, Other);
+    /*
 	local int x;
 	local class<ProjectileFire> ProjFire;
 	
@@ -33,6 +35,7 @@ static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other)
 		}
 	}
 	return false;
+    */
 }
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)

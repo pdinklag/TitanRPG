@@ -45,7 +45,7 @@ static function int GetNumPassengers(Vehicle V)
 		{
 			WP = OV.WeaponPawns[x];
 			
-			if(WP.Driver != None)
+			if(WP != None && WP.Driver != None)
 				n++;
 		}
 	}

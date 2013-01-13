@@ -16,7 +16,7 @@ local int RetalDamage;
 	if(class'WeaponModifier_Nullification'.static.GetFor(InstigatedBy.Weapon) != None)
 		return;
 
-	if(InstigatedBy != None && InstigatedBy != Instigator && !InstigatedBy.Controller.SameTeamAs(Instigator.Controller))
+	if(InstigatedBy != None && InstigatedBy != Instigator && (InstigatedBy.Controller == None || !InstigatedBy.Controller.SameTeamAs(Instigator.Controller)))
 	{
 		RetalDamage = int(float(Modifier) * BonusPerLevel * float(Damage));
 		RetalDamage = FMin(RetalDamage, float(Instigator.Health));
