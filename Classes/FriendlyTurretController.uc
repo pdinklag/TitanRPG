@@ -1,12 +1,17 @@
 /*
 	Code base taken from mcgRPG - original author unknown.
 */
-class FriendlyTurretController extends ASSentinelController;
+class FriendlyTurretController extends ASSentinelController
+	config(TitanRPG);
 
 var Controller Master; //player who spawned this turret
 var int TeamNum;
 
-var float SleepDelay;
+var config float SleepDelay;
+var config float FireRate;
+
+var config float DefaultSightRadius;
+var config float DefaultSkill;
 
 var FriendlyPawnReplicationInfo FPRI;
 
@@ -38,15 +43,17 @@ function Possess(Pawn aPawn)
     FPRI.Pawn = aPawn;
 
     //Defaults, controlled by abiltiies
-    aPawn.SightRadius = 8192;
+    aPawn.SightRadius = DefaultSightRadius;
+    InitializeSkill(DefaultSkill);
     
-    //TODO make rotation rate, skill and sight radius abilities
-
-	//AcquisitionYawRate = 20000;
+    if(aPawn.Weapon != None) {
+        //TODO possibly modify fire rate
+    }
+    
 	Enable('Tick');
 }
 
-function SetSkill(int x) {
+function InitializeSkill(int x) {
     Skill = x;
     if(Skill > 3) {
         FocusLead = (0.07 * FMin(Skill, 7)) / 10000; 
@@ -119,23 +126,15 @@ state Searching
     
     event Tick(float dt) {
         local Pawn P;
-        local Controller C;
-    
+
         Global.Tick(dt);
-    
-        for(C = Level.ControllerList; C != None; C = C.NextController) {
-            P = C.Pawn;
-            if(
-                C.bIsPlayer &&
-                P != None &&
-                P != Pawn &&
-                P != Master.Pawn &&
-                !SameTeamAs(C) &&
-                P.Health > 0 &&
-                VSize(P.Location - Pawn.Location) <= Pawn.SightRadius &&
-                CanSee(P)
-            ) {
+        
+        foreach Pawn.VisibleCollidingActors(class'Pawn', P, Pawn.SightRadius) {
+            if(CanSee(P)) {
                 SeePlayer(P);
+            }
+
+            if(Enemy == P) {
                 break;
             }
         }
@@ -167,6 +166,20 @@ state Engaged {
 }
 
 auto state Sleeping {
+    event Tick(float dt) {
+        local Pawn P;
+
+        Global.Tick(dt);
+        
+        foreach Pawn.VisibleCollidingActors(class'Pawn', P, Pawn.SightRadius) {
+            SeePlayer(P);
+
+            if(Enemy == P) {
+                break;
+            }
+        }
+    }
+
 	function Awake() {
 		LastRotation = Rotation;
 		ASVehicle_Sentinel(Pawn).Awake();
@@ -179,26 +192,33 @@ function bool IsSpawnCampProtecting() {
 }
 
 function bool IsTargetRelevant(Pawn Target) {
-    local bool bRelevant;
-
-	bRelevant = (
-		Pawn != None &&
-		Target != None &&
-		Target != Pawn &&
-        Target != Master.Pawn &&
-		Target.Controller != None &&
-		!SameTeamAs(Target.Controller) &&
-		Target.Health > 0 &&
-		VSize(Target.Location - Pawn.Location) <= Pawn.SightRadius * 1.25
-	);
-    
-    if(!bRelevant && Target.IsA('Monster')) {
-        Log("Irrelevant target:" @ Target);
+    if(Target == None || Target == Pawn || (Master != None && Target == Master.Pawn) || Target.Health <= 0) {
+        //not valid target
+        return false;
     }
     
-    return bRelevant;
+    if(SameTeamAs(Target.Controller)) {
+        //same team
+        return false;
+    }
+    
+    if(Target.IsA('Vehicle') && (Vehicle(Target).Team == TeamNum || class'Util'.static.GetNumPassengers(Vehicle(Target)) <= 0)) {
+        //empty vehicle or same team
+        return false;
+    }
+    
+    if(VSize(Target.Location - Pawn.Location) > Pawn.SightRadius * 1.15) {
+        //too far away
+        return false;
+    }
+
+    return true;
 }
 
 defaultproperties {
-    SleepDelay=10;
+    FireRate=0.5
+    SleepDelay=10
+    
+    DefaultSightRadius=2048
+    DefaultSkill=7
 }

@@ -82,6 +82,7 @@ function ModifyPawn(Pawn Other) {
 	}
 }
 
+/*
 simulated function string DescriptionText() {
 	local int lv, x;
 	local string text;
@@ -89,7 +90,7 @@ simulated function string DescriptionText() {
 	
 	text = Super.DescriptionText();
 	
-	for(lv = 1; lv <= MaxLevel; lv++)
+ 	for(lv = 1; lv <= MaxLevel; lv++)
 	{
 		list.Remove(0, list.Length);
 		for(x = 0; x < TurretTypes.Length; x++)
@@ -115,6 +116,7 @@ simulated function string DescriptionText() {
 	}
 	return text;
 }
+*/
 
 defaultproperties {
 	StatusIconClass=class'StatusIcon_Turrets'
@@ -124,7 +126,7 @@ defaultproperties {
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=3
-	TurretTypes(0)=(Level=1,TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=50,Cooldown=30)
+	TurretTypes(0)=(Level=1,TurretClass=class'TitanRPG.RPGSentinelTurret',Cost=50,Cooldown=30)
 	TurretPreText=", you can construct the"
 	TurretPostText="."
 	Category=class'AbilityCategory_Engineer'

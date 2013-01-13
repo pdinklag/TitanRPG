@@ -1157,7 +1157,7 @@ function ServerDestroyTurrets()
 			if(Turrets[0].Controller != None && !Turrets[0].Controller.IsA('PlayerController'))
 				Turrets[0].Controller.Destroy();
 			
-			Turrets[0].Destroy();
+			Turrets[0].Suicide();
 		}
 		
 		Turrets.Remove(0, 1);

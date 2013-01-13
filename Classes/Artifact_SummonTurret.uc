@@ -98,7 +98,7 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
     SpawnLoc += GetSpawnOffset(TurretClass);
     
     //Check for nearby game objectives
-    foreach VisibleCollidingActors(class'GameObjective', GO, GameObjectiveRadius, SpawnLoc, true) {
+    foreach RadiusActors(class'GameObjective', GO, GameObjectiveRadius, SpawnLoc) {
 		Msg(MSG_GameObjective);
 		return None;
     }
@@ -150,7 +150,7 @@ defaultproperties {
     GameObjectiveRadius=192
 
 	ArtifactID="TurretSummon"
-	Description="Constructs a sentinel turret."
+	Description="Constructs a floor sentinel."
 	ItemName="Turret Constructor"
 	PickupClass=Class'ArtifactPickup_TurretSummon'
 	IconMaterial=Texture'TitanRPG.ArtifactIcons.TurretSummon'
@@ -158,6 +158,6 @@ defaultproperties {
 	CostPerSec=0
 	Cooldown=0
 
-	TurretTypes(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',Cost=0,Cooldown=5)
-    TurretSpawnOffsets(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',SpawnOffset=(Z=60))
+	TurretTypes(0)=(TurretClass=class'TitanRPG.RPGSentinelTurret',Cost=0,Cooldown=5)
+    TurretSpawnOffsets(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',SpawnOffset=(Z=65))
 }
