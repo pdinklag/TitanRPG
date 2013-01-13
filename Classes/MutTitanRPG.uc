@@ -188,7 +188,8 @@ event PreBeginPlay()
         Module.ModuleName = ConfigAbilityNames[i];
         AbilityClass = Module.InitAbility();
         if(AbilityClass != None) {
-            Abilities[Abilities.Length] = AbilityClass;
+            Abilities.Insert(0, 1);
+            Abilities[0] = AbilityClass;
         } else {
             Warn("Failed to initialize ability for module" @ Module.ModuleName);
             break;
