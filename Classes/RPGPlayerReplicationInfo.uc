@@ -1636,10 +1636,7 @@ function GrantQueuedWeapon(GrantWeapon GW) {
         }
     
         if(GW.ModifierClass != None) {
-            WM = GW.ModifierClass.static.Modify(W, GW.Modifier, false);
-            if(WM != None) {
-                WM.bDelayedIdentify = true;
-            }
+            WM = GW.ModifierClass.static.Modify(W, GW.Modifier, GW.bForce || RPGMut.GameSettings.bNoUnidentified);
         }
     
         //W.GiveTo(Controller.Pawn);

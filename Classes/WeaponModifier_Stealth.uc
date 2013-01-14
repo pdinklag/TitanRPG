@@ -22,14 +22,11 @@ var localized string StealthText;
 var localized string StealthBonusText;
 
 replication {
-	reliable if(bNetOwner && Role == ROLE_Authority)
-		StealthDelay, WalkedDistanceMax, WalkedDistanceResetPerSecond;
-
-	reliable if(bNetOwner && Role == ROLE_Authority && bNetDirty)
-		bStill, bStealthed, WalkedDistance;
-	
 	reliable if(Role == ROLE_Authority)
-		ClientNotifyStill;
+        bStill, bStealthed, WalkedDistance;
+        
+    reliable if(Role == ROLE_Authority)
+		ClientNotifyStill, ClientReceiveStealthConfig;
 }
 
 static function bool AllowedFor(class<Weapon> Weapon, Pawn Other) {
@@ -37,6 +34,17 @@ static function bool AllowedFor(class<Weapon> Weapon, Pawn Other) {
 		return false;
 
     return ClassIsChildOf(Weapon, class'TitanRPG.RPGClassicSniperRifle');
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveStealthConfig(StealthDelay, WalkedDistanceMax, WalkedDistanceResetPerSecond);
+}
+
+simulated function ClientReceiveStealthConfig(float a, float b, float c) {
+    StealthDelay = a;
+    WalkedDistanceMax = b;
+    WalkedDistanceResetPerSecond = c;
 }
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType) {
@@ -56,7 +64,7 @@ simulated function ClientNotifyStill() {
 	bStill = true;
 }
 
-simulated function RPGTick(float dt)
+function RPGTick(float dt)
 {
 	local int PrimaryAmmo;
 
@@ -65,93 +73,74 @@ simulated function RPGTick(float dt)
 	if(xPawn(Instigator) == None)
 		return;
 	
-	if(Role == ROLE_Authority)
-	{
-		PrimaryAmmo = Weapon.AmmoAmount(0);
-		if(PrimaryAmmo < LastPrimaryAmmo)
-		{
-			//This is the only way I can come up with to find out whether this weapon just fired. ~pd
-			if(bStealthed)
-				WalkedDistance += FireSetbackAmount;
-			else
-				Reset();
-		}
-		LastPrimaryAmmo = PrimaryAmmo;
-	
-		if(!bStealthed)
-		{
-			if(
-				Instigator.bIsCrouched &&
-				VSize(Instigator.Velocity) == 0.f &&
-				Instigator.PlayerReplicationInfo.HasFlag == None &&
-				!Weapon.IsFiring())
-			{
-				Identify();
-			
-				if(bStill)
-				{
-					if(Level.TimeSeconds - StillTime >= StealthDelay)
-					{
-						if(!xPawn(Instigator).bInvis)
-						{
-							PlaySound(StealthSound, SLOT_Interact,,,,,false);
-							xPawn(Instigator).SetInvisibility(9999.f);
-							
-							LastLocation = Instigator.Location;
-							WalkedDistance = 0.f;
-							
-							bStealthed = true;
-						}
-					}
-				}
-				else
-				{
-					bStill = true;
-					StillTime = Level.TimeSeconds;
-					ClientNotifyStill();
-				}
-			}
-			else
-			{
-				bStill = false;
-				StillTime = 0.f;
-			}
-		}
-		else
-		{
-			if(
-				Instigator.bIsCrouched &&
-				Instigator.PlayerReplicationInfo.HasFlag == None &&
-				WalkedDistance < WalkedDistanceMax)
-			{
-				if(VSize(Instigator.Velocity) == 0.f)
-				{
-					WalkedDistance = FMax(0.f, WalkedDistance - WalkedDistanceResetPerSecond * dt);
-				}
-				else
-				{
-					WalkedDistance += VSize(Instigator.Location - LastLocation);
-					LastLocation = Instigator.Location;
-				}
-			}
-			else
-			{
-				Reset();
-			}
-		}
-	}
+    PrimaryAmmo = Weapon.AmmoAmount(0);
+    if(PrimaryAmmo < LastPrimaryAmmo) {
+        //This is the only way I can come up with to find out whether this weapon just fired. ~pd
+        if(bStealthed) {
+            WalkedDistance += FireSetbackAmount;
+        } else {
+            Reset();
+        }
+    }
+    LastPrimaryAmmo = PrimaryAmmo;
+
+    if(!bStealthed) {
+        if(
+            Instigator.bIsCrouched &&
+            VSize(Instigator.Velocity) == 0.f &&
+            Instigator.PlayerReplicationInfo.HasFlag == None &&
+            !Weapon.IsFiring())
+        {
+            Identify();
+        
+            if(bStill) {
+                if(Level.TimeSeconds - StillTime >= StealthDelay) {
+                    if(!xPawn(Instigator).bInvis) {
+                        Instigator.PlaySound(StealthSound, SLOT_Interact,,,,, false);
+                        
+                        xPawn(Instigator).SetInvisibility(9999.f);
+                        SetOverlay(xPawn(Instigator).InvisMaterial);
+                        
+                        LastLocation = Instigator.Location;
+                        WalkedDistance = 0.f;
+                        
+                        bStealthed = true;
+                    }
+                }
+            } else {
+                bStill = true;
+                StillTime = Level.TimeSeconds;
+                ClientNotifyStill();
+            }
+        } else {
+            bStill = false;
+            StillTime = 0.f;
+        }
+    } else {
+        if(
+            Instigator.bIsCrouched &&
+            Instigator.PlayerReplicationInfo.HasFlag == None &&
+            WalkedDistance < WalkedDistanceMax)
+        {
+            if(VSize(Instigator.Velocity) == 0.f) {
+                WalkedDistance = FMax(0.f, WalkedDistance - WalkedDistanceResetPerSecond * dt);
+            } else {
+                WalkedDistance += VSize(Instigator.Location - LastLocation);
+                LastLocation = Instigator.Location;
+            }
+        } else {
+            Reset();
+        }
+    }
 }
 
 simulated function ClientRPGTick(float dt) {
     Super.ClientRPGTick(dt);
 
     //Client-side simulation
-    if(bStill && !bStealthed)
-    {
+    if(bStill && !bStealthed) {
         SetBarCharge((Level.TimeSeconds - StillTime) / StealthDelay);
-    }
-    else if(bStealthed)
-    {
+    } else if(bStealthed) {
         SetBarCharge(1.f - (WalkedDistance / WalkedDistanceMax));
         
         if(VSize(Instigator.Velocity) == 0.f)
@@ -168,9 +157,12 @@ simulated function ClientRPGTick(float dt) {
     }
 }
 
-simulated function BuildDescription() {
-    Super.BuildDescription();
-    AddToDescription(StealthText);
+simulated function SetBarCharge(float x) {
+    if(RPGClassicSniperRifle(Weapon) != None) {
+        RPGClassicSniperRifle(Weapon).BarCharge = x;
+    } else {
+        Warn("No RPGClassicSniperRifle!");
+    }
 }
 
 function Reset() {
@@ -191,8 +183,7 @@ simulated function ApplyEffect(bool b) {
     if(Weapon != None) {
         if(b) {
             Weapon.bShowChargingBar = true;
-            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
-            {
+            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++) {
                 WF = Weapon.GetFireMode(i);
 
                 WF.FireSound = None;
@@ -202,8 +193,7 @@ simulated function ApplyEffect(bool b) {
             }
         } else {
             Weapon.bShowChargingBar = Weapon.default.bShowChargingBar;
-            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++)
-            {
+            for(i = 0; i < Weapon.NUM_FIRE_MODES; i++) {
                 WF = Weapon.GetFireMode(i);
                 
                 WF.FireSound = WF.default.FireSound;
@@ -232,16 +222,12 @@ simulated function ClientStopEffect() {
     ApplyEffect(false);
 }
 
-simulated function SetBarCharge(float x) {
-    if(RPGClassicSniperRifle(Weapon) != None) {
-        RPGClassicSniperRifle(Weapon).BarCharge = x;
-    } else {
-        Warn("No RPGClassicSniperRifle!");
-    }
+simulated function BuildDescription() {
+    Super.BuildDescription();
+    AddToDescription(StealthText);
 }
 
-defaultproperties
-{
+defaultproperties {
     WalkedDistanceResetPerSecond=50.0
     WalkedDistanceMax=200.0
     FireSetbackAmount=150.0

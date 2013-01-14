@@ -116,10 +116,7 @@ state Activated
 		}
 
         if(NewModifier != None) {
-            WM = NewModifier.static.Modify(OldWeapon, NewModifier.static.GetRandomPositiveModifierLevel());
-            if(WM != None) {
-                WM.Identify();
-            }
+            WM = NewModifier.static.Modify(OldWeapon, NewModifier.static.GetRandomPositiveModifierLevel(), true);
         } else {
             class'RPGWeaponModifier'.static.RemoveModifier(OldWeapon);
         }

@@ -89,10 +89,7 @@ static function bool SimulateWeaponLocker(WeaponLocker Locker, Pawn Other, class
             }
 
             if(ModifierClass != None) {
-                WM = ModifierClass.static.Modify(Copy, ModifierLevel, false);
-                if(bIdentify && WM != None) {
-                    WM.bDelayedIdentify = true;
-                }
+                WM = ModifierClass.static.Modify(Copy, ModifierLevel, true);
             }
         }
 
