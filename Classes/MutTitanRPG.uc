@@ -361,11 +361,8 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	
 	if(Other.IsA('UnrealPawn'))
 	{
-		
 		if(Other.IsA('Monster'))
 		{
-			//Monster fake weapon (for NetDamage to be called) - ~pd: NetDamage IS being called, what's wrong here??
-			//Spawn(class'FakeMonsterWeapon', Other).GiveTo(Pawn(Other));
 			Pawn(Other).HealthMax = Pawn(Other).Health; //fix, e.g. to allow healing properly
 		}
 	
