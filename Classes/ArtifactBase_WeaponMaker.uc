@@ -1,5 +1,6 @@
 class ArtifactBase_WeaponMaker extends ArtifactBase_DelayedUse
-	abstract;
+	abstract
+    HideDropDown;
 
 var config bool bAvoidRepetition;
 

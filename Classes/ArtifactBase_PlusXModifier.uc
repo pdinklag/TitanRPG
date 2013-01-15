@@ -1,5 +1,6 @@
 class ArtifactBase_PlusXModifier extends ArtifactBase_WeaponMaker
-	abstract;
+	abstract
+    HideDropDown;
 
 var config int X;
 

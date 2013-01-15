@@ -1,4 +1,6 @@
-class ArtifactBase_Summon extends ArtifactBase_Beacon abstract;
+class ArtifactBase_Summon extends ArtifactBase_Beacon
+    abstract
+    HideDropDown;
 
 var config class<Actor> SpawnActorClass;
 

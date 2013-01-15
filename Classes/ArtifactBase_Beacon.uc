@@ -1,4 +1,6 @@
-class ArtifactBase_Beacon extends RPGArtifact abstract;
+class ArtifactBase_Beacon extends RPGArtifact
+    abstract
+    HideDropDown;
 
 var class<RPGArtifactBeacon> BeaconClass;
 var RPGArtifactBeacon LastBeacon;

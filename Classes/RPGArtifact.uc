@@ -1,6 +1,7 @@
 class RPGArtifact extends Powerups
 	config(TitanRPG)
-	abstract;
+	abstract
+    HideDropDown;
 
 var config int CostPerSec; //default adrenaline cost per second
 var config float MinActivationTime; //zero means single hit usage (e.g. Repulsion)

@@ -1,5 +1,6 @@
 class ArtifactBase_Blast extends RPGArtifact
-	abstract;
+	abstract
+    HideDropDown;
 
 var config class<Blast> BlastClass;
 

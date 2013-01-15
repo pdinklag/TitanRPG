@@ -1,5 +1,6 @@
 class ArtifactBase_DelayedUse extends RPGArtifact
-	abstract;
+	abstract
+    HideDropDown;
 
 var bool bIgnoreUsedUp;
 
