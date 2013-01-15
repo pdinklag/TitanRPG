@@ -804,6 +804,13 @@ function PostRender(Canvas Canvas)
 			Y += YL;
 		}
 	}
+    
+    //Disco mode
+    if(RPRI.bDiscoMode) {
+		Canvas.SetPos(0, 0);
+        Canvas.DrawColor = WhiteColor;
+		Canvas.DrawPattern(FinalBlend'TitanRPG.Disco.DiscoModeOverlay', Canvas.ClipX, Canvas.ClipY, 0.25);
+    }
 
 	//Reset
 	Canvas.DrawColor = Canvas.default.DrawColor;

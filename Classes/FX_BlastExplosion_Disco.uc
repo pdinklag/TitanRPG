@@ -1,4 +1,4 @@
-class FX_BlastExplosion_Freeze extends FX_BlastExplosion
+class FX_BlastExplosion_Disco extends FX_BlastExplosion
 	placeable;
 
 defaultproperties
@@ -179,7 +179,7 @@ defaultproperties
      Emitters(3)=SpriteEmitter'SpriteEmitter3'
 
      Begin Object Class=MeshEmitter Name=MeshEmitter0
-         StaticMesh=StaticMesh'ParticleMeshes.Complex.ExplosionRing'
+         StaticMesh=StaticMesh'TitanRPG.Particles.ExplosionRing'
          UseParticleColor=True
          UseColorScale=True
          FadeOut=True
@@ -199,7 +199,7 @@ defaultproperties
          SizeScale(1)=(RelativeTime=1.000000,RelativeSize=22.000000)
          StartSizeRange=(X=(Min=0.500000,Max=0.500000),Y=(Min=0.500000,Max=0.500000))
          InitialParticlesPerSecond=50000.000000
-         Texture=Texture'EpicParticles.PlasmaCube.PlasmaField02aw'
+         Texture=Texture'TitanRPG.Disco.FlameGradient'
          SecondsBeforeInactive=0.000000
          LifetimeRange=(Min=1.000000,Max=1.000000)
          InitialDelayRange=(Min=1.000000,Max=1.000000)
@@ -207,7 +207,7 @@ defaultproperties
      Emitters(4)=MeshEmitter'MeshEmitter0'
 
      Begin Object Class=MeshEmitter Name=MeshEmitter1
-         StaticMesh=StaticMesh'ParticleMeshes.Complex.ExplosionSphere'
+         StaticMesh=StaticMesh'TitanRPG.Particles.ExplosionSphere'
          RenderTwoSided=True
          UseParticleColor=True
          UseColorScale=True
@@ -230,7 +230,7 @@ defaultproperties
          StartSizeRange=(X=(Min=0.800000,Max=0.800000),Y=(Min=0.800000,Max=0.800000),Z=(Min=0.800000,Max=0.500000))
          InitialParticlesPerSecond=50000.000000
          DrawStyle=PTDS_AlphaBlend
-         Texture=Texture'EpicParticles.PlasmaCube.PlasmaField02aw'
+         Texture=Texture'TitanRPG.Disco.FlameGradient'
          SecondsBeforeInactive=0.000000
          LifetimeRange=(Min=0.750000,Max=0.750000)
          InitialDelayRange=(Min=1.500000,Max=1.500000)
@@ -311,7 +311,7 @@ defaultproperties
      Emitters(8)=SpriteEmitter'SpriteEmitter6'
 
      Begin Object Class=MeshEmitter Name=MeshEmitter2
-         StaticMesh=StaticMesh'ParticleMeshes.Complex.ExplosionSphere'
+         StaticMesh=StaticMesh'TitanRPG.Particles.ExplosionSphere'
          RenderTwoSided=True
          UseParticleColor=True
          UseColorScale=True
@@ -329,7 +329,7 @@ defaultproperties
          StartSizeRange=(Z=(Min=0.500000,Max=0.500000))
          InitialParticlesPerSecond=50000.000000
          DrawStyle=PTDS_AlphaBlend
-         Texture=Texture'EpicParticles.PlasmaCube.PlasmaField02aw'
+         Texture=Texture'TitanRPG.Disco.FlameGradient'
          SecondsBeforeInactive=0.000000
          LifetimeRange=(Min=1.000000,Max=1.000000)
          InitialDelayRange=(Min=1.200000,Max=1.200000)

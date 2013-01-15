@@ -75,6 +75,7 @@ var array<ONSMineProjectile> Mines;
 
 //replicated
 var int NumMonsters, NumTurrets, NumMines;
+var bool bDiscoMode;
 
 //stats
 var int AmmoMax, WeaponSpeed;
@@ -138,7 +139,8 @@ replication
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
 		NumMines, NumMonsters, NumTurrets,
-		MaxMines, MaxTurrets, MaxMonsters;
+		MaxMines, MaxTurrets, MaxMonsters,
+        bDiscoMode;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
 		ClientModifyVehicleWeaponFireRate,
