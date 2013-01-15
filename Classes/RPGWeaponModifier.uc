@@ -222,8 +222,10 @@ function SendConfig() {
 }
 
 simulated function ClientReceiveBaseConfig(float xDamageBonus, float xBonusPerLevel) {
-    DamageBonus = xDamageBonus;
-    BonusPerLevel = xBonusPerLevel;
+    if(Role < ROLE_Authority) {
+        DamageBonus = xDamageBonus;
+        BonusPerLevel = xBonusPerLevel;
+    }
 }
 
 simulated event Tick(float dt) {

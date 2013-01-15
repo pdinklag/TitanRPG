@@ -6,6 +6,22 @@ var localized string ShieldText;
 
 var float RegenTime;
 
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceiveShieldConfig;
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveShieldConfig(RegenInterval);
+}
+
+simulated function ClientReceiveShieldConfig(float a) {
+    if(Role < ROLE_Authority) {
+        RegenInterval = a;
+    }
+}
+
 function RestartRegenTimer() {
     RegenTime = Level.TimeSeconds + RegenInterval;
 }
@@ -37,12 +53,14 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 simulated function BuildDescription()
 {
 	Super.BuildDescription();
-	AddToDescription(ShieldText);
+	AddToDescription(Repl(
+        Repl(ShieldText, "$1", int(BonusPerLevel)),
+        "$2", class'Util'.static.FormatFloat(RegenInterval)));
 }
 
 defaultproperties
 {
-	ShieldText="shield regeneration"
+	ShieldText="$1 shield every $2s out of combat"
 	PatternPos="$W of Shield"
 	DamageBonus=0.04
 	BonusPerLevel=1.00

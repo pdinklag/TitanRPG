@@ -28,13 +28,13 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 simulated function BuildDescription()
 {
 	Super.BuildDescription();
-	AddToDescription(NullEntropyText);
+	AddToDescription(Repl(NullEntropyText, "$1", class'Util'.static.FormatFloat(BonusPerLevel * Modifier)));
 }
 
 defaultproperties
 {
 	BonusPerLevel=0.333333
-	NullEntropyText="immobilizes human targets"
+	NullEntropyText="immobilizes human targets $1s"
 	DamageBonus=0.05
 	MinModifier=3
 	MaxModifier=6

@@ -35,7 +35,7 @@ simulated function BuildDescription() {
 defaultproperties
 {
 	DRText="$1 dmg reduction"
-	ProtectionText="Ultima Shield, instant kill protection"
+	ProtectionText="Ultima & death protection"
 	DamageBonus=0.025
 	BonusPerLevel=0.05
 	HealthCap=10

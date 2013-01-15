@@ -6,10 +6,20 @@ var config float MaxFallSpeedBonus;
 
 var localized string FeatherText, FallDamageText;
 
-replication
-{
-	reliable if(bNetOwner && Role == ROLE_Authority)
-		MaxFallSpeedBonus;
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceiveFeatherConfig;
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveFeatherConfig(MaxFallSpeedBonus);
+}
+
+simulated function ClientReceiveFeatherConfig(float a) {
+    if(Role < ROLE_Authority) {
+        MaxFallSpeedBonus = a;
+    }
 }
 
 function StartEffect()

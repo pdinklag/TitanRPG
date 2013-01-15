@@ -5,6 +5,23 @@ var config int MinimumHealth;
 
 var localized string RageText;
 
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceiveRageConfig;
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveRageConfig(DamageReturn, MinimumHealth);
+}
+
+simulated function ClientReceiveRageConfig(float a, int b) {
+    if(Role < ROLE_Authority) {
+        DamageReturn = a;
+        MinimumHealth = b;
+    }
+}
+
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
     local int localDamage;
@@ -29,12 +46,12 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 simulated function BuildDescription()
 {
 	Super.BuildDescription();
-	AddToDescription(RageText);
+	AddToDescription(Repl(RageText, "$2", MinimumHealth), DamageReturn);
 }
 
 defaultproperties
 {
-	RageText="self-damage"
+	RageText="$1 self-damage down to $2"
 	DamageBonus=0.10
 	DamageReturn=0.10
 	MinimumHealth=70

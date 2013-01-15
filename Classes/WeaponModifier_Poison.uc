@@ -2,7 +2,7 @@ class WeaponModifier_Poison extends RPGWeaponModifier;
 
 var RPGRules RPGRules;
 
-var localized string PoisonText;
+var localized string PoisonText, PoisonAbsText;
 
 var config int PoisonLifespan;
 var config int PoisonMode; //0 = PM_Absolute, 1 = PM_Percentage, 2 = PM_Curve
@@ -14,6 +14,23 @@ var config int AbsDrainPerLevel;
 var config float PercDrainPerLevel;
 
 var config int MinHealth; //cannot drain below this
+
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceivePoisonConfig;
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceivePoisonConfig(PoisonMode, AbsDrainPerLevel);
+}
+
+simulated function ClientReceivePoisonConfig(int a, int b) {
+    if(Role < ROLE_Authority) {
+        PoisonMode = a;
+        AbsDrainPerLevel = b;
+    }
+}
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
@@ -40,11 +57,16 @@ simulated function BuildDescription()
 {
 	Super.BuildDescription();
 	AddToDescription(PoisonText);
+    
+    if(EPoisonMode(PoisonMode) == PM_Absolute) {
+        AddToDescription(Repl(PoisonAbsText, "$1", Modifier * AbsDrainPerLevel));
+    }
 }
 
 defaultproperties
 {
 	PoisonText="poisons targets"
+	PoisonAbsText="$1 health/s"
 	PoisonLifespan=5
 	MinModifier=1
 	MaxModifier=5

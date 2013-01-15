@@ -61,12 +61,12 @@ function RPGTick(float dt)
 simulated function BuildDescription()
 {
 	Super.BuildDescription();
-	AddToDescription(PiercingText);
+	AddToDescription(PiercingText, BonusPerLevel);
 }
 
 defaultproperties
 {
-	PiercingText="pierces shield, extra damage against vehicles"
+	PiercingText="pierces shield, $1 dmg bonus against vehicles"
 	DamageBonus=0.05
 	BonusPerLevel=0.10
 	MinModifier=1

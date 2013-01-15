@@ -12,10 +12,20 @@ var bool bLock;
 
 var localized string ReflectionText;
 
-replication
-{
-	reliable if(Role == ROLE_Authority && bNetDirty && bNetOwner)
-		BaseChance;
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceiveReflectionConfig;
+}
+
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveReflectionConfig(BaseChance);
+}
+
+simulated function ClientReceiveReflectionConfig(float a) {
+    if(Role < ROLE_Authority) {
+        BaseChance = a;
+    }
 }
 
 function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)

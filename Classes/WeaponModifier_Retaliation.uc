@@ -4,7 +4,7 @@ var localized string RetalText;
 
 function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-local int RetalDamage;
+    local int RetalDamage;
 
 	Super.AdjustPlayerDamage(Damage, OriginalDamage, InstigatedBy, HitLocation, Momentum, DamageType);
 	Identify();

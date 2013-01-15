@@ -42,9 +42,11 @@ function SendConfig() {
 }
 
 simulated function ClientReceiveStealthConfig(float a, float b, float c) {
-    StealthDelay = a;
-    WalkedDistanceMax = b;
-    WalkedDistanceResetPerSecond = c;
+    if(Role < ROLE_Authority) {
+        StealthDelay = a;
+        WalkedDistanceMax = b;
+        WalkedDistanceResetPerSecond = c;
+    }
 }
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType) {
@@ -224,7 +226,7 @@ simulated function ClientStopEffect() {
 
 simulated function BuildDescription() {
     Super.BuildDescription();
-    AddToDescription(StealthText);
+    AddToDescription(Repl(StealthText, "$1", int(StealthDelay)));
 }
 
 defaultproperties {
@@ -235,7 +237,7 @@ defaultproperties {
     StealthSound=SoundGroup'WeaponSounds.Translocator.TranslocatorModuleRegeneration'
 
     StealthDelay=2.000000
-    StealthText="silencer, stealth when crouching"
+    StealthText="silencer, stealth after $1s when crouching"
     DamageBonus=0.000000
     MinModifier=1
     MaxModifier=1

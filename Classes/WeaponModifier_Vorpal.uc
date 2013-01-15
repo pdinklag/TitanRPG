@@ -1,19 +1,21 @@
 class WeaponModifier_Vorpal extends RPGWeaponModifier;
 
-var int ReplicatedMinModifier;
-
 var localized string VorpalText;
 
-replication
-{
-	reliable if(Role == ROLE_Authority && bNetOwner)
-		ReplicatedMinModifier; //needed for description
+replication {
+    reliable if(Role == ROLE_Authority)
+		ClientReceiveVorpalConfig;
 }
 
-simulated event PreBeginPlay()
-{
-	Super.PreBeginPlay();	
-	ReplicatedMinModifier = MinModifier;
+function SendConfig() {
+    Super.SendConfig();
+    ClientReceiveVorpalConfig(MinModifier);
+}
+
+simulated function ClientReceiveVorpalConfig(int a) {
+    if(Role < ROLE_Authority) {
+        MinModifier = a;
+    }
 }
 
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
@@ -35,7 +37,7 @@ simulated function BuildDescription() {
 	Super.BuildDescription();
  
     AddToDescription(Repl(VorpalText, "$1",
-        class'Util'.static.FormatPercent(0.01f * float(Modifier + 1 - ReplicatedMinModifier))));
+        class'Util'.static.FormatPercent(0.01f * float(Modifier + 1 - MinModifier))));
 }
 
 defaultproperties

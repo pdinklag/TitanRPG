@@ -26,7 +26,7 @@ simulated function BuildDescription() {
     if(Modifier >= 0) {
         AddToDescription(VampireText, BonusPerLevel);
     } else {
-        AddToDescription(EmoText, BonusPerLevel);
+        AddToDescription(EmoText, -BonusPerLevel);
     }
 }
 

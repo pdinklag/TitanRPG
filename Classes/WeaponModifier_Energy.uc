@@ -1,6 +1,6 @@
 class WeaponModifier_Energy extends RPGWeaponModifier;
 
-var localized string AdrenBonusText;
+var localized string AdrenBonusText, AdrenLossText;
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 {
@@ -41,7 +41,12 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 simulated function BuildDescription()
 {
 	Super.BuildDescription();
-	AddToDescription(AdrenBonusText, BonusPerLevel);
+    
+    if(Modifier > 0) {
+        AddToDescription(AdrenBonusText, BonusPerLevel);
+    } else {
+        AddToDescription(AdrenLossText, -BonusPerLevel);
+    }
 }
 
 defaultproperties
@@ -49,6 +54,7 @@ defaultproperties
 	DamageBonus=0.040000
 	BonusPerLevel=0.020000
 	AdrenBonusText="$1 adrenaline gain"
+	AdrenLossText="$1 adrenaline consumption"
 	MinModifier=-3
 	MaxModifier=4
     bCanHaveZeroModifier=False
