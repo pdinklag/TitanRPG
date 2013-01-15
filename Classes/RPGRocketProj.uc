@@ -35,3 +35,5 @@ simulated function Timer()
 	}
 }
 
+defaultproperties {
+}

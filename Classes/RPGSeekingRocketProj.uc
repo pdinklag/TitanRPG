@@ -66,3 +66,6 @@ simulated function Timer()
 		SetRotation(rotator(Velocity));
     }
 }
+
+defaultproperties {
+}

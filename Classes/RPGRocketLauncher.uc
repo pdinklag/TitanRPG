@@ -46,6 +46,9 @@ defaultproperties
 {
 	RocketClass=class'RPGRocketProj';
 	SeekingRocketClass=class'RPGSeekingRocketProj';
+    
+    FireModeClass(0)=class'RocketFire'
+    FireModeClass(1)=class'RPGRocketMultiFire';
 
 	PickupClass=class'RPGRocketLauncherPickup'
 }
