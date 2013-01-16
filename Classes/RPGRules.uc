@@ -496,9 +496,14 @@ function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
 {
 	local class<Weapon> WClass;
 	local Inventory Inv;
-	
+    
 	if(ClassIsChildOf(DamageType, class'WeaponDamageType'))
 	{
+        if(Other.IsA('Vehicle')) {
+            //whoever fired this might have just entered a vehicle
+            Other = Vehicle(Other).Driver;
+        }
+    
 		WClass = class<WeaponDamageType>(DamageType).default.WeaponClass;
 		
 		//for most cases, checking the currently held weapon will suffice
