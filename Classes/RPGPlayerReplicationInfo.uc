@@ -1685,6 +1685,9 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
 	local int i;
 	local GrantWeapon GW;
     
+    WeaponClass = class<Weapon>(DynamicLoadObject(
+        RPGMut.GetInventoryClassOverride(string(WeaponClass)), class'Class'));
+    
     if(!bForce) {
         for(i = 0; i < Abilities.Length; i++) {
             if(Abilities[i].bAllowed) {
