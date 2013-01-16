@@ -1024,7 +1024,6 @@ function Mutate(string MutateString, PlayerController Sender)
 	local Controller C;
 	local Emitter E;
 	local Actor Spawned;
-	local bool bFlag;
 	local Inventory Inv;
 	local bool bAll;
 	local string Game;
@@ -1090,7 +1089,7 @@ function Mutate(string MutateString, PlayerController Sender)
 					
 					for(C = Level.ControllerList; C != None; C = C.NextController)
 					{
-						if(C.Pawn != None && (bFlag || Args[1] ~= C.GetHumanReadableName()))
+						if(C.Pawn != None && (bAll || Args[1] ~= C.GetHumanReadableName()))
 						{
 							E = Spawn(class'RedeemerExplosion',,, C.Pawn.Location, Rot(0, 16384, 0));
 							
