@@ -460,14 +460,23 @@ static function array<Weapon> GetWeapons(Pawn Other, class<Weapon> WeaponClass) 
 }
 
 //Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
-static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
+static function Weapon ForceGiveTo(Pawn Other, Weapon W, optional WeaponPickup Pickup) {
     local Weapon Pivot;
+    local class<Weapon> WeaponClass;
     local Actor Inv, Prev;
+    
+    if(W != None) {
+        WeaponClass = W.class;
+    } else if(Pickup != None) {
+        WeaponClass = class<Weapon>(Pickup.InventoryType);
+    } else {
+        Warn("Insufficient parameters:" @ Other @ W @ Pickup);
+    }
     
     Prev = Other;
     Inv = Other.Inventory;
     while(Inv != None) {
-        if(Inv.class == W.class) {
+        if(Inv.class == WeaponClass) {
             break; //found one
         }
         
@@ -480,7 +489,13 @@ static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
         
         //cut of linked list (we assume that weapons are ordered and that the new weapon will be added here)
         Prev.Inventory = None;
-        W.GiveTo(Other, Pickup);
+        
+        //Give weapon to pawn or spawn copy
+        if(W != None) {
+            W.GiveTo(Other, Pickup);
+        } else {
+            W = Weapon(Pickup.SpawnCopy(Other));
+        }
         
         //re-add
         if(W.Inventory != None) {
@@ -499,8 +514,14 @@ static function ForceGiveTo(Pawn Other, Weapon W, optional Pickup Pickup) {
         }
     } else {
         //simply give to pawn
-        W.GiveTo(Other, Pickup);
+        if(W != None) {
+            W.GiveTo(Other, Pickup);
+        } else {
+            W = Weapon(Pickup.SpawnCopy(Other));
+        }
     }
+    
+    return W;
 }
 
 static function SetWeaponAmmo(Weapon W, int Mode, int Ammo) {

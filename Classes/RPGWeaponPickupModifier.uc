@@ -41,15 +41,8 @@ static function SimulateWeaponPickup(WeaponPickup Pickup, Pawn Other, class<RPGW
     Pickup.TriggerEvent(Pickup.Event, Pickup, Other);
     
     if(bForceGive) {
-        //Simulate Pickup.SpawnCopy
-        if(Pickup.Inventory != None) {
-            Copy = Weapon(Pickup.Inventory);
-            Pickup.Inventory = None;
-        } else {
-            Copy = Weapon(Other.Spawn(Pickup.InventoryType, Other));
-        }
-        
-        class'Util'.static.ForceGiveTo(Other, Copy, Pickup);
+        //force give to using pickup only (weapon is created in the process
+        Copy = class'Util'.static.ForceGiveTo(Other, None, Pickup);
     } else {
         Copy = Weapon(Pickup.SpawnCopy(Other));
     }

@@ -452,8 +452,12 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
                     W.FireModeClass[i] = class'RPGSentinelFire';
 			}
 		}
-		
-		//W.bNoAmmoInstances = false; //always use ammo instances (will be required for weapon modifiers)!
+        
+        //Assault rifle pickup fix
+        if(W.PickupClass == class'AssaultRiflePickup') {
+            W.PickupClass = class'RPGAssaultRiflePickup';
+        }
+
 		return true;
 	}
 	
