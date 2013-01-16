@@ -54,7 +54,7 @@ static function SimulateWeaponPickup(WeaponPickup Pickup, Pawn Other, class<RPGW
         Copy.PickupFunction(Other);
         
         if(ModifierClass != None) {
-            ModifierClass.static.Modify(Copy, ModifierLevel, bIdentify);
+            ModifierClass.static.Modify(Copy, ModifierLevel, bIdentify, true);
         }
     }
 }
