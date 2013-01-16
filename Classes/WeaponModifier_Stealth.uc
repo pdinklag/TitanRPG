@@ -80,6 +80,7 @@ function RPGTick(float dt)
         //This is the only way I can come up with to find out whether this weapon just fired. ~pd
         if(bStealthed) {
             WalkedDistance += FireSetbackAmount;
+            NetUpdateTime = Level.TimeSeconds - 1; //force net update
         } else {
             Reset();
         }
