@@ -25,7 +25,6 @@ simulated function ClientModifyMaxLoad(Weapon Weapon, int Mode, int MaxLoad, flo
     
     RMF = RocketMultiFire(Weapon.GetFireMode(Mode));
     if(RMF != None) {
-        Log("ClientModifyMaxLoad" @ Weapon @ Mode @ MaxLoad);
         RMF.MaxLoad = MaxLoad;
         RMF.MaxHoldTime = MaxHoldTime;
     }
