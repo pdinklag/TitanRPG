@@ -22,9 +22,11 @@ var config float DamageBonus, BonusPerLevel;
 var bool bIdentified;
 var Material ModifierOverlay;
 
-//Overlay Sync (server only)
-var bool bUpdateOverlay;
+//Client Sync
 var Sync_OverlayMaterial SyncThirdPerson;
+
+var int ClientModifier;
+var bool bClientIdentified; //checked client-side
 
 //Item name
 var localized string PatternPos, PatternNeg;
@@ -47,9 +49,12 @@ var string Description;
 replication{
     reliable if(Role == ROLE_Authority && bNetInitial)
         Weapon;
+
+    reliable if(Role == ROLE_Authority && bNetDirty)
+        Modifier, bIdentified;
     
 	reliable if(Role == ROLE_Authority)
-		ClientReceiveBaseConfig, ClientIdentify, ClientSetFirstPersonOverlay, ClientSetActive;
+		ClientReceiveBaseConfig, ClientSetFirstPersonOverlay, ClientSetActive;
 }
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other) {
@@ -237,7 +242,7 @@ simulated event Tick(float dt) {
 			Destroy();
 			return;
 		}
-        
+
 		if(Instigator != None) {
 			if(!bActive && Instigator.Weapon == Weapon) {
 				SetActive(true);
@@ -269,11 +274,18 @@ simulated event Tick(float dt) {
 	}
     
     if(Role < ROLE_Authority || Level.NetMode == NM_Standalone) {
-        if(bActive) {
-            if(Weapon != None) {
-                ClientRPGTick(dt);
-            } else {
-                Destroy();
+        if(Weapon != None) {
+            if(bIdentified && (!bClientIdentified || Modifier != ClientModifier)) {
+                ClientModifier = Modifier;
+                bClientIdentified = true;
+            
+                ClientIdentify();
+            }
+        
+            if(bActive) {
+                if(Weapon != None) {
+                    ClientRPGTick(dt);
+                }
             }
         }
     }
@@ -283,15 +295,11 @@ function Identify(optional bool bReIdentify) {
 	if(!bIdentified || bReIdentify) {
 		Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
 		bIdentified = true;
-        
-        ClientIdentify(Modifier);
 	}
 }
 
-simulated function ClientIdentify(int xModifier) {
+simulated function ClientIdentify() {
     if(Role < ROLE_Authority) {
-        Modifier = xModifier;
-        
         Weapon.ItemName = ConstructItemName(Weapon.class, Modifier);
         Description = "";
         
