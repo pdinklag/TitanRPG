@@ -380,13 +380,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return true;
 	}
 	
-	//Max ammo hack (will be overridden by the RPRI)
-	if(Other.IsA('Ammunition') && !Other.IsA('ShieldAmmo'))
-	{
-		Ammunition(Other).MaxAmmo = 999;
-		return true;
-	}
-	
     //Replace locker weapons
     if(Other.IsA('WeaponLocker')) {
         Locker = WeaponLocker(Other);
