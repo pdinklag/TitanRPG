@@ -14,12 +14,9 @@ struct TurretSpawnOffset {
 };
 var config array<TurretSpawnOffset> TurretSpawnOffsets;
 
-var config float GameObjectiveRadius;
-
 const MSG_MaxTurrets = 0x1000;
-const MSG_GameObjective = 0x1001;
 
-var localized string MsgMaxTurrets, MsgGameObjective, SelectionTitle;
+var localized string MsgMaxTurrets, SelectionTitle;
 
 replication
 {
@@ -87,7 +84,6 @@ function bool CanActivate()
 
 function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator SpawnRot)
 {
-    local GameObjective GO;
     local class<ASTurret> TurretClass;
     local class<ASTurret_Base> TurretBaseClass;
 	local FriendlyTurretController C;
@@ -97,10 +93,9 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
     TurretBaseClass = TurretClass.default.TurretBaseClass;
     SpawnLoc += GetSpawnOffset(TurretClass);
     
-    //Check for nearby game objectives
-    foreach RadiusActors(class'GameObjective', GO, GameObjectiveRadius, SpawnLoc) {
-		Msg(MSG_GameObjective);
-		return None;
+    //Check for nearby important objects
+    if(!class'RPGRules'.static.Instance(Level).CanConstructHere(SpawnClass, SpawnLoc)) {
+        return None;
     }
     
 	T = ASTurret(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
@@ -143,12 +138,9 @@ simulated function string GetOption(int i)
 defaultproperties {
 	SelectionTitle="Pick a turret to summon:"
 	MsgMaxTurrets="You cannot spawn any more turrets at this time."
-	MsgGameObjective="This location is too close to a game objective."
 
 	bSelection=true
     
-    GameObjectiveRadius=192
-
 	ArtifactID="TurretSummon"
 	Description="Constructs a floor sentinel."
 	ItemName="Turret Constructor"

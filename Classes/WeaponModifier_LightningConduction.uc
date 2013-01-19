@@ -6,7 +6,8 @@ function AdjustPlayerDamage(out int Damage, int OriginalDamage, Pawn InstigatedB
 {
 	if(DamageType == class'DamTypeSniperShot' ||
 		DamageType == class'DamTypeSniperHeadShot' ||
-		DamageType == class'DamTypeLightningRod')
+		DamageType == class'DamTypeLightningRod' ||
+        DamageType == class'DamTypeLightningTotem')
 	{
 		Identify();
 		Damage = Max(Damage * (1 - BonusPerLevel * Modifier), 0);
@@ -35,4 +36,5 @@ defaultproperties
 	CountersDamage(0)=class'DamTypeSniperShot'
 	CountersDamage(1)=class'DamTypeSniperHeadShot'
 	CountersDamage(2)=class'DamTypeLightningRod'
+	CountersDamage(3)=class'DamTypeLightningTotem'
 }

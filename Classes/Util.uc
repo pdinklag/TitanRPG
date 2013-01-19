@@ -25,6 +25,51 @@ static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, option
 	A.PlaySound(S, SLOT_None, Vol * 1.25f,, Radius * 300.0f);
 }
 
+//Attempts to get the team index of the specified actor
+static function int GetTeamNum(Actor A) {
+    if(A.IsA('Controller')) {
+        return Controller(A).GetTeamNum();
+    } else if(A.IsA('Pawn') && Pawn(A).Controller != None) {
+        return Pawn(A).Controller.GetTeamNum();
+    } else if(A.IsA('Vehicle') && GetNumPassengers(Vehicle(A)) > 0) {
+        return Vehicle(A).Team;
+    } else if(A.IsA('ONSMineProjectile')) {
+        return ONSMineProjectile(A).TeamNum;
+    } else if(A.IsA('DestroyableObjective')) {
+        return DestroyableObjective(A).DefenderTeamIndex;
+    } else if(A.IsA('RPGTotem')) {
+        return RPGTotem(A).TeamNum;
+    } else {
+        return -1; //no team, not even neutral
+    }
+}
+
+//Checks if two actors are on the same team
+static function bool SameTeam(Actor A, Actor B) {
+    local int TeamA, TeamB;
+    
+    TeamA = GetTeamNum(A);
+    TeamB = GetTeamNum(B);
+    
+    if(TeamA == -1 || TeamB == -1) {
+        return true;
+    } else {
+        return (TeamA != 255 && TeamB != 255 && TeamA == TeamB);
+    }
+}
+
+//Checks if the given actor is friendly from the given team's view
+static function bool IsFriendly(int Team, Actor A) {
+    local int OtherTeam;
+    
+    OtherTeam = GetTeamNum(A);
+    if(OtherTeam == -1) {
+        return true;
+    } else {
+        return (Team != 255 && OtherTeam != 255 && Team == OtherTeam);
+    }
+}
+
 static function int GetNumPassengers(Vehicle V)
 {
 	local int n, x;

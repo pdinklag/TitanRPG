@@ -3,8 +3,6 @@ class Ability_MedicAura extends RPGAbility;
 var config float HealInterval;
 var config float HealRadius;
 
-var array<FX_HealingBeam> HealEmitters;
-
 replication
 {
 	reliable if(Role == ROLE_Authority)
@@ -25,9 +23,7 @@ function Timer()
 
 	if(Instigator == None || Instigator.Health <= 0)
 		return;
-	
-	CleanEmitters();
-	
+
 	if(Instigator.DrivenVehicle != None)
 		return;
 
@@ -52,39 +48,9 @@ function Timer()
 			
 				HealEmitter = Instigator.Spawn(class'FX_HealingBeam', Instigator);
 				HealEmitter.LinkedPawn = P;
-				
-				HealEmitters[HealEmitters.Length] = HealEmitter;
 			}
 		}
 	}
-}
-
-function CleanEmitters()
-{
-	local int i;
-	
-	while(i < HealEmitters.Length)
-	{
-		if(HealEmitters[i] == None)
-			HealEmitters.Remove(i, 1);
-		else
-			i++;
-	}
-}
-
-event Destroyed()
-{
-	local int i;
-
-	Super.Destroyed();
-
-	for(i = 0; i < HealEmitters.Length; i++)
-	{
-		if(HealEmitters[i] != None)
-			HealEmitters[i].Destroy();
-	}
-	
-	HealEmitters.Remove(0, HealEmitters.Length);
 }
 
 simulated function string DescriptionText()

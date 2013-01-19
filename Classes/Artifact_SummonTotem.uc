@@ -74,9 +74,13 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 	
     SpawnLoc += vect(0, 0, -16);
     
+    //Check for nearby important objects
+    if(!class'RPGRules'.static.Instance(Level).CanConstructHere(SpawnClass, SpawnLoc)) {
+        return None;
+    }
+    
 	Totem = RPGTotem(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
-	if(Totem != None)
-	{
+	if(Totem != None) {
         /*
 		if(InstigatorRPRI != None)
 			InstigatorRPRI.AddMonster(M);
@@ -123,5 +127,6 @@ defaultproperties
 	CostPerSec=0
 	Cooldown=0
 
-	TotemTypes(0)=(TotemClass=class'TitanRPG.RPGTotem',DisplayName="Test",Cost=0,Cooldown=1)
+	TotemTypes(0)=(TotemClass=class'TitanRPG.Totem_Heal',DisplayName="Healing Totem",Cost=0,Cooldown=1)
+	TotemTypes(1)=(TotemClass=class'TitanRPG.Totem_Lightning',DisplayName="Lightning Totem",Cost=0,Cooldown=1)
 }
