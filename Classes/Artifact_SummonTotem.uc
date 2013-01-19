@@ -3,7 +3,6 @@ class Artifact_SummonTotem extends ArtifactBase_Summon;
 struct TotemTypeStruct
 {
 	var class<RPGTotem> TotemClass;
-	var string DisplayName;
 	var int Cost;
 	var int Cooldown;
 };
@@ -81,10 +80,9 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
     
 	Totem = RPGTotem(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
 	if(Totem != None) {
-        /*
-		if(InstigatorRPRI != None)
-			InstigatorRPRI.AddMonster(M);
-        */
+        Totem.SetOwner(None);
+        Totem.SetTeamNum(Instigator.Controller.GetTeamNum());
+        RPGTotemController(Totem.Controller).Master = Instigator.Controller;
 	}
 	return Totem;
 }
@@ -108,7 +106,7 @@ simulated function int GetNumOptions()
 
 simulated function string GetOption(int i)
 {
-	return TotemTypes[i].DisplayName;
+	return TotemTypes[i].TotemClass.default.VehicleNameString;
 }
 
 defaultproperties
@@ -127,6 +125,6 @@ defaultproperties
 	CostPerSec=0
 	Cooldown=0
 
-	TotemTypes(0)=(TotemClass=class'TitanRPG.Totem_Heal',DisplayName="Healing Totem",Cost=0,Cooldown=1)
-	TotemTypes(1)=(TotemClass=class'TitanRPG.Totem_Lightning',DisplayName="Lightning Totem",Cost=0,Cooldown=1)
+	TotemTypes(0)=(TotemClass=class'TitanRPG.Totem_Heal',Cost=0,Cooldown=1)
+	TotemTypes(1)=(TotemClass=class'TitanRPG.Totem_Lightning',Cost=0,Cooldown=1)
 }

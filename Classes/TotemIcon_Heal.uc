@@ -1,4 +1,4 @@
-class TotemIndicator_Heal extends RPGTotemIndicator;
+class TotemIcon_Heal extends RPGTotemIcon;
 
 defaultproperties {
     StaticMesh=StaticMesh'E_Pickups.MidHealth'

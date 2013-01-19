@@ -1,32 +1,51 @@
-class Totem_Lightning extends RPGTotem
-    config(TitanRPG);
+class Totem_Lightning extends RPGTotem CacheExempt;
 
+var config float Interval;
 var config int Damage;
 
-function FireAt(Actor Other) {
-    local xEmitter HitEmitter;
-    local vector HitLocation;
+var class<xEmitter> HitEmitterClass;
 
-    if(!class'Util'.static.IsFriendly(TeamNum, Other)) {
-        if(FastTrace(IndicatorLocation, Other.Location)) {
-            class'Util'.static.PlayLoudEnoughSound(Self, Sound'WeaponSounds.LightningGun.LightningGunFire');
+auto state Active {
+    event BeginState() {
+        SetTimer(Interval, true);
+    }
+    
+    function Timer() {
+        local Pawn P;
+        local xEmitter HitEmitter;
+        local vector HitLocation;
         
-            HitLocation = Other.Location;
-            HitLocation += vect(-10, 0, 0) >> rotator(Other.Location - IndicatorLocation); //(c) Wulff ? should credit him here ;)
+        foreach VisibleCollidingActors(class'Pawn', P, SightRadius, IconLocation) {
+            if(P.IsA('xPawn') && xPawn(P).bInvis) {
+                continue;
+            }
+            
+            if(P.IsA('Vehicle') && class'Util'.static.GetNumPassengers(Vehicle(P)) == 0) {
+                continue;
+            }
         
-            Other.TakeDamage(Damage, Instigator, HitLocation, vect(0, 0, 0), class'DamTypeLightningTotem');
-        
-            HitEmitter = Spawn(class'XEffects.LightningBolt',,, IndicatorLocation, rotator(Other.Location - IndicatorLocation));
-            if(HitEmitter != None)
-                HitEmitter.mSpawnVecA = Other.Location;
+            if(!Controller.SameTeamAs(P.Controller) && P.Health > 0 && FastTrace(Icon.Location, P.Location)) {
+                HitEmitter = Spawn(HitEmitterClass,,, Icon.Location, rotator(P.Location - Icon.Location));
+
+                if(HitEmitter != None) {
+                    HitEmitter.mSpawnVecA = P.Location;
+                }
+
+                HitLocation = P.Location;
+                HitLocation += vect(-10, 0, 0) >> rotator(P.Location - Icon.Location); //(c) Wulff ? should credit him here ;)
+
+                P.TakeDamage(Damage, Self, HitLocation, vect(0,0,0), class'DamTypeLightningTotem');
+            }
         }
     }
 }
 
 defaultproperties {
+    Interval=3.0
     Damage=25
-    Interval=3
-
-    AffectedClass=class'Actor'
-    IndicatorClass=class'TotemIndicator_Lightning'
+    SightRadius=1024
+    
+    HitEmitterClass=class'XEffects.LightningBolt'
+    IconClass=class'TotemIcon_Lightning'
+    VehicleNameString="Lightning Totem"
 }

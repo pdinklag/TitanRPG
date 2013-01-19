@@ -1,202 +1,133 @@
-class RPGTotem extends Actor abstract
-    config(TitanRPG)
-    placeable;
-    
-#exec OBJ LOAD FILE=cp_Evilmetal.utx
+class RPGTotem extends ASVehicle abstract placeable
+    config(TitanRPG);
 
-var config float Radius, Interval;
-var config int Health;
-var config int MaxTargets;
-
-var bool bHasInstigator;
-var int TeamNum;
-var class<Actor> AffectedClass;
-
-//Looks
-var float IndicatorZOffset;
-var vector IndicatorLocation;
-
-var Actor Indicator;
-var class<Actor> IndicatorClass;
-
-var Emitter ExplosionEffect;
+var class<RPGTotemIcon> IconClass;
 
 var Material TeamSkins[4];
+var Material DeadSkin;
+
+var float IconOffZ;
+var vector IconLocation;
+var RPGTotemIcon Icon;
 
 replication {
-    unreliable if(Role == ROLE_Authority)
-        ClientExplode;
+    reliable if(Role == ROLE_Authority && bNetDirty)
+        Icon;
 }
 
 simulated event PostBeginPlay() {
     Super.PostBeginPlay();
-    //TODO spawn effect
     
-    if(Role == ROLE_Authority){
-        //Spawn indicator
-        IndicatorLocation = Location + (CollisionHeight + IndicatorZOffset) * vect(0, 0, 1);
-        if(IndicatorClass != None) {
-            Indicator = Spawn(IndicatorClass, Self,, IndicatorLocation);
-        }
+    IconLocation = Location + IconOffZ * vect(0, 0, 1);
+    if(Role == ROLE_Authority && IconClass != None) {
+        Icon = Spawn(IconClass, Self,, IconLocation);
+    }
+}
+
+simulated event TeamChanged() {
+    local int i;
     
-        //Set skin
-        bHasInstigator = (Instigator != None);
-
-        if(Instigator != None && Instigator.Controller != None) {
-            TeamNum = Instigator.Controller.GetTeamNum();
-            if(TeamNum >= 0 && TeamNum <= 3) {
-                Skins[0] = TeamSkins[TeamNum];
-                RepSkin = TeamSkins[TeamNum];
-            }
-        }
-
-        //Set interval timer
-        SetTimer(Interval, true);
-    }
-}
-
-simulated event Destroyed() {
-    Super.Destroyed();
-    
-    if(Indicator != None) {
-        Indicator.Destroy();
-    }
-}
-
-event Tick(float dt) {
-    super.Tick(dt);
-
-    if(bHasInstigator) {
-        if(Instigator == None || Instigator.Health <= 0) {
-            Explode();
-            GotoState('Dying');
-        }
-    }
-}
-
-event TakeDamage(int Damage, Pawn InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType) {
-    if(InstigatedBy == None || !SameTeamAs(InstigatedBy.Controller)) {
-        Log("TakeDamage: " @ Damage @ InstigatedBy @ HitLocation @ Momentum @ DamageType);
-        Health -= Damage;
-        if(Health <= 0) {
-            GotoState('Dying');
-        }
-    }
-}
-
-simulated event Bump(Actor Other) {
-    //Make grenades stick to me
-    if(Other.IsA('ONSGrenadeProjectile')) {
-        Other.Touch(Self);
-    }
-}
-
-function bool SameTeamAs(Controller C) {
-    local int CTeam;
-    
-    if(C == None) {
-        return false;
+    if(Team >= 0 && Team <= 3) {
+        i = Team;
+    } else {
+        i = 0;
     }
     
-    CTeam = C.GetTeamNum();
-    return (TeamNum != 255 && CTeam != 255 && TeamNum == CTeam);
+    Skins[0] = TeamSkins[Team];
+    RepSkin = TeamSkins[Team];
 }
 
-simulated function Timer() {
-    if(Role == ROLE_Authority) {
-        Fire();
-    }
-}
-
-function Fire() {
-    local Actor A;
-    local int n;
+function Died(Controller Killer, class<DamageType> damageType, vector HitLocation) {
+    local Controller C;
     
-    foreach VisibleCollidingActors(class'Actor', A, Radius, IndicatorLocation) {
-        FireAt(A);
-        
-        n++;
-        if(MaxTargets > 0 && n >= MaxTargets) {
-            break;
-        }
+    Skins[0] = DeadSkin;
+    RepSkin = DeadSkin;
+    
+    if(Controller != None) {
+        C = Controller;
+        C.WasKilledBy(Killer);
+        Level.Game.Killed(Killer, C, self, damageType);
+        C.Destroy();
     }
-}
 
-//Impose effect on actor
-function FireAt(Actor Other);
-
-simulated function Explode() {
-    if(Level.NetMode != NM_DedicatedServer) {
-        Skins[0] = Shader'cp_Evilmetal.plainmetal.cp_plainmet4_Shiny';
-        ExplosionEffect = Spawn(class'FX_SpaceFighter_Explosion', Self,, Location, Rotation);
-        MakeNoise(1.0);
+	if(Killer != None) {
+		TriggerEvent(Event, Self, Killer.Pawn);
+	} else {
+		TriggerEvent(Event, Self, None);
     }
-}
-
-simulated function ClientExplode() {
+    
+    if(Icon != None) {
+        Icon.Destroy();
+    }
+    
+    PlayDying(DamageType, HitLocation);
+    ClientDying(DamageType, HitLocation);
+    
     GotoState('Dying');
 }
 
-state Dying {
-    ignores Bump, TakeDamage;
-
-	simulated function Timer() {
-		if(!bDeleteMe) {
-			Destroy();
-        }
-	}
-    
-    simulated function BeginState() {
-        if(Indicator != None) {
-            Indicator.Destroy();
-        }
-    
-        if(Role == ROLE_Authority) {
-            ClientExplode();
-        }
-    
-        Explode();
-        SetTimer(1.0f, false);
-    }
-}
-
 defaultproperties {
-    Radius=1024
-    Interval=1.0
+    //Settings
+    SightRadius=1024
     
-    Health=100
+	Health=250
+	HealthMax=250
     
-    MaxTargets=0 //infinite
-    AffectedClass=class'Actor'
+    IconOffZ=160
     
-    IndicatorClass=class'RPGTotemIndicator'
-
-    bReplicateInstigator=True
-    bAlwaysRelevant=True
-    NetUpdateFrequency=1
-    RemoteRole=ROLE_SimulatedProxy
-
+    //Custom
+    Physics=PHYS_None
+    
     DrawType=DT_StaticMesh
     StaticMesh=StaticMesh'TitanRPG.Totem.TotemStatic'
-    
-    bCollideActors=True
-    bBlockActors=True
-    bBlockPlayers=True
-    bBlockProjectiles=True
-    bProjTarget=True
-    bUseCylinderCollision=False
-    bBlockZeroExtentTraces=True
-    bBlockNonZeroExtentTraces=True
-    bBlockKarma=True
-    
-    CollisionHeight=132 //used for stuff
-    IndicatorZOffset=32
-    
-	TransientSoundVolume=0.75
-	TransientSoundRadius=512
-    
+
     TeamSkins[0]=None //original is red
     TeamSkins[1]=Shader'TitanRPG.Totem.BlueShader'
     TeamSkins[2]=Shader'TitanRPG.Totem.GreenShader'
     TeamSkins[3]=Shader'TitanRPG.Totem.GoldShader'
+    DeadSkin=Shader'cp_Evilmetal.plainmetal.cp_plainmet4_Shiny'
+    
+	bAutoTurret=true
+	AutoTurretControllerClass=class'RPGTotemController'
+    
+    //From ASVehicle_Sentinel
+	TransientSoundVolume=0.75
+	TransientSoundRadius=512
+	bNetNotify=true
+
+	bSimulateGravity=false
+	AirSpeed=0.0
+	WaterSpeed=0.0
+	AccelRate=0.0
+	JumpZ=0.0
+	MaxFallSpeed=0.0
+
+	bIgnoreEncroachers=true
+    bCollideWorld=false
+    
+	bIgnoreForces=true
+	bShouldBaseAtStartup=false
+	bNonHumanControl=true
+	bDefensive=true
+	bStationary=true
+	VehicleNameString="Totem"
+    
+    bNoTeamBeacon=true
+
+    //From ASTurret
+	bPathColliding=true
+    
+    RemoteRole=ROLE_SimulatedProxy
+    
+	bSpecialCalcView=true
+	bSpecialHUD=true
+
+	FPCamPos=(X=0,Y=0,Z=40)
+    
+    AmbientGlow=64
+
+	bUseCylinderCollision=false
+    
+    bRemoteControlled=true
+    bDesiredBehindView=false
 }

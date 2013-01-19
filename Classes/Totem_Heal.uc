@@ -1,30 +1,39 @@
-class Totem_Heal extends RPGTotem
-    config(TitanRPG);
+class Totem_Heal extends RPGTotem CacheExempt;
 
+var config float Interval;
 var config int HealAmount;
 
-function FireAt(Actor Other) {
-    local Pawn P;
-    local Effect_Heal Heal;
-    local FX_Beam Beam;
+auto state Active {
+    event BeginState() {
+        SetTimer(Interval, true);
+    }
     
-    P = Pawn(Other);
-    if(P != None && SameTeamAs(P.Controller)) {
-        Heal = Effect_Heal(class'Effect_Heal'.static.Create(P, Instigator.Controller));
-        if(Heal != None) {
-            Heal.HealAmount = HealAmount;
-            Heal.SelfHealingCap = HealAmount;
-            Heal.Start();
-            
-            Beam = Instigator.Spawn(class'FX_HealingBeam', Indicator);
-            Beam.LinkedPawn = P;
+    function Timer() {
+        local Pawn P;
+        local Effect_Heal Heal;
+        local FX_Beam Beam;
+        
+        foreach VisibleCollidingActors(class'Pawn', P, SightRadius, IconLocation) {
+            if(Controller.SameTeamAs(P.Controller) && P.Health < P.HealthMax) {
+                Heal = Effect_Heal(class'Effect_Heal'.static.Create(P, RPGTotemController(Controller).Master));
+                if(Heal != None) {
+                    Heal.HealAmount = HealAmount;
+                    Heal.SelfHealingCap = HealAmount;
+                    Heal.Start();
+                    
+                    Beam = Instigator.Spawn(class'FX_HealingBeam', Icon);
+                    Beam.LinkedPawn = P;
+                }
+            }
         }
     }
 }
 
 defaultproperties {
+    Interval=1.0
     HealAmount=10
-
-    AffectedClass=class'Pawn'
-    IndicatorClass=class'TotemIndicator_Heal'
+    SightRadius=1024
+    
+    IconClass=class'TotemIcon_Heal'
+    VehicleNameString="Healing Totem"
 }

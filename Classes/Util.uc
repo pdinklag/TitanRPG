@@ -37,8 +37,6 @@ static function int GetTeamNum(Actor A) {
         return ONSMineProjectile(A).TeamNum;
     } else if(A.IsA('DestroyableObjective')) {
         return DestroyableObjective(A).DefenderTeamIndex;
-    } else if(A.IsA('RPGTotem')) {
-        return RPGTotem(A).TeamNum;
     } else {
         return -1; //no team, not even neutral
     }
@@ -99,6 +97,10 @@ static function int GetNumPassengers(Vehicle V)
 		if(V.Driver != None)
 			n++;
 	}
+    
+    if(n == 0 && V.bAutoTurret) {
+        n++; //fake a passenger if this is an auto turret
+    }
 	
 	return n;
 }

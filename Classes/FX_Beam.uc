@@ -1,15 +1,30 @@
 class FX_Beam extends LinkBeamEffect;
 
+var Actor Source;
+
+replication {
+    reliable if(Role == ROLE_Authority && bNetInitial)
+        Source;
+}
+
+simulated event PostBeginPlay() {
+    if(Role == ROLE_Authority) {
+        Source = Owner;
+    }
+    
+    Super.PostBeginPlay();
+}
+
 simulated function SetBeamLocation()
 {
-	StartEffect = Owner.Location;
+	StartEffect = Source.Location;
 	SetLocation(StartEffect);
 }
 
 simulated function Vector SetBeamRotation()
 {
-    SetRotation(rotator(LinkedPawn.Location - Owner.Location));
-    return Normal(LinkedPawn.Location - Owner.Location);
+    SetRotation(rotator(LinkedPawn.Location - Source.Location));
+    return Normal(LinkedPawn.Location - Source.Location);
 }
 
 simulated function bool CheckMaxEffectDistance(PlayerController P, vector SpawnLocation)
@@ -23,7 +38,7 @@ simulated function Tick(float dt)
     local float LocDiff, RotDiff, WiggleMe;
     local Vector BeamDir;
 	
-    if(Role == ROLE_Authority && (LinkedPawn == None || Owner == None) )
+    if(Role == ROLE_Authority && (LinkedPawn == None || Source == None) )
     {
         Destroy();
         return;

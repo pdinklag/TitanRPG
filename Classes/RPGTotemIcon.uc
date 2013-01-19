@@ -1,4 +1,4 @@
-class RPGTotemIndicator extends Actor;
+class RPGTotemIcon extends Actor abstract;
 
 defaultproperties {
     bFixedRotationDir=True
