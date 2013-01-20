@@ -83,6 +83,12 @@ function RPGArtifactBeacon SpawnBeacon()
 	return Beacon;
 }
 
+function BotWhatNext(Bot Bot) {
+	if(FRand() < 0.5) {
+		Activate();
+	}
+}
+
 defaultproperties
 {
 	MsgFailedToSpawn="Failed to spawn."

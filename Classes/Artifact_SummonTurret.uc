@@ -59,10 +59,12 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 
 simulated function ClientReceiveTurretType(int i, TurretTypeStruct T)
 {
-	if(i == 0)
-		TurretTypes.Length = 0;
+    if(Role < ROLE_Authority) {
+        if(i == 0)
+            TurretTypes.Length = 0;
 
-	TurretTypes[i] = T;
+        TurretTypes[i] = T;
+    }
 }
 
 function bool CanActivate()
@@ -133,6 +135,33 @@ simulated function int GetNumOptions()
 simulated function string GetOption(int i)
 {
 	return TurretTypes[i].TurretClass.default.VehicleNameString;
+}
+
+function int SelectBestOption() {
+    local Controller C;
+    local int i;
+    
+    C = Instigator.Controller;
+    if(C != None) {
+        //The AI assumes that the best options are listed last
+        for(i = TurretTypes.Length - 1; i >= 0; i--) {
+            if(C.Adrenaline >= TurretTypes[i].Cost && FRand() < 0.5) {
+                return i;
+            }
+        }
+        
+        //None
+        return -1;
+    } else {
+        return Super.SelectBestOption();
+    }
+}
+
+function BotWhatNext(Bot Bot) {
+    //Only if defending
+	if(Bot.Squad != None && Bot.Squad.IsDefending(Bot)) {
+        Super.BotWhatNext(Bot);
+    }
 }
 
 defaultproperties {

@@ -42,10 +42,12 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 
 simulated function ClientReceiveTotemType(int i, TotemTypeStruct T)
 {
-	if(i == 0)
-		TotemTypes.Length = 0;
+    if(Role < ROLE_Authority) {
+        if(i == 0)
+            TotemTypes.Length = 0;
 
-	TotemTypes[i] = T;
+        TotemTypes[i] = T;
+    }
 }
 
 function bool CanActivate()
@@ -108,6 +110,34 @@ simulated function int GetNumOptions()
 simulated function string GetOption(int i)
 {
 	return TotemTypes[i].TotemClass.default.VehicleNameString;
+}
+
+function int SelectBestOption() {
+    local Controller C;
+    local int i;
+    
+    C = Instigator.Controller;
+    
+    if(C != None) {
+        //Simply try and pick a random one
+        while(i < 10) {
+            i = Rand(TotemTypes.Length);
+            if(C.Adrenaline >= TotemTypes[i].Cost) {
+                return i;
+            }
+        }
+        
+        return -1;
+    } else {
+        return Super.SelectBestOption();
+    }
+}
+
+function BotWhatNext(Bot Bot) {
+    //Only if defending
+	if(Bot.Squad != None && Bot.Squad.IsDefending(Bot)) {
+        Super.BotWhatNext(Bot);
+    }
 }
 
 defaultproperties

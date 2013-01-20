@@ -604,7 +604,7 @@ function int CountNearbyEnemies(float Radius, optional bool bSameTeam)
 }
 
 //selection menu functions
-simulated function int SelectBestOption() //for AI use
+function int SelectBestOption() //for AI use
 {
 	return -1; //invalid default choice
 }

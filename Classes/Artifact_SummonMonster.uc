@@ -37,16 +37,19 @@ function GiveTo(Pawn Other, optional Pickup Pickup)
 
 	Super.GiveTo(Other, Pickup);
 	
-	for(i = 0; i < MonsterTypes.Length; i++)
+	for(i = 0; i < MonsterTypes.Length; i++) {
 		ClientReceiveMonsterType(i, MonsterTypes[i]);
+    }
 }
 
 simulated function ClientReceiveMonsterType(int i, MonsterTypeStruct M)
 {
-	if(i == 0)
-		MonsterTypes.Length = 0;
+    if(Role < ROLE_Authority) {
+        if(i == 0)
+            MonsterTypes.Length = 0;
 
-	MonsterTypes[i] = M;
+        MonsterTypes[i] = M;
+    }
 }
 
 function bool CanActivate()
@@ -107,6 +110,26 @@ simulated function int GetNumOptions()
 simulated function string GetOption(int i)
 {
 	return MonsterTypes[i].DisplayName;
+}
+
+function int SelectBestOption() {
+    local Controller C;
+    local int i;
+    
+    C = Instigator.Controller;
+    if(C != None) {
+        //The AI assumes that the best options are listed last
+        for(i = MonsterTypes.Length - 1; i >= 0; i--) {
+            if(C.Adrenaline >= MonsterTypes[i].Cost && FRand() < 0.5) {
+                return i;
+            }
+        }
+        
+        //None
+        return -1;
+    } else {
+        return Super.SelectBestOption();
+    }
 }
 
 defaultproperties
