@@ -895,6 +895,12 @@ exec function KillTurrets()
 		RPRI.ServerDestroyTurrets();
 }
 
+exec function KillTotems()
+{
+	if(RPRI != None)
+		RPRI.ServerDestroyTotems();
+}
+
 exec function RPGFavoriteWeapon()
 {
 	Log("RPGFavoriteWeapon", 'TitanRPG');

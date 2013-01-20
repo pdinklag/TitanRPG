@@ -72,14 +72,15 @@ var Weapon LastPawnWeapon;
 var array<ASTurret> Turrets;
 var array<Monster> Monsters;
 var array<ONSMineProjectile> Mines;
+var array<RPGTotem> Totems;
 
 //replicated
-var int NumMonsters, NumTurrets, NumMines;
+var int NumMonsters, NumTurrets, NumMines, NumTotems;
 var bool bDiscoMode;
 
 //stats
 var int AmmoMax, WeaponSpeed;
-var int MaxMines, MaxMonsters, MaxTurrets;
+var int MaxMines, MaxMonsters, MaxTurrets, MaxTotems;
 
 var float HealingExpMultiplier;
 
@@ -138,8 +139,8 @@ replication
 	reliable if(Role == ROLE_Authority && bNetDirty)
 		bImposter, RPGLevel, Experience, PointsAvailable, NeededExp,
 		bGameEnded,
-		NumMines, NumMonsters, NumTurrets,
-		MaxMines, MaxTurrets, MaxMonsters,
+		NumMines, NumMonsters, NumTurrets, NumTotems,
+		MaxMines, MaxTurrets, MaxMonsters, MaxTotems,
         bDiscoMode;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
@@ -155,7 +156,7 @@ replication
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
 		ServerClearArtifactOrder, ServerAddArtifactOrderEntry, ServerSortArtifacts,
 		ServerGetArtifact, ServerActivateArtifact, //moved from TitanPlayerController for better compatibility
-		ServerDestroyTurrets, ServerKillMonsters,
+		ServerDestroyTurrets, ServerKillMonsters, ServerDestroyTotems,
 		ServerFavoriteWeapon;
 }
 
@@ -219,6 +220,7 @@ function ModifyStats()
 	MaxMines = RPGMut.MaxMines;
 	MaxMonsters = RPGMut.MaxMonsters;
 	MaxTurrets = RPGMut.MaxTurrets;
+	MaxTotems = RPGMut.MaxTotems;
 	
 	AmmoMax = default.AmmoMax;
 	WeaponSpeed = default.WeaponSpeed;
@@ -853,6 +855,19 @@ simulated event Tick(float dt)
 			else
 				x++;
 		}
+        
+        //Clean totems
+		x = 0;
+		while(x < Totems.Length)
+		{
+			if(Totems[x] == None)
+			{
+				NumTotems--;
+				Totems.Remove(x, 1);
+			}
+			else
+				x++;
+		}
 	}
 }
 
@@ -1166,6 +1181,34 @@ function ServerDestroyTurrets()
 		Turrets.Remove(0, 1);
 	}
 	NumTurrets = 0;
+}
+
+function AddTotem(RPGTotem T)
+{
+	local int i;
+	
+	Totems[Totems.Length] = T;
+	NumTotems++;
+	
+	for(i = 0; i < Abilities.Length; i++)
+	{
+		if(Abilities[i].bAllowed)
+			Abilities[i].ModifyTotem(T, Controller.Pawn);
+	}
+}
+
+function ServerDestroyTotems()
+{
+	while(Totems.Length > 0)
+	{
+		if(Totems[0] != None)
+		{
+			Totems[0].Suicide();
+		}
+		
+		Totems.Remove(0, 1);
+	}
+	NumTotems = 0;
 }
 
 function ModifyVehicleFireRate(Vehicle V, float Modifier)

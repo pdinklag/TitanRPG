@@ -66,6 +66,10 @@ function Died(Controller Killer, class<DamageType> damageType, vector HitLocatio
     GotoState('Dying');
 }
 
+function AddDefaultInventory() {
+    //None
+}
+
 defaultproperties {
     //Settings
     SightRadius=1024
@@ -73,13 +77,13 @@ defaultproperties {
 	Health=250
 	HealthMax=250
     
-    IconOffZ=160
+    IconOffZ=96
     
     //Custom
     Physics=PHYS_None
     
     DrawType=DT_StaticMesh
-    StaticMesh=StaticMesh'TitanRPG.Totem.TotemStatic'
+    StaticMesh=StaticMesh'TitanRPG.Totem.Totem'
 
     TeamSkins[0]=None //original is red
     TeamSkins[1]=Shader'TitanRPG.Totem.BlueShader'

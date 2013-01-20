@@ -99,9 +99,8 @@ defaultproperties
 	BindingLabel(8)="Kill Monsters"
 	Bindings(9)=(KeyLabel="Destroy Turrets",Alias="KillTurrets")
 	BindingLabel(9)="Destroy Turrets"
-	
-	//Bindings(5)=(bIsSectionLabel=true,KeyLabel="Artifact Selection")
-	//BindingLabel(5)="Artifact Selection"
+	Bindings(10)=(KeyLabel="Destroy Totems",Alias="KillTotems")
+	BindingLabel(10)="Destroy Totems"
 	
 	ArtifactSelectionHeader="Artifact Selection"
 	ArtifactActivationHeader="Artifact Activation"

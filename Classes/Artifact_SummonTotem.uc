@@ -56,13 +56,10 @@ function bool CanActivate()
 	if(!Super.CanActivate())
 		return false;
 	
-    /*
-	if(InstigatorRPRI.Monsters.Length >= InstigatorRPRI.MaxMonsters)
-	{
-		Msg(MSG_MaxMonsters);
+	if(InstigatorRPRI.Totems.Length >= InstigatorRPRI.MaxTotems) {
+		Msg(MSG_MaxTotems);
 		return false;
 	}
-    */
 	
 	return true;
 }
@@ -71,7 +68,7 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 {
 	local RPGTotem Totem;
 	
-    SpawnLoc += vect(0, 0, -16);
+    SpawnLoc += vect(0, 0, 56);
     
     //Check for nearby important objects
     if(!class'RPGRules'.static.Instance(Level).CanConstructHere(SpawnClass, SpawnLoc)) {
@@ -83,6 +80,10 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
         Totem.SetOwner(None);
         Totem.SetTeamNum(Instigator.Controller.GetTeamNum());
         RPGTotemController(Totem.Controller).Master = Instigator.Controller;
+        
+        if(InstigatorRPRI != None) {
+            InstigatorRPRI.AddTotem(Totem);
+        }
 	}
 	return Totem;
 }
@@ -117,11 +118,11 @@ defaultproperties
 	bSelection=true
 
 	ArtifactID="TotemConstruct"
-	Description="Constructs a totem."
+	Description="Constructs a totem of your choice."
 	ItemName="Totem Constructor"
-	//PickupClass=Class'ArtifactPickup_MonsterSummon'
-	IconMaterial=Texture'Engine.S_Emitter'
-	HudColor=(B=192,G=192,R=192)
+	PickupClass=Class'ArtifactPickup_Totem'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.Totem'
+	HudColor=(B=96,G=96,R=192)
 	CostPerSec=0
 	Cooldown=0
 
