@@ -323,9 +323,13 @@ function ScoreKill(Controller Killer, Controller Killed)
 	
 	if(Killer != None)
 	{
-		if(Killer.IsA('FriendlyMonsterController') || Killer.IsA('FriendlyTurretController'))
+		if(
+            Killer.IsA('FriendlyMonsterController') ||
+            Killer.IsA('FriendlyTurretController') ||
+            Killer.IsA('RPGTotemController')
+        )
 		{
-			//A summoned monster or constructed turret killed something
+			//A summoned monster or constructed turret or totem killed something
 			if(Killer.IsA('FriendlyMonsterController'))
 			{
 				Killer = FriendlyMonsterController(Killer).Master;
