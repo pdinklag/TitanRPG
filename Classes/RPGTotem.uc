@@ -33,8 +33,7 @@ simulated event TeamChanged() {
         i = 0;
     }
     
-    Skins[0] = TeamSkins[Team];
-    RepSkin = TeamSkins[Team];
+    Skins[0] = TeamSkins[i];
 }
 
 function Died(Controller Killer, class<DamageType> damageType, vector HitLocation) {
