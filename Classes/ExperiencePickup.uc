@@ -44,7 +44,7 @@ auto state Pickup
 
 defaultproperties
 {
-    ExperienceAmount=1.00
+    ExperienceAmount=2.00
     PickupMessage="Experience "
     RespawnTime=60
     MaxDesireability=0.9
@@ -56,11 +56,12 @@ defaultproperties
     Physics=PHYS_Rotating
 	RotationRate=(Yaw=24000)
     DrawScale=0.07
-	//TODO
     PickupSound=sound'PickupSounds.AdrenelinPickup'
     PickupForce="AdrenelinPickup"  // jdf
     DrawType=DT_StaticMesh
     StaticMesh=StaticMesh'XPickups_rc.AdrenalinePack'
+    Skins(0)=Texture'TitanRPG.PickupStatics.Experience'
+    Skins(1)=Combiner'TitanRPG.Disco.Combiner3'
     Style=STY_AlphaZ
     ScaleGlow=0.6
     CullDistance=+5500.0
