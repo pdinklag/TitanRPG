@@ -11,6 +11,10 @@ var config int AdreanlineSpawnAmount;
 var config int MaxAdrenalinePickups;
 var array<AdrenalinePickup> CurrentAdrenPickups;
 
+var config int ExperienceSpawnAmount;
+var config int MaxExperiencePickups;
+var array<ExperiencePickup> CurrentExperiencePickups;
+
 struct ArtifactChance
 {
 	var class<RPGArtifact> ArtifactClass;
@@ -24,6 +28,7 @@ var array<PathNode> PathNodes;
 
 var bool bArtifacts;
 var bool bAdrenaline;
+var bool bExperience;
 
 event PostBeginPlay()
 {
@@ -48,8 +53,9 @@ event PostBeginPlay()
 
 	bArtifacts = (SpawnDelay > 0 && MaxArtifacts > 0 && AvailableArtifacts.Length > 0);
 	bAdrenaline = (SpawnDelay > 0 && AdreanlineSpawnAmount > 0);
+    bExperience = (SpawnDelay > 0 && MaxExperiencePickups > 0 && ExperienceSpawnAmount > 0);
 
-	if(bArtifacts || bAdrenaline)
+	if(bArtifacts || bAdrenaline || bExperience)
 	{
 		for(N = Level.NavigationPointList; N != None; N = N.NextNavigationPoint)
 		{
@@ -144,6 +150,24 @@ function Timer()
 			SpawnAdrenaline();
 		}
 	}
+    
+    //Experience
+	if(bExperience)
+	{
+		for (x = 0; x < CurrentExperiencePickups.length; x++)
+		{
+			if (CurrentExperiencePickups[x] == None)
+			{
+				CurrentExperiencePickups.Remove(x, 1);
+				x--;
+			}
+		}
+		
+		for(x = 0; CurrentExperiencePickups.length < MaxExperiencePickups && x < ExperienceSpawnAmount; x++)
+		{
+			SpawnExperience();
+		}
+	}
 
 	//Artifacts
 	if(bArtifacts)
@@ -235,6 +259,26 @@ function SpawnAdrenaline()
 	}
 }
 
+function SpawnExperience()
+{
+	local PathNode PathNode;
+	local ExperiencePickup XPickup;
+
+	PathNode = FindSpawnLocation(class'ExperiencePickup');
+	if(PathNode != None)
+	{
+		XPickup = spawn(class'ExperiencePickup', , , PathNode.Location);
+		
+		if (XPickup == None)
+			return;
+			
+		XPickup.RespawnEffect();
+		XPickup.RespawnTime = 0.0;
+		XPickup.AddToNavigation();
+		CurrentExperiencePickups[CurrentExperiencePickups.length] = XPickup;
+	}
+}
+
 function SpawnArtifact(int Index)
 {
 	local PathNode PathNode;
@@ -305,4 +349,6 @@ defaultproperties
 	MaxArtifacts=25
 	AdreanlineSpawnAmount=5
 	MaxAdrenalinePickups=25
+    ExperienceSpawnAmount=1
+    MaxExperiencePickups=5
 }
