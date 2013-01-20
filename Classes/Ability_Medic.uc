@@ -51,9 +51,9 @@ defaultproperties
 {
 	AbilityName="Medic"
 	Description="Gives you bonuses towards healing."
-	LevelDescription(0)="Level 1 allows you to heal teammates +$1 beyond their starting health."
-	LevelDescription(1)="Level 2 allows you to heal teammates +$2 beyond their starting health."
-	LevelDescription(2)="Level 3 allows you to heal teammates +$3 beyond their starting health."
+	LevelDescription(0)="Level 1 allows you to heal teammates +$1 beyond their maximum health."
+	LevelDescription(1)="Level 2 allows you to heal teammates +$2 beyond their maximum health."
+	LevelDescription(2)="Level 3 allows you to heal teammates +$3 beyond their maximum health."
     GrantItem(0)=(Level=1,InventoryClass=Class'TitanRPG.Artifact_MakeMedicWeapon')
     GrantItem(1)=(Level=3,InventoryClass=Class'TitanRPG.Artifact_HealingBlast')
 	StartingCost=10

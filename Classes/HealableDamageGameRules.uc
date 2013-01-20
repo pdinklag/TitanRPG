@@ -15,6 +15,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 		!injured.IsA('Monster') &&
 		instigatedBy != None &&
 		instigatedBy.Controller != None &&
+        instigatedBy != injured &&
 		(!injured.IsA('Vehicle') || !Vehicle(Injured).IsVehicleEmpty()) &&
 		(injured.Controller == None || !injured.Controller.SameTeamAs(instigatedBy.Controller))
 	)
