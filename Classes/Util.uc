@@ -91,11 +91,6 @@ static function string HighlightText(string Text, Color Highlight, Color Old)
 	return class'GameInfo'.static.MakeColorCode(Highlight) $ Text $ class'GameInfo'.static.MakeColorCode(Old);
 }
 
-static function bool IsRound(float p)
-{
-	return (float(int(p)) == p);
-}
-
 static function string FormatPercent(float p)
 {
 	return FormatFloat(p * 100.0) $ "%";
@@ -103,23 +98,10 @@ static function string FormatPercent(float p)
 
 static function string FormatFloat(float p)
 {
-	if(IsRound(p))
+	if(float(int(p)) == p)
 		return string(int(p));
 	else
 		return string(p);
-}
-
-static function int NameInArray(name x, array<name> a)
-{
-	local int i;
-	
-	for(i = 0; i < a.Length; i++)
-	{
-		if(a[i] == x)
-			return i;
-	}
-	
-	return -1;
 }
 
 static function int InArray(Object x, array<Object> a)
@@ -168,30 +150,6 @@ static function Inventory GiveInventory(Pawn P, class<Inventory> InventoryClass,
 	}
 	
 	return Inv;
-}
-
-/*
-	The three Trim functions are taken from
-	http://wiki.beyondunreal.com/Legacy:Useful_String_Functions
-*/
-
-static final function string LTrim(coerce string S)
-{
-	while (Left(S, 1) == " ")
-		S = Right(S, Len(S) - 1);
-	return S;
-}
-
-static final function string RTrim(coerce string S)
-{
-	while (Right(S, 1) == " ")
-		S = Left(S, Len(S) - 1);
-	return S;
-}
-
-static final function string Trim(coerce string S)
-{
-	return LTrim(RTrim(S));
 }
 
 static function SetWeaponFireRate(Weapon W, float Scale)
@@ -378,23 +336,6 @@ static function SetVehicleOverlay(Vehicle V, Material Mat, float Duration, bool 
 	class'Sync_OverlayMaterial'.static.Sync(V, Mat, Duration, bOverride);
 }
 
-static function Weapon TraceBackWeapon(Pawn P, class<WeaponDamageType> DamageType)
-{
-	local Weapon W;
-	local Inventory Inv;
-	
-	W = P.Weapon;
-	if(W != None && ClassIsChildOf(W.class, DamageType.default.WeaponClass))
-		return P.Weapon;
-
-	for(Inv = P.Inventory; Inv != None; Inv = Inv.Inventory)
-	{
-		W = Weapon(Inv);
-		if(W != None && ClassIsChildOf(W.class, DamageType.default.WeaponClass))
-			return Weapon(Inv);
-	}
-	return None;
-}
 
 //TAM support
 static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string HitStatName, string Mode)
@@ -409,19 +350,6 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 	HitStat = DynamicLoadObject(HitStatStr, class'Object', true);
 	
 	Log("HitStatStr =" @ HitStatStr @ "=>" @ HitStat, 'TitanRPG');
-}
-
-static function array<Weapon> GetWeapons(Pawn Other, class<Weapon> WeaponClass) {
-    local array<Weapon> Weapons;
-    local Inventory Inv;
-    
-    for(Inv = Other.Inventory; Inv != None; Inv = Inv.Inventory) {
-        if(Inv.class == WeaponClass) {
-            Weapons[Weapons.Length] = Weapon(Inv);
-        }
-    }
-    
-    return Weapons;
 }
 
 //Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
