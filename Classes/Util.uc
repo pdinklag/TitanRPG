@@ -25,6 +25,18 @@ static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, option
 	A.PlaySound(S, SLOT_None, Vol * 1.25f,, Radius * 300.0f);
 }
 
+static function bool InVehicle(Pawn P, Vehicle V) {
+    if(P.DrivenVehicle != None) {
+        if(P.DrivenVehicle == V) {
+            return true;
+        } else if(P.DrivenVehicle.IsA('ONSWeaponPawn') && ONSWeaponPawn(P.DrivenVehicle).VehicleBase == V) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 static function array<Pawn> GetAllPassengers(Vehicle V)
 {
 	local array<Pawn> Passengers;

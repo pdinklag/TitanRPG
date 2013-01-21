@@ -158,4 +158,5 @@ defaultproperties
 
 	TotemTypes(0)=(TotemClass=class'TitanRPG.Totem_Heal',Cost=0,Cooldown=1)
 	TotemTypes(1)=(TotemClass=class'TitanRPG.Totem_Lightning',Cost=0,Cooldown=1)
+	TotemTypes(2)=(TotemClass=class'TitanRPG.Totem_Repair',Cost=0,Cooldown=1)
 }
