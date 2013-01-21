@@ -1026,6 +1026,7 @@ function Mutate(string MutateString, PlayerController Sender)
 	local Monster M;
 	local class<RPGEffect> EffectClass;
 	local RPGEffect Effect;
+    local RPGArtifact A;
 	
 	bIsAdmin = Sender.PlayerReplicationInfo.bAdmin;
 	bIsSuperAdmin = false;
@@ -1250,6 +1251,16 @@ function Mutate(string MutateString, PlayerController Sender)
 				}
 				return;
 			}
+            else if(Cheat != None && Args[0] ~= "cd")
+            {
+                for(Inv = Cheat.Inventory; Inv != None; Inv = Inv.Inventory) {
+                    A = RPGArtifact(Inv);
+                    if(A != None) {
+                        A.NextUseTime = Level.TimeSeconds - 1;
+                        A.ClientNotifyCooldown(-1);
+                    }
+                }
+            }
 			else if(Cheat != None && Args[0] ~= "effect" && Args.Length > 1)
 			{
 				EffectClass = class<RPGEffect>(DynamicLoadObject("TitanRPG.Effect_" $ Args[1], class'Class'));
