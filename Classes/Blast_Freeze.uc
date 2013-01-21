@@ -22,7 +22,6 @@ function DoEffect()
 			dist = FMax(1,VSize(dir));
 			damageScale = 1 - FMax(0,dist/Radius);
 
-			//TODO: Use freeze instead?
 			Effect = class'Effect_NullEntropy'.static.Create(C.Pawn, Instigator.Controller, damageScale * MaxFreezeTime);
 			if(Effect != None)
 				Effect.Start();

@@ -71,7 +71,7 @@ var config float EXP_DamagePowercore;
 //AS
 var config float EXP_ObjectiveCompleted;
 
-//TODO: Win game, ONS events, AS events, DOM events
+//TODO: ONS events, AS events, DOM events
 
 //Misc
 var config float EXP_Resurrection; //resurrection using the Necromancy combo

@@ -63,7 +63,6 @@ function Timer()
 	}
 }
 
-//TODO: build description
 simulated function string DescriptionText()
 {
 	return Repl(

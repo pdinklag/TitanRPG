@@ -1689,7 +1689,6 @@ function GrantQueuedWeapon(GrantWeapon GW) {
         class'Util'.static.ForceGiveTo(Controller.Pawn, W);
         W.FillToInitialAmmo();
         
-        //TODO -1 for max out
         if(GW.Ammo[0] > 0) {
             class'Util'.static.SetWeaponAmmo(W, 0, GW.Ammo[0]);
         }

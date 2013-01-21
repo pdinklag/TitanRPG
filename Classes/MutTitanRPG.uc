@@ -712,11 +712,6 @@ function DriverEnteredVehicle(Vehicle V, Pawn P)
 			MyArtifacts[MyArtifacts.length] = RPGArtifact(Inv);
 	}
 	
-	//stop the weapon magic effect, if present (DetachFromPawn does not get called)
-    //TODO test
-	//if(RPGWeapon(P.Weapon) != None)
-	//	RPGWeapon(P.Weapon).StopEffect();
-
 	//hack - temporarily give the pawn its Controller back because RPGArtifact.Activate() needs it
 	P.Controller = V.Controller;
 	for (i = 0; i < MyArtifacts.length; i++)

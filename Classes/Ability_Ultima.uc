@@ -36,7 +36,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> Dam
 	if(Killed.Controller == Killer && !bAllowSuicide)
 		return false;
 
-	if(DamageType == class'Suicided' /* TODO: && !default.bAllowSuicide */)
+	if(DamageType == class'Suicided')
 		return false;  
 
 	if(Vehicle(Killed) != None) 
