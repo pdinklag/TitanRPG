@@ -21,7 +21,7 @@ auto state Active {
             }
             
             if(P.IsA('Vehicle')) {
-                if(class'Util'.static.GetNumPassengers(Vehicle(P)) == 0)
+                if(Vehicle(P).IsVehicleEmpty() && !Vehicle(P).bAutoTurret)
                     continue;
                 
                 if(Team != 255 && Vehicle(P).Team == Team)

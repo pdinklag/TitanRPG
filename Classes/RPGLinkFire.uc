@@ -36,9 +36,6 @@ simulated function ModeTick(float dt)
 	local LinkBeamEffect LB;
 	local DestroyableObjective HealObjective;
 	local Vehicle LinkedVehicle;
-	local int OldHealth;
-	local HealableDamageInv Healable;
-	local RPGPlayerReplicationInfo RPRI;
     local RPGWeaponModifier WM;
 
     if ( !bIsFiring )
@@ -283,34 +280,14 @@ simulated function ModeTick(float dt)
 			if(Instigator.HasUDamage())
 				AdjustedDamage *= 2;
 			
-			OldHealth = LinkedVehicle.Health;
 			if(LinkedVehicle.HealDamage(AdjustedDamage, Instigator.Controller, DamageType))
 			{
 				if(!LinkedVehicle.IsVehicleEmpty()) //only if somebody's inside
 				{
-					if(class'RPGRules'.default.EXP_VehicleRepair > 0.0f)
-					{
-						//experience for repairing
-						RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
-						if(RPRI != None)
-						{
-							Healable = HealableDamageInv(LinkedVehicle.FindInventoryType(class'HealableDamageInv'));
-							if(Healable != None && Healable.Damage > 0)
-							{
-								AdjustedDamage = Min(LinkedVehicle.Health - OldHealth, Healable.Damage);
-		
-								if(AdjustedDamage > 0)
-								{	
-									Healable.Damage = Max(0, Healable.Damage - AdjustedDamage);
-									
-									class'RPGRules'.static.ShareExperience(
-										RPRI,
-										float(AdjustedDamage) * class'RPGRules'.default.EXP_VehicleRepair);
-								}
-							}
-						}
-					}
-				}
+                    //experience for linking
+                    class'Util'.static.DoHealableDamage(
+                        Instigator, LinkedVehicle, AdjustedDamage, class'RPGRules'.default.EXP_VehicleRepair);
+                }
 			}
 			else
 			{

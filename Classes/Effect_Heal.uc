@@ -52,10 +52,7 @@ function HealPassengers(Vehicle V)
 function DoEffect()
 {
 	local Pawn Healer;
-	local HealableDamageInv Inv;
-	local RPGPlayerReplicationInfo RPRI;
-	local int ExpHealth;
-	
+
 	if(Instigator.IsA('Vehicle'))
 	{
 		HealPassengers(Vehicle(Instigator));
@@ -77,20 +74,7 @@ function DoEffect()
 		FriendlyMonsterController(Instigator.Controller) == None
 	)
 	{
-		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(EffectCauser);
-		if(RPRI != None && RPRI.HealingExpMultiplier > 0)
-		{
-			Inv = HealableDamageInv(Instigator.FindInventoryType(class'HealableDamageInv'));
-			if(Inv != None && Inv.Damage > 0)
-			{
-				ExpHealth = Min(HealAmount, Inv.Damage);
-				if(ExpHealth > 0)
-				{
-					if(RPRI != None)
-						RPRI.AwardExperience(RPRI.HealingExpMultiplier * float(ExpHealth));
-				}
-			}
-		}
+        class'Util'.static.DoHealableDamage(Healer, Instigator, HealAmount);
 	}
 }
 

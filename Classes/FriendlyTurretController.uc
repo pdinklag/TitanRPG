@@ -202,7 +202,7 @@ function bool IsTargetRelevant(Pawn Target) {
         return false;
     }
     
-    if(Target.IsA('Vehicle') && (Vehicle(Target).Team == TeamNum || class'Util'.static.GetNumPassengers(Vehicle(Target)) <= 0)) {
+    if(Target.IsA('Vehicle') && (Vehicle(Target).Team == TeamNum || (Vehicle(Target).IsVehicleEmpty() && !Vehicle(Target).bAutoTurret))) {
         //empty vehicle or same team
         return false;
     }

@@ -60,7 +60,7 @@ function bool CanActivate()
 		return false;
 	}
 	
-	if(class'Util'.static.GetNumPassengers(Vehicle(Instigator)) > 1)
+	if(Vehicle(Instigator).NumPassengers() > 1)
 	{
 		Msg(MSG_TeamMembers);
 		return false;
