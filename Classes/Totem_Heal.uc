@@ -14,6 +14,10 @@ auto state Active {
         local FX_Beam Beam;
         
         foreach VisibleCollidingActors(class'Pawn', P, SightRadius, IconLocation) {
+            if(P.IsA('Vehicle')) {
+                continue;
+            }
+        
             if(Controller.SameTeamAs(P.Controller) && P.Health < P.HealthMax) {
                 Heal = Effect_Heal(class'Effect_Heal'.static.Create(P, RPGTotemController(Controller).Master));
                 if(Heal != None) {
