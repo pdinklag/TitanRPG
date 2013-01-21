@@ -20,8 +20,12 @@ auto state Active {
                 continue;
             }
             
-            if(P.IsA('Vehicle') && class'Util'.static.GetNumPassengers(Vehicle(P)) == 0) {
-                continue;
+            if(P.IsA('Vehicle')) {
+                if(class'Util'.static.GetNumPassengers(Vehicle(P)) == 0)
+                    continue;
+                
+                if(Team != 255 && Vehicle(P).Team == Team)
+                    continue;
             }
         
             if(!Controller.SameTeamAs(P.Controller) && P.Health > 0 && FastTrace(Icon.Location, P.Location)) {
