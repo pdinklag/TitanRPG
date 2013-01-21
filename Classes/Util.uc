@@ -11,20 +11,6 @@ static function vector ReflectVector(vector v, vector normal)
 	return (v - 2.0 * normal * (v dot normal));
 }
 
-static function PlayLoudEnoughSound(Actor A, Sound S, optional float Vol, optional float Radius)
-{
-	//xPawn.default.TransientSoundVolume = 0.3
-	//xPawn.default.TransientSoundRadius = 300
-
-	if(Vol == 0)
-		Vol = 1.0f;
-	
-	if(Radius == 0)
-		Radius = 1.0f;
-
-	A.PlaySound(S, SLOT_None, Vol * 1.25f,, Radius * 300.0f);
-}
-
 static function bool InVehicle(Pawn P, Vehicle V) {
     if(P.DrivenVehicle != None) {
         if(P.DrivenVehicle == V) {

@@ -454,7 +454,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 	{
 		if(bActive && CanDeactivate())
 		{
-			class'Util'.static.PlayLoudEnoughSound(Instigator, DeactivateSound);
+            Instigator.PlaySound(DeactivateSound, SLOT_Interact, 1.0, true, 768);
 			GotoState('');
 		}
 		else if(!bActive)
@@ -464,7 +464,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 				if(CheckSelection())
 				{
 					CurrentCostPerSec = 0.f;
-					class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
+					Instigator.PlaySound(ActivateSound, SLOT_Interact, 1.0, true, 768);
 					//Instigator.PlaySound(ActivateSound, SLOT_Interface);
 					GotoState('Activated');
 				}
@@ -481,7 +481,7 @@ function Activate() //do NOT override, use CanActivate, CanDeactivate or BeginSt
 	{
 		if(CheckSelection())
 		{
-			class'Util'.static.PlayLoudEnoughSound(Instigator, ActivateSound);
+			Instigator.PlaySound(ActivateSound, SLOT_Interact, 1.0, true, 768);
 			
 			if(DoEffect())
 			{

@@ -14,6 +14,7 @@ auto state Active {
         local Pawn P;
         local xEmitter HitEmitter;
         local vector HitLocation;
+        local int n;
         
         foreach VisibleCollidingActors(class'Pawn', P, SightRadius, IconLocation) {
             if(P.IsA('xPawn') && xPawn(P).bInvis) {
@@ -39,7 +40,12 @@ auto state Active {
                 HitLocation += vect(-10, 0, 0) >> rotator(P.Location - Icon.Location); //(c) Wulff ? should credit him here ;)
 
                 P.TakeDamage(Damage, Self, HitLocation, vect(0,0,0), class'DamTypeLightningTotem');
+                n++;
             }
+        }
+        
+        if(n > 0) {
+            PlaySound(Sound'WeaponSounds.BaseFiringSounds.BLightningGunFire', SLOT_Interact);
         }
     }
 }

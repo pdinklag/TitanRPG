@@ -244,8 +244,7 @@ state Activated
     
 		if(ShouldDisplayEffect())
 		{
-			if(EffectSound != None && Level.TimeSeconds - LastStartTime >= EffectLimitInterval)
-				class'Util'.static.PlayLoudEnoughSound(Instigator, EffectSound);
+            Instigator.PlaySound(EffectSound, SLOT_Misc, 1.0,, 768);
 			
 			if(EffectOverlay != None)
 				class'Sync_OverlayMaterial'.static.Sync(Instigator, EffectOverlay, Duration, false);

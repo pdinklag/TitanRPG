@@ -928,8 +928,9 @@ function AwardExperience(float exp)
 		
 		if(Count > 0)
 		{
-			if(Controller != None && Controller.Pawn != None)
-				class'Util'.static.PlayLoudEnoughSound(Controller.Pawn, LevelUpSound);
+			if(Controller != None && Controller.Pawn != None) {
+                Controller.Pawn.PlaySound(LevelUpSound, SLOT_Interact, 1.0,, 1024);
+            }
 		
 			Level.Game.BroadCastLocalized(Self, class'LocalMessage_LevelUp', RPGLevel, PRI);
 			ClientShowHint(LevelUpText);
