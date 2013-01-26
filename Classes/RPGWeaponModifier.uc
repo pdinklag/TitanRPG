@@ -58,8 +58,13 @@ replication{
 }
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other) {
-    if(class'Util'.static.InArray(WeaponType, class'MutTitanRPG'.default.DisallowModifiersFor) >= 0)
-        return false;
+    local int i;
+
+    for(i = 0; i < class'MutTitanRPG'.default.DisallowModifiersFor.Length; i++) {
+        if(ClassIsChildOf(WeaponType, class'MutTitanRPG'.default.DisallowModifiersFor[i])) {
+            return false;
+        }
+    }
 
 	if(!default.bAllowForSpecials &&
 		(
@@ -67,12 +72,17 @@ static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other) {
 			WeaponType.default.InventoryGroup == 10 || //Translocator
 			WeaponType.default.InventoryGroup == 15 //Ball Launcher
 		)
-	)
-	{
+	) {
 		return false;
 	}
 
-	return (class'Util'.static.InArray(WeaponType, default.ForbiddenWeaponTypes) == -1);
+    for(i = 0; i < default.ForbiddenWeaponTypes.Length; i++) {
+        if(ClassIsChildOf(WeaponType, default.ForbiddenWeaponTypes[i])) {
+            return false;
+        }
+    }
+    
+	return true;
 }
 
 static function RPGWeaponModifier Modify(Weapon W, int Modifier, optional bool bIdentify, optional bool bForce) {
