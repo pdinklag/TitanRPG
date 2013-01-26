@@ -12,6 +12,18 @@ TitanRPG can be built like any other UT2004 package. The following steps are nec
 * Remove any existing `TitanRPG.u` file.
 * Execute the command line `ucc make`.
 
+Version Customization
+---------------------
+If you use a public redirect, it may be a bad idea to use the file name `TitanRPG.u` for custom builds. TitanRPG is now written in a way where it can dynamically handle any package name. What this means is that you can rename `TitanRPG.u` to whatever you want, e.g. `MyAwesomeRPG.u`. Note that the names of the ini files need to remain the same, however.
+
+When you rename the package file, you need to edit `TitanRPG.ini` so that all occurences of `TitanRPG.` (mind the dot!) are replaced by e.g. `MyAwesomeRPG.`, ie the file name without the "u".
+
+In the `[MutTitanRPG]` section (the first in the ini), you can also define the `CustomVersion` field using any text you like. For instance, if you set it to "My awesome RPG v1337", that text will be displayed in the server browser instead of "TitanRPG v1.XX".
+
+Documentation State
+-------------------
+The documentation is severely outdated, since the last public release was version 1.60 and there have been major changes since. The `TitanRPG.ini` file, however, is up to date and can be used as a documentation of sorts.
+
 Credits
 -------
 TitanRPG contains code written by the following people:
@@ -38,7 +50,3 @@ TitanRPG contains code written by the following people:
 License
 -------
 The source code and artwork is public domain and is free to be used for spinoffs, as long as it is made clear that it is no longer the original TitanRPG. This is best done by editing the mutator's friendly name and changing the package name.
-
-Documentation State
--------------------
-The documentation is severely outdated, since the last public release was version 1.60 and TitanRPG is at 1.70.4 at this time and there have been major changes. The `TitanRPG.ini` file is up to date and can be used as a documentation of sorts.
