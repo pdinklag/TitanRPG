@@ -10,6 +10,9 @@ var float IconOffZ;
 var vector IconLocation;
 var RPGTotemIcon Icon;
 
+var RPGTotemWall Wall;
+var float WallDistMin, WallDistMax;
+
 replication {
     reliable if(Role == ROLE_Authority && bNetDirty)
         Icon;
@@ -21,6 +24,24 @@ simulated event PostBeginPlay() {
     IconLocation = Location + IconOffZ * vect(0, 0, 1);
     if(Role == ROLE_Authority && IconClass != None) {
         Icon = Spawn(IconClass, Self,, IconLocation);
+    }
+}
+
+function SetTeamNum(byte TeamNum) {
+    local RPGTotem T;
+    
+    Super.SetTeamNum(TeamNum);
+
+    if(Wall != None) {
+        Wall.Destroy();
+    }
+    
+    foreach VisibleCollidingActors(class'RPGTotem', T, WallDistMax) {
+        if(T != Self && T.Team == Team && T.Wall == None && VSize(Location - T.Location) >= WallDistMin) {
+            Wall = Spawn(class'RPGTotemWall');
+            Wall.Connect(Self, T);
+            break;
+        }
     }
 }
 
@@ -59,6 +80,10 @@ function Died(Controller Killer, class<DamageType> damageType, vector HitLocatio
         Icon.Destroy();
     }
     
+    if(Wall != None) {
+        Wall.Destroy();
+    }
+    
     PlayDying(DamageType, HitLocation);
     ClientDying(DamageType, HitLocation);
     
@@ -77,6 +102,9 @@ defaultproperties {
 	HealthMax=500
     
     IconOffZ=96
+    
+    WallDistMin=256
+    WallDistMax=512
     
     //Custom
     Physics=PHYS_None
