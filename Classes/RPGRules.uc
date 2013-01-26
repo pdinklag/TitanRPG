@@ -1179,37 +1179,6 @@ function class<Weapon> GetCustomStatWeapon(class<DamageType> DamageType)
 	return None;
 }
 
-//Determines whether something can be constructed at the given location (turret or totem) within the given radius
-function bool CanConstructHere(class<Actor> What, vector Location, optional float Radius) {
-    local Actor A;
-    
-    if(Radius == 0) {
-        Radius = 256;
-    }
-    
-    foreach RadiusActors(class'Actor', A, Radius, Location) {
-        //Disallow if it would block something important
-        if(
-            A.IsA('GameObjective') ||
-            A.IsA('PlayerStart') ||
-            A.IsA('SVehicleFactory') ||
-            A.IsA('Teleporter') ||
-            A.IsA('LiftExit') ||
-            A.IsA('LiftCenter') ||
-            A.IsA('xPickupBase') ||
-            A.IsA('WeaponLocker') ||
-            A.IsA('AmmoPickup') ||
-            ClassIsChildOf(A.class, What)
-        )
-        {
-            Log("Can't construct here because of" @ A);
-            return false;
-        }
-    }
-    
-    return true;
-}
-
 defaultproperties
 {
 	bDamageLog=False

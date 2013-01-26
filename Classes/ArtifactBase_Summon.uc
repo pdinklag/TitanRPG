@@ -4,6 +4,7 @@ class ArtifactBase_Summon extends ArtifactBase_Beacon
 
 var config class<Actor> SpawnActorClass;
 
+var bool bShowFailureMessage;
 var float RestoreAdrenaline;
 
 const MSG_FailedToSpawn = 0x0200;
@@ -30,8 +31,10 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 
 function Failed()
 {
-	Msg(MSG_FailedToSpawn);
-			
+    if(bShowFailureMessage) {
+        Msg(MSG_FailedToSpawn);
+    }
+
 	//Give back adrenaline
 	if(RestoreAdrenaline > 0)
 	{
@@ -93,4 +96,5 @@ defaultproperties
 {
 	MsgFailedToSpawn="Failed to spawn."
 	BeaconClass=class'SummonBeacon'
+    bShowFailureMessage=True
 }

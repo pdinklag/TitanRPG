@@ -1,4 +1,4 @@
-class Artifact_SummonTurret extends ArtifactBase_Summon;
+class Artifact_SummonTurret extends ArtifactBase_Construct;
 
 struct TurretTypeStruct
 {
@@ -94,11 +94,6 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
     TurretClass = class<ASTurret>(SpawnClass);
     TurretBaseClass = TurretClass.default.TurretBaseClass;
     SpawnLoc += GetSpawnOffset(TurretClass);
-    
-    //Check for nearby important objects
-    if(!class'RPGRules'.static.Instance(Level).CanConstructHere(class'ASVehicle', SpawnLoc)) {
-        return None;
-    }
     
 	T = ASTurret(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
 	if(T != None) {

@@ -1,4 +1,4 @@
-class Artifact_SummonTotem extends ArtifactBase_Summon;
+class Artifact_SummonTotem extends ArtifactBase_Construct;
 
 struct TotemTypeStruct
 {
@@ -71,11 +71,6 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 	local RPGTotem Totem;
 	
     SpawnLoc += vect(0, 0, 56);
-    
-    //Check for nearby important objects
-    if(!class'RPGRules'.static.Instance(Level).CanConstructHere(class'ASVehicle', SpawnLoc)) {
-        return None;
-    }
     
 	Totem = RPGTotem(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
 	if(Totem != None) {
