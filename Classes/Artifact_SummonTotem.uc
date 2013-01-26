@@ -107,6 +107,10 @@ simulated function string GetOption(int i)
 	return TotemTypes[i].TotemClass.default.VehicleNameString;
 }
 
+simulated function int GetOptionCost(int i) {
+	return TotemTypes[i].Cost;
+}
+
 function int SelectBestOption() {
     local Controller C;
     local int i;

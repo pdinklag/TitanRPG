@@ -112,6 +112,10 @@ simulated function string GetOption(int i)
 	return MonsterTypes[i].DisplayName;
 }
 
+simulated function int GetOptionCost(int i) {
+	return MonsterTypes[i].Cost;
+}
+
 function int SelectBestOption() {
     local Controller C;
     local int i;

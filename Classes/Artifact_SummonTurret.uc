@@ -132,6 +132,10 @@ simulated function string GetOption(int i)
 	return TurretTypes[i].TurretClass.default.VehicleNameString;
 }
 
+simulated function int GetOptionCost(int i) {
+	return TurretTypes[i].Cost;
+}
+
 function int SelectBestOption() {
     local Controller C;
     local int i;

@@ -636,7 +636,7 @@ function ShowSelection()
 simulated function string GetSelectionTitle(); //title line of selection
 simulated function int GetNumOptions(); //amount of selection options
 simulated function string GetOption(int i); //get text to display for option i
-simulated function Material GetOptionIcon(int i); //get icon for option i
+simulated function int GetOptionCost(int i); //get the adrenaline cost of option i
 
 //close the selection
 function CloseSelection()

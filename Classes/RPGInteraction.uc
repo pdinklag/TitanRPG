@@ -385,8 +385,8 @@ function UpdateCanvas(Canvas Canvas)
 
 function PostRender(Canvas Canvas)
 {
-	local float XL, YL, X, Y, CurrentX, CurrentY, Size, SizeX, Fade;
-	local int i, n, Row;
+	local float XL, YL, X, Y, CurrentX, CurrentY, Size, SizeX, Fade, MaxWidth;
+	local int i, n, Row, Cost;
 	local string Text;
 	
 	local array<class<RPGArtifact> > Artifacts;
@@ -761,7 +761,7 @@ function PostRender(Canvas Canvas)
 		Text = SelectionArtifact.GetSelectionTitle();
 		Canvas.TextSize(Text, XL, YL);
 
-		SizeX = XL + YL;
+		SizeX = FMax(300, XL + YL);
 		Size = YL * float(n + 2) + 3;
 		X = (Canvas.ClipX - SizeX) * 0.5f;
 		Y = (Canvas.ClipY - Size) * 0.5f;
@@ -787,22 +787,59 @@ function PostRender(Canvas Canvas)
 		Y += YL * 0.5f;
 		
 		Canvas.SetPos(X - 2, Y - 3);
-		Canvas.DrawTileStretched(Texture'InterfaceContent.Menu.SquareBoxA', XL + 2, YL + 4);
+		Canvas.DrawTileStretched(Texture'InterfaceContent.Menu.SquareBoxA', SizeX - YL, YL + 4);
 		
 		Canvas.SetPos(X, Y);
 		Canvas.DrawTextClipped(Text);
 		Y += YL + 3;
 		
-		for(i = 0; i < n; i++)
-		{
-			//TODO: page
+        //Draw option strings
+        MaxWidth = 0;
+		for(i = 0; i < n; i++) {
+			//TODO: paging
 			Text = string(i + 1) @ "-" @ SelectionArtifact.GetOption(i);
+            
+            Canvas.TextSize(Text, CurrentX, CurrentY);
+            MaxWidth = FMax(MaxWidth, CurrentX);
 			
+            Cost = SelectionArtifact.GetOptionCost(i);
+            if(Cost > 0 && ViewportOwner.Actor.Adrenaline < Cost) {
+                Canvas.DrawColor = DisabledOverlay;
+            } else {
+                Canvas.DrawColor = WhiteColor;
+            }
+            
 			Canvas.SetPos(X, Y);
 			Canvas.DrawTextClipped(Text);
-			
+
 			Y += YL;
 		}
+        
+        //Draw option costs
+        Y -= n * YL;
+        for(i = 0; i < n; i++) {
+            //TODO: paging
+        
+            Cost = SelectionArtifact.GetOptionCost(i);
+            if(Cost > 0) {
+                Canvas.DrawColor = WhiteColor;
+                
+                Canvas.SetPos(X + MaxWidth + YL, Y);
+                Canvas.DrawTileClipped(
+                    Material'HUDContent.Generic.HUD',
+                    YL, YL,
+                    113, 38, 52, 68);
+                
+                if(ViewportOwner.Actor.Adrenaline < Cost) {
+                    Canvas.DrawColor = RedColor;
+                }
+                
+                Canvas.SetPos(X + MaxWidth + 2 * YL, Y);
+                Canvas.DrawTextClipped(string(Cost));
+            }
+            
+            Y += YL;
+        }
 	}
     
     //Disco mode
@@ -958,7 +995,7 @@ defaultproperties
 	bDefaultBindings=True
 	bDefaultArtifactBindings=True
 	EXPBarColor=(B=128,G=255,R=128,A=255)
-	RedColor=(R=255,A=255)
+	RedColor=(R=255,G=64,B=64,A=255)
 	WhiteColor=(B=255,G=255,R=255,A=255)
 	WhiteTrans=(B=255,G=255,R=255,A=128)
 	//Team colors (taken from HudOLTeamDeathmatch)
