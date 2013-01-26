@@ -35,17 +35,18 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
     }
     
     if(Blocker >= 0) {
+        bShowFailureMessage = false;
         Msg(MSG_CantConstruct | Blocker);
         return None;
     } else {
+        bShowFailureMessage = true;
         return Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot);
     }
 }
 
 defaultproperties {
     ClearRadius=256
-    bShowFailureMessage=False //doing that in a more detailled manner
-    
+
     MsgCantConstruct="Cannot construct here because of a nearby $1."
     BlockingTypes(0)=class'GameObjective'
     BlockingTypes(1)=class'PlayerStart'
