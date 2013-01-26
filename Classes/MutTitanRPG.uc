@@ -13,6 +13,7 @@ var float NextSaveTime;
 var string PackageName;
 var RPGRules Rules;
 
+var config string CustomVersion;
 var config bool bAllowCheats;
 var config int StartingLevel, StartingStatPoints;
 var config int PointsPerLevel;
@@ -1428,9 +1429,14 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 
 	Super.GetServerDetails(ServerState);
 
-	KVP.Key = "Version";
-	KVP.Value = FriendlyName;
+	KVP.Key = "TitanRPG Version";
 	
+    if(Len(CustomVersion) > 0) {
+        KVP.Value = CustomVersion;
+    } else {
+        KVP.Value = FriendlyName;
+    }
+    
 	ServerState.ServerInfo[ServerState.ServerInfo.Length] = KVP;
 }
 
@@ -1459,6 +1465,7 @@ defaultproperties
 	bAddToServerPackages=True
 	GroupName="TitanRPG"
 	FriendlyName="TitanRPG 1.71 BETA" //also used in Server Browser
+    CustomVersion=""
 	Description="A unified and heavily improved version of UT2004RPG and DruidsRPG, featuring a lot of new content, multi-game support and fixes of many bugs and other problems."
 	SecondTextSingular="second"
 	SecondTextPlural="seconds"
