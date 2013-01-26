@@ -21,7 +21,7 @@ simulated function ClientCreateInteraction()
 
 		Interaction = AwarenessInteraction(
 			PC.Player.InteractionMaster.AddInteraction(
-				"TitanRPG.AwarenessInteraction", PC.Player));
+				class'MutTitanRPG'.default.PackageName $ ".AwarenessInteraction", PC.Player));
 	}
 	
 	if(Interaction != None)

@@ -3,7 +3,7 @@ class RPGMenu_ControlBinderFakeTab extends RPGMenu_TabPage;
 function ShowPanel(bool bShow)
 {
 	if(bShow)
-		Controller.OpenMenu("TitanRPG.RPGMenu_ControlBinder");
+		Controller.OpenMenu(class'MutTitanRPG'.default.PackageName $ ".RPGMenu_ControlBinder");
 
 	Super.ShowPanel(bShow);
 }

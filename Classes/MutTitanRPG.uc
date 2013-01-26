@@ -10,6 +10,7 @@ var config int SaveDuringGameInterval;
 var float NextSaveTime;
 
 //General
+var string PackageName;
 var RPGRules Rules;
 
 var config bool bAllowCheats;
@@ -114,7 +115,7 @@ final function class<RPGAbility> ResolveAbility(string Alias)
 	}
 	
 	//Fallback, for seamless transitions from 1.5 or earlier
-	Loaded = class<RPGAbility>(DynamicLoadObject("TitanRPG.Ability" $ Alias, class'Class'));
+	Loaded = class<RPGAbility>(DynamicLoadObject(PackageName $ ".Ability" $ Alias, class'Class'));
 
 	if(Loaded == None)
 		Log("WARNING: Could not resolve ability alias:" @ Alias, 'TitanRPG');
@@ -163,13 +164,18 @@ final function string ProcessPlayerName(RPGPlayerReplicationInfo RPRI)
 	return PlayerName;
 }
 
-event PreBeginPlay()
-{
+event PreBeginPlay() {
     local array<string> ConfigAbilityNames;
     local RPGConfigAbility Module;
     local class<RPGAbility> AbilityClass;
 	local int i, x;
 	
+    x = InStr(string(default.class), ".");
+    default.PackageName = Left(string(default.class), x);
+    PackageName = default.PackageName;
+    
+    Log("Package name:" @ PackageName, 'TitanRPG');
+    
 	if(!Level.Game.IsA('Invasion'))
 		bAutoAdjustInvasionLevel = false; //don't waste any time doing Invasion stuff if we're not in Invasion
 
@@ -221,7 +227,7 @@ event PreBeginPlay()
 	class'XGame.xPawn'.default.ControllerClass = class'RPGBot';
 	
 	if(Level.Game.PlayerControllerClassName ~= "XGame.xPlayer") //don't replace another mod's xPlayer replacement
-		Level.Game.PlayerControllerClassName = "TitanRPG.TitanPlayerController";
+		Level.Game.PlayerControllerClassName = PackageName $ ".TitanPlayerController";
 
 	//Find specific settings for this gametype
 	GameSettings = new(None, GetGameSettingsName(Level.Game)) class'RPGGameSettings';
@@ -318,17 +324,17 @@ function string GetInventoryClassOverride(string InventoryClassName)
 	}
 
 	if(InventoryClassName ~= "XWeapons.RocketLauncher")
-		return "TitanRPG.RPGRocketLauncher";
+		return PackageName $ ".RPGRocketLauncher";
 	else if(InventoryClassName ~= "XWeapons.ShieldGun" || InventoryClassName ~= "OLTeamGames.OLTeamsShieldGun")
-		return "TitanRPG.RPGShieldGun";
+		return PackageName $ ".RPGShieldGun";
 	else if(InventoryClassName ~= "XWeapons.LinkGun" || InventoryClassName ~= "OLTeamGames.OLTeamsLinkGun")
-		return "TitanRPG.RPGLinkGun";
+		return PackageName $ ".RPGLinkGun";
 	else if(InventoryClassName ~= "Onslaught.ONSMineLayer" || InventoryClassName ~= "OLTeamGames.OLTeamsONSMineLayer")
-		return "TitanRPG.RPGMineLayer";
+		return PackageName $ ".RPGMineLayer";
 	else if(InventoryClassName ~= "XWeapons.BallLauncher")
-		return "TitanRPG.RPGBallLauncher";
+		return PackageName $ ".RPGBallLauncher";
 	else if(InventoryClassName ~= "UTClassic.ClassicSniperRifle")
-		return "TitanRPG.RPGClassicSniperRifle";
+		return PackageName $ ".RPGClassicSniperRifle";
 
 	return InventoryClassName;
 }
@@ -377,7 +383,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Ball Launcher
 	if(Other.IsA('xBombFlag'))
 	{
-		xBombFlag(Other).BombLauncherClassName = "TitanRPG.RPGBallLauncher";
+		xBombFlag(Other).BombLauncherClassName = PackageName $ ".RPGBallLauncher";
 		return true;
 	}
 	
@@ -1229,7 +1235,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && (Args[0] ~= "make" || Args[0] ~= "wm") && Args.Length > 1)
 			{
-				WMClass = class<RPGWeaponModifier>(DynamicLoadObject("TitanRPG.WeaponModifier_" $ Args[1], class'Class'));
+				WMClass = class<RPGWeaponModifier>(DynamicLoadObject(PackageName $ ".WeaponModifier_" $ Args[1], class'Class'));
 				if(WMClass != None)
 				{
                     x = WMClass.static.GetRandomModifierLevel();
@@ -1258,7 +1264,7 @@ function Mutate(string MutateString, PlayerController Sender)
             }
 			else if(Cheat != None && Args[0] ~= "effect" && Args.Length > 1)
 			{
-				EffectClass = class<RPGEffect>(DynamicLoadObject("TitanRPG.Effect_" $ Args[1], class'Class'));
+				EffectClass = class<RPGEffect>(DynamicLoadObject(PackageName $ ".Effect_" $ Args[1], class'Class'));
 				if(EffectClass != None)
 				{
 					Effect = EffectClass.static.Create(Cheat, Sender);
@@ -1291,7 +1297,7 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && Args[0] ~= "artifact" && Args.Length > 1)
 			{
-				ArtifactClass = class<RPGArtifact>(DynamicLoadObject("TitanRPG.Artifact_" $ Args[1], class'Class'));
+				ArtifactClass = class<RPGArtifact>(DynamicLoadObject(PackageName $ ".Artifact_" $ Args[1], class'Class'));
 				if(ArtifactClass != None)
 					class'Util'.static.GiveInventory(Cheat, ArtifactClass);
 				else

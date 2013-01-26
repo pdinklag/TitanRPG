@@ -233,6 +233,19 @@ function ModifyStats()
 	}
 }
 
+simulated event PreBeginPlay() {
+    local int x;
+
+    Super.PreBeginPlay();
+    
+    if(Role < ROLE_Authority) {
+        x = InStr(string(default.class), ".");
+        class'MutTitanRPG'.default.PackageName = Left(string(default.class), x);
+    
+        Log("Package name:" @ class'MutTitanRPG'.default.PackageName, 'TitanRPG');
+    }
+}
+
 simulated event BeginPlay()
 {
 	local int i;
@@ -296,7 +309,7 @@ simulated event BeginPlay()
 					
 					if(PlayerController(Controller) != None)
 						PlayerController(Controller).ClientOpenMenu(
-							"TitanRPG.RPGImposterMessageWindow");
+							class'MutTitanRPG'.default.PackageName $ ".RPGImposterMessageWindow");
 						
 					//Level.Game.ChangeName(Controller, string(Rand(65535)), true); //That's gotta suck, having a number for a name
 					Level.Game.ChangeName(Controller, Controller.GetHumanReadableName() $ "_Imposter", true);

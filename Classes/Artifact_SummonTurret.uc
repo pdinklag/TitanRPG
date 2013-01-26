@@ -179,6 +179,6 @@ defaultproperties {
 	CostPerSec=0
 	Cooldown=0
 
-	TurretTypes(0)=(TurretClass=class'TitanRPG.RPGSentinelTurret',Cost=0,Cooldown=5)
+	TurretTypes(0)=(TurretClass=class'RPGSentinelTurret',Cost=0,Cooldown=5)
     TurretSpawnOffsets(0)=(TurretClass=class'UT2k4Assault.ASVehicle_Sentinel_Floor',SpawnOffset=(Z=65))
 }

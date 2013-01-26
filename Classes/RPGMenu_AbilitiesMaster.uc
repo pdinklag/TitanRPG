@@ -14,7 +14,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 	for(i = 0; i < Panels.Length; i++)
 	{
 		//Prepend package name to class name
-		Panels[i].ClassName = "TitanRPG." $ Panels[i].ClassName;
+		Panels[i].ClassName = class'MutTitanRPG'.default.PackageName $ "." $ Panels[i].ClassName;
 		Tabs.AddTabItem(Panels[i]);
 	}
 }

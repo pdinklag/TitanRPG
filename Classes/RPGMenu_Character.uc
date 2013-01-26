@@ -166,7 +166,7 @@ function bool SwitchClicked(GUIComponent Sender)
 {
 	if(!(cmbMyBuilds.GetText() ~= RPGMenu.RPRI.RPGName))
 	{
-		Controller.OpenMenu("TitanRPG.RPGSwitchConfirmationWindow");
+		Controller.OpenMenu(class'MutTitanRPG'.default.PackageName $ ".RPGSwitchConfirmationWindow");
 		RPGSwitchConfirmationWindow(Controller.TopPage()).RPGMenu = RPGMenu;
 		RPGSwitchConfirmationWindow(Controller.TopPage()).NewBuild = cmbMyBuilds.GetText();
 		RPGSwitchConfirmationWindow(Controller.TopPage()).Init();
@@ -178,13 +178,13 @@ function bool ResetClicked(GUIComponent Sender)
 {
 	if(RPGMenu.RPRI.bAllowRebuild)
 	{
-		Controller.OpenMenu("TitanRPG.RPGRebuildConfirmationWindow");
+		Controller.OpenMenu(class'MutTitanRPG'.default.PackageName $ ".RPGRebuildConfirmationWindow");
 		RPGRebuildConfirmationWindow(Controller.TopPage()).RPGMenu = RPGMenu;
 		RPGRebuildConfirmationWindow(Controller.TopPage()).Init();
 	}
 	else
 	{
-		Controller.OpenMenu("TitanRPG.RPGResetConfirmationWindow");
+		Controller.OpenMenu(class'MutTitanRPG'.default.PackageName $ ".RPGResetConfirmationWindow");
 		RPGResetConfirmationWindow(Controller.TopPage()).RPGMenu = RPGMenu;
 		RPGResetConfirmationWindow(Controller.TopPage()).Init();
 	}

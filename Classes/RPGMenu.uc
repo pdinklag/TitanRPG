@@ -20,11 +20,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 	if(bStats)
 		Panels[1].ClassName = "RPGMenu_AbilitiesMaster";
-
+    
 	for(i = 0; i < Panels.Length; i++)
 	{
 		//Prepend package name to class name
-		Panels[i].ClassName = "TitanRPG." $ Panels[i].ClassName;
+		Panels[i].ClassName = class'MutTitanRPG'.default.PackageName $ "." $ Panels[i].ClassName;
 		
 		Log("Adding tab:" @ Panels[i].ClassName, 'DEBUG');
 		Tabs.AddTabItem(Panels[i]);

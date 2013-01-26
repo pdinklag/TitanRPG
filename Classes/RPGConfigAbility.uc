@@ -71,7 +71,7 @@ function class<RPGAbility> InitAbility() {
     local string ClassName;
     local int i;
 
-    ClassName = "TitanRPG.GeneratedAbility_";
+    ClassName = class'MutTitanRPG'.default.PackageName $ ".GeneratedAbility_";
     if(default.ConfigAbilities.Length < 10) {
         ClassName $= "0";
     }

@@ -124,8 +124,8 @@ defaultproperties {
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=3
-	TotemTypes(0)=(Level=1,TotemClass=class'TitanRPG.Totem_Heal',Cost=50,Cooldown=30)
-	TotemTypes(1)=(Level=2,TotemClass=class'TitanRPG.Totem_Lightning',Cost=50,Cooldown=30)
+	TotemTypes(0)=(Level=1,TotemClass=class'Totem_Heal',Cost=50,Cooldown=30)
+	TotemTypes(1)=(Level=2,TotemClass=class'Totem_Lightning',Cost=50,Cooldown=30)
 	TotemPreText=", you can construct the"
 	TotemPostText="."
 	Category=class'AbilityCategory_Engineer'

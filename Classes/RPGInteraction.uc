@@ -110,7 +110,7 @@ exec function RPGStatsMenu()
 
 		if(RPRI != None)
 		{
-			ViewportOwner.GUIController.OpenMenu("TitanRPG.RPGMenu");
+			ViewportOwner.GUIController.OpenMenu(class'MutTitanRPG'.default.PackageName $ ".RPGMenu");
 			RPGMenu(GUIController(ViewportOwner.GUIController).TopPage()).InitFor(RPRI);
 		}
 	}

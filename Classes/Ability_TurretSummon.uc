@@ -126,7 +126,7 @@ defaultproperties {
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=3
-	TurretTypes(0)=(Level=1,TurretClass=class'TitanRPG.RPGSentinelTurret',Cost=50,Cooldown=30)
+	TurretTypes(0)=(Level=1,TurretClass=class'RPGSentinelTurret',Cost=50,Cooldown=30)
 	TurretPreText=", you can construct the"
 	TurretPostText="."
 	Category=class'AbilityCategory_Engineer'

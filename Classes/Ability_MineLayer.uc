@@ -18,7 +18,7 @@ defaultproperties
 	BonusPerLevel=1
 	Description="Each level of this ability, except for the first, will increase the amount of parasite mines you can deploy at a time by $1."
 	MaxLevel=5
-	GrantItem(0)=(Level=1,InventoryClass=class'TitanRPG.RPGMineLayer')
+	GrantItem(0)=(Level=1,InventoryClass=class'RPGMineLayer')
 	bUseLevelCost=True
 	LevelCost(0)=5
 	LevelCost(1)=5

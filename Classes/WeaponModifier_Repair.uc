@@ -7,7 +7,7 @@ static function bool AllowedFor(class<Weapon> Weapon, Pawn Other)
 	if(!Super.AllowedFor(Weapon, Other))
 		return false;
 
-    return ClassIsChildOf(Weapon, class'TitanRPG.RPGLinkGun');
+    return ClassIsChildOf(Weapon, class'RPGLinkGun');
 }
 
 simulated function BuildDescription()
