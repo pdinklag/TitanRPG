@@ -14,6 +14,9 @@ auto state Active {
         local int Amount, n;
         
         foreach VisibleCollidingActors(class'Vehicle', V, SightRadius, IconLocation) {
+            if(V == Self)
+                continue;
+        
             if(Team != 255 && V.Team == Team && (V.bAutoTurret || !V.IsVehicleEmpty()) && V.Health < V.HealthMax) {
                 n++;
             
