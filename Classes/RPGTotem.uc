@@ -73,8 +73,8 @@ defaultproperties {
     //Settings
     SightRadius=1024
     
-	Health=250
-	HealthMax=250
+	Health=500
+	HealthMax=500
     
     IconOffZ=96
     
