@@ -40,9 +40,8 @@ auto state Active {
 }
 
 defaultproperties {
-    Interval=1.0
-    RepairAmount=25
-    SightRadius=1024
+    Interval=3.0
+    RepairAmount=35
     
     IconClass=class'TotemIcon_Repair'
     VehicleNameString="Repair Totem"

@@ -53,7 +53,6 @@ auto state Active {
 defaultproperties {
     Interval=3.0
     Damage=25
-    SightRadius=1024
     
     HitEmitterClass=class'XEffects.LightningBolt'
     IconClass=class'TotemIcon_Lightning'

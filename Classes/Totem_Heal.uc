@@ -34,9 +34,8 @@ auto state Active {
 }
 
 defaultproperties {
-    Interval=1.0
-    HealAmount=10
-    SightRadius=1024
+    Interval=3.0
+    HealAmount=25
     
     IconClass=class'TotemIcon_Heal'
     VehicleNameString="Healing Totem"

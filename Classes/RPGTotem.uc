@@ -1,6 +1,9 @@
 class RPGTotem extends ASVehicle abstract placeable
     config(TitanRPG);
 
+var config int Strength;
+var config float Radius;
+
 var class<RPGTotemIcon> IconClass;
 
 var Material TeamSkins[4];
@@ -11,11 +14,22 @@ var vector IconLocation;
 var RPGTotemIcon Icon;
 
 var RPGTotemWall Wall;
-var float WallDistMin, WallDistMax;
+var config bool bEnableWalls;
+var config float WallDistMin, WallDistMax, WallDistMaxZ;
 
 replication {
     reliable if(Role == ROLE_Authority && bNetDirty)
         Icon;
+}
+
+simulated event PreBeginPlay() {
+    Super.PreBeginPlay();
+    
+    if(Role == ROLE_Authority) {
+        Health = Strength;
+        HealthMax = Strength;
+        SightRadius = Radius;
+    }
 }
 
 simulated event PostBeginPlay() {
@@ -36,11 +50,13 @@ function SetTeamNum(byte TeamNum) {
         Wall.Destroy();
     }
     
-    foreach VisibleCollidingActors(class'RPGTotem', T, WallDistMax) {
-        if(T != Self && T.Team == Team && T.Wall == None && VSize(Location - T.Location) >= WallDistMin) {
-            Wall = Spawn(class'RPGTotemWall');
-            Wall.Connect(Self, T);
-            break;
+    if(bEnableWalls) {
+        foreach VisibleCollidingActors(class'RPGTotem', T, WallDistMax) {
+            if(T != Self && T.Team == Team && T.Wall == None && VSize(Location - T.Location) >= WallDistMin && Abs(Location.Z - T.Location.Z) <= WallDistMaxZ) {
+                Wall = Spawn(class'RPGTotemWall');
+                Wall.Connect(Self, T);
+                break;
+            }
         }
     }
 }
@@ -95,16 +111,17 @@ function AddDefaultInventory() {
 }
 
 defaultproperties {
-    //Settings
-    SightRadius=1024
+    //Config
+	Radius=1024
+    Strength=500
     
-	Health=500
-	HealthMax=500
-    
-    IconOffZ=96
+    bEnableWalls=True
     
     WallDistMin=256
-    WallDistMax=512
+    WallDistMax=768
+    WallDistMaxZ=96
+    
+    IconOffZ=96
     
     //Custom
     Physics=PHYS_None

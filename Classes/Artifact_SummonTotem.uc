@@ -70,7 +70,7 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 {
 	local RPGTotem Totem;
 	
-    SpawnLoc += vect(0, 0, 56);
+    SpawnLoc += vect(0, 0, 48);
     
 	Totem = RPGTotem(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
 	if(Totem != None) {
