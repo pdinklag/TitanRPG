@@ -1283,4 +1283,5 @@ defaultproperties
 	//Resurrection
 	ResurrectionCombos(0)="ComboNecro"
 	ResurrectionCombos(1)="ComboRevival"
+	ResurrectionCombos(2)="NecroCombo"
 }
