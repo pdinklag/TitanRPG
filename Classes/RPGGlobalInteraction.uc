@@ -4,6 +4,9 @@
 class RPGGlobalInteraction extends Interaction;
 
 var Color TeamBeaconColor[5];
+var Color WhiteColor;
+
+var Texture HealthBar, HealthBarBorder;
 
 var array<FriendlyPawnReplicationInfo> FriendlyPawns;
 
@@ -18,7 +21,7 @@ function RenderFriendlyPawnsInfo(Canvas C)
 	local int i;
 	local Texture TeamBeacon;
 	local PlayerController PC;
-	local float Dist, ScaledDist, TeamBeaconPlayerInfoMaxDist, FarAwayInv, Height, XScale, XL, YL;
+	local float Dist, ScaledDist, TeamBeaconPlayerInfoMaxDist, FarAwayInv, Height, XScale, YSize, XL, YL, Pct;
 	local vector ScreenPos;
 	local FriendlyPawnReplicationInfo FPRI;
 	local string Text;
@@ -98,18 +101,47 @@ function RenderFriendlyPawnsInfo(Canvas C)
 				TeamBeacon.USize * XScale, TeamBeacon.VSize * XScale,
 				0, 0, TeamBeacon.USize, TeamBeacon.VSize);
 
-			//Text
 			if(Dist < TeamBeaconPlayerInfoMaxDist && C.ClipX > 600)
 			{
+                //Text
 				C.Font = C.TinyFont;
 				
 				Text = FPRI.Master.PlayerName;
-				if(FPRI.Master.Team == PC.PlayerReplicationInfo.Team)
-					Text @= "(" $ FPRI.Pawn.Health $ ")";
+				/*if(FPRI.Master.Team == PC.PlayerReplicationInfo.Team)
+					Text @= "(" $ FPRI.Pawn.Health $ ")";*/
 				
 				C.StrLen(Text, XL, YL);
 				C.SetPos(ScreenPos.X, ScreenPos.Y - YL);
 				C.DrawTextClipped(Text);
+                
+                /**
+                    Custom (partially from UnVehicle.cpp)
+                */
+                //Health bar
+                if(FPRI.Master.Team == PC.PlayerReplicationInfo.Team) {
+                    YSize = YL * FClamp(1 - Dist / (TeamBeaconPlayerInfoMaxDist / 2), 0.5, 1);
+                
+                    C.SetPos(ScreenPos.X, ScreenPos.Y - YL - 4 - YSize);
+                
+                    C.DrawColor = WhiteColor;
+                    C.DrawTileStretched(HealthBarBorder, 4 * YSize, YSize);
+                
+                    Pct = float(FPRI.Pawn.Health) / FPRI.Pawn.HealthMax;
+                    if(Pct > 0.5) {
+                        C.DrawColor.R = byte(255.0 * FClamp(1.0 - (FPRI.Pawn.HealthMax - (FPRI.Pawn.HealthMax - FPRI.Pawn.Health) * 2) / FPRI.Pawn.HealthMax, 0, 1));
+                        C.DrawColor.G = 255;
+                        C.DrawColor.B = 0;
+                    } else {
+                        C.DrawColor.R = 255;
+                        C.DrawColor.G = byte(255.0 * FClamp(2.0 * FPRI.Pawn.Health / FPRI.Pawn.HealthMax, 0, 1));
+                        C.DrawColor.B = 0;
+                    }
+                    
+                    C.DrawTileStretched(HealthBar, 4 * YSize * Pct, YSize);
+                }
+                
+                /**
+                */
 			}
 		}
 		else
@@ -156,4 +188,8 @@ defaultproperties
 	TeamBeaconColor(2)=(R=64,G=255,B=64,A=255)
 	TeamBeaconColor(3)=(R=255,G=224,B=64,A=255)
 	TeamBeaconColor(4)=(B=255,G=255,R=255,A=255)
+    WhiteColor=(B=255,G=255,R=255,A=255)
+    
+    HealthBar=Texture'ONSInterface-TX.HealthBar'
+    HealthBarBorder=Texture'InterfaceContent.BorderBoxD'
 }
