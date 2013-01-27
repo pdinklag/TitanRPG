@@ -76,7 +76,7 @@ function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator Spaw
 	if(Totem != None) {
         Totem.SetOwner(None);
         Totem.SetTeamNum(Instigator.Controller.GetTeamNum());
-        RPGTotemController(Totem.Controller).Master = Instigator.Controller;
+        RPGTotemController(Totem.Controller).SetMaster(Instigator.Controller);
         
         if(InstigatorRPRI != None) {
             InstigatorRPRI.AddTotem(Totem);
