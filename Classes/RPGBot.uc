@@ -1,4 +1,4 @@
-class RPGBot extends InvasionBot; //optimized for InvasionPro 1.3 which is assumed to be final
+class RPGBot extends InvasionBot;
 
 var RPGAIBuild AIBuild;
 
@@ -16,15 +16,19 @@ var bool bDisableBerserk;
 var bool bDisableInvis;
 var bool bDisableDef;
 
-var config string InvasionProPackage;
+var string InvasionProPackage;
 
 event PreBeginPlay()
 {
+    local int x;
+
 	bInvasion = Level.Game.IsA('Invasion');
 	bInvasionPro = Level.Game.IsA('InvasionPro');
 	
-	if(bInvasionPro)
-	{
+	if(bInvasionPro) {
+        x = InStr(string(Level.Game.class), ".");
+        InvasionProPackage = Left(string(Level.Game.class), x);
+    
 		PlayerReplicationInfoClass = 
 			class<PlayerReplicationInfo>(DynamicLoadObject(InvasionProPackage $ ".InvasionProPlayerReplicationInfo", class'Class'));
 	}
@@ -105,9 +109,11 @@ function TryCombo(string ComboName)
 		{
 			if(
 				(bDisableSpeed && ComboName ~= "XGame.ComboSpeed") ||
+				(bDisableSpeed && ComboName ~= string(class'ComboSuperSpeed')) ||
 				(bDisableBerserk && ComboName ~= "XGame.ComboBerserk") ||
 				(bDisableInvis && ComboName ~= "XGame.ComboInvis") ||
-				(bDisableDef && ComboName ~= "XGame.ComboDefensive")
+				(bDisableDef && ComboName ~= "XGame.ComboDefensive") ||
+                (bDisableDef && ComboName ~= string(class'ComboTeamBooster'))
 			)
 			{
 				return;
@@ -157,6 +163,14 @@ function StopFiring()
 function ChooseAttackMode()
 {
 	Super.ChooseAttackMode();
+}
+
+function float RelativeStrength(Pawn Other) {
+    if(Pawn == None || Other == None) {
+        return 0;
+    } else {
+        return Super.RelativeStrength(Other);
+    }
 }
 
 //called by RPGONSAVRiLRocket
@@ -255,49 +269,21 @@ simulated function float RateWeapon(Weapon w)
 //InvasionPro
 event Tick( float DeltaTime )
 {
-	local xPawn x;
-
 	if(bInvasionPro)
 	{
 		if(Pawn != None)
 		{
 			PlayerReplicationInfo.SetPropertyText("PlayerHealth", string(Pawn.Health));
 			PlayerReplicationInfo.SetPropertyText("PlayerHealthMax", string(Pawn.SuperHealthMax));
-
-			x = xPawn(Pawn);
-			if(x.CurrentCombo != None)
-			{
-				if(x.CurrentCombo.class == class'ComboDefensive' || x.CurrentCombo.class == class'ComboTeamBooster')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "1");
-				else if(x.CurrentCombo.class == class'ComboSpeed' || x.CurrentCombo.class == class'ComboSuperSpeed')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "2");
-				else if(x.CurrentCombo.class == class'ComboBerserk')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "3");
-				else if(x.CurrentCombo.class == class'ComboInvis')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "4");
-				else if(x.CurrentCombo.class == class'ComboCrate')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "5");
-				else if(x.CurrentCombo.class == class'ComboMiniMe')
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "6");
-				else
-					PlayerReplicationInfo.SetPropertyText("IconNumber", "7");
-			}
-			else
-			{
-				PlayerReplicationInfo.SetPropertyText("IconNumber", "0");
-			}
 		}
 		else
 		{
 			PlayerReplicationInfo.SetPropertyText("PlayerHealth", "0");
-			PlayerReplicationInfo.SetPropertyText("IconNumber", "0");
 		}
 	}
 
     Super.Tick(DeltaTime);
 }
 
-defaultproperties
-{
-	InvasionProPackage="InvasionProv1_3"
+defaultproperties {
 }

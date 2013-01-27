@@ -524,23 +524,6 @@ event Tick(float dt)
 		//needed for anything?
 		bGameStarted = true;
 	}
-	
-	//Projectiles
-    /*
-	foreach DynamicActors(class'Projectile', Proj)
-	{
-		if(Proj.Tag == Proj.class.Name && Proj.Instigator != None)
-		{
-			W = Proj.Instigator.Weapon;
-			
-			if(W != None && W.IsA('RPGWeapon'))
-				RPGWeapon(Proj.Instigator.Weapon).ModifyProjectile(Proj);
-			
-			if(Proj.Tag == Proj.class.Name)
-				Proj.Tag = 'Processed'; //make sure it's only processed once
-		}
-	}
-    */
 }
 
 function RPGPlayerReplicationInfo CheckRPRI(Controller C)
@@ -576,41 +559,6 @@ function RPGPlayerReplicationInfo CheckRPRI(Controller C)
 	return RPRI;
 }
 
-function ReplaceBotController(Pawn Other)
-{
-	//TODO: how???
-
-	/*
-	local Controller OldController;
-	local UnrealTeamInfo Team;
-	local string RosterEntry;
-	local Bot Bot;
-	local DeathMatch Game;
-
-	Game = DeathMatch(Level.Game);
-	OldController = Other.Controller;
-	
-	if(OldController.IsA('RPGBot'))
-		return;
-	
-	Log("Replacing bot for" @ OldController.GetHumanReadableName() $ ", old controller class is" @ string(OldController.class), 'TitanRPG');
-	
-	Team = UnrealTeamInfo(Other.PlayerReplicationInfo.Team);
-	RosterEntry = Other.PlayerReplicationInfo.PlayerName;
-	
-	OldController.UnPossess();
-	//OldController.Destroy();
-	
-	Bot = Spawn(class'RPGBot');
-	Game.AdjustedDifficulty += 2;
-	Game.InitializeBot(Bot, Team, class'xRosterEntry'.static.CreateRosterEntryCharacter(RosterEntry));
-	Game.AdjustedDifficulty -= 2;
-	Bot.bInitLifeMessage = true;
-	
-	Bot.Possess(Other);
-	*/
-}
-
 function ModifyPlayer(Pawn Other)
 {
 	local RPGPlayerReplicationInfo RPRI;
@@ -622,11 +570,7 @@ function ModifyPlayer(Pawn Other)
 
 	if(Other.Controller == None || !Other.Controller.bIsPlayer)
 		return;
-	
-	//Invasion forces a specific bot class, so we need to replace it afterwards
-	if(!Other.Controller.IsA('RPGBot') && (Other.Controller.IsA('InvasionBot') || Other.Controller.IsA('InvasionProBot')))
-		ReplaceBotController(Other);
-	
+        
 	RPRI = CheckRPRI(Other.Controller);
 	if(RPRI == None)
 	{
