@@ -90,8 +90,11 @@ var config float EXP_TeamBooster; //EXP per second per healed player
 var config float EXPMul_DestroyVehicle; //you get the XP of a normal kill multiplied by this value
 var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied by this value
 
+//Awards
+var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage;
+
 //Not yet featured
-var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage, EXP_Hatrick, EXP_Daredevil;
+var config float EXP_Daredevil;
 
 /*
 */
@@ -191,28 +194,11 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 /**
 	SCORE OBJECTIVE
 */
-function ScoreObjective(PlayerReplicationInfo Scorer, int Score)
-{
-	local RPGPlayerReplicationInfo RPRI;
-	
+function ScoreObjective(PlayerReplicationInfo Scorer, int Score) {
 	Super.ScoreObjective(Scorer, Score);
 	
-	if(Score > 0)
-	{
-		Log("ScoreObjective" @ Scorer.PlayerName @ Score);
-		
-		if(Level.Game.IsA('ONSOnslaughtGame'))
-		{
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Scorer);
-			//TODO
-		}
-		else if(Level.Game.IsA('ASGameInfo'))
-		{
-			//Assault objective scored
-			RPRI = class'RPGPlayerReplicationInfo'.static.GetForPRI(Scorer);
-			if(RPRI != None)
-				RPRI.AwardExperience(EXP_ObjectiveCompleted);
-		}
+	if(Score > 0) {
+		Log("ScoreObjective" @ Scorer.PlayerName @ Score, 'DEBUG');
 	}
 }
 
@@ -265,6 +251,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 	local vector TossVel, U, V, W;
 	local Pawn KillerPawn, KilledPawn;
 	local RPGPlayerReplicationInfo KillerRPRI, KilledRPRI;
+    local TeamPlayerReplicationInfo KillerPRI;
 	local class<Weapon> KillWeaponType;
 	
 	Super.ScoreKill(Killer, Killed);
@@ -300,6 +287,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 	}
 	
 	//Get RPRIs
+    KillerPRI = TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo);
 	KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
 	KilledRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killed);
 	
@@ -406,22 +394,38 @@ function ScoreKill(Controller Killer, Controller Killed)
 				//Translocator kill
 				if(KillDamageType == class'DamTypeTeleFrag')
 				{
-					Log("TELEFRAG:" @ KillerRPRI.RPGName, 'DEBUG');
 					KillerRPRI.AwardExperience(EXP_Telefrag);
 				}
 				
 				//Head shot
-				if(KillDamageType == class'DamTypeSniperHeadShot' || KillDamageType == class'DamTypeClassicHeadshot')
+				if(ClassIsChildOf(KillDamageType, class'DamTypeSniperHeadShot') || ClassIsChildOf(KillDamageType, class'DamTypeClassicHeadshot'))
 				{
-					Log("HEAD SHOT:" @ KillerRPRI.RPGName, 'DEBUG');
 					KillerRPRI.AwardExperience(EXP_HeadShot);
+                    
+                    if(KillerPRI.headcount == 15) {
+                        KillerRPRI.AwardExperience(EXP_HeadHunter);
+                    }
 				}
+                
+                //Flak Money
+                if(ClassIsChildOf(KillDamageType, class'DamTypeFlakChunk') && KillerPRI.flakcount == 15) {
+					KillerRPRI.AwardExperience(EXP_FlakMonkey);
+                }
+                
+                //Combo Whore
+                if(ClassIsChildOf(KillDamageType, class'DamTypeShockCombo') && KillerPRI.combocount == 15) {
+					KillerRPRI.AwardExperience(EXP_ComboWhore);
+                }
+                
+                //Road Rampage
+                if(ClassIsChildOf(KillDamageType, class'DamTypeRoadkill') && KillerPRI.ranovercount == 10) {
+					KillerRPRI.AwardExperience(EXP_RoadRampage);
+                }
 				
 				//Multi kill
 				if(Killer.IsA('UnrealPlayer') && UnrealPlayer(Killer).MultiKillLevel > 0)
 				{
-					Log("MULTI KILL (" $ string(UnrealPlayer(Killer).MultiKillLevel) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
-					KillerRPRI.AwardExperience(EXP_MultiKill[Min(UnrealPlayer(Killer).MultiKillLevel, ArrayCount(EXP_MultiKill))]);
+					KillerRPRI.AwardExperience(EXP_MultiKill[Min(UnrealPlayer(Killer).MultiKillLevel, ArrayCount(EXP_MultiKill) - 1)]);
 				}
 			
 				//Spree
@@ -431,8 +435,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 					UnrealPawn(Killer.Pawn).spree % 5 == 0
 				)
 				{
-					Log("KILLING SPREE (" $ string(UnrealPawn(Killer.Pawn).spree / 5) $ ":" @ KillerRPRI.RPGName, 'DEBUG');
-					KillerRPRI.AwardExperience(EXP_KillingSpree[Min(UnrealPawn(Killer.Pawn).spree / 5, ArrayCount(EXP_KillingSpree))]);
+					KillerRPRI.AwardExperience(EXP_KillingSpree[Min(UnrealPawn(Killer.Pawn).spree / 5, ArrayCount(EXP_KillingSpree) - 1)]);
 				}
 				
 				//First blood
@@ -441,7 +444,6 @@ function ScoreKill(Controller Killer, Controller Killed)
 					TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo).bFirstBlood
 				)
 				{
-					Log("FIRST BLOOD:" @ KillerRPRI.RPGName, 'DEBUG');
 					KillerRPRI.AwardExperience(EXP_FirstBlood);
 				}
 				
@@ -451,14 +453,11 @@ function ScoreKill(Controller Killer, Controller Killed)
 					UnrealPawn(Killed.Pawn).spree > 4
 				)
 				{
-					Log("END SPREE:" @ KillerRPRI.RPGName, 'DEBUG');
 					KillerRPRI.AwardExperience(EXP_EndSpree);
 				}
 				
 				//Kill flag carrier
-				if(Level.Game.IsA('TeamGame') && TeamGame(Level.Game).CriticalPlayer(Killed))
-				{
-					Log("CRITICAL FRAG:" @ KillerRPRI.RPGName, 'DEBUG');
+				if(Level.Game.IsA('TeamGame') && TeamGame(Level.Game).CriticalPlayer(Killed)) {
 					KillerRPRI.AwardExperience(EXP_CriticalFrag);
 				}
 				
@@ -1233,6 +1232,12 @@ defaultproperties
 	//Special kills
 	EXP_Telefrag=1.00
 	EXP_Headshot=1.00
+    
+    //Awards
+	EXP_HeadHunter=15.00
+	EXP_ComboWhore=15.00
+	EXP_FlakMonkey=15.00
+    EXP_RoadRampage=15.00
 
 	//Game events
 	EXP_Win=30
@@ -1272,13 +1277,6 @@ defaultproperties
 	//Multipliers
 	EXPMul_DestroyVehicle=0.67
 	EXPMul_SummonKill=0.67
-	
-	//Not yet featured
-	EXP_HeadHunter=10.00
-	EXP_ComboWhore=10.00
-	EXP_FlakMonkey=10.00
-	EXP_RoadRampage=10.00
-	EXP_Hatrick=10.00
 	
 	//Resurrection
 	ResurrectionCombos(0)="ComboNecro"
