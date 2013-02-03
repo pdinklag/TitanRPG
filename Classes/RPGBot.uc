@@ -207,6 +207,18 @@ function ExecuteWhatToDoNext()
 function FightEnemy(bool bCanCharge, float EnemyStrength)
 {
 	local Inventory Inv;
+    
+    if(
+        Monster(Enemy) != None &&
+        FriendlyMonsterController(Enemy.Controller) != None &&
+        SameTeamAs(Enemy.Controller))
+    {
+        //Stop fighting friendly monsters
+        Log(GetHumanReadableName() @ "stopped fighting a friendly" @ Enemy.class, 'DEBUG');
+        Enemy = None;
+        StopFiring();
+        return;
+    }
 
 	Super.FightEnemy(bCanCharge, EnemyStrength);
 	
