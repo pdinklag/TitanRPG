@@ -756,6 +756,7 @@ simulated function CheckPlayerViewShake()
 
 simulated event Tick(float dt)
 {
+    local Weapon W;
     local RPGWeaponModifier WM;
     local bool bWasActive;
 	local Inventory Inv;
@@ -802,14 +803,20 @@ simulated event Tick(float dt)
 		//Check weapon
 		if(Controller.Pawn != None && !Controller.Pawn.IsA('Vehicle'))
 		{
-			if(Controller.Pawn.Weapon != LastPawnWeapon)
+            W = Controller.Pawn.Weapon;
+			if(W != LastPawnWeapon)
 			{
-				if(Controller.Pawn.Weapon != None)
+				if(W != None)
 				{
+                    if(W.IsA('TransLauncher') && W.OldWeapon == None && LastPawnWeapon != None) {
+                        Log("Force set old weapon on translocator:" @ LastPawnWeapon);
+                        W.OldWeapon = LastPawnWeapon;
+                    }
+                
                     //Maybe stop weapon modifier
-                    WM = class'RPGWeaponModifier'.static.GetFor(Controller.Pawn.Weapon);
+                    WM = class'RPGWeaponModifier'.static.GetFor(W);
                     if(WM != None && WM.bActive) {
-                        Log("Restarting weapon modifier for" @ Controller.Pawn.Weapon);
+                        Log("Restarting weapon modifier for" @ W);
                         bWasActive = true;
                         WM.StopEffect();
                     }
@@ -818,7 +825,7 @@ simulated event Tick(float dt)
 					for(x = 0; x < Abilities.Length; x++)
 					{
 						if(Abilities[x].bAllowed)
-							Abilities[x].ModifyWeapon(Controller.Pawn.Weapon);
+							Abilities[x].ModifyWeapon(W);
 					}
                     
                     //Restart weapon modifier
@@ -827,7 +834,7 @@ simulated event Tick(float dt)
                     }
 				}
                 
-				LastPawnWeapon = Controller.Pawn.Weapon;
+				LastPawnWeapon = W;
                 if(LastPawnWeapon != None) {
                     LastSelectedWeapon.WeaponClass = LastPawnWeapon.class;
                     
