@@ -7,7 +7,7 @@ var config float SelfHealingMultiplier;
 
 static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Duration, optional float Modifier)
 {
-	if(Other.Health >= Other.HealthMax + Modifier)
+	if(Other.Health >= Other.HealthMax + Modifier || Other.Health <= 0)
 		return false;
 
 	if(Other.Controller != None)

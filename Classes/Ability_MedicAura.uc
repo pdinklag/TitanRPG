@@ -37,6 +37,7 @@ function Timer()
 			!P.IsA('Monster') &&
 			!P.IsA('Vehicle') &&
 			P.Health < P.HealthMax &&
+            P.Health > 0 &&
 			FastTrace(Instigator.Location, P.Location)
 		)
 		{
