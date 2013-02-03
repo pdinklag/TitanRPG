@@ -52,7 +52,7 @@ defaultproperties {
     BlockingTypes(1)=class'PlayerStart'
     BlockingTypes(2)=class'SVehicleFactory'
     BlockingTypes(3)=class'Teleporter'
-    BlockingTypes(4)=class'LiftExit'
+    BlockingTypes(4)=class'JumpPad'
     BlockingTypes(5)=class'LiftCenter'
     BlockingTypes(6)=class'xPickupBase'
     BlockingTypes(7)=class'WeaponLocker'
@@ -62,7 +62,7 @@ defaultproperties {
     BlockingTypeStrings(1)="player start"
     BlockingTypeStrings(2)="vehicle spawn"
     BlockingTypeStrings(3)="teleporter"
-    BlockingTypeStrings(4)="lift exit"
+    BlockingTypeStrings(4)="jump pad"
     BlockingTypeStrings(5)="lift"
     BlockingTypeStrings(6)="pickup base"
     BlockingTypeStrings(7)="weapon locker"
