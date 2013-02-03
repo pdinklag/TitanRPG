@@ -50,15 +50,16 @@ simulated function Connect(RPGTotem A, RPGTotem B) {
 
 defaultproperties {
     XSize=256
-    TeamSkins(0)=FinalBlend'XEffectMat.Shield.RedShell'
-    TeamSkins(1)=FinalBlend'XEffectMat.Shield.BlueShell'
-    //TODO TeamSkins(2)=FinalBlend'TitanRPG.Totem.WallGreen'
-    //TODO TeamSkins(3)=FinalBlend'TitanRPG.Totem.WallGold'
+    TeamSkins(0)=FinalBlend'TitanRPG.Totem.WallRed'
+    TeamSkins(1)=FinalBlend'TitanRPG.Totem.WallBlue'
+    TeamSkins(2)=FinalBlend'TitanRPG.Totem.WallGreen'
+    TeamSkins(3)=FinalBlend'TitanRPG.Totem.WallGold'
     
     bAlwaysRelevant=True
     NetUpdateFrequency=1
     bNetNotify=True
     
+    bWorldGeometry=True
     bCollideWorld=False
     bCollideActors=True
     bBlockActors=True
