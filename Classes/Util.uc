@@ -176,7 +176,12 @@ static function SetWeaponFireRate(Weapon W, float Scale)
 				WF.FireRate = WF.default.FireRate / Scale;
 				WF.FireAnimRate = WF.default.FireAnimRate * Scale;
 				WF.ReloadAnimRate = WF.default.ReloadAnimRate * Scale;
-				WF.MaxHoldTime = WF.default.MaxHoldTime / Scale;
+                
+                if(RocketMultiFire(WF) != None) {
+                    WF.MaxHoldTime = WF.FireRate * (RocketMultiFire(WF).MaxLoad - 1) + 0.5;
+                } else {
+                    WF.MaxHoldTime = WF.default.MaxHoldTime / Scale;
+                }
 				
 				if(ShieldFire(WF) != None)
 					ShieldFire(WF).FullyChargedTime = ShieldFire(WF).default.FullyChargedTime / Scale;
@@ -215,7 +220,12 @@ static function AdjustWeaponFireRate(Weapon W, float Scale)
 				WF.FireRate /= Scale;
 				WF.FireAnimRate *= Scale;
 				WF.ReloadAnimRate *= Scale;
-				WF.MaxHoldTime /= Scale;
+
+                if(RocketMultiFire(WF) != None) {
+                    WF.MaxHoldTime = WF.FireRate * (RocketMultiFire(WF).MaxLoad - 1) + 0.5;
+                } else {
+                    WF.MaxHoldTime = WF.default.MaxHoldTime / Scale;
+                }
 				
 				if(ShieldFire(WF) != None)
 					ShieldFire(WF).FullyChargedTime /= Scale;

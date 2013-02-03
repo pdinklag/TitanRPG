@@ -757,6 +757,7 @@ simulated function CheckPlayerViewShake()
 simulated event Tick(float dt)
 {
     local RPGWeaponModifier WM;
+    local bool bWasActive;
 	local Inventory Inv;
 	local int x;
 
@@ -805,11 +806,25 @@ simulated event Tick(float dt)
 			{
 				if(Controller.Pawn.Weapon != None)
 				{
+                    //Maybe stop weapon modifier
+                    WM = class'RPGWeaponModifier'.static.GetFor(Controller.Pawn.Weapon);
+                    if(WM != None && WM.bActive) {
+                        Log("Restarting weapon modifier for" @ Controller.Pawn.Weapon);
+                        bWasActive = true;
+                        WM.StopEffect();
+                    }
+                    
+                    //Apply modifiers
 					for(x = 0; x < Abilities.Length; x++)
 					{
 						if(Abilities[x].bAllowed)
 							Abilities[x].ModifyWeapon(Controller.Pawn.Weapon);
 					}
+                    
+                    //Restart weapon modifier
+                    if(WM != None && bWasActive) {
+                        WM.StartEffect();
+                    }
 				}
                 
 				LastPawnWeapon = Controller.Pawn.Weapon;
