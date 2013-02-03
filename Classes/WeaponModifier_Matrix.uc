@@ -5,6 +5,8 @@ var config bool bAffectsTranslocator;
 
 var localized string MatrixText;
 
+const SLOWDOWN_CAP = 0.1;
+
 function RPGTick(float dt) {
     local Projectile P;
 	local Sync_Matrix Sync;
@@ -13,7 +15,7 @@ function RPGTick(float dt) {
 	Super.RPGTick(dt);
 
 	if(Instigator.Controller != None) {
-		Multiplier = FMax(0.1f, 1.0f - BonusPerLevel * float(Modifier));
+		Multiplier = FMax(SLOWDOWN_CAP, 1.0f - BonusPerLevel * float(Modifier));
 	
 		foreach Instigator.VisibleCollidingActors(class'Projectile', P, MatrixRadius)
 		{
@@ -56,8 +58,12 @@ function RPGTick(float dt) {
 
 simulated function BuildDescription()
 {
+    local float Multiplier;
+
 	Super.BuildDescription();
-	AddToDescription(MatrixText, BonusPerLevel);
+    
+    Multiplier = FMin(1 - SLOWDOWN_CAP, BonusPerLevel * float(Modifier));
+	AddToDescription(Repl(MatrixText, "$1", class'Util'.static.FormatPercent(Multiplier)));
 }
 
 defaultproperties
