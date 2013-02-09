@@ -544,6 +544,13 @@ function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon
 }
 
 /*
+    Called by RPGPlayerReplicationInfo when a weapon is about to be granted to the
+    owning player. This is called after ModifyGrantedWeapon returned true or if
+    the weapon is forced.
+*/
+function ModifyGrantedWeaponAmmo(class<Weapon> WeaponClass, out int Ammo1, out int Ammo2);
+
+/*
 	Called by RPGEffect when it is about to be applied.
 	Returns whether or not this effect can be applied when this ability is being owned.
 */

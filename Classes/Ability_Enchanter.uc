@@ -26,7 +26,7 @@ function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon
         }
     }
     
-    return true;
+    return Super.ModifyGrantedWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2);
 }
 
 defaultproperties

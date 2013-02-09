@@ -1728,7 +1728,7 @@ function GrantQueuedWeapon(GrantWeapon GW) {
             class'Util'.static.SetWeaponAmmo(W, 0, GW.Ammo[0]);
         }
         
-        if(GW.Ammo[1] > 0) {
+        if(GW.Ammo[1] > 0 && W.GetAmmoClass(1) != W.GetAmmoClass(0)) {
             class'Util'.static.SetWeaponAmmo(W, 1, GW.Ammo[1]);
         }
     }
@@ -1751,8 +1751,18 @@ function ProcessGrantQueue()
 	GrantFavQueue.Length = 0;
 	
 	//now try the others
-	for(i = 0; i < GrantQueue.Length; i++)
+    Log("Grant Queue:");
+	for(i = 0; i < GrantQueue.Length; i++) {
+        Log(string(i + 1) $ "." @ 
+            GrantQueue[i].WeaponClass @ 
+            GrantQueue[i].ModifierClass @ 
+            GrantQueue[i].Modifier @ 
+            GrantQueue[i].Ammo[0] @
+            GrantQueue[i].Ammo[1] @
+            GrantQueue[i].bForce);
+            
 		GrantQueuedWeapon(GrantQueue[i]);
+    }
 	
 	GrantQueue.Length = 0;
 }
@@ -1766,13 +1776,15 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
     WeaponClass = class<Weapon>(DynamicLoadObject(
         RPGMut.GetInventoryClassOverride(string(WeaponClass)), class'Class'));
     
-    if(!bForce) {
-        for(i = 0; i < Abilities.Length; i++) {
-            if(Abilities[i].bAllowed) {
+    for(i = 0; i < Abilities.Length; i++) {
+        if(Abilities[i].bAllowed) {
+            if(!bForce) {
                 if(!Abilities[i].ModifyGrantedWeapon(WeaponClass, ModifierClass, Modifier, Ammo1, Ammo2)) {
                     return; //not granted
                 }
             }
+            
+            Abilities[i].ModifyGrantedWeaponAmmo(WeaponClass, Ammo1, Ammo2);
         }
     }
 
@@ -1782,6 +1794,8 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
 	GW.Ammo[0] = Ammo1;
 	GW.Ammo[1] = Ammo2;
     GW.bForce = bForce;
+    
+    Log(GW.WeaponClass @ GW.ModifierClass @ Ammo1);
 	
 	if(IsFavorite(WeaponClass, ModifierClass)) {
         if(!bForce) {
@@ -1793,13 +1807,16 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
                     //override in queue weapon if this modifier is higher, otherwise discard
                     if(GW.Modifier > GrantFavQueue[i].Modifier) {
                         GrantFavQueue[i].Modifier = GW.Modifier;
-                        
-                        if(GW.Ammo[0] == -1 || GW.Ammo[0] > GrantFavQueue[i].Ammo[0])
-                            GrantFavQueue[i].Ammo[0] = GW.Ammo[0];
-
-                        if(GW.Ammo[1] == -1 || GW.Ammo[1] > GrantFavQueue[i].Ammo[1])
-                            GrantFavQueue[i].Ammo[1] = GW.Ammo[1];
                     }
+                    
+                    if(GW.Ammo[0] == -1 || GW.Ammo[0] > GrantFavQueue[i].Ammo[0]) {
+                        GrantFavQueue[i].Ammo[0] = GW.Ammo[0];
+                    }
+
+                    if(GW.Ammo[1] == -1 || GW.Ammo[1] > GrantFavQueue[i].Ammo[1]) {
+                        GrantFavQueue[i].Ammo[1] = GW.Ammo[1];
+                    }
+                    
                     return;
                 }
             }
@@ -1816,13 +1833,16 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
                     //override in queue weapon if this modifier is higher, otherwise discard
                     if(GW.Modifier > GrantQueue[i].Modifier) {
                         GrantQueue[i].Modifier = GW.Modifier;
-                        
-                        if(GW.Ammo[0] == -1 ||  GW.Ammo[0] > GrantQueue[i].Ammo[0])
-                            GrantQueue[i].Ammo[0] = GW.Ammo[0];
-
-                        if(GW.Ammo[1] == -1 ||  GW.Ammo[1] > GrantQueue[i].Ammo[1])
-                            GrantQueue[i].Ammo[1] = GW.Ammo[1];
                     }
+                
+                    if(GW.Ammo[0] == -1 || GW.Ammo[0] > GrantQueue[i].Ammo[0]) {
+                        GrantQueue[i].Ammo[0] = GW.Ammo[0];
+                    }
+
+                    if(GW.Ammo[1] == -1 || GW.Ammo[1] > GrantQueue[i].Ammo[1]) {
+                        GrantQueue[i].Ammo[1] = GW.Ammo[1];
+                    }
+
                     return;
                 }
             }
