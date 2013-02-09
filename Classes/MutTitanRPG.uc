@@ -174,9 +174,7 @@ event PreBeginPlay() {
     x = InStr(string(default.class), ".");
     default.PackageName = Left(string(default.class), x);
     PackageName = default.PackageName;
-    
-    Log("Package name:" @ PackageName, 'TitanRPG');
-    
+
 	if(!Level.Game.IsA('Invasion'))
 		bAutoAdjustInvasionLevel = false; //don't waste any time doing Invasion stuff if we're not in Invasion
 

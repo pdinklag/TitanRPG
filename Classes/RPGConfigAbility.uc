@@ -79,7 +79,7 @@ function class<RPGAbility> InitAbility() {
     
     AbilityClass = class<RPGGeneratedAbility>(DynamicLoadObject(ClassName, class'Class'));
     if(AbilityClass != None) {
-        Log("Config ability" @ ModuleName @ "is now using" @ AbilityClass);
+        //Log("Config ability" @ ModuleName @ "is now using" @ AbilityClass);
     
         //Use up
         default.ConfigAbilities[default.ConfigAbilities.Length] = Self;

@@ -241,8 +241,6 @@ simulated event PreBeginPlay() {
     if(Role < ROLE_Authority) {
         x = InStr(string(default.class), ".");
         class'MutTitanRPG'.default.PackageName = Left(string(default.class), x);
-    
-        Log("Package name:" @ class'MutTitanRPG'.default.PackageName, 'TitanRPG');
     }
 }
 
@@ -925,8 +923,6 @@ function AwardExperience(float exp)
 	
 	if(exp == 0)
 		return;
-	
-	//Log(RPGName @ "AwardExperience" @ exp);
 	
 	if(bGameEnded)
 		return;
@@ -1751,16 +1747,7 @@ function ProcessGrantQueue()
 	GrantFavQueue.Length = 0;
 	
 	//now try the others
-    Log("Grant Queue:");
 	for(i = 0; i < GrantQueue.Length; i++) {
-        Log(string(i + 1) $ "." @ 
-            GrantQueue[i].WeaponClass @ 
-            GrantQueue[i].ModifierClass @ 
-            GrantQueue[i].Modifier @ 
-            GrantQueue[i].Ammo[0] @
-            GrantQueue[i].Ammo[1] @
-            GrantQueue[i].bForce);
-            
 		GrantQueuedWeapon(GrantQueue[i]);
     }
 	
@@ -1795,8 +1782,6 @@ function QueueWeapon(class<Weapon> WeaponClass, class<RPGWeaponModifier> Modifie
 	GW.Ammo[1] = Ammo2;
     GW.bForce = bForce;
     
-    Log(GW.WeaponClass @ GW.ModifierClass @ Ammo1);
-	
 	if(IsFavorite(WeaponClass, ModifierClass)) {
         if(!bForce) {
             for(i = 0; i < GrantFavQueue.Length; i++) {
