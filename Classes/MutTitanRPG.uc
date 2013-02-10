@@ -795,6 +795,11 @@ function ValidateData(RPGPlayerReplicationInfo RPRI) {
 		Log("", 'TitanRPG');*/
 		
 		RPRI.PointsAvailable += ShouldBe - TotalPoints;
+        
+        if(RPRI.AIBuild != None) {
+            //Update AI build
+            RPRI.AIBuild.Build(RPRI);
+        }
 	}
     
     //Validate XP scale
