@@ -27,6 +27,7 @@ var Sync_OverlayMaterial SyncThirdPerson;
 
 var int ClientModifier;
 var bool bClientIdentified; //checked client-side
+var bool bResetPendingWeapon; //fixes PipedSwitchWeapon
 
 //Item name
 var localized string PatternPos, PatternNeg;
@@ -284,6 +285,14 @@ simulated event Tick(float dt) {
 	}
     
     if(Role < ROLE_Authority || Level.NetMode == NM_Standalone) {
+        if(bResetPendingWeapon) {
+            bResetPendingWeapon = false;
+            
+            if(Instigator != None) {
+                Instigator.PendingWeapon = None;
+            }
+        }
+    
         if(Weapon != None) {
             if(bIdentified && (!bClientIdentified || Modifier != ClientModifier)) {
                 ClientModifier = Modifier;
@@ -316,6 +325,7 @@ simulated function ClientIdentify() {
         if(Instigator.Weapon == Weapon) {
             //Hud hack - force display of weapon name as if it has just been selected
             Instigator.PendingWeapon = Weapon;
+            bResetPendingWeapon = true;
         }
     }
 }
