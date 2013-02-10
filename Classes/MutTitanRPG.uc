@@ -751,10 +751,13 @@ function bool CanLeaveVehicle(Vehicle V, Pawn P)
 //Check the player data at the given index for errors (too many/not enough stat points, invalid abilities)
 //Converts the data by giving or taking the appropriate number of stat points and refunding points for abilities bought that are no longer allowed
 //This allows the server owner to change points per level settings and/or the abilities allowed and have it affect already created players properly
-function ValidateData(RPGPlayerReplicationInfo RPRI)
-{
+//This method also makes sure the "experience needed" is synchronized with the configuration.
+//If the "experience needed" has changed in the config, the player's experience will be adjusted so it fits.
+function ValidateData(RPGPlayerReplicationInfo RPRI) {
 	local int ShouldBe, TotalPoints, x, y;
+    local float Pct, XP;
 
+    //Validate stats and abilities
 	for(x = 0; x < RPRI.Abilities.length; x++)
 	{
 		if(class'Util'.static.InArray(RPRI.Abilities[x].class, Abilities) >= 0)
@@ -778,8 +781,10 @@ function ValidateData(RPGPlayerReplicationInfo RPRI)
 	ShouldBe = StartingStatPoints + ((RPRI.RPGLevel - 1) * PointsPerLevel);
 	if(TotalPoints != ShouldBe)
 	{
-		Warn(RPRI.RPGName $ " had " $ TotalPoints $ " total stat points at Level " $ RPRI.RPGLevel $ ", should be " $ ShouldBe $ ", PointsAvailable changed by " $ (ShouldBe - TotalPoints) $ " to compensate.");
-		Log("Here's a breakdown:", 'TitanRPG');
+		Warn(RPRI.RPGName @ "had" @ TotalPoints @ "total stat points at Level" @ RPRI.RPGLevel $
+            ", should be" @ ShouldBe $ ", PointsAvailable changed by" @ string(ShouldBe - TotalPoints) @
+            "to compensate.");
+		/*Log("Here's a breakdown:", 'TitanRPG');
 		Log(RPRI.PointsAvailable $ " (Points available)", 'TitanRPG');
 		for (x = 0; x < RPRI.Abilities.Length; x++)
 		{
@@ -787,10 +792,23 @@ function ValidateData(RPGPlayerReplicationInfo RPRI)
 				Log("+ " $ RPRI.Abilities[x].CostForNextLevel(y) $ " (" $ RPRI.Abilities[x].default.AbilityName $ " " $ (y + 1) $ ")", 'TitanRPG');
 		}
 		Log("= " $ TotalPoints, 'TitanRPG');
-		Log("", 'TitanRPG');
+		Log("", 'TitanRPG');*/
 		
 		RPRI.PointsAvailable += ShouldBe - TotalPoints;
 	}
+    
+    //Validate XP scale
+    if(RPRI.RPGLevel < Levels.Length && RPRI.NeededExp != Levels[RPRI.RPGLevel]) {
+        Pct = RPRI.Experience / float(RPRI.NeededExp);
+        XP = Pct * float(Levels[RPRI.RPGLevel]);
+        
+        Warn(RPRI.RPGName @ "needs" @ RPRI.NeededExp @ "XP to get to level" @ string(RPRI.RPGLevel + 1) $
+            ", should be" @ Levels[RPRI.RPGLevel] $ ", XP adjusted from" @ RPRI.Experience @ "to" @ XP @
+            "to compensate.");
+        
+        RPRI.NeededExp = Levels[RPRI.RPGLevel];
+        RPRI.Experience = XP;
+    }
 }
 
 function bool CheckPDP(Pawn Other, class<Weapon> WeaponType) {
@@ -1178,21 +1196,23 @@ function Mutate(string MutateString, PlayerController Sender)
 			}
 			else if(Cheat != None && (Args[0] ~= "make" || Args[0] ~= "wm") && Args.Length > 1)
 			{
-				WMClass = class<RPGWeaponModifier>(DynamicLoadObject(PackageName $ ".WeaponModifier_" $ Args[1], class'Class'));
-				if(WMClass != None)
-				{
-                    x = WMClass.static.GetRandomModifierLevel();
-                
-					if(Args.Length > 2 && Args[2] != "")
-						x = int(Args[2]);
-                
-					WM = WMClass.static.Modify(
-						Cheat.Weapon, x, true, true);
-				}
-				else
-				{
-					Sender.ClientMessage("WeaponModifier class '" $ Args[1] $ "' not found!");
-				}
+                if(Args[1] ~= "None") {
+                    class'RPGWeaponModifier'.static.RemoveModifier(Cheat.Weapon);
+                } else {
+                    WMClass = class<RPGWeaponModifier>(DynamicLoadObject(PackageName $ ".WeaponModifier_" $ Args[1], class'Class'));
+                    if(WMClass != None) {
+                        x = WMClass.static.GetRandomModifierLevel();
+                    
+                        if(Args.Length > 2 && Args[2] != "")
+                            x = int(Args[2]);
+                    
+                        WM = WMClass.static.Modify(
+                            Cheat.Weapon, x, true, true);
+                    }
+                    else {
+                        Sender.ClientMessage("WeaponModifier class '" $ Args[1] $ "' not found!");
+                    }
+                }
 				return;
 			}
             else if(Cheat != None && Args[0] ~= "cd")
