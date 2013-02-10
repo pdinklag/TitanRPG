@@ -99,7 +99,7 @@ state Activated
 				for(tries = 0; tries < 50; tries++) {
 					NewModifier = GetRandomWeaponModifier(OldWeapon.class, Instigator);
 					
-					if(NewModifier != OldModifier) {
+					if(NewModifier == None || NewModifier != OldModifier) {
 						tries = 50; //break inner loop
                     }
 				}
@@ -107,8 +107,9 @@ state Activated
 				NewModifier = GetRandomWeaponModifier(OldWeapon.class, Instigator);
             }
             
-			if(NewModifier != None && NewModifier.static.AllowedFor(OldWeapon.class, Instigator))
+			if(NewModifier == None || NewModifier.static.AllowedFor(OldWeapon.class, Instigator)) {
 				break;
+            }
 		}
 		
 		if(x == 50) {

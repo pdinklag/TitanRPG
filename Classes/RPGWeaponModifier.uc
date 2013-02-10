@@ -54,7 +54,7 @@ replication{
         Modifier, bIdentified;
     
 	reliable if(Role == ROLE_Authority)
-		ClientReceiveBaseConfig, ClientSetFirstPersonOverlay, ClientSetActive;
+		ClientReceiveBaseConfig, ClientSetFirstPersonOverlay, ClientSetActive, ClientRestore;
 }
 
 static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other) {
@@ -314,7 +314,17 @@ simulated function ClientIdentify() {
         Description = "";
         
         if(Instigator.Weapon == Weapon) {
-            //Hud hack - force display of weapon name as if it has just been selected (side effects?)
+            //Hud hack - force display of weapon name as if it has just been selected
+            Instigator.PendingWeapon = Weapon;
+        }
+    }
+}
+
+simulated function ClientRestore() {
+    if(Role < ROLE_Authority) {
+        Weapon.ItemName = Weapon.default.ItemName;
+        
+        if(Instigator.Weapon == Weapon) {
             Instigator.PendingWeapon = Weapon;
         }
     }
@@ -442,8 +452,21 @@ simulated event Destroyed() {
     if(Role == ROLE_Authority) {
         SetActive(false);
         
+        if(Weapon != None) {
+            ClientRestore();
+        }
+        
+        if(Weapon != None && Weapon.OverlayMaterial == ModifierOverlay) {
+            Weapon.SetOverlayMaterial(None, 9999, true);
+            ClientSetFirstPersonOverlay(None);
+        }
+        
         if(SyncThirdPerson != None) {
             SyncThirdPerson.Destroy();
+            
+            if(Weapon != None) {
+                class'Sync_OverlayMaterial'.static.Sync(Weapon.ThirdPersonActor, None, 5, true);
+            }
         }
     }
     
