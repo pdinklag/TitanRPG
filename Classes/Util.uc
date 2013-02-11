@@ -364,7 +364,7 @@ static function IncreaseTAMWeaponFireStats(PlayerReplicationInfo PRI, string Hit
 
 //Forces the weapon to be given to the pawn - even if he has a weapon of the same type already
 static function Weapon ForceGiveTo(Pawn Other, Weapon W, optional WeaponPickup Pickup) {
-    local Weapon Pivot;
+    local Weapon Pivot, First;
     local class<Weapon> WeaponClass;
     local Actor Inv, Prev;
     
@@ -379,17 +379,21 @@ static function Weapon ForceGiveTo(Pawn Other, Weapon W, optional WeaponPickup P
     Prev = Other;
     Inv = Other.Inventory;
     while(Inv != None) {
+        if(First == None && Inv.IsA('Weapon')) {
+            First = Weapon(Inv);
+        }
+    
         if(Inv.class == WeaponClass) {
-            break; //found one
+            //found one
+            Pivot = Weapon(Inv);
+            break;
         }
         
         Prev = Inv;
         Inv = Inv.Inventory;
     }
     
-    if(Inv != None) {
-        Pivot = Weapon(Inv);
-        
+    if(Pivot != None) {
         //cut of linked list (we assume that weapons are ordered and that the new weapon will be added here)
         Prev.Inventory = None;
         
@@ -401,19 +405,31 @@ static function Weapon ForceGiveTo(Pawn Other, Weapon W, optional WeaponPickup P
         }
         
         //re-add
-        if(W.Inventory != None) {
-            //shouldn't happen, but who knows...
-            Warn("Item order changed - putting Pivot to end of list!");
+        if(Pivot == First && Prev.Inventory == W && W.Inventory == None) {
+            //put to end of the chain
+            W.Inventory = Pivot.Inventory;
             
-            Prev = W;
-            for(Inv = W.Inventory; Inv != None; Inv = Inv.Inventory) {
+            for(Inv = Pivot.Inventory; Inv != None; Inv = Inv.Inventory) {
                 Prev = Inv;
             }
             
+            Pivot.Inventory = None;
             Prev.Inventory = Pivot;
         } else {
-            W.Inventory = Pivot;
-            W.NetUpdateTime = W.Level.TimeSeconds - 1;
+            if(W.Inventory != None) {
+                //shouldn't happen, but who knows...
+                Warn("Item order changed - putting Pivot to end of list!");
+                
+                Prev = W;
+                for(Inv = W.Inventory; Inv != None; Inv = Inv.Inventory) {
+                    Prev = Inv;
+                }
+                
+                Prev.Inventory = Pivot;
+            } else {
+                W.Inventory = Pivot;
+                W.NetUpdateTime = W.Level.TimeSeconds - 1;
+            }
         }
     } else {
         //simply give to pawn
@@ -423,7 +439,7 @@ static function Weapon ForceGiveTo(Pawn Other, Weapon W, optional WeaponPickup P
             W = Weapon(Pickup.SpawnCopy(Other));
         }
     }
-    
+
     return W;
 }
 
