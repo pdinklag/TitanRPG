@@ -54,7 +54,7 @@ simulated function string DescriptionText()
 defaultproperties
 {
 	AbilityName="Vehicle Armour Bonus"
-	Description="Increases the health of any vehicle you use by $1 per level$2.|Health bonus will no longer stack with vehicle armour if you take this skill."
+	Description="Increases the health of any vehicle you use by $1 per level$2."
 	MaxBonusText=" (up to a maximal bonus of $3)"
 	StartingCost=5
 	MaxLevel=10
