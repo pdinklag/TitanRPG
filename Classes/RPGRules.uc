@@ -287,7 +287,10 @@ function ScoreKill(Controller Killer, Controller Killed)
 	}
 	
 	//Get RPRIs
-    KillerPRI = TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo);
+    if(Killer != None) {
+        KillerPRI = TeamPlayerReplicationInfo(Killer.PlayerReplicationInfo);
+    }
+    
 	KillerRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killer);
 	KilledRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Killed);
 	
@@ -736,7 +739,8 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     local array<Weapon> Weapons;
     local Inventory Inv;
     local float AmmoAmount;
-	local int x;
+    local class<RPGWeaponModifier> ModifierClass;
+	local int x, ModifierLevel;
     
     RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
     
@@ -766,12 +770,28 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
             return true;
         } else if(RPGMut.CheckPDP(Other, class<Weapon>(item.InventoryType))) {
             //Simulate using random
+            ModifierClass = None;
+            ModifierLevel = -100;
+            
+            if(RPRI != None) {
+                for (x = 0; x < RPRI.Abilities.length; x++) {
+                    if(RPRI.Abilities[x].bAllowed) {
+                        if(!RPRI.Abilities[x].ModifyGrantedWeapon(class<Weapon>(item.InventoryType), ModifierClass, ModifierLevel)) {
+                            //don't allow pickup
+                            bAllowPickup = 0;
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            if(ModifierClass == None) {
+                ModifierClass = RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other);
+                ModifierLevel = -100;
+            }
+            
             class'RPGWeaponPickupModifier'.static.SimulateWeaponPickup(
-                WeaponPickup(item),
-                Other,
-                RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other),
-                -100,
-                RPGMut.GameSettings.bNoUnidentified);
+                WeaponPickup(item), Other, ModifierClass, ModifierLevel, RPGMut.GameSettings.bNoUnidentified);
 
             bAllowPickup = 0;
             return true;
@@ -783,12 +803,29 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     //Weapon Locker
     if(item.IsA('WeaponLocker') && RPGMut.CheckPDP(Other, class<Weapon>(item.InventoryType))) {
         //Simulate
+        ModifierClass = None;
+        ModifierLevel = -100;
+        
+        if(RPRI != None) {
+            for (x = 0; x < RPRI.Abilities.length; x++) {
+                if(RPRI.Abilities[x].bAllowed) {
+                    if(!RPRI.Abilities[x].ModifyGrantedWeapon(class<Weapon>(item.InventoryType), ModifierClass, ModifierLevel)) {
+                        //don't allow pickup
+                        bAllowPickup = 0;
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        if(ModifierClass == None) {
+            ModifierClass = RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other);
+            ModifierLevel = -100;
+        }
+        
         if(class'RPGWeaponPickupModifier'.static.SimulateWeaponLocker(
-            WeaponLocker(item),
-            Other,
-            RPGMut.GetRandomWeaponModifier(class<Weapon>(item.InventoryType), Other),
-            -100,
-            RPGMut.GameSettings.bNoUnidentified)) {
+            WeaponLocker(item), Other, ModifierClass, ModifierLevel, RPGMut.GameSettings.bNoUnidentified))
+        {
          
             bAllowPickup = 0;
             return true;

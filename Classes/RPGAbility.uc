@@ -539,7 +539,7 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
     owning player. If this function returns true, the weapon will be granted with the applied.
     modifications. If it returns false, it will not be granted at all.
 */
-function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeaponModifier> ModifierClass, out int Modifier, out int Ammo1, out int Ammo2) {
+function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeaponModifier> ModifierClass, out int Modifier) {
     return true;
 }
 
