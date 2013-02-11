@@ -756,6 +756,7 @@ function bool CanLeaveVehicle(Vehicle V, Pawn P)
 function ValidateData(RPGPlayerReplicationInfo RPRI) {
 	local int ShouldBe, TotalPoints, x, y;
     local float Pct, XP;
+    local bool bSave;
 
     //Validate stats and abilities
 	for(x = 0; x < RPRI.Abilities.length; x++)
@@ -800,6 +801,8 @@ function ValidateData(RPGPlayerReplicationInfo RPRI) {
             //Update AI build
             RPRI.AIBuild.Build(RPRI);
         }
+        
+        bSave = true;
 	}
     
     //Validate XP scale
@@ -813,6 +816,17 @@ function ValidateData(RPGPlayerReplicationInfo RPRI) {
         
         RPRI.NeededExp = Levels[RPRI.RPGLevel];
         RPRI.Experience = XP;
+        
+        if(RPRI.PlayerLevel != None) {
+            RPRI.PlayerLevel.Experience = XP;
+            RPRI.PlayerLevel.ExpNeeded = XP;
+        }
+        
+        bSave = true;
+    }
+    
+    if(bSave) {
+        RPRI.SaveData();
     }
 }
 
