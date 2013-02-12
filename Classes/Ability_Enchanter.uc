@@ -10,16 +10,12 @@ function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeapon
         ModifierClass = RPRI.RPGMut.GetRandomWeaponModifier(WeaponClass, None, true);
         
         if(ModifierClass != None) {
-            for(x = 0; x < 50; x++) {
+            if(AbilityLevel == 1) {
                 Modifier = ModifierClass.static.GetRandomModifierLevel();
-                
-                //try to generate a good modifier level
-                if((AbilityLevel == 1) ||                  //any on level 1
-                   (AbilityLevel == 2 && Modifier >= 0) || //only positive on level 2
-                   (AbilityLevel >= 3 && Modifier >= 4))   //+4 or higher on level 3
-                {
-                    break;
-                }
+            } else if(AbilityLevel == 2) {
+                Modifier = ModifierClass.static.GetRandomPositiveModifierLevel();
+            } else if(AbilityLevel >= 3) {
+                Modifier = ModifierClass.static.GetRandomPositiveModifierLevel(4);
             }
         } else {
             //Well, no modifier available

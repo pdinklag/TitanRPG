@@ -168,10 +168,16 @@ static function int GetRandomModifierLevel() {
 	return x;
 }
 
-static function int GetRandomPositiveModifierLevel() {
+static function int GetRandomPositiveModifierLevel(optional int Minimum) {
     local int x;
 
-    x = Max(1, default.MinModifier);
+    if(default.bCanHaveZeroModifier) {
+        Minimum = Max(0, Minimum);
+    } else {
+        Minimum = Max(1, Minimum);
+    }
+    
+    x = Max(Minimum, default.MinModifier);
 
 	if(default.MaxModifier <= x) {
 		return default.MaxModifier; //well, what can we do?
