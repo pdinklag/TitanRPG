@@ -169,10 +169,15 @@ static function int GetRandomModifierLevel() {
 }
 
 static function int GetRandomPositiveModifierLevel() {
-	if(default.MaxModifier <= 0)
-		return 0;
-	else
-		return Rand(default.MaxModifier) + 1;
+    local int x;
+
+    x = Max(1, default.MinModifier);
+
+	if(default.MaxModifier <= x) {
+		return default.MaxModifier; //well, what can we do?
+	} else {
+		return Rand(default.MaxModifier + 1 - x) + x;
+    }
 }
 
 simulated event PostBeginPlay() {
