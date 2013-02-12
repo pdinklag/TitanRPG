@@ -464,11 +464,12 @@ simulated event Destroyed() {
         
         if(Weapon != None) {
             ClientRestore();
-        }
-        
-        if(Weapon != None && Weapon.OverlayMaterial == ModifierOverlay) {
-            Weapon.SetOverlayMaterial(None, 9999, true);
-            ClientSetFirstPersonOverlay(None);
+            Weapon.bCanThrow = Weapon.default.bCanThrow;
+            
+            if(Weapon.OverlayMaterial == ModifierOverlay) {
+                Weapon.SetOverlayMaterial(None, 9999, true);
+                ClientSetFirstPersonOverlay(None);
+            }
         }
         
         if(SyncThirdPerson != None) {
