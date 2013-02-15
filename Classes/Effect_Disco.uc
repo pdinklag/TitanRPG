@@ -31,7 +31,7 @@ defaultproperties
 	bAllowOnFlagCarriers=True
 	bAllowOnVehicles=True
 
-	EffectOverlay=Shader'TitanRPG.Disco.IonSphere'
+	EffectOverlay=Combiner'TitanRPG.Overlays.DiscoCombiner'
 	//TODO: EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
 	
 	EffectMessageClass=class'EffectMessage_Disco'
