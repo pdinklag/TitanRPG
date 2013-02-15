@@ -6,7 +6,7 @@ var bool bConnected;
 
 var Material TeamSkins[4];
 
-var float XSize;
+var float XSize, XOffset;
 
 replication {
     reliable if(Role == ROLE_Authority && bNetDirty)
@@ -30,18 +30,20 @@ simulated event PostNetReceive() {
 }
 
 simulated function Connect(RPGTotem A, RPGTotem B) {
-    local vector Scale;
+    local vector Scale, Dir;
     
     Totems[0] = A;
     Totems[1] = B;
     
     A.Wall = Self;
     B.Wall = Self;
-
-    SetLocation(A.Location);
-    SetRotation(rotator(B.Location - A.Location));
     
-    Scale.X = VSize(A.Location - B.Location) / XSize; 
+    Dir = Normal(B.Location - A.Location);
+
+    SetLocation(A.Location + Dir * XOffset);
+    SetRotation(rotator(Dir));
+    
+    Scale.X = (VSize(A.Location - B.Location) - 2 * XOffset) / XSize;
     Scale.Y = 1;
     Scale.Z = 1;
     
@@ -50,6 +52,8 @@ simulated function Connect(RPGTotem A, RPGTotem B) {
 
 defaultproperties {
     XSize=256
+    XOffset=16
+    
     TeamSkins(0)=FinalBlend'TitanRPG.Totem.WallRed'
     TeamSkins(1)=FinalBlend'TitanRPG.Totem.WallBlue'
     TeamSkins(2)=FinalBlend'TitanRPG.Totem.WallGreen'
