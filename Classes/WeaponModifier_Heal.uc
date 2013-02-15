@@ -4,8 +4,7 @@ var config int MaxHealth;
 
 var localized string HealText;
 
-static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other)
-{
+static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other) {
     return Super.AllowedFor(Weapon, Other);
     /*
 	local int x;
@@ -38,8 +37,7 @@ static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other)
     */
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
-{
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
 	local Effect_Heal Heal;
 	local int HealthGiven;
 
@@ -53,30 +51,28 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 		Identify();
 	
 		Heal.HealAmount = HealthGiven;
+        ModifyHealEffect(Heal, Injured, OriginalDamage, DamageType);
 		Heal.Start();
-	}
-	
-	if(Injured == Instigator || Instigator.Controller.SameTeamAs(Injured.Controller))
-	{
-		Momentum = vect(0, 0, 0);
+        
+        Momentum = vect(0, 0, 0);
 		Damage = 0;
 	}
 }
 
-//function to be overridden in Meidc subclass
-function int GetMaxHealthBonus()
-{
+//function to be overridden in Medic subclass
+function ModifyHealEffect(Effect_Heal Heal, Pawn Healed, int OriginalDamage, class<DamageType> DamageType);
+
+//function to be overridden in Medic subclass
+function int GetMaxHealthBonus() {
 	return MaxHealth;
 }
 
-simulated function BuildDescription()
-{
+simulated function BuildDescription() {
 	Super.BuildDescription();
 	AddToDescription(HealText, BonusPerLevel);
 }
 
-defaultproperties
-{
+defaultproperties {
 	HealText="$1 healing"
 	BonusPerLevel=0.05
 	MaxHealth=50

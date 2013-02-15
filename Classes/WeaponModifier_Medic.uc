@@ -1,7 +1,10 @@
 class WeaponModifier_Medic extends WeaponModifier_Heal;
 
-function WeaponFire(byte Mode)
-{
+//time until which no ammo will be refunded (used for flak chunks)
+var float NoAmmoTime;
+
+/*
+function WeaponFire(byte Mode) {
 	Identify();
 }
 
@@ -10,9 +13,60 @@ function RPGTick(float dt)
 	//TODO: Find a way for ballistic weapons
 	Weapon.MaxOutAmmo();
 }
+*/
 
-function int GetMaxHealthBonus()
-{
+function ModifyHealEffect(Effect_Heal Heal, Pawn Healed, int OriginalDamage, class<DamageType> DamageType) {
+    local WeaponFire WF;
+    local int Ammo[2];
+    local int i;
+
+    //Grant the instigator some ammo back for healing unless he healed himself
+    if(NoAmmoTime <= Level.TimeSeconds && !DamageType.default.bSuperWeapon && Weapon != None && Healed != Instigator) {
+        if(DamageType == class'DamTypeShockCombo') {
+            //A combo takes 5 primary ammo
+            Ammo[0] = 5;
+        } else if(DamageType == class'DamTypeBioGlob') {
+            //Interpolate goop level from original damage
+            Ammo[0] = 1 + (OriginalDamage - class'BioGlob'.default.BaseDamage) / class'BioGlob'.default.Damage;
+        } else {
+            //Find correct ammo type
+            for(i = 0; i < 2; i++) {
+                WF = Weapon.GetFireMode(i);
+                if(WF != None) {
+                    if(WF.IsA('InstantFire')) {
+                        if(InstantFire(WF).DamageType == DamageType) {
+                            Ammo[i] = WF.AmmoPerFire;
+                            break;
+                        }
+                    } else if(WF.ProjectileClass != None) {
+                        if(WF.ProjectileClass.default.MyDamageType == DamageType) {
+                            if(DamageType == class'DamTypeFlakChunk') {
+                                NoAmmoTime = Level.TimeSeconds + 0.75 * (WF.FireRate / Level.TimeDilation);
+                            }
+                        
+                            Ammo[i] = WF.AmmoPerFire;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            //Refund at least one primary ammo
+            if(Ammo[0] == 0 && Ammo[1] == 0) {
+                Ammo[0] = 1;
+            }
+        }
+        
+        //Give ammo
+        for(i = 0; i < 2; i++) {
+            if(Ammo[i] > 0) {
+                Weapon.AddAmmo(Ammo[i], i);
+            }
+        }
+    }
+}
+
+function int GetMaxHealthBonus() {
 	local Ability_Medic LM;
 
 	if(RPRI != None)
@@ -25,15 +79,13 @@ function int GetMaxHealthBonus()
 	return Super.GetMaxHealthBonus();
 }
 
-simulated function BuildDescription()
-{
+simulated function BuildDescription() {
 	Super.BuildDescription();
-	AddToDescription(class'WeaponModifier_Infinity'.default.InfAmmoText);
+	//AddToDescription(class'WeaponModifier_Infinity'.default.InfAmmoText);
 }
 
-defaultproperties
-{
-	HealText="$1 enhanced healing"
+defaultproperties {
+	HealText="$1 healing, ammo refund"
 	bOmitModifierInName=True
 
 	bAllowForSpecials=False
@@ -42,5 +94,6 @@ defaultproperties
 	MinModifier=5
 	MaxModifier=5
 	AIRatingBonus=0.100000
-	PatternPos="Medic $W of Infinity"
+	//PatternPos="Medic $W of Infinity"
+	PatternPos="Medic $W"
 }
