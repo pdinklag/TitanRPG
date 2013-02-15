@@ -1,6 +1,6 @@
 class Blast_Heal extends Blast;
 
-var float MinHealing, MaxHealing;
+var config float MinHealing, MaxHealing;
 var int MaxHealth;
 var float EXPMultiplier;
 
