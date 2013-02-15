@@ -8,6 +8,8 @@ struct ReflectMapStruct
 var config array<ReflectMapStruct> ReflectMap;
 var config float BaseChance;
 
+var config array<class<RPGEffect> > ReflectEffects;
+
 var bool bLock;
 
 var localized string ReflectionText;
@@ -31,17 +33,16 @@ simulated function ClientReceiveReflectionConfig(float a) {
 function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
 {
 	local RPGEffect Reflected;
-
-	if(EffectClass == class'Effect_NullEntropy')
-	{
-		if(Causer.Pawn != None && WeaponModifier_Reflection(class'RPGWeaponModifier'.static.GetFor(Causer.Pawn.Weapon)) == None)
-		{
-			Reflected = class'Effect_NullEntropy'.static.Create(Causer.Pawn, Instigator.Controller, Duration, Modifier);
+    
+    if(class'Util'.static.InArray(EffectClass, ReflectEffects) >= 0) {
+		if(Causer.Pawn != None && WeaponModifier_Reflection(class'RPGWeaponModifier'.static.GetFor(Causer.Pawn.Weapon)) == None) {
+			Reflected = EffectClass.static.Create(Causer.Pawn, Instigator.Controller, Duration, Modifier);
 			if(Reflected != None)
 				Reflected.Start();
 		}
 		return false;
-	}
+    }
+
 	return true;
 }
 
@@ -145,6 +146,8 @@ defaultproperties
 	ReflectMap(0)=(DamageType=class'DamTypeLinkPlasma',WeaponFire=class'LinkAltFire')
 	ReflectMap(1)=(DamageType=class'DamTypeShockBeam',WeaponFire=class'ShockBeamFire')
 	ReflectMap(2)=(DamageType=class'DamTypeShockBall',WeaponFire=class'ShockProjFire')
+    ReflectEffects(0)=class'Effect_NullEntropy'
+    ReflectEffects(1)=class'Effect_Disco'
 	//AI
 	AIRatingBonus=0.025
 	//CountersModifier(0)=class'WeaponNullEntropy'

@@ -2,44 +2,43 @@ class WeaponModifier_Nullification extends RPGWeaponModifier;
 	
 var localized string MagicNullText;
 
-function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier)
-{
-	if(
-        EffectClass == class'DevoidEffect_Matrix' ||
-        EffectClass == class'DevoidEffect_Vampire' ||
-		EffectClass == class'Effect_Freeze' ||
-		EffectClass == class'Effect_Knockback' ||
-		EffectClass == class'Effect_NullEntropy' ||
-		EffectClass == class'Effect_Poison' ||
-		EffectClass == class'Effect_Vorpal'
-	)
-	{
-		Identify();
-		return false;
-	}
-	
-	return true;
+var config array<class<RPGEffect> > DenyEffects;
+
+function bool AllowEffect(class<RPGEffect> EffectClass, Controller Causer, float Duration, float Modifier) {
+    if(class'Util'.static.InArray(EffectClass, DenyEffects) >= 0) {
+        Identify();
+        return false;
+    }
+
+    return true;
 }
 
-simulated function BuildDescription()
-{
-	Super.BuildDescription();
-	AddToDescription(MagicNullText);
+simulated function BuildDescription() {
+    Super.BuildDescription();
+    AddToDescription(MagicNullText);
 }
 
-defaultproperties
-{
-	MagicNullText="nullifies harmful effects"
-	bCanHaveZeroModifier=True
-	DamageBonus=0.050000
-	MinModifier=4
-	MaxModifier=6
-	ModifierOverlay=Shader'AW-2k4XP.Weapons.ShockShieldShader'
-	PatternPos="Nullifying $W"
-	//AI
-	//CountersModifier(0)=class'WeaponFreeze'
-	//CountersModifier(1)=class'WeaponNullEntropy'
-	//CountersModifier(2)=class'WeaponPoison'
-	//CountersModifier(3)=class'WeaponKnockback'
-	AIRatingBonus=0.025000
+defaultproperties {
+    MagicNullText="nullifies harmful effects"
+    bCanHaveZeroModifier=True
+    DamageBonus=0.050000
+    MinModifier=4
+    MaxModifier=6
+    ModifierOverlay=Shader'AW-2k4XP.Weapons.ShockShieldShader'
+    PatternPos="Nullifying $W"
+    //Block effects
+    DenyEffects(0)=class'DevoidEffect_Matrix'
+    DenyEffects(1)=class'DevoidEffect_Vampire'
+    DenyEffects(2)=class'Effect_Disco'
+    DenyEffects(3)=class'Effect_Freeze'
+    DenyEffects(4)=class'Effect_Knockback'
+    DenyEffects(5)=class'Effect_NullEntropy'
+    DenyEffects(6)=class'Effect_Poison'
+    DenyEffects(7)=class'Effect_Vorpal'
+    //AI
+    //CountersModifier(0)=class'WeaponFreeze'
+    //CountersModifier(1)=class'WeaponNullEntropy'
+    //CountersModifier(2)=class'WeaponPoison'
+    //CountersModifier(3)=class'WeaponKnockback'
+    AIRatingBonus=0.025000
 }
