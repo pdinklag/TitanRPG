@@ -73,8 +73,6 @@ state Activated
 
 defaultproperties
 {
-	bAllowOnVehicles=True
-
 	xEmitterClass=class'FX_PoisonSmoke'
 	EffectMessageClass=class'EffectMessage_Poison'
 	

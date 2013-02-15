@@ -7,8 +7,6 @@ function DoEffect()
 
 defaultproperties
 {
-	bAllowOnVehicles=True
-	
 	EffectSound=Sound'WeaponSounds.Misc.instagib_rifleshot'
 	xEmitterClass=class'RocketExplosion'
 	EffectMessageClass=class'EffectMessage_Vorpal'

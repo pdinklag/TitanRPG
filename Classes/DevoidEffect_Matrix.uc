@@ -1,8 +1,5 @@
 class DevoidEffect_Matrix extends RPGDevoidEffect;
 
-defaultproperties
-{
+defaultproperties {
     bAllowOnSelf=False
-    bAllowOnTeammates=False
-	bAllowOnVehicles=True
 }

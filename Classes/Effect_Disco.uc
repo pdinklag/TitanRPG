@@ -47,13 +47,9 @@ state Activated
 	}
 }
 
-defaultproperties
-{
-	bAllowOnFlagCarriers=True
-	bAllowOnVehicles=True
-
+defaultproperties {
 	EffectOverlay=Combiner'TitanRPG.Overlays.DiscoCombiner'
 	//TODO: EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
-	
+    
 	EffectMessageClass=class'EffectMessage_Disco'
 }

@@ -51,77 +51,99 @@ replication
 
 static function bool CanBeApplied(Pawn Other, optional Controller Causer, optional float Duration, optional float Modifier)
 {
+    local GameInfo Game;
 	local int i;
 	local RPGPlayerReplicationInfo RPRI;
 	local RPGWeaponModifier WM;
     local array<RPGArtifact> ActiveArtifacts;
+    
+    Game = Other.Level.Game;
 
 	//Stacking
 	if(!default.bAllowStacking && GetFor(Other) != None)
 		return false;
 
 	//Spawn Protection
-	if(default.bHarmful &&
-		Other.Level.TimeSeconds <= Other.SpawnTime + DeathMatch(Other.Level.Game).SpawnProtectionTime)
-	{
-		return false;
-	}
+    if(
+        default.bHarmful && Game.IsA('DeathMatch') &&
+        Other.Level.TimeSeconds <= Other.SpawnTime + DeathMatch(Game).SpawnProtectionTime)
+    {
+        return false;
+    }
 
 	//Self
-	if(!default.bAllowOnSelf && Causer == Other.Controller)
-		return false;
+    if(!default.bAllowOnSelf && Causer == Other.Controller) {
+        return false;
+    }
 
 	//Teammates
-	if((default.bHarmful || !default.bAllowOnTeammates) && Causer != None && Causer != Other.Controller && Causer.SameTeamAs(Other.Controller))
-		return false;
-
+    if(
+        Game.IsA('TeamGame') &&
+        Causer != None &&
+        Causer != Other.Controller &&
+        Causer.SameTeamAs(Other.Controller))
+    {
+        if(!default.bAllowOnTeammates) {
+            return false;
+        }
+        
+        if(default.bHarmful && TeamGame(Other.Level.Game).FriendlyFireScale == 0) {
+            return false;
+        }
+    }
+    
 	//Vehicles
-	if(Other.IsA('Vehicle') && Vehicle(Other).IsVehicleEmpty())
-		return false;
-
-	if(!default.bAllowOnVehicles && Other.IsA('Vehicle'))
-		return false;
+    if(Other.IsA('Vehicle')) {
+        if(!default.bAllowOnVehicles) {
+            return false;
+        }
+        
+        if(!Vehicle(Other).bAutoTurret && Vehicle(Other).IsVehicleEmpty()) {
+            return false;
+        }
+    }
 
 	//Immune pawn types
-	if(class'Util'.static.InArray(Other.class, default.ImmunePawnTypes) >= 0)
-		return false;
+    if(class'Util'.static.InArray(Other.class, default.ImmunePawnTypes) >= 0) {
+        return false;
+    }
 
 	//Flag carriers
-	if(
-		!default.bAllowOnFlagCarriers &&
-		Other.PlayerReplicationInfo != None &&
-		Other.PlayerReplicationInfo.HasFlag != None
-	)
-	{
-		return false;
-	}
+    if(
+        !default.bAllowOnFlagCarriers &&
+        Other.PlayerReplicationInfo != None &&
+        Other.PlayerReplicationInfo.HasFlag != None
+    )
+    {
+        return false;
+    }
 
 	//Weapon Modifier
-	WM = class'RPGWeaponModifier'.static.GetFor(Other.Weapon);
-	if(WM != None && !WM.AllowEffect(default.class, Causer, Duration, Modifier))
-		return false;
+    WM = class'RPGWeaponModifier'.static.GetFor(Other.Weapon);
+    if(WM != None && !WM.AllowEffect(default.class, Causer, Duration, Modifier)) {
+        return false;
+    }
 
     //Artifacts
     ActiveArtifacts = class'RPGArtifact'.static.GetActiveArtifacts(Other);
     for(i = 0; i < ActiveArtifacts.Length; i++) {
-        if(!ActiveArtifacts[i].AllowEffect(default.class, Causer, Duration, Modifier))
+        if(!ActiveArtifacts[i].AllowEffect(default.class, Causer, Duration, Modifier)) {
             return false;
+        }
     }
 
-	//Abilities
-	RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
-	if(RPRI != None)
-	{
-		for(i = 0; i < RPRI.Abilities.length; i++)
-		{
-			if(RPRI.Abilities[i].bAllowed)
-			{
-				if(!RPRI.Abilities[i].AllowEffect(default.class, Causer, Duration, Modifier))
-					return false;
-			}
-		}
-	}
-    
+    //Abilities
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Other.Controller);
+    if(RPRI != None) {
+        for(i = 0; i < RPRI.Abilities.length; i++) {
+            if(RPRI.Abilities[i].bAllowed) {
+                if(!RPRI.Abilities[i].AllowEffect(default.class, Causer, Duration, Modifier)) {
+                    return false;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -310,21 +332,22 @@ state Activated
 	}
 }
 
-defaultproperties
-{
-	bPermanent=False
+defaultproperties   {
+    bPermanent=False
 
-	Duration=1.00
-	TimerInterval=1.00
-	EffectLimitInterval=0.50
+    Duration=1.00
+    TimerInterval=1.00
+    EffectLimitInterval=0.50
 
-	bHarmful=True
-	bAllowOnSelf=True
-	bAllowOnTeammates=True
-	bAllowOnFlagCarriers=True
-	bAllowOnVehicles=False
-	bAllowStacking=True
-	
-	bReplicateInstigator=True
-	bOnlyRelevantToOwner=True
+    //by default, effects are harmful, can be stacked and allowed on anything
+    bHarmful=True
+    bAllowStacking=True
+    
+    bAllowOnSelf=True
+    bAllowOnTeammates=True //harmful effects are still not allowed if FriendlyFireScale is 0
+    bAllowOnFlagCarriers=True
+    bAllowOnVehicles=True
+
+    bReplicateInstigator=True
+    bOnlyRelevantToOwner=True
 }

@@ -72,7 +72,6 @@ state Activated
 defaultproperties
 {
 	bAllowOnFlagCarriers=False
-	bAllowOnVehicles=True
 	
 	DamageType=class'fell'
 	

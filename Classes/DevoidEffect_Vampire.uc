@@ -1,8 +1,5 @@
 class DevoidEffect_Vampire extends RPGDevoidEffect;
 
-defaultproperties
-{
+defaultproperties {
     bAllowOnSelf=False
-    bAllowOnTeammates=False
-	bAllowOnVehicles=True
 }

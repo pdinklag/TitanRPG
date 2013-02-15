@@ -87,7 +87,6 @@ defaultproperties
 	SelfHealingMultiplier=0.25
 	
 	bHarmful=False
-	bAllowOnVehicles=True
 
 	EffectOverlay=Shader'TitanRPG.Overlays.BlueShader'
 	EffectSound=Sound'TitanRPG.SoundEffects.Heal'
