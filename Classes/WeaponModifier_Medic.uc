@@ -40,7 +40,10 @@ function ModifyHealEffect(Effect_Heal Heal, Pawn Healed, int OriginalDamage, cla
                         }
                     } else if(WF.ProjectileClass != None) {
                         if(WF.ProjectileClass.default.MyDamageType == DamageType) {
-                            if(DamageType == class'DamTypeFlakChunk') {
+                            if(
+                                DamageType == class'DamTypeFlakChunk' ||
+                                DamageType == class'DamTypeFlakShell')
+                            {
                                 NoAmmoTime = Level.TimeSeconds + 0.75 * (WF.FireRate / Level.TimeDilation);
                             }
                         
