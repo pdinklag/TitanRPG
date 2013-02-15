@@ -36,9 +36,10 @@ defaultproperties {
     DenyEffects(6)=class'Effect_Poison'
     DenyEffects(7)=class'Effect_Vorpal'
     //AI
-    //CountersModifier(0)=class'WeaponFreeze'
-    //CountersModifier(1)=class'WeaponNullEntropy'
-    //CountersModifier(2)=class'WeaponPoison'
-    //CountersModifier(3)=class'WeaponKnockback'
-    AIRatingBonus=0.025000
+    CountersModifier(0)=class'WeaponModifier_Freeze'
+    CountersModifier(1)=class'WeaponModifier_NullEntropy'
+    CountersModifier(2)=class'WeaponModifier_Poison'
+    CountersModifier(3)=class'WeaponModifier_Knockback'
+    CountersModifier(4)=class'WeaponModifier_Party'
+    AIRatingBonus=0.025
 }

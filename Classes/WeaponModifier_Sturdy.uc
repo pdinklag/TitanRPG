@@ -26,6 +26,6 @@ defaultproperties
 	PatternNeg="Sturdy $W"
 	//AI
 	AIRatingBonus=0.012500
-	//CountersModifier(0)=class'WeaponKnockback'
+	CountersModifier(0)=class'WeaponModifier_Knockback'
 	CountersDamage(0)=class'DamTypeCounterShove'
 }

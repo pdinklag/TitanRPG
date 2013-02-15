@@ -150,7 +150,8 @@ defaultproperties
     ReflectEffects(1)=class'Effect_Disco'
 	//AI
 	AIRatingBonus=0.025
-	//CountersModifier(0)=class'WeaponNullEntropy'
+	CountersModifier(0)=class'WeaponModifier_NullEntropy'
+	CountersModifier(1)=class'WeaponModifier_Party'
 	CountersDamage(0)=class'DamTypeShockBeam'
 	CountersDamage(1)=class'DamTypeShockBall'
 	CountersDamage(2)=class'DamTypeLinkPlasma'

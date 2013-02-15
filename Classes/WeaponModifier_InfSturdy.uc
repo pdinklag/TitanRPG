@@ -22,6 +22,6 @@ defaultproperties
 	bCanHaveZeroModifier=True
 	//AI
 	AIRatingBonus=0.10
-	//CountersModifier(0)=class'WeaponKnockback'
+	CountersModifier(0)=class'WeaponModifier_Knockback'
 	CountersDamage(0)=class'DamTypeCounterShove'
 }
