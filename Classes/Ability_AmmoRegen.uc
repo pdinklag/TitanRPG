@@ -21,7 +21,7 @@ simulated event PostBeginPlay()
 function ModifyPawn(Pawn Other)
 {
 	Super.ModifyPawn(Other);
-	SetTimer(3.0, true);
+	SetTimer(RegenInterval, true);
 }
 
 function int GetRegenAmountFor(class<Ammunition> AmmoClass)
