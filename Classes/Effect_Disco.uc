@@ -11,6 +11,7 @@ state Activated
 		RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Instigator.Controller);
         if(RPRI != None) {
             RPRI.bDiscoMode = true;
+            RPRI.NetUpdateTime = Level.TimeSeconds - 1;
         }
 	}
 
@@ -18,6 +19,7 @@ state Activated
 	{
         if(RPRI != None) {
             RPRI.bDiscoMode = false;
+            RPRI.NetUpdateTime = Level.TimeSeconds - 1;
         }
     
 		Super.EndState();
@@ -29,7 +31,7 @@ defaultproperties
 	bAllowOnFlagCarriers=True
 	bAllowOnVehicles=True
 
-	EffectOverlay=FinalBlend'TitanRPG.Disco.IonSphereFinal'
+	EffectOverlay=Shader'TitanRPG.Disco.IonSphere'
 	//TODO: EffectSound=Sound'Slaughtersounds.Machinery.Heavy_End'
 	
 	EffectMessageClass=class'EffectMessage_Disco'
