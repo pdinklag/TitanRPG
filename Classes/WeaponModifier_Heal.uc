@@ -46,17 +46,18 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 	HealthGiven = Max(1, OriginalDamage * (BonusPerLevel * float(Modifier)));
 
 	Heal = Effect_Heal(class'Effect_Heal'.static.Create(Injured, Instigator.Controller,, GetMaxHealthBonus()));
-	if(Heal != None)
-	{
+	if(Heal != None) {
 		Identify();
 	
 		Heal.HealAmount = HealthGiven;
         ModifyHealEffect(Heal, Injured, OriginalDamage, DamageType);
 		Heal.Start();
-        
+	}
+    
+    if(Instigator == Injured || Instigator.Controller.SameTeamAs(Injured.Controller)) {
         Momentum = vect(0, 0, 0);
 		Damage = 0;
-	}
+    }
 }
 
 //function to be overridden in Medic subclass
