@@ -4,8 +4,6 @@ class Ability_Enchanter extends RPGAbility;
 var config array<class<Weapon> > ForbiddenWeapons;
 
 function bool ModifyGrantedWeapon(class<Weapon> WeaponClass, out class<RPGWeaponModifier> ModifierClass, out int Modifier) {
-    local int x;
-
     if(ModifierClass == None && class'Util'.static.InArray(WeaponClass, ForbiddenWeapons) == -1) {
         ModifierClass = RPRI.RPGMut.GetRandomWeaponModifier(WeaponClass, None, true);
         
