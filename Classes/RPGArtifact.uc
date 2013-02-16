@@ -156,6 +156,8 @@ function SortIn()
 						if(i == -1 || i > OrderEntry)
 						{
 							Self.Inventory = Inv;
+                            Self.NetUpdateTime = Level.TimeSeconds - 1;
+                            
 							if(Prev != None) {
 								Prev.Inventory = Self;
                                 Prev.NetUpdateTime = Level.TimeSeconds - 1;
