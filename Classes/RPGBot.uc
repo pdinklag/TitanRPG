@@ -146,8 +146,11 @@ function bool AllowVoiceMessage(name MessageType)
 
 event SeeMonster(Pawn Seen)
 {
-	if(FriendlyMonsterController(Seen.Controller) != None && SameTeamAs(Seen.Controller))
+	if(FriendlyMonsterController(Seen.Controller) != None &&
+        (FriendlyMonsterController(Seen.Controller).Master == Self || SameTeamAs(Seen.Controller)))
+    {
 		return; //nevermind friendly monster
+    }
 
 	if(bInvasion)
 		Super.SeeMonster(Seen);
