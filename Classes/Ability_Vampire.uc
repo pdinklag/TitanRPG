@@ -18,14 +18,9 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 	local Pawn HealMe;
 	local int Health, HealthBonus;
 
-	if(Injured == InstigatedBy || DamageType == class'DamTypeRetaliation')
-		return;
-	
-	if(!bAllowForVehicles && InstigatedBy.IsA('Vehicle'))
-		return;
-
-	if(Injured.IsA('Vehicle') && Vehicle(Injured).IsVehicleEmpty())
-		return;
+    if(!class'DevoidEffect_Vampire'.static.CanBeApplied(Injured, InstigatedBy.Controller)) {
+        return;
+    }
 
 	Health = Max(Min(Injured.Health, int(float(Damage) * BonusPerLevel * float(AbilityLevel))), 0);
 	if(Health == 0 && Damage > 0)
