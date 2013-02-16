@@ -15,13 +15,23 @@ function RPGTick(float dt)
 }
 */
 
-function ModifyHealEffect(Effect_Heal Heal, Pawn Healed, int OriginalDamage, class<DamageType> DamageType) {
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
     local WeaponFire WF;
     local int Ammo[2];
     local int i;
+    
+    Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
     //Grant the instigator some ammo back for healing unless he healed himself
-    if(NoAmmoTime <= Level.TimeSeconds && !DamageType.default.bSuperWeapon && Weapon != None && Healed != Instigator) {
+    if(
+        Damage == 0 &&
+        OriginalDamage > 0 &&
+        InstigatedBy != Injured &&
+        class'Util'.static.SameTeamP(InstigatedBy, Injured) &&
+        NoAmmoTime <= Level.TimeSeconds &&
+        !DamageType.default.bSuperWeapon &&
+        Weapon != None)
+    {
         if(DamageType == class'DamTypeShockCombo') {
             //A combo takes 5 primary ammo
             Ammo[0] = 5;

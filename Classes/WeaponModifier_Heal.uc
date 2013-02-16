@@ -54,7 +54,6 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 		Identify();
 	
 		Heal.HealAmount = HealthGiven;
-        ModifyHealEffect(Heal, Injured, OriginalDamage, DamageType);
 		Heal.Start();
 	}
     
@@ -63,9 +62,6 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
 		Damage = 0;
     }
 }
-
-//function to be overridden in Medic subclass
-function ModifyHealEffect(Effect_Heal Heal, Pawn Healed, int OriginalDamage, class<DamageType> DamageType);
 
 //function to be overridden in Medic subclass
 function int GetMaxHealthBonus() {
