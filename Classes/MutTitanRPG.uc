@@ -763,6 +763,14 @@ function ValidateData(RPGPlayerReplicationInfo RPRI) {
 	{
 		if(class'Util'.static.InArray(RPRI.Abilities[x].class, Abilities) >= 0)
 		{
+            if(RPRI.Abilities[x].AbilityLevel > RPRI.Abilities[x].MaxLevel) {
+                Log(RPRI.RPGName @ "has level" @ RPRI.Abilities[x].AbilityLevel @ "of" @ RPRI.Abilities[x].AbilityName $
+                    ", but max is" @ RPRI.Abilities[x].MaxLevel @ "- fixed.", 'TitanRPG');
+                
+                RPRI.Abilities[x].AbilityLevel = RPRI.Abilities[x].MaxLevel;
+                bSave = true;
+            }
+        
 			for(y = 0; y < RPRI.Abilities[x].AbilityLevel; y++)
 				TotalPoints += RPRI.Abilities[x].CostForNextLevel(y);
 		}
