@@ -21,17 +21,17 @@ simulated function ClientReceiveFreezeConfig(float a, float b) {
     }
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local RPGEffect Effect;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
 	if(Damage > 0)
 	{
 		Effect = class'Effect_Freeze'.static.Create(
 			Injured,
-			Instigator.Controller,
+			InstigatedBy.Controller,
 			Modifier * FreezeDuration,
 			1.0f - FMin(BonusPerLevel * Modifier, FreezeMax));
 		

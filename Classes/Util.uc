@@ -480,7 +480,86 @@ static function DoHealableDamage(Pawn Healer, Pawn Healed, int Amount, optional 
     }
 }
 
-defaultproperties
-{
+//Check if two controllers are on the same team
+static function bool SameTeamC(Controller A, Controller B) {
+    local int TeamA, TeamB;
+    
+    if(A == None || B == None) {
+        return false;
+    }
+    
+    TeamA = A.GetTeamNum();
+    TeamB = B.GetTeamNum();
+    
+    return
+        (TeamA != 255 && TeamA == TeamB) ||
+        (A.IsA('FriendlyMonsterController') && FriendlyMonsterController(A).Master == B) ||
+        (B.IsA('FriendlyMonsterController') && FriendlyMonsterController(B).Master == A) ||
+        (A.IsA('FriendlyTurretController') && FriendlyTurretController(A).Master == B) ||
+        (B.IsA('FriendlyTurretController') && FriendlyTurretController(B).Master == A) ||
+        (A.IsA('RPGTotemController') && RPGTotemController(A).Master == B) ||
+        (B.IsA('RPGTotemController') && RPGTotemController(B).Master == A);
+}
+
+//Gets the team a certain pawn is on
+static function int GetPawnTeam(Pawn P) {
+    if(P != None) {
+        if(P.Controller != None) {
+            return P.Controller.GetTeamNum();
+        } else if(P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team != None) {
+            return P.PlayerReplicationInfo.Team.TeamIndex;
+        } else if(P.IsA('Vehicle')) {
+            return Vehicle(P).Team;
+        } else if(P.DrivenVehicle != None) {
+            return GetPawnTeam(P.DrivenVehicle);
+        } else {
+            return 255;
+        }
+    } else {
+        return 255;
+    }
+}
+
+//Check if a controller and a pawn are on the same team
+static function bool SameTeamCP(Controller C, Pawn P) {
+    local int TeamC, TeamP;
+    
+    if(C == None || P == None) {
+        return false;
+    }
+    
+    if(SameTeamC(C, P.Controller)) {
+        return true;
+    }
+    
+    TeamC = C.GetTeamNum();
+    TeamP = GetPawnTeam(P);
+    
+    return (TeamC != 255 && TeamC == TeamP);
+}
+
+//Check if two pawns are on the same team
+static function bool SameTeamP(Pawn A, Pawn B) {
+    local int TeamA, TeamB;
+    
+    if(A == None || B == None) {
+        return false;
+    }
+    
+    if(A == B) {
+        return true;
+    }
+    
+    if(SameTeamC(A.Controller, B.Controller)) {
+        return true;
+    }
+    
+    TeamA = GetPawnTeam(A);
+    TeamB = GetPawnTeam(B);
+    
+    return (TeamA != 255 && TeamA == TeamB);
+}
+
+defaultproperties {
 	HighlightColor=(R=255,G=255,B=255,A=255);
 }

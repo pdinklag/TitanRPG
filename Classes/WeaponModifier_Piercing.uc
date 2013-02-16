@@ -18,7 +18,7 @@ function float GetAIRating()
 	return Rating;
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local float Old;
 	
@@ -30,7 +30,7 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 		DamageBonus = BonusPerLevel;
 	}
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 	
 	DamageBonus = Old;
 	

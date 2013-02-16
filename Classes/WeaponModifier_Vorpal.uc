@@ -18,16 +18,16 @@ simulated function ClientReceiveVorpalConfig(int a) {
     }
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
 	local RPGEffect Vorpal;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
 	if(Damage > 0 && Rand(99) <= (Modifier - MinModifier))
 	{
 		Identify();
 	
-		Vorpal = class'Effect_Vorpal'.static.Create(Injured, Instigator.Controller);
+		Vorpal = class'Effect_Vorpal'.static.Create(Injured, InstigatedBy.Controller);
 		if(Vorpal != None)
 			Vorpal.Start();
 	}

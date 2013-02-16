@@ -37,15 +37,19 @@ static function bool AllowedFor(class<Weapon> Weapon, optional Pawn Other) {
     */
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
 	local Effect_Heal Heal;
 	local int HealthGiven;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
+    
+    if(Injured.DrivenVehicle != None) {
+        return; //open topped vehicle
+    }
 	
 	HealthGiven = Max(1, OriginalDamage * (BonusPerLevel * float(Modifier)));
 
-	Heal = Effect_Heal(class'Effect_Heal'.static.Create(Injured, Instigator.Controller,, GetMaxHealthBonus()));
+	Heal = Effect_Heal(class'Effect_Heal'.static.Create(Injured, InstigatedBy.Controller,, GetMaxHealthBonus()));
 	if(Heal != None) {
 		Identify();
 	
@@ -54,7 +58,7 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 		Heal.Start();
 	}
     
-    if(Instigator == Injured || Instigator.Controller.SameTeamAs(Injured.Controller)) {
+    if(class'Util'.static.SameTeamP(InstigatedBy, Injured)) {
         Momentum = vect(0, 0, 0);
 		Damage = 0;
     }

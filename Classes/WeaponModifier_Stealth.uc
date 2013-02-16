@@ -49,14 +49,14 @@ simulated function ClientReceiveStealthConfig(float a, float b, float c) {
     }
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType) {
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Victim, HitLocation, Momentum, DamageType);
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Victim, Pawn InstigatedBy, Vector HitLocation, out Vector Momentum, class<DamageType> DamageType) {
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
 	
 	if(bStealthed) {
 		Damage = int(float(Damage) * StealthDamageMultiplier);
         
-        if(PlayerController(Instigator.Controller) != None) {
-            PlayerController(Instigator.Controller).ClientMessage(Repl(StealthBonusText, "$1", StealthDamageMultiplier));
+        if(PlayerController(InstigatedBy.Controller) != None) {
+            PlayerController(InstigatedBy.Controller).ClientMessage(Repl(StealthBonusText, "$1", StealthDamageMultiplier));
         }
 	}
 }

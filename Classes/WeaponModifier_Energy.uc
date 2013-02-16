@@ -10,13 +10,13 @@ static function bool AllowedFor(class<Weapon> WeaponType, optional Pawn Other)
 	return (Other == None || (Other.Controller != None && Other.Controller.bAdrenalineEnabled));
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local float AdrenalineBonus;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 	
-	if(Injured != Instigator)
+	if(Injured != InstigatedBy)
 	{
 		Identify();
 		

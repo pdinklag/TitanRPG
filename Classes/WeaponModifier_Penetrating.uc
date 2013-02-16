@@ -19,13 +19,13 @@ static function bool AllowedFor(class<Weapon> Weapon, Pawn Other)
 	return false;
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local int i;
 	local vector X, Y, Z, StartTrace;
     local WeaponFire FireMode;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 	Identify();
 	
 	if(Recursions >= 10)
@@ -38,8 +38,8 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
         FireMode = Weapon.GetFireMode(i);
 		if (InstantFire(FireMode) != None && InstantFire(FireMode).DamageType == DamageType) {
 			//HACK - compensate for shock rifle not firing on crosshair
-			if(ShockBeamFire(FireMode) != None && PlayerController(Instigator.Controller) != None) {
-				StartTrace = Instigator.Location + Instigator.EyePosition();
+			if(ShockBeamFire(FireMode) != None && PlayerController(InstigatedBy.Controller) != None) {
+				StartTrace = InstigatedBy.Location + InstigatedBy.EyePosition();
 				Weapon.GetViewAxes(X,Y,Z);
 				StartTrace = StartTrace + X * class'ShockProjFire'.Default.ProjSpawnOffset.X;
 				if (!Weapon.WeaponCentered())
@@ -54,8 +54,8 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 			else {
 				Recursions++;
 				InstantFire(FireMode).DoTrace(
-                    HitLocation + Normal(HitLocation - (Instigator.Location + Instigator.EyePosition())) * Injured.CollisionRadius * 2,
-                    rotator(HitLocation - (Instigator.Location + Instigator.EyePosition())));
+                    HitLocation + Normal(HitLocation - (InstigatedBy.Location + InstigatedBy.EyePosition())) * Injured.CollisionRadius * 2,
+                    rotator(HitLocation - (InstigatedBy.Location + InstigatedBy.EyePosition())));
 				Recursions--;
 			}
 			return;

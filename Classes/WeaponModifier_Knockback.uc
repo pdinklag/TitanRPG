@@ -2,16 +2,16 @@ class WeaponModifier_Knockback extends RPGWeaponModifier;
 
 var localized string KnockbackText;
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local Effect_Knockback Knockback;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 	
 	if(Damage > 0)
 	{
 		Knockback = Effect_Knockback(
-			class'Effect_Knockback'.static.Create(Injured, Instigator.Controller, 1.00));
+			class'Effect_Knockback'.static.Create(Injured, InstigatedBy.Controller, 1.00));
 		
 		if(Knockback != None)
 		{
@@ -26,10 +26,10 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 				DamageType == class'DamTypeONSAVRiLRocket'
 			)
 			{
-				if(Instigator == Injured)
-					Momentum = Instigator.Location - HitLocation;
+				if(InstigatedBy == Injured)
+					Momentum = InstigatedBy.Location - HitLocation;
 				else
-					Momentum = Instigator.Location - Injured.Location;
+					Momentum = InstigatedBy.Location - Injured.Location;
 
 				Momentum = Normal(Momentum) * -200;
 			}

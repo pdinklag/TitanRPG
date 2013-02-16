@@ -665,7 +665,7 @@ function int NetDamage(int OriginalDamage, int Damage, pawn injured, pawn instig
 			//Weapon modifier
 			WM = class'RPGWeaponModifier'.static.GetFor(W);
 			if(WM != None)
-				WM.AdjustTargetDamage(Damage, OriginalDamage, injured, HitLocation, Momentum, DamageType);
+				WM.AdjustTargetDamage(Damage, OriginalDamage, injured, instigatedBy, HitLocation, Momentum, DamageType);
 		}
 		
 		//Active artifacts

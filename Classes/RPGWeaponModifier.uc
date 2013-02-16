@@ -415,7 +415,7 @@ simulated function ClientRPGTick(float dt);
 //TODO hook
 function WeaponFire(byte Mode); //called when weapon just fired
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
 	if(DamageBonus != 0 && Modifier != 0)
 		Damage += float(Damage) * Modifier * DamageBonus;
 }

@@ -22,11 +22,11 @@ simulated function ClientReceiveRageConfig(float a, int b) {
     }
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
     local int localDamage;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
 	Identify();
 	if(Damage > 0)
@@ -38,7 +38,7 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, ve
 			localDamage = Instigator.Health - MinimumHealth;
 		}
 		
-		if(localDamage > 0 && (Instigator.Controller == None || !Instigator.Controller.bGodMode))
+		if(localDamage > 0 && (InstigatedBy.Controller == None || !InstigatedBy.Controller.bGodMode))
 			Instigator.Health = Max(1, Instigator.Health - localDamage); //make sure you can never reach 0, as that causes evil bugs
 	}
 }

@@ -32,15 +32,15 @@ simulated function ClientReceivePoisonConfig(int a, int b) {
     }
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local Effect_Poison Poison;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
 	Identify();
 
-	Poison = Effect_Poison(class'Effect_Poison'.static.Create(Injured, Instigator.Controller, PoisonLifespan, Modifier));
+	Poison = Effect_Poison(class'Effect_Poison'.static.Create(Injured, InstigatedBy.Controller, PoisonLifespan, Modifier));
 	if(Poison != None)
 	{
 		Poison.PoisonMode = EPoisonMode(PoisonMode);

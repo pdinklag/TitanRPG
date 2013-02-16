@@ -9,16 +9,28 @@ class RPGEffect extends Inventory
 //Immunity
 var config array<class<Pawn> > ImmunePawnTypes;
 
-/*
-	Harmful effects can be nullified with the Magic Nullifying modifier
-	and cannot affect teammates.
-*/
+//Harmful effects cannot affect teammates if friendly fire is off.
 var config bool bHarmful;
 
+//Can affect self
 var config bool bAllowOnSelf;
+
+//Can affect teammates
 var config bool bAllowOnTeammates;
+
+//Can affect enemies
+var config bool bAllowOnEnemies;
+
+//Can affect a flag carrier
 var config bool bAllowOnFlagCarriers;
+
+//Can affect manned vehicles or turrets
 var config bool bAllowOnVehicles;
+
+//Can affect monsters
+var config bool bAllowOnMonsters;
+
+//Can be prolongued if already active
 var config bool bAllowStacking;
 
 //Effect
@@ -56,38 +68,51 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
 	local RPGPlayerReplicationInfo RPRI;
 	local RPGWeaponModifier WM;
     local array<RPGArtifact> ActiveArtifacts;
+    local bool bSelf, bSameTeam;
     
     Game = Other.Level.Game;
 
+    //Dead
+    if(Other.Health <= 0) {
+        return false;
+    }
+
 	//Stacking
-	if(!default.bAllowStacking && GetFor(Other) != None)
+	if(!default.bAllowStacking && GetFor(Other) != None) {
 		return false;
+    }
 
 	//Spawn Protection
     if(
-        default.bHarmful && Game.IsA('DeathMatch') &&
+        default.bHarmful &&
         Other.Level.TimeSeconds <= Other.SpawnTime + DeathMatch(Game).SpawnProtectionTime)
     {
         return false;
     }
 
 	//Self
-    if(!default.bAllowOnSelf && Causer == Other.Controller) {
+    bSelf = (Causer != None && Causer == Other.Controller);
+    
+    if(!default.bAllowOnSelf && bSelf) {
         return false;
+    }
+    
+    bSameTeam = class'Util'.static.SameTeamCP(Causer, Other);
+    
+    //Enemies
+    if(!bSameTeam) {
+        if(!default.bAllowOnEnemies) {
+            return false;
+        }
     }
 
 	//Teammates
-    if(
-        Game.IsA('TeamGame') &&
-        Causer != None &&
-        Causer != Other.Controller &&
-        Causer.SameTeamAs(Other.Controller))
-    {
+    if(!bSelf && bSameTeam) {
         if(!default.bAllowOnTeammates) {
             return false;
         }
         
-        if(default.bHarmful && TeamGame(Other.Level.Game).FriendlyFireScale == 0) {
+        if(default.bHarmful && Game.IsA('TeamGame') && TeamGame(Other.Level.Game).FriendlyFireScale == 0) {
             return false;
         }
     }
@@ -101,6 +126,11 @@ static function bool CanBeApplied(Pawn Other, optional Controller Causer, option
         if(!Vehicle(Other).bAutoTurret && Vehicle(Other).IsVehicleEmpty()) {
             return false;
         }
+    }
+    
+    //Monsters
+    if(!default.bAllowOnMonsters && Other.IsA('Monster')) {
+        return false;
     }
 
 	//Immune pawn types
@@ -345,8 +375,10 @@ defaultproperties   {
     
     bAllowOnSelf=True
     bAllowOnTeammates=True //harmful effects are still not allowed if FriendlyFireScale is 0
+    bAllowOnEnemies=True
     bAllowOnFlagCarriers=True
     bAllowOnVehicles=True
+    bAllowOnMonsters=True
 
     bReplicateInstigator=True
     bOnlyRelevantToOwner=True

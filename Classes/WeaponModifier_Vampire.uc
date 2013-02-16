@@ -4,10 +4,10 @@ var config float VampireMaxHealth;
 
 var localized string VampireText, EmoText;
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
     local float x;
 
-    if(class'DevoidEffect_Vampire'.static.CanBeApplied(Injured, Instigator.Controller)) {
+    if(class'DevoidEffect_Vampire'.static.CanBeApplied(Injured, InstigatedBy.Controller)) {
         x = FMax(0, FMin(Injured.Health, float(Damage) * BonusPerLevel * float(Modifier)));
     
         if(Modifier > 0) {

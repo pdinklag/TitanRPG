@@ -2,17 +2,17 @@ class WeaponModifier_NullEntropy extends RPGWeaponModifier;
 
 var localized string NullEntropyText;
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
 	local RPGEffect Effect;
 
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, HitLocation, Momentum, DamageType);
+	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 	
 	if(Damage > 0)
 	{
 		Effect = class'Effect_NullEntropy'.static.Create(
 			Injured,
-			Instigator.Controller,
+			InstigatedBy.Controller,
 			FMax(1.0f, BonusPerLevel * float(Modifier)));
 		
 		if(Effect != None)
