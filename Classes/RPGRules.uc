@@ -92,8 +92,6 @@ var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied
 
 //Awards
 var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage;
-
-//Not yet featured
 var config float EXP_Daredevil;
 
 /*
@@ -1275,6 +1273,7 @@ defaultproperties
 	EXP_ComboWhore=15.00
 	EXP_FlakMonkey=15.00
     EXP_RoadRampage=15.00
+    EXP_Daredevil=0.01 //per daredevil point
 
 	//Game events
 	EXP_Win=30

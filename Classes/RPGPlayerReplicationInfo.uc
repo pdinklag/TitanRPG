@@ -58,8 +58,8 @@ struct GrantWeapon
 };
 var array<GrantWeapon> GrantQueue, GrantFavQueue;
 
-//used to grant experience for special accomplishments - TODO: implement
-//var int FlakCount, ComboCount, HeadCount, RanoverCount, DaredevilPoints;
+//parallel daredevil points counter
+var int DaredevilPoints;
 
 //to detect team changes
 var int Team; //info holder for RPGRules, set each spawn
@@ -901,6 +901,20 @@ simulated event Tick(float dt)
 			else
 				x++;
 		}
+        
+        //Award experience for daredevil points
+        if(
+            class'RPGRules'.default.EXP_Daredevil != 0 &&
+            TeamPlayerReplicationInfo(PRI) != None &&
+            TeamPlayerReplicationInfo(PRI).DaredevilPoints > DaredevilPoints
+        )
+        {
+            x = TeamPlayerReplicationInfo(PRI).DaredevilPoints - DaredevilPoints;
+            Log(RPGName @ "gained" @ x @ "daredevil points!");
+            
+            DaredevilPoints += x;
+            AwardExperience(float(x) * class'RPGRules'.default.EXP_Daredevil);
+        }
 	}
 }
 
