@@ -3,7 +3,7 @@ class FriendlyPawnReplicationInfo extends ReplicationInfo;
 var Pawn Pawn;
 var PlayerReplicationInfo Master;
 
-var RPGGlobalInteraction Interaction; //client
+var Interaction_Global Interaction; //client
 
 replication
 {
@@ -25,9 +25,9 @@ simulated event PostNetBeginPlay()
 		{
 			for(i = 0; i < PC.Player.LocalInteractions.Length; i++)
 			{
-				if(PC.Player.LocalInteractions[i].IsA('RPGGlobalInteraction'))
+				if(PC.Player.LocalInteractions[i].IsA('Interaction_Global'))
 				{
-					Interaction = RPGGlobalInteraction(PC.Player.LocalInteractions[i]);
+					Interaction = Interaction_Global(PC.Player.LocalInteractions[i]);
 					Interaction.AddFriendlyPawn(Self);
 					break;
 				}

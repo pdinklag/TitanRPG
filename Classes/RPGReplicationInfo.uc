@@ -27,7 +27,7 @@ static function RPGReplicationInfo Get(LevelInfo Level)
 simulated function ClientSetup(PlayerController PC)
 {
 	Interaction = PC.Player.InteractionMaster.AddInteraction(
-		string(class'RPGGlobalInteraction'), PC.Player);
+		string(class'Interaction_Global'), PC.Player);
 }
 
 simulated event PostNetBeginPlay()

@@ -1,7 +1,7 @@
 /*
-	An Interaction for anybody joining the server, even Spectators
+    An Interaction for anybody joining the server, even Spectators
 */
-class RPGGlobalInteraction extends RPGBaseInteraction;
+class Interaction_Global extends RPGBaseInteraction;
 
 var array<FriendlyPawnReplicationInfo> FriendlyPawns;
 
