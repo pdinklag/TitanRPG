@@ -32,7 +32,11 @@ function bool IsPawnVisible(Canvas C, Pawn P, out vector Pos, out float Dist) {
 	local vector CamLoc, D;
 	local rotator CamRot;
     
-    if(P == None || ViewportOwner.Actor == None) {
+    if(P == None || P.Health <= 0 || ViewportOwner.Actor == None) {
+        return false;
+    }
+    
+    if(P.IsA('xPawn') && xPawn(P).bInvis) {
         return false;
     }
 
@@ -58,13 +62,14 @@ function bool IsPawnVisible(Canvas C, Pawn P, out vector Pos, out float Dist) {
 }
 
 //Draws an Onslaught health bar styled bar
-function DrawBar(Canvas C, float X, float Y, Color Color, float Pct, float YSize, optional bool bCenter) {
-    local float XSize;
+function DrawBar(Canvas C, float X, float Y, Color Color, float Pct, float XSize, float YSize, optional bool bCenter) {
+    local float ActualXSize;
     
-    XSize = 4 * YSize;
-
+    Pct = FMin(Pct, 2); //Prevent overly large bars
+    ActualXSize = FMax(XSize, XSize * Pct);
+    
     if(bCenter) {
-        X -= 0.5 * XSize;
+        X -= 0.5 * ActualXSize;
         Y -= 0.5 * YSize;
     }
     
@@ -72,10 +77,12 @@ function DrawBar(Canvas C, float X, float Y, Color Color, float Pct, float YSize
     
     C.Style = 9; //STY_AlphaZ
     C.DrawColor = WhiteColor;
-    C.DrawTileStretched(HealthBarBorder, XSize, YSize);
+    C.DrawTileStretched(HealthBarBorder, ActualXSize, YSize);
     
-    C.DrawColor = Color;
-    C.DrawTileStretched(HealthBar, XSize * Pct, YSize);
+    if(Pct > 0) {
+        C.DrawColor = Color;
+        C.DrawTileStretched(HealthBar, XSize * Pct, YSize);
+    }
 }
 
 //Draws a team beacon
@@ -103,6 +110,8 @@ function DrawTeamBeacon(Canvas C, float X, float Y, Color Color, float Scale, op
 event Initialized() {
     local PlayerController PC;
     
+    Super.Initialized();
+    
     PC = ViewportOwner.Actor;
     if(PC.IsA('OLTeamPlayerController')) { //CTF4
         TeamBeaconMaxDist = float(PC.GetPropertyText("OLTeamBeaconPlayerInfoMaxDist"));
@@ -115,6 +124,7 @@ event Initialized() {
 
 //Remove interaction when map changes
 event NotifyLevelChange() {
+    Super.NotifyLevelChange();
 	Master.RemoveInteraction(Self);
 }
 

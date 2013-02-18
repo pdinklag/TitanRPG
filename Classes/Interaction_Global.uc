@@ -75,18 +75,30 @@ function PostRender(Canvas C) {
                 DrawBar(C,
                     ScreenPos.X,
                     ScreenPos.Y - SmallFontHeight - 4 - Height,
-                    BarColor, Pct, Height);
+                    BarColor, Pct, 5 * Height, Height);
             }
         }
     }
 }
 
 event NotifyLevelChange() {
+    Super.NotifyLevelChange();
     FriendlyPawns.Length = 0;
 }
 
 function AddFriendlyPawn(FriendlyPawnReplicationInfo FPRI) {
     FriendlyPawns[FriendlyPawns.Length] = FPRI;
+}
+
+function bool IsFriendlyPawn(Pawn P) {
+    local int i;
+
+    for(i = 0; i < FriendlyPawns.Length; i++) {
+        if(FriendlyPawns[i].Pawn == P) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function RemoveFriendlyPawn(FriendlyPawnReplicationInfo FPRI) {
