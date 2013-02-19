@@ -1,8 +1,8 @@
-class Ability_Awareness extends RPGAbility;
+class Ability_MedicAwareness extends RPGAbility;
 
 //Client
-var Interaction_Awareness Interaction;
-var array<Pawn> Enemies;
+var Interaction_MedicAwareness Interaction;
+var array<Pawn> Teammates;
 
 replication {
 	reliable if(Role == ROLE_Authority)
@@ -20,9 +20,9 @@ simulated function ClientCreateInteraction()
                 return;
             }
 
-            Interaction = Interaction_Awareness(
+            Interaction = Interaction_MedicAwareness(
                 PC.Player.InteractionMaster.AddInteraction(
-                    class'MutTitanRPG'.default.PackageName $ ".Interaction_Awareness", PC.Player));
+                    class'MutTitanRPG'.default.PackageName $ ".Interaction_MedicAwareness", PC.Player));
 
             Interaction.Ability = Self;
             
@@ -36,28 +36,28 @@ simulated function Timer() {
     local Pawn P;
     
     if(Interaction != None) {
-        Enemies.Length = 0;
+        Teammates.Length = 0;
         
         PC = Level.GetLocalPlayerController();
         if(PC != None && PC.Pawn != None && PC.Pawn.Health > 0) {
             foreach DynamicActors(class'Pawn', P) {
-                if(P.GetTeamNum() != 255 && P.GetTeamNum() == PC.GetTeamNum()) {
-                    continue;
-                }
-                
-                if(P.DrivenVehicle != None) {
+                if(P == PC.Pawn) {
                     continue;
                 }
             
-                if(P.IsA('Vehicle') && ((!Vehicle(P).bDriving && !Vehicle(P).bAutoTurret) || Vehicle(P).GetVehicleBase() != None)) {
+                if(P.PlayerReplicationInfo == None || P.PlayerReplicationInfo.Team == None) {
+                    continue;
+                }
+            
+                if(P.GetTeamNum() == 255 || P.GetTeamNum() != PC.GetTeamNum()) {
                     continue;
                 }
                 
-                if(Interaction.GlobalInteraction != None && Interaction.GlobalInteraction.IsFriendlyPawn(P)) {
+                if(P.IsA('Monster') || P.IsA('Vehicle') || P.DrivenVehicle != None) {
                     continue;
                 }
 
-                Enemies[Enemies.Length] = P;
+                Teammates[Teammates.Length] = P;
             }
         }
     }
@@ -66,7 +66,7 @@ simulated function Timer() {
 function ModifyPawn(Pawn Other) {
     Super.ModifyPawn(Other);
 
-    if(Role == ROLE_Authority)
+    if(Role == ROLE_Authority && Level.Game.bTeamGame)
         ClientCreateInteraction();
 }
 
@@ -80,12 +80,10 @@ simulated event Destroyed() {
 }
 
 defaultproperties {
-	AbilityName="Awareness"
-	Description="Informs you of your enemies' health and shield."
-	LevelDescription(0)="At level 1, a health bar will be displayed above the heads of enemies."
-	LevelDescription(1)="At level 2, an additional shield bar will be displayed above the heads of enemies."
+	AbilityName="Medic Awareness"
+	Description="Informs you of your teammates' current health by displaying a team-colored health bar above their heads."
 	StartingCost=20
 	CostAddPerLevel=5
-	MaxLevel=2
-	Category=class'AbilityCategory_Misc'
+	MaxLevel=1
+	Category=class'AbilityCategory_Medic'
 }
