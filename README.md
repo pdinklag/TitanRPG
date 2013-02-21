@@ -14,7 +14,7 @@ TitanRPG can be built like any other UT2004 package. The following steps are nec
 
 Version Customization
 ---------------------
-If you use a public redirect, it may be a bad idea to use the file name `TitanRPG.u` for custom builds. TitanRPG is now written in a way where it can dynamically handle any package name. What this means is that you can rename `TitanRPG.u` to whatever you want, e.g. `MyAwesomeRPG.u`. Note that the names of the ini files need to remain the same, however.
+If you use a public redirect, it may be a bad idea to use the file name `TitanRPG.u` for custom builds. TitanRPG is now written in a way where it can dynamically handle any package name. What this means is that you can rename `TitanRPG.u` to whatever you want, e.g. `MyAwesomeRPG.u`. Don't forget to rename the `TitanRPG.ucl` file accordingly and edit it (e.g. using Notepad) to point to the new package name. The names of the ini files need to remain the same, however.
 
 When you rename the package file, you need to edit `TitanRPG.ini` so that all occurences of `TitanRPG.` (mind the dot!) are replaced by e.g. `MyAwesomeRPG.`, ie the file name without the "u".
 
