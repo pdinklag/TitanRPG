@@ -353,6 +353,15 @@ function ScoreKill(Controller Killer, Controller Killed)
 			if(Killer.PlayerReplicationInfo != None)
 			{
 				Killer.PlayerReplicationInfo.Score += 1.0f;
+                
+                //If this is TDM, give the team a point too
+                if(
+                    Level.Game.IsA('TeamGame') &&
+                    TeamGame(Level.Game).bScoreTeamKills &&
+                    Killer.PlayerReplicationInfo.Team != None
+                ) {
+                    Killer.PlayerReplicationInfo.Team.Score += 1.0f;
+                }
 				
 				if(Level.Game.MaxLives > 0)
 					Level.Game.CheckScore(Killer.PlayerReplicationInfo); //possibly win the match
