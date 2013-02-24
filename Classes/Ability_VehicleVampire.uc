@@ -1,19 +1,11 @@
 class Ability_VehicleVampire extends Ability_Vampire;
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
-{
-	if(Injured == InstigatedBy || !InstigatedBy.IsA('Vehicle'))
-		return;
-	
-	bAllowForVehicles = True;
-	Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
-}
-
 defaultproperties
 {
 	AbilityName="Vehicle Vampirism"
 	Description="Whenever you damage an opponent from a vehicle or turret, it gets repaired for $1 of the damage per level (up to its starting health amount + $2$3). You can't gain health from self-damage."
-	BonusPerLevel=0.050000
+    BonusPerLevel=0 //none on foot
+	VehicleBonusPerLevel=0.050000
 	HealthBonusMax=0.500000
 	HealthBonusAbsoluteCap=1000
 	MaxLevel=10

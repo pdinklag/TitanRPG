@@ -3,48 +3,77 @@ class Ability_Vampire extends RPGAbility;
 var config float HealthBonusMax;
 var config int HealthBonusAbsoluteCap;
 
-var config bool bAllowForVehicles;
+var config float VehicleBonusPerLevel;
 
-var localized string AbsoluteCapText;
+//Real health gain - health will be granted once this hits a value of 1
+var float RealHealthGain;
 
-replication
-{
-	reliable if(Role == ROLE_Authority)
-		HealthBonusMax, HealthBonusAbsoluteCap;
+var localized string AbsoluteCapText, VehicleText;
+
+replication {
+    reliable if(Role == ROLE_Authority)
+        ClientReceiveVampConfig;
 }
 
-function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
-{
+function ServerRequestConfig() {
+    Super.ServerRequestConfig();
+    ClientReceiveVampConfig(HealthBonusMax, HealthBonusAbsoluteCap, VehicleBonusPerLevel);
+}
+
+simulated function ClientReceiveVampConfig(float rHealthBonusMax, int rHealthBonusAbsoluteCap, float rVehicleBonusPerLevel) {
+    HealthBonusMax = rHealthBonusMax;
+    HealthBonusAbsoluteCap = rHealthBonusAbsoluteCap;
+    VehicleBonusPerLevel = rVehicleBonusPerLevel;
+}
+
+function ModifyPawn(Pawn Other) {
+    Super.ModifyPawn(Other);
+    RealHealthGain = 0; //reset on respawn
+}
+
+function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
 	local Pawn HealMe;
-	local int Health, HealthBonus;
+	local int HealthBonus, HealthGain;
+    local float Bonus, Vampire;
 
     if(!class'DevoidEffect_Vampire'.static.CanBeApplied(Injured, InstigatedBy.Controller)) {
         return;
     }
+    
+    if(InstigatedBy.IsA('Vehicle')) {
+        Bonus = VehicleBonusPerLevel;
+    } else {
+        Bonus = BonusPerLevel;
+    }
+    
+    if(Bonus > 0) {
+        Vampire = FMax(FMin(float(Injured.Health), float(Damage) * Bonus * float(AbilityLevel)), 0);
+        if(Vampire > 0 && InstigatedBy.Controller != None) {
+            RealHealthGain += Vampire;
+            
+            if(RealHealthGain > 1) {
+                HealthGain = int(RealHealthGain);
+                RealHealthGain -= float(HealthGain); //keeps the fraction
+            
+                //now works in vehicle side turrets!
+                if(ONSWeaponPawn(InstigatedBy) != None) {
+                    HealMe = ONSWeaponPawn(InstigatedBy).VehicleBase;
+                } else {
+                    HealMe = InstigatedBy;
+                }
+            
+                if(HealMe != None) {
+                    HealthBonus = HealMe.HealthMax * HealthBonusMax;
+                    
+                    if(HealthBonusAbsoluteCap > 0) {
+                        HealthBonus = Min(HealthBonus, HealthBonusAbsoluteCap);
+                    }
 
-	Health = Max(Min(Injured.Health, int(float(Damage) * BonusPerLevel * float(AbilityLevel))), 0);
-	if(Health == 0 && Damage > 0)
-	{
-		Health = 1;
-	}
-	if(InstigatedBy.Controller != None)
-	{
-		//now works in vehicle side turrets!
-		if(ONSWeaponPawn(InstigatedBy) != None)
-			HealMe = ONSWeaponPawn(InstigatedBy).VehicleBase;
-		else
-			HealMe = InstigatedBy;
-	
-		if(HealMe != None)
-		{
-			HealthBonus = HealMe.HealthMax * HealthBonusMax;
-			
-			if(HealthBonusAbsoluteCap > 0)
-				HealthBonus = Min(HealthBonus, HealthBonusAbsoluteCap);
-
-			HealMe.GiveHealth(Health, HealMe.HealthMax + HealthBonus);
-		}
-	}
+                    HealMe.GiveHealth(HealthGain, HealMe.HealthMax + HealthBonus);
+                }
+            }
+        }
+    }
 }
 
 simulated function string DescriptionText()
@@ -59,21 +88,28 @@ simulated function string DescriptionText()
 		Text = repl(Text, "$3", repl(AbsoluteCapText, "$4", HealthBonusAbsoluteCap));
 	else
 		Text = repl(Text, "$3", "");
-		
+
+    if(VehicleBonusPerLevel > 0) {
+        Text = repl(Text, "$5", repl(VehicleBonusPerLevel, "$6", class'Util'.static.FormatPercent(VehicleBonusPerLevel)));
+    } else {
+        Text = repl(Text, "$5", "");
+    }
+
 	return Text;
 }
 
 defaultproperties
 {
 	AbilityName="Vampirism"
-	Description="Whenever you damage an opponent, you are healed for $1 of the damage per level (up to your maximum health amount + $2$3). You cannot gain health from self-damage."
+	Description="Whenever you damage an opponent, you are healed for $1 of the damage per level (up to your maximum health amount + $2$3). $5You cannot gain health from self-damage."
 	AbsoluteCapText=" or maximally +$4"
+    VehicleText="When driving a vehicle, it will be repaired for $6 of the damage per level. "
 	StartingCost=10
 	CostAddPerLevel=5
 	MaxLevel=10
 	BonusPerLevel=0.05
+    VehicleBonusPerLevel=0.05
 	HealthBonusMax=0.333333
 	HealthBonusAbsoluteCap=0
-	bAllowForVehicles=True
 	Category=class'AbilityCategory_Health'
 }

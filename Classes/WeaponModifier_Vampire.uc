@@ -2,20 +2,36 @@ class WeaponModifier_Vampire extends RPGWeaponModifier;
 
 var config float VampireMaxHealth;
 
+var float RealHealthGain;
+
 var localized string VampireText, EmoText;
 
+function StartEffect() {
+    Super.StartEffect();
+    RealHealthGain = 0; //reset when drawn
+}
+
 function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pawn InstigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType) {
+    local int Health;
     local float x;
+    
+    Super.AdjustTargetDamage(Damage, OriginalDamage, Injured, InstigatedBy, HitLocation, Momentum, DamageType);
 
     if(class'DevoidEffect_Vampire'.static.CanBeApplied(Injured, InstigatedBy.Controller)) {
         x = FMax(0, FMin(Injured.Health, float(Damage) * BonusPerLevel * float(Modifier)));
+        RealHealthGain += x;
     
-        if(Modifier > 0) {
-            Identify();
-            Instigator.GiveHealth(Max(1, int(x)), Instigator.HealthMax * VampireMaxHealth);
-        } else if(Modifier < 0) {
-            Identify();
-            Instigator.TakeDamage(Max(1, int(-x)), Instigator, Instigator.Location, vect(0, 0, 0), class'DamTypeEmo');
+        if(Abs(RealHealthGain) > 1) {
+            Health = int(RealHealthGain);
+            RealHealthGain -= float(Health); //keep fraction
+        
+            if(Modifier > 0) {
+                Identify();
+                Instigator.GiveHealth(Health, Instigator.HealthMax * VampireMaxHealth);
+            } else if(Modifier < 0) {
+                Identify();
+                Instigator.TakeDamage(Health, Instigator, Instigator.Location, vect(0, 0, 0), class'DamTypeEmo');
+            }
         }
     }
 }
