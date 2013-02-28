@@ -116,6 +116,15 @@ exec function RPGStatsMenu()
 	}
 }
 
+exec function RPGSwitch(string NewName) {
+    if(RPRI == None)
+        FindRPRI();
+
+    if(RPRI != None) {
+        RPRI.ServerSwitchBuild(NewName);
+    }
+}
+
 //Detect pressing of a key bound to one of our aliases
 //KeyType() would be more appropriate for what's done here, but Key doesn't seem to work/be set correctly for that function
 //which prevents ConsoleCommand() from working on it
