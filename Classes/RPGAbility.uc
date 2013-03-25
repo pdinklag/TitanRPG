@@ -139,11 +139,22 @@ simulated event Tick(float dt)
 
 simulated event PostBeginPlay()
 {
+    local int i;
+    local class<Inventory> InventoryClass;
+
 	if(StatName == "")
 		StatName = AbilityName;
 
-	if(Role == ROLE_Authority)
+	if(Role == ROLE_Authority) {
 		bAllowed = class'MutTitanRPG'.static.Instance(Level).GameSettings.AllowAbility(Self.class);
+        
+        for(i = 0; i < GrantItem.Length; i++) {
+            InventoryClass = Level.Game.BaseMutator.GetInventoryClass(string(GrantItem[i].InventoryClass));
+            if(InventoryClass != None) {
+                GrantItem[i].InventoryClass = InventoryClass;
+            }
+        }
+    }
 
 	if(Level.NetMode == NM_Standalone)
 		RPRI.ReceiveAbility(Self); //make sure RPG menu gets enabled in offline games
@@ -438,13 +449,13 @@ function ModifyPawn(Pawn Other)
 	if(StatusIconClass != None)
 		RPRI.ClientCreateStatusIcon(StatusIconClass);
 	
-	for(x = 0; x < default.GrantItem.Length; x++)
+	for(x = 0; x < GrantItem.Length; x++)
 	{
-		if(AbilityLevel >= default.GrantItem[x].Level) {
-            if(ClassIsChildOf(default.GrantItem[x].InventoryClass, class'Weapon')) {
-                RPRI.QueueWeapon(class<Weapon>(default.GrantItem[x].InventoryClass), None, 0, 0, 0);
+		if(AbilityLevel >= GrantItem[x].Level) {
+            if(ClassIsChildOf(GrantItem[x].InventoryClass, class'Weapon')) {
+                RPRI.QueueWeapon(class<Weapon>(GrantItem[x].InventoryClass), None, 0, 0, 0);
             } else {
-                class'Util'.static.GiveInventory(Other, default.GrantItem[x].InventoryClass);
+                class'Util'.static.GiveInventory(Other, GrantItem[x].InventoryClass);
             }
         }
 	}
