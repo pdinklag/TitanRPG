@@ -276,8 +276,7 @@ event PostBeginPlay()
 		TotalModifierChance += WeaponModifiers[x].Chance;
 
 	//Artifacts
-	if(GameSettings.bAllowArtifacts)
-		Spawn(class'RPGArtifactManager').Initialize(Self);
+    Spawn(class'RPGPickupSpawner', Self);
 	
 	//Save
 	if(SaveDuringGameInterval > 0)
@@ -460,18 +459,9 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 		return true;
 	}
 	
-	//Force adrenaline on if artifacts are enabled
-	if(Other.IsA('Controller'))
-	{
-		if(
-			class'RPGArtifactManager'.default.SpawnDelay > 0 &&
-			class'RPGArtifactManager'.default.MaxArtifacts > 0 &&
-			class'RPGArtifactManager'.default.AvailableArtifacts.Length > 0
-		)
-		{
-			Controller(Other).bAdrenalineEnabled = true;
-		}
-		return true;
+	//Force adrenaline on
+	if(Other.IsA('Controller')) {
+		Controller(Other).bAdrenalineEnabled = true;
 	}
 	
 	return true;
