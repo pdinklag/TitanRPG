@@ -543,6 +543,10 @@ function RPGPlayerReplicationInfo CheckRPRI(Controller C)
 				}
 			}
 		}
+        
+        //Announcements
+        RPRI.AnnounceBotRoles();
+        RPRI.AnnounceMyRole();
 	}
 	return RPRI;
 }

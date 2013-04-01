@@ -9,6 +9,13 @@ var RPGArtifact PickedArtifact;
 
 var bool bInvasion;
 
+var float AnnouncementDelay;
+
+var Pawn Patient; //I'm his medic!
+
+var PlayerReplicationInfo DenyPatient;
+var float DenyPatientTime;
+
 //InvasionPro
 var bool bInvasionPro;
 var bool bDisableSpeed;
@@ -191,6 +198,35 @@ function IncomingMissile(Projectile P)
 	}
 }
 
+event Tick(float dt) {
+    Super.Tick(dt);
+    
+    if(DenyPatient != None && Level.TimeSeconds > DenyPatientTime) {
+        SendMessage(DenyPatient, 'Other', 7, 5, 'TEAM');
+        DenyPatient = None;
+    }
+
+    //InvasionPro stuff
+    if(bInvasionPro) {
+        if(Pawn != None) {
+            PlayerReplicationInfo.SetPropertyText("PlayerHealth", string(Pawn.Health));
+            PlayerReplicationInfo.SetPropertyText("PlayerHealthMax", string(Pawn.SuperHealthMax));
+        }
+        else {
+            PlayerReplicationInfo.SetPropertyText("PlayerHealth", "0");
+        }
+    }
+}
+
+function AnnounceRole(PlayerController PC) {
+    local RPGPlayerReplicationInfo RPRI;
+    
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Self);
+    if(RPRI != None && RPRI.HasAbility(class'Ability_Medic') > 0) {
+        PC.ReceiveLocalizedMessage(class'LocalMessage_BotRole', 0, PlayerReplicationInfo);
+    }
+}
+
 function ExecuteWhatToDoNext()
 {
 	local Inventory Inv;
@@ -205,6 +241,47 @@ function ExecuteWhatToDoNext()
 				RPGArtifact(Inv).BotWhatNext(Self);
 		}
 	}
+    
+    if(Patient != None) {
+        if(GetOrders() != 'Follow') {
+            SetTemporaryOrders('Follow', Patient.Controller);
+            Log("MEDIC BOT: Re-assigning medic task");
+        } else if(Patient.Health >= Patient.HealthMax || Patient.Health <= 0) {
+            //done taking care of him - or failed!
+            ClearTemporaryOrders();
+            Patient = None;
+            Log("MEDIC BOT: Done taking care of patient");
+        }
+    }
+}
+
+function bool Medicare(Pawn P) {
+    if(P.IsA('Vehicle')) {
+        P = Vehicle(P).Driver;
+    }
+    
+    if(P == Patient) {
+        return true;
+    }
+
+    if(Patient == None) {
+        //no patient yet
+        if(P.Health >= P.HealthMax) {
+            //no need for a medic
+            return false;
+        } else {
+            Patient = P;
+            return true;
+        }
+    } else {
+        //check if this guy needs it more
+        if(P.Health < (Patient.Health - 10)) {
+            Patient = P;
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 function FightEnemy(bool bCanCharge, float EnemyStrength)
@@ -279,25 +356,6 @@ simulated function float RateWeapon(Weapon w)
     } else {
         return Super.RateWeapon(w);
     }
-}
-
-//InvasionPro
-event Tick( float DeltaTime )
-{
-	if(bInvasionPro)
-	{
-		if(Pawn != None)
-		{
-			PlayerReplicationInfo.SetPropertyText("PlayerHealth", string(Pawn.Health));
-			PlayerReplicationInfo.SetPropertyText("PlayerHealthMax", string(Pawn.SuperHealthMax));
-		}
-		else
-		{
-			PlayerReplicationInfo.SetPropertyText("PlayerHealth", "0");
-		}
-	}
-
-    Super.Tick(DeltaTime);
 }
 
 defaultproperties {

@@ -143,6 +143,48 @@ function SendMessage(PlayerReplicationInfo Recipient, name MessageType, byte Mes
 	Super.SendMessage(Recipient, MessageType, MessageID, Wait, BroadcastType);
 }
 
+function ServerSpeech(name Type, int Index, string Callsign) {
+    local Controller C;
+    local RPGPlayerReplicationInfo RPRI;
+    local Bot Medic;
+
+    Super.ServerSpeech(Type, Index, Callsign);
+    
+    if(Type == 'OTHER' && Index == 30 && Pawn != None && PlayerReplicationInfo != None && PlayerReplicationInfo.Team != None) {
+        //Player is calling for a medic - find a medic bot of the same team
+        for(C = Level.ControllerList; C != None; C = C.NextController) {
+            if(C.SameTeamAs(Self) && C.IsA('Bot')) {
+                RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
+                if(RPRI.HasAbility(class'Ability_Medic') > 0) {
+                    if(C.IsA('RPGBot') && RPGBot(C).Patient == None) {
+                        //this medic currently has no patient!
+                        Medic = Bot(C);
+                        break;
+                    } else if(Medic == None) {
+                        Medic = Bot(C);
+                    }
+                }
+            }
+        }
+    }
+    
+    if(Medic != None) {
+        if(Medic.IsA('RPGBot')) {
+            //Check if this player is more important
+            if(RPGBot(Medic).Medicare(Pawn)) {
+                Medic.SetTemporaryOrders('Follow', Self);
+            } else {
+                //TODO wait a while
+                RPGBot(Medic).DenyPatient = PlayerReplicationInfo;
+                RPGBot(Medic).DenyPatientTime = Level.TimeSeconds + 3;
+            }
+        } else {
+            //dumb bot, just go after last request
+            Medic.SetTemporaryOrders('Follow', Self);
+        }
+    }
+}
+
 defaultproperties
 {
 }

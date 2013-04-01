@@ -1101,6 +1101,30 @@ function bool HasThrownWeapon(class<Weapon> WeaponClass) {
     return false;
 }
 
+function AnnounceMyRole() {
+    local Controller C;
+    
+    if(Controller.IsA('RPGBot')) {
+        for(C = Level.ControllerList; C != None; C = C.NextController) {
+            if(C.SameTeamAs(Controller) && C.IsA('PlayerController')) {
+                RPGBot(Controller).AnnounceRole(PlayerController(C));
+            }
+        }
+    }
+}
+
+function AnnounceBotRoles() {
+    local Controller C;
+    
+    if(Controller.IsA('PlayerController')) {
+        for(C = Level.ControllerList; C != None; C = C.NextController) {
+            if(C.SameTeamAs(Controller) && C.IsA('RPGBot')) {
+                RPGBot(C).AnnounceRole(PlayerController(Controller));
+            }
+        }
+    }
+}
+
 function ModifyPlayer(Pawn Other)
 {
 	local Inventory Inv;
@@ -1148,6 +1172,7 @@ function ModifyPlayer(Pawn Other)
 	if(bTeamChanged)
 	{
 		//respawning after team switch
+        AnnounceBotRoles();
 	}
 	bTeamChanged = false;
 	
