@@ -31,6 +31,9 @@ auto state Pickup {
                 
                 M = P.Spawn(Type, P.Controller,, P.Location + Off, rotator(Off));
                 if(M != None) {
+                    if(M.Controller != None)
+                        M.Controller.Destroy();
+
                     C = Spawn(class'FriendlyMonsterController',,, M.Location, M.Rotation);
                     C.Possess(M);
                     C.SetMaster(P.Controller);
