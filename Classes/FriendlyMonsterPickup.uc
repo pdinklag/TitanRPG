@@ -17,7 +17,8 @@ auto state Pickup {
         local Monster M;
         local FriendlyMonsterController C;
         local class<Monster> Type;
-        local int Tries;
+        local int Tries, i;
+        local RPGPlayerReplicationInfo RPRI;
         
         if(ValidTouch(Other) && PossibleTypes.Length > 0) {
             P = Pawn(Other);
@@ -37,6 +38,15 @@ auto state Pickup {
                     C = Spawn(class'FriendlyMonsterController',,, M.Location, M.Rotation);
                     C.Possess(M);
                     C.SetMaster(P.Controller);
+                    
+                    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
+                    if(RPRI != None) {
+                        for(i = 0; i < RPRI.Abilities.Length; i++) {
+                            if(RPRI.Abilities[i].bAllowed)
+                                RPRI.Abilities[i].ModifyMonster(M, P);
+                        }
+                    }
+                    
                     break;
                 }
             }
