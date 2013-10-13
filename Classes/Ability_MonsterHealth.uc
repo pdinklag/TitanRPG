@@ -21,7 +21,6 @@ function ModifyMonster(Monster M, Pawn Master)
 		Growth = (1.0f + GrowthPerLevel * float(AbilityLevel));
 		
 		HeightDifference = M.CollisionHeight * (Growth - 1.0f);
-		Log("HeightDifference:" @ HeightDifference);
 		M.SetLocation(M.Location + vect(0, 0, 1) * HeightDifference);
 		
 		M.SetDrawScale(M.DrawScale * Growth);

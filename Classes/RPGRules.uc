@@ -397,7 +397,6 @@ function ScoreKill(Controller Killer, Controller Killed)
 				//Type kill
 				if(Killed.IsA('PlayerController') && PlayerController(Killed).bIsTyping)
 				{
-					Log("TYPE KILL:" @ KillerRPRI.RPGName, 'DEBUG');
 					KillerRPRI.AwardExperience(EXP_TypeKill);
 				}
 				
