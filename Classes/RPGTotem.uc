@@ -13,7 +13,7 @@ var float IconOffZ;
 var vector IconLocation;
 var RPGTotemIcon Icon;
 
-var RPGTotemWall Wall;
+var array<RPGTotemWall> Walls;
 var config bool bEnableWalls;
 var config float WallDistMin, WallDistMax, WallDistMaxZ;
 
@@ -42,21 +42,34 @@ simulated event PostBeginPlay() {
 }
 
 function SetTeamNum(byte TeamNum) {
-    local RPGTotem T;
+    local int x;
+    local RPGTotem T, Nearest;
+    local float Dist, NearestDist;
+    local RPGTotemWall Wall;
     
     Super.SetTeamNum(TeamNum);
 
-    if(Wall != None) {
-        Wall.Destroy();
+    for(x = 0; x < Walls.Length; x++) {
+        if(Walls[x] != None) {
+            Walls[x].Destroy();
+        }
     }
+    Walls.Length = 0;
     
     if(bEnableWalls) {
         foreach VisibleCollidingActors(class'RPGTotem', T, WallDistMax) {
-            if(T != Self && T.Team == Team && T.Wall == None && VSize(Location - T.Location) >= WallDistMin && Abs(Location.Z - T.Location.Z) <= WallDistMaxZ) {
-                Wall = Spawn(class'RPGTotemWall');
-                Wall.Connect(Self, T);
-                break;
+            Dist = VSize(Location - T.Location);
+            if(T != Self && T.Team == Team && Dist >= WallDistMin && Abs(Location.Z - T.Location.Z) <= WallDistMaxZ) {
+                if(Nearest == None || Dist < NearestDist) {
+                    Nearest = T;
+                    NearestDist = Dist;
+                }
             }
+        }
+        
+        if(Nearest != None) {
+            Wall = Spawn(class'RPGTotemWall');
+            Wall.Connect(Self, Nearest);
         }
     }
 }
@@ -75,6 +88,7 @@ simulated event TeamChanged() {
 
 function Died(Controller Killer, class<DamageType> damageType, vector HitLocation) {
     local Controller C;
+    local int x;
     
     Skins[0] = DeadSkin;
     RepSkin = DeadSkin;
@@ -96,8 +110,10 @@ function Died(Controller Killer, class<DamageType> damageType, vector HitLocatio
         Icon.Destroy();
     }
     
-    if(Wall != None) {
-        Wall.Destroy();
+    for(x = 0; x < Walls.Length; x++) {
+        if(Walls[x] != None) {
+            Walls[x].Destroy();
+        }
     }
     
     PlayDying(DamageType, HitLocation);
@@ -108,6 +124,18 @@ function Died(Controller Killer, class<DamageType> damageType, vector HitLocatio
 
 function AddDefaultInventory() {
     //None
+}
+
+simulated function WallDestroyed(RPGTotemWall Wall) {
+    local int x;
+    
+    while(x < Walls.Length) {
+        if(Walls[x] == None || Walls[x] == Wall) {
+            Walls.Remove(x, 1);
+        } else {
+            x++;
+        }
+    }
 }
 
 defaultproperties {

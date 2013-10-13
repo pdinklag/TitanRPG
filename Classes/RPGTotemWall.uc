@@ -35,8 +35,8 @@ simulated function Connect(RPGTotem A, RPGTotem B) {
     Totems[0] = A;
     Totems[1] = B;
     
-    A.Wall = Self;
-    B.Wall = Self;
+    A.Walls[A.Walls.Length] = Self;
+    B.Walls[B.Walls.Length] = Self;
     
     Dir = Normal(B.Location - A.Location);
 
@@ -48,6 +48,18 @@ simulated function Connect(RPGTotem A, RPGTotem B) {
     Scale.Z = 1;
     
     SetDrawScale3D(Scale);
+}
+
+simulated event Destroyed() {
+    if(Totems[0] != None) {
+        Totems[0].WallDestroyed(Self);
+    }
+    
+    if(Totems[1] != None) {
+        Totems[1].WallDestroyed(Self);
+    }
+
+    Super.Destroyed();
 }
 
 defaultproperties {
