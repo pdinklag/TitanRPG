@@ -31,7 +31,7 @@ auto state Active {
             if(!Controller.SameTeamAs(P.Controller) && P.Health > 0 && FastTrace(Icon.Location, P.Location)) {
                 Repulsion = Effect_Repulsion(class'Effect_Repulsion'.static.Create(P, Instigator.Controller, KnockbackTime));
                 if(Repulsion != None) {
-                    Dir = P.Location - Icon.Location;
+                    Dir = P.Location - Location;
                     Force = 1.0 - VSize(Dir) / SightRadius;
                     Dir = Normal(Dir);
                     
