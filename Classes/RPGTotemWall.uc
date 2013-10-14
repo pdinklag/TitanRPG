@@ -50,18 +50,6 @@ simulated function Connect(RPGTotem A, RPGTotem B) {
     SetDrawScale3D(Scale);
 }
 
-simulated event Destroyed() {
-    if(Totems[0] != None) {
-        Totems[0].WallDestroyed(Self);
-    }
-    
-    if(Totems[1] != None) {
-        Totems[1].WallDestroyed(Self);
-    }
-
-    Super.Destroyed();
-}
-
 defaultproperties {
     XSize=256
     XOffset=16

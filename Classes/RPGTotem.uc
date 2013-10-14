@@ -43,8 +43,7 @@ simulated event PostBeginPlay() {
 
 function SetTeamNum(byte TeamNum) {
     local int x;
-    local RPGTotem T, Nearest;
-    local float Dist, NearestDist;
+    local RPGTotem T;
     local RPGTotemWall Wall;
     
     Super.SetTeamNum(TeamNum);
@@ -58,18 +57,10 @@ function SetTeamNum(byte TeamNum) {
     
     if(bEnableWalls) {
         foreach VisibleCollidingActors(class'RPGTotem', T, WallDistMax) {
-            Dist = VSize(Location - T.Location);
-            if(T != Self && T.Team == Team && Dist >= WallDistMin && Abs(Location.Z - T.Location.Z) <= WallDistMaxZ) {
-                if(Nearest == None || Dist < NearestDist) {
-                    Nearest = T;
-                    NearestDist = Dist;
-                }
+            if(T != Self && T.Team == Team && VSize(Location - T.Location) >= WallDistMin && Abs(Location.Z - T.Location.Z) <= WallDistMaxZ) {
+                Wall = Spawn(class'RPGTotemWall');
+                Wall.Connect(Self, T);
             }
-        }
-        
-        if(Nearest != None) {
-            Wall = Spawn(class'RPGTotemWall');
-            Wall.Connect(Self, Nearest);
         }
     }
 }
@@ -87,8 +78,7 @@ simulated event TeamChanged() {
 }
 
 function Died(Controller Killer, class<DamageType> damageType, vector HitLocation) {
-    local Controller C;
-    local int x;
+    local Controller C;   
     
     Skins[0] = DeadSkin;
     RepSkin = DeadSkin;
@@ -110,11 +100,7 @@ function Died(Controller Killer, class<DamageType> damageType, vector HitLocatio
         Icon.Destroy();
     }
     
-    for(x = 0; x < Walls.Length; x++) {
-        if(Walls[x] != None) {
-            Walls[x].Destroy();
-        }
-    }
+    DestroyWalls();
     
     PlayDying(DamageType, HitLocation);
     ClientDying(DamageType, HitLocation);
@@ -126,16 +112,50 @@ function AddDefaultInventory() {
     //None
 }
 
-simulated function WallDestroyed(RPGTotemWall Wall) {
+function DestroyWalls() {
+    local array<RPGTotem> AffectedTotems;
+    local int x;
+    
+    AffectedTotems[0] = Self;
+    for(x = 0; x < Walls.Length; x++) {
+        if(Walls[x] != None) {
+            if(Walls[x].Totems[0] != Self) {
+                AffectedTotems[AffectedTotems.Length] = Walls[x].Totems[0];
+            }
+            
+            if(Walls[x].Totems[1] != Self) {
+                AffectedTotems[AffectedTotems.Length] = Walls[x].Totems[1];
+            }
+            
+            Walls[x].Destroy();
+        }
+    }
+    
+    for(x = 0; x < AffectedTotems.Length; x++) {
+        AffectedTotems[x].CheckWalls();
+    }
+}
+
+function CheckWalls() {
     local int x;
     
     while(x < Walls.Length) {
-        if(Walls[x] == None || Walls[x] == Wall) {
+        if(Walls[x] == None || Walls[x].bPendingDelete) {
             Walls.Remove(x, 1);
         } else {
             x++;
         }
     }
+}
+
+simulated event Destroyed() {
+    DestroyWalls();
+    
+    if(Icon != None) {
+        Icon.Destroy();
+    }
+    
+    Super.Destroyed();
 }
 
 defaultproperties {
