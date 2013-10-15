@@ -11,7 +11,7 @@ auto state Active {
     function Timer() {
         local class<Monster> Type;
         local vector Off;
-        local int Tries, i;
+        local int Tries;
         local Monster M;
         local Controller Master;
         local FriendlyMonsterController C;
@@ -39,10 +39,7 @@ auto state Active {
                     
                     RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
                     if(RPRI != None) {
-                        for(i = 0; i < RPRI.Abilities.Length; i++) {
-                            if(RPRI.Abilities[i].bAllowed)
-                                RPRI.Abilities[i].ModifyMonster(M, Master.Pawn);
-                        }
+                        RPRI.ModifyMonster(M);
                     }
                     
                     Beam = Instigator.Spawn(class'FX_SummonBeam', Icon);
