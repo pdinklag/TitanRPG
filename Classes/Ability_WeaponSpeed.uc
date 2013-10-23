@@ -3,13 +3,11 @@ class Ability_WeaponSpeed extends RPGAbility;
 replication
 {
 	reliable if(Role == ROLE_Authority)
-		ClientModifyWeapon;
+		ClientModifyWeapon, ClientModifyVehicle;
 }
 
-function ModifyRPRI()
-{
-	Super.ModifyRPRI();
-	RPRI.WeaponSpeed += AbilityLevel * int(BonusPerLevel * 100.0);
+function float GetModifier() {
+    return 1.0 + (BonusPerLevel * AbilityLevel);
 }
 
 simulated function ClientModifyWeapon(Weapon Weapon, float Modifier)
@@ -21,11 +19,30 @@ function ModifyWeapon(Weapon Weapon)
 {
 	local float Modifier;
 	
-	Modifier = 1.0 + (BonusPerLevel * AbilityLevel);
+	Modifier = GetModifier();
     
     class'Util'.static.SetWeaponFireRate(Weapon, Modifier);
-	if(Role == ROLE_Authority)
-		ClientModifyWeapon(Weapon, Modifier);
+	ClientModifyWeapon(Weapon, Modifier);
+}
+
+simulated function ClientModifyVehicle(Vehicle V, float Modifier) {
+    class'Util'.static.SetVehicleFireRate(V, Modifier);
+}
+
+function ModifyVehicle(Vehicle V)
+{
+	local float Modifier;
+	
+	Modifier = GetModifier();
+    
+	class'Util'.static.SetVehicleFireRate(V, GetModifier());
+	ClientModifyVehicle(V, Modifier);
+}
+
+function UnModifyVehicle(Vehicle V)
+{
+    class'Util'.static.SetVehicleFireRate(V, 1.0);
+	ClientModifyVehicle(V, 1.0);    
 }
 
 simulated function string DescriptionText()

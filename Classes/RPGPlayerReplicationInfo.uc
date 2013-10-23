@@ -79,7 +79,7 @@ var int NumMonsters, NumTurrets, NumMines, NumTotems;
 var bool bDiscoMode;
 
 //stats
-var int AmmoMax, WeaponSpeed;
+var int AmmoMax;
 var int MaxMines, MaxMonsters, MaxTurrets, MaxTotems;
 
 var float HealingExpMultiplier;
@@ -144,7 +144,6 @@ replication
         bDiscoMode;
 	reliable if(Role == ROLE_Authority)
 		ClientReInitMenu, ClientEnableRPGMenu,
-		ClientModifyVehicleWeaponFireRate,
 		ClientNotifyExpGain, ClientShowHint,
 		ClientSetName, ClientGameEnded,
 		ClientCheckArtifactClass,
@@ -223,7 +222,6 @@ function ModifyStats()
 	MaxTotems = RPGMut.MaxTotems;
 	
 	AmmoMax = default.AmmoMax;
-	WeaponSpeed = default.WeaponSpeed;
 	HealingExpMultiplier = class'RPGRules'.default.EXP_Healing;
 	
 	for(x = 0; x < Abilities.Length; x++)
@@ -1294,72 +1292,6 @@ function ServerDestroyTotems()
 	NumTotems = 0;
 }
 
-function ModifyVehicleFireRate(Vehicle V, float Modifier)
-{
-	local int i;
-	local ONSVehicle OV;
-	local ONSWeaponPawn WP;
-	local Inventory Inv;
-
-	OV = ONSVehicle(V);
-	if (OV != None)
-	{
-		for(i = 0; i < OV.Weapons.length; i++)
-		{
-			ModifyVehicleWeaponFireRate(OV.Weapons[i], Modifier);
-			ClientModifyVehicleWeaponFireRate(OV.Weapons[i], Modifier);
-		}
-	}
-	else
-	{
-		WP = ONSWeaponPawn(V);
-		if (WP != None)
-		{
-			ModifyVehicleWeaponFireRate(WP.Gun, Modifier);
-			ClientModifyVehicleWeaponFireRate(WP.Gun, Modifier);
-		}
-		else //some other type of vehicle (usually ASVehicle) using standard weapon system
-		{
-			//at this point, the vehicle's Weapon is not yet set, but it should be its only inventory
-			for(Inv = V.Inventory; Inv != None; Inv = Inv.Inventory)
-			{
-				if(Inv.IsA('Weapon'))
-				{
-					ModifyVehicleWeaponFireRate(Weapon(Inv), Modifier);
-					ClientModifyVehicleWeaponFireRate(Weapon(Inv), Modifier);
-				}
-			}
-		}
-	}
-}
-
-simulated function ModifyVehicleWeaponFireRate(Actor W, float Modifier)
-{
-	if(W != None)
-	{
-		if(W.IsA('ONSWeapon'))
-		{
-			ONSWeapon(W).SetFireRateModifier(Modifier);
-			return;
-		}
-		else if(W.IsA('Weapon'))
-		{
-			class'Util'.static.SetWeaponFireRate(Weapon(W), Modifier);
-			return;
-		}
-		else
-		{
-			Warn("Could not set fire rate for " $ W $ "!");
-		}
-	}
-}
-
-simulated function ClientModifyVehicleWeaponFireRate(Actor W, float Modifier)
-{
-	if(Level.NetMode != NM_DedicatedServer)
-		ModifyVehicleWeaponFireRate(W, Modifier);
-}
-
 simulated function ClientSetName(string NewName)
 {
 	if(PlayerController(Controller) != None)
@@ -1369,10 +1301,6 @@ simulated function ClientSetName(string NewName)
 function DriverEnteredVehicle(Vehicle V, Pawn P)
 {
 	local int i;
-	local float Modifier;
-	
-	Modifier = 1.0f + 0.01f * float(WeaponSpeed);
-	ModifyVehicleFireRate(V, Modifier);
 
 	for(i = 0; i < Abilities.length; i++)
 	{
@@ -1909,7 +1837,6 @@ function bool IsFavorite(class<Weapon> WeaponClass, class<RPGWeaponModifier> Mod
 defaultproperties
 {
 	AmmoMax=0
-	WeaponSpeed=0
 	HealingExpMultiplier=0 //gotten from RPGRules
 
 	LevelUpSound=Sound'TitanRPG.SoundEffects.LevelUp'

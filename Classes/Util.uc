@@ -240,6 +240,63 @@ static function AdjustWeaponFireRate(Weapon W, float Scale)
 	}
 }
 
+static function SetVehicleWeaponFireRate(Actor W, float Modifier)
+{
+	if(W != None)
+	{
+		if(W.IsA('ONSWeapon'))
+		{
+			ONSWeapon(W).SetFireRateModifier(Modifier);
+			return;
+		}
+		else if(W.IsA('Weapon'))
+		{
+			SetWeaponFireRate(Weapon(W), Modifier);
+			return;
+		}
+		else
+		{
+			Warn("Could not set fire rate for " $ W $ "!");
+		}
+	}
+}
+
+static function function SetVehicleFireRate(Vehicle V, float Modifier)
+{
+	local int i;
+	local ONSVehicle OV;
+	local ONSWeaponPawn WP;
+	local Inventory Inv;
+
+	OV = ONSVehicle(V);
+	if (OV != None)
+	{
+		for(i = 0; i < OV.Weapons.length; i++)
+		{
+			SetVehicleWeaponFireRate(OV.Weapons[i], Modifier);
+		}
+	}
+	else
+	{
+		WP = ONSWeaponPawn(V);
+		if (WP != None)
+		{
+			SetVehicleWeaponFireRate(WP.Gun, Modifier);
+		}
+		else //some other type of vehicle (usually ASVehicle) using standard weapon system
+		{
+			//at this point, the vehicle's Weapon is not yet set, but it should be its only inventory
+			for(Inv = V.Inventory; Inv != None; Inv = Inv.Inventory)
+			{
+				if(Inv.IsA('Weapon'))
+				{
+					SetVehicleWeaponFireRate(Weapon(Inv), Modifier);
+				}
+			}
+		}
+	}
+}
+
 static function AdjustVehicleSpeed(Vehicle V, float Factor)
 {
 	local int i;
