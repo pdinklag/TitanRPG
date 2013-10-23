@@ -2,14 +2,14 @@ class Artifact_SummonTurret extends ArtifactBase_Construct;
 
 struct TurretTypeStruct
 {
-	var class<ASTurret> TurretClass;
+	var class<Vehicle> TurretClass;
 	var int Cost;
 	var int Cooldown;
 };
 var config array<TurretTypeStruct> TurretTypes;
 
 struct TurretSpawnOffset {
-    var class<ASTurret> TurretClass;
+    var class<Vehicle> TurretClass;
     var vector SpawnOffset;
 };
 var config array<TurretSpawnOffset> TurretSpawnOffsets;
@@ -24,7 +24,7 @@ replication
 		ClientReceiveTurretType;
 }
 
-static function vector GetSpawnOffset(class<ASTurret> TurretClass) {
+static function vector GetSpawnOffset(class<Vehicle> TurretClass) {
     local int i;
     
     for(i = 0; i < default.TurretSpawnOffsets.Length; i++) {
@@ -86,23 +86,25 @@ function bool CanActivate()
 
 function Actor SpawnActor(class<Actor> SpawnClass, vector SpawnLoc, rotator SpawnRot)
 {
-    local class<ASTurret> TurretClass;
-    local class<ASTurret_Base> TurretBaseClass;
+    local class<Vehicle> TurretClass;
 	local FriendlyTurretController C;
-	local ASTurret T;
+	local Vehicle T;
     
-    TurretClass = class<ASTurret>(SpawnClass);
-    TurretBaseClass = TurretClass.default.TurretBaseClass;
+    TurretClass = class<Vehicle>(SpawnClass);
     SpawnLoc += GetSpawnOffset(TurretClass);
     
-	T = ASTurret(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
+	T = Vehicle(Super.SpawnActor(SpawnClass, SpawnLoc, SpawnRot));
 	if(T != None) {
-		if(T.Controller != None)
-			T.Controller.Destroy();
+        T.bTeamLocked = true;
+        T.SetTeamNum(Instigator.Controller.GetTeamNum());
 
-		C = Spawn(class'FriendlyTurretController',,, SpawnLoc, Instigator.Rotation);
-        C.SetMaster(Instigator.Controller);
-		C.Possess(T);
+        if(T.Controller != None) {
+            T.Controller.Destroy();
+        
+            C = Spawn(class'FriendlyTurretController',,, SpawnLoc, Instigator.Rotation);
+            C.SetMaster(Instigator.Controller);
+            C.Possess(T);
+        }
 		
 		if(InstigatorRPRI != None)
 			InstigatorRPRI.AddTurret(T);

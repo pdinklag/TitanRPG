@@ -1,6 +1,6 @@
 class Ability_TurretSight extends RPGAbility;
 
-function ModifyTurret(ASTurret T, Pawn Master) {
+function ModifyTurret(Vehicle T, Pawn Master) {
     local FriendlyTurretController C;
 
 	T.SightRadius = T.SightRadius * (1.0f + float(AbilityLevel) * BonusPerLevel);

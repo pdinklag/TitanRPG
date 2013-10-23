@@ -69,7 +69,7 @@ var bool bTeamChanged; //set by RPGRules, reset each spawn
 var Weapon LastPawnWeapon;
 
 //stuff that belongs to me
-var array<ASTurret> Turrets;
+var array<Vehicle> Turrets;
 var array<Monster> Monsters;
 var array<ONSMineProjectile> Mines;
 var array<RPGTotem> Totems;
@@ -1194,17 +1194,19 @@ function AddMine(ONSMineProjectile Mine)
 	NumMines++;
 }
 
-function AddMonster(Monster M)
-{
-	local int i;
-	
-	Monsters[Monsters.Length] = M;
-	NumMonsters++;
-	
-	for(i = 0; i < Abilities.Length; i++)
-	{
-		if(Abilities[i].bAllowed)
-			Abilities[i].ModifyMonster(M, Controller.Pawn);
+function AddMonster(Monster M) {
+    Monsters[Monsters.Length] = M;
+    NumMonsters++;
+    
+    ModifyMonster(M);
+}
+
+function ModifyMonster(Monster M) {
+    local int i;
+    
+	for(i = 0; i < Abilities.Length; i++) {
+        if(Abilities[i].bAllowed)
+            Abilities[i].ModifyMonster(M, Controller.Pawn);
 	}
 }
 
@@ -1220,7 +1222,7 @@ function ServerKillMonsters()
 	NumMonsters = 0;
 }
 
-function AddTurret(ASTurret T)
+function AddTurret(Vehicle T)
 {
 	local int i;
 	

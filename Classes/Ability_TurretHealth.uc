@@ -1,6 +1,6 @@
 class Ability_TurretHealth extends RPGAbility;
 
-function ModifyTurret(ASTurret T, Pawn Master) {
+function ModifyTurret(Vehicle T, Pawn Master) {
 	T.Health = int(float(T.Health) * (1.0f + float(AbilityLevel) * BonusPerLevel));
 	T.SuperHealthMax = T.SuperHealthMax - T.HealthMax + T.Health;
 	T.HealthMax = T.Health;
