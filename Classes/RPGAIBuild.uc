@@ -82,7 +82,7 @@ function Build(RPGPlayerReplicationInfo RPRI)
 			
 			RPRI.ModifyStats();
 			
-			if(RPRI.HasAbility(BuyAbility.class) >= Action.Level)
+			if(RPRI.HasAbility(BuyAbility.class, true) >= Action.Level)
 				RPRI.AIBuildAction++;
 		}
 		else

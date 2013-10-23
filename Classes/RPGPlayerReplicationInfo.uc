@@ -1024,14 +1024,19 @@ simulated function ClientEnableRPGMenu()
 	}
 }
 
-simulated function int HasAbility(class<RPGAbility> AbilityClass)
+simulated function int HasAbility(class<RPGAbility> AbilityClass, optional bool bIgnoreIfNotAllowed)
 {
 	local int x;
 	
 	for(x = 0; x < Abilities.Length; x++)
 	{
-		if(Abilities[x].class == AbilityClass)
-			return Abilities[x].AbilityLevel;
+		if(Abilities[x].class == AbilityClass) {
+            if(Abilities[x].bAllowed || bIgnoreIfNotAllowed) {
+                return Abilities[x].AbilityLevel;
+            } else {
+                return 0;
+            }
+        }
 	}
 	return 0;
 }
@@ -1042,8 +1047,13 @@ simulated function RPGAbility GetOwnedAbility(class<RPGAbility> AbilityClass)
 	
 	for(x = 0; x < Abilities.Length; x++)
 	{
-		if(Abilities[x].class == AbilityClass)
-			return Abilities[x];
+		if(Abilities[x].class == AbilityClass) {
+            if(Abilities[x].bAllowed) {
+                return Abilities[x];
+            } else {
+                return None;
+            }
+        }
 	}
 	return None;
 }

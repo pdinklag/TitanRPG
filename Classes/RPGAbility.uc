@@ -416,7 +416,7 @@ simulated function int Cost()
 		//find forbidden abilities
 		for(x = 0; x < ForbiddenAbilities.length; x++)
 		{
-			lv = RPRI.HasAbility(ForbiddenAbilities[x].AbilityClass);
+			lv = RPRI.HasAbility(ForbiddenAbilities[x].AbilityClass, true);
 			
 			if(lv >= ForbiddenAbilities[x].Level)
 				return 0;
@@ -425,7 +425,7 @@ simulated function int Cost()
 		//look for required abilities
 		for(x = 0; x < RequiredAbilities.length; x++)
 		{
-			lv = RPRI.HasAbility(RequiredAbilities[x].AbilityClass);
+			lv = RPRI.HasAbility(RequiredAbilities[x].AbilityClass, true);
 			
 			if(lv < RequiredAbilities[x].Level)
 				return 0;
