@@ -7,8 +7,6 @@ var class<DamageType> LastDamageTypeSuffered;
 
 var RPGArtifact PickedArtifact;
 
-var bool bInvasion;
-
 var float AnnouncementDelay;
 
 var Pawn Patient; //I'm his medic!
@@ -16,139 +14,18 @@ var Pawn Patient; //I'm his medic!
 var PlayerReplicationInfo DenyPatient;
 var float DenyPatientTime;
 
-//InvasionPro
-var bool bInvasionPro;
-var bool bDisableSpeed;
-var bool bDisableBerserk;
-var bool bDisableInvis;
-var bool bDisableDef;
-
-var string InvasionProPackage;
-
-event PreBeginPlay()
-{
-    local int x;
-
-	bInvasion = Level.Game.IsA('Invasion');
-	bInvasionPro = Level.Game.IsA('InvasionPro');
-	
-	if(bInvasionPro) {
-        x = InStr(string(Level.Game.class), ".");
-        InvasionProPackage = Left(string(Level.Game.class), x);
-    
-		PlayerReplicationInfoClass = 
-			class<PlayerReplicationInfo>(DynamicLoadObject(InvasionProPackage $ ".InvasionProPlayerReplicationInfo", class'Class'));
-	}
-
-	Super.PreBeginPlay();
-}
-
-event PostBeginPlay()
-{
-	Super.PostBeginPlay();
-	
-	if(bInvasionPro)
-	{
-		bDisableSpeed = bool(Level.Game.GetPropertyText("bDisableSpeed"));
-		bDisableBerserk = bool(Level.Game.GetPropertyText("bDisableBerserk"));
-		bDisableInvis = bool(Level.Game.GetPropertyText("bDisableInvis"));
-		bDisableDef = bool(Level.Game.GetPropertyText("bDisableDef"));
-	}
-}
-
-function SetPawnClass(string inClass, string inCharacter)
-{
-	if(inClass != "" && bInvasionPro)
-		inClass = InvasionProPackage $ ".InvasionProxPawn";
-
-	Super.SetPawnClass(inClass, inCharacter);
-}
-
-function TryCombo(string ComboName)
-{
-	local Controller C;
-	local int i, ResurrectionCombo;
-
-	if(!bInvasion)
-	{
-		Super.TryCombo(ComboName);
-		return;
-	}
-	
-    if ( !Pawn.InCurrentCombo() && !NeedsAdrenaline() )
-    {
-        if ( ComboName ~= "Random" )
-        {
-            ComboName = ComboNames[Rand(ArrayCount(ComboNames))];
-		}
-		else
-		{
-			ComboName = Level.Game.NewRecommendCombo(ComboName, self);
-		
-			if(bInvasion)
-			{
-				ResurrectionCombo = -1;
-				for(i = 0; i < ArrayCount(ComboNames); i++)
-				{
-					if(class'RPGRules'.static.IsResurrectionCombo(ComboNames[i]))
-					{
-						ResurrectionCombo = i;
-						break;
-					}
-				}
-		
-				if(ResurrectionCombo >= 0)
-				{
-					for(C = Level.ControllerList; C != None; C = C.NextController)
-					{
-						if(C.bIsPlayer && C.PlayerReplicationInfo != None && C.PlayerReplicationInfo.bOutOfLives)
-						{
-							//a player is out, use resurrection combo
-							ComboName = ComboNames[ResurrectionCombo];
-							break;
-						}
-					}
-				}
-			}
-		}
-		
-		if(bInvasionPro)
-		{
-			if(
-				(bDisableSpeed && ComboName ~= "XGame.ComboSpeed") ||
-				(bDisableSpeed && ComboName ~= string(class'ComboSuperSpeed')) ||
-				(bDisableBerserk && ComboName ~= "XGame.ComboBerserk") ||
-				(bDisableInvis && ComboName ~= "XGame.ComboInvis") ||
-				(bDisableDef && ComboName ~= "XGame.ComboDefensive") ||
-                (bDisableDef && ComboName ~= string(class'ComboTeamBooster'))
-			)
-			{
-				return;
-			}
-		}
-
-        Pawn.DoComboName(ComboName);
-    }
-}
-
 function YellAt(Pawn Moron)
 {
 	//don't yell if being healed
 	if(class'WeaponModifier_Heal'.static.GetFor(Moron.Weapon) == None)
 	{
-		if(bInvasion)
-			Super.YellAt(Moron);
-		else
-			Super(xBot).YellAt(Moron);
+		Super(xBot).YellAt(Moron);
 	}
 }
 
 function bool AllowVoiceMessage(name MessageType)
 {
-	if(bInvasion)
-		return Super.AllowVoiceMessage(MessageType);
-	else
-		return Super(xBot).AllowVoiceMessage(MessageType);
+	return Super(xBot).AllowVoiceMessage(MessageType);
 }
 
 event SeeMonster(Pawn Seen)
@@ -159,10 +36,7 @@ event SeeMonster(Pawn Seen)
 		return; //nevermind friendly monster
     }
 
-	if(bInvasion)
-		Super.SeeMonster(Seen);
-	else
-		Super(xBot).SeeMonster(Seen);
+	Super(xBot).SeeMonster(Seen);
 }
 
 function StopFiring()
@@ -204,17 +78,6 @@ event Tick(float dt) {
     if(DenyPatient != None && Level.TimeSeconds > DenyPatientTime) {
         SendMessage(DenyPatient, 'Other', 7, 5, 'TEAM');
         DenyPatient = None;
-    }
-
-    //InvasionPro stuff
-    if(bInvasionPro) {
-        if(Pawn != None) {
-            PlayerReplicationInfo.SetPropertyText("PlayerHealth", string(Pawn.Health));
-            PlayerReplicationInfo.SetPropertyText("PlayerHealthMax", string(Pawn.SuperHealthMax));
-        }
-        else {
-            PlayerReplicationInfo.SetPropertyText("PlayerHealth", "0");
-        }
     }
 }
 
