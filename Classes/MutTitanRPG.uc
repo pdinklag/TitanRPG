@@ -972,6 +972,21 @@ function SwitchBuild(RPGPlayerReplicationInfo RPRI, string NewBuild)
 	RPRI.Destroy();
 }
 
+function string NewRecommendCombo(string ComboName, AIController C) {
+    local RPGPlayerReplicationInfo RPRI;
+    
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
+    if(RPRI != None && RPRI.HasAbility(class'Ability_ComboTeamBooster') > 0) {
+        //this bot is a medic, tell him to do the team booster combo!
+        return string(class'ComboTeamBooster');
+    } else if(RPRI != None && RPRI.HasAbility(class'Ability_ComboSuperSpeed') > 0 && InStr(ComboName, "Speed") >= 0) {
+        //this bot was told to do the speed combo, but has super speed - use that instead!
+        return string(class'ComboSuperSpeed');
+    } else {
+        return Super.NewRecommendCombo(ComboName, C);
+    }
+}
+
 function ServerTraveling(string URL, bool bItems)
 {
 	//Save data again, as people might have bought something after the game ended
