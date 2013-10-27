@@ -14,6 +14,7 @@ var config bool bExpForKillingBots;
 
 var config bool bAllowArtifacts;
 var config bool bAllowAbilities;
+var config bool bEnablePickupSpawner;
 
 var config bool bNoUnidentified; //no unidentified items
 var config bool bMagicalStartingWeapons;
@@ -65,6 +66,7 @@ defaultproperties
 	
 	bAllowAbilities=True
 	bAllowArtifacts=True
+    bEnablePickupSpawner=True
 	
 	bNoUnidentified=True
 	bMagicalStartingWeapons=False

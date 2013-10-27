@@ -275,8 +275,10 @@ event PostBeginPlay()
 	for(x = 0; x < WeaponModifiers.Length; x++)
 		TotalModifierChance += WeaponModifiers[x].Chance;
 
-	//Artifacts
-    Spawn(class'RPGPickupSpawner', Self);
+	//Pickup spawner
+    if(GameSettings.bEnablePickupSpawner) {
+        Spawn(class'RPGPickupSpawner', Self);
+    }
 	
 	//Save
 	if(SaveDuringGameInterval > 0)
