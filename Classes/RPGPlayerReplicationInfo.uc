@@ -282,11 +282,7 @@ simulated event BeginPlay()
 			{
 				data.LV = RPGMut.StartingLevel;
 				data.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (data.LV - 1);
-				
-				if(RPGMut.Levels.Length > data.LV)
-					data.XN = RPGMut.Levels[data.LV];
-				else
-					data.XN = RPGMut.Levels[RPGMut.Levels.Length - 1]; //TODO: what to do?
+				data.XN = RPGMut.GetRequiredXpForLevel(data.LV);
 					
 				if (PlayerController(Controller) != None)
 					data.ID = PlayerController(Controller).GetPlayerIDHash();
@@ -957,9 +953,7 @@ function AwardExperience(float exp)
 			RPGLevel++;
 			PointsAvailable += RPGMut.PointsPerLevel;
 			Experience -= float(NeededExp);
-			
-			if(RPGLevel < RPGMut.Levels.Length)
-				NeededExp = RPGMut.Levels[RPGLevel];
+            NeededExp = RPGMut.GetRequiredXpForLevel(RPGLevel);
 			
 			if(Count <= RPGMut.MaxLevelupEffectStacking && Controller != None && Controller.Pawn != None)
 			{
@@ -1351,7 +1345,7 @@ function ServerResetData()
 	DataObject.ID = OwnerID;
 	DataObject.LV = RPGMut.StartingLevel;
 	DataObject.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (DataObject.LV - 1);
-	DataObject.XN = RPGMut.Levels[DataObject.LV];
+	DataObject.XN = RPGMut.GetRequiredXpForLevel(DataObject.LV);
 	
 	DataObject.AA = 0;
 	DataObject.AI = "";
@@ -1386,14 +1380,14 @@ function ServerRebuildData()
 			CostLeft -= DataObject.XP;
 			
 			DataObject.LV--;
-			DataObject.XP = RPGMut.Levels[DataObject.LV];
+			DataObject.XP = RPGMut.GetRequiredXpForLevel(DataObject.LV);
 			
 			LevelLoss++;
 		}
 		DataObject.XP = FMax(0.0f, DataObject.XP - CostLeft);
 		
 		DataObject.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (DataObject.LV - 1);
-		DataObject.XN = RPGMut.Levels[DataObject.LV];
+		DataObject.XN = RPGMut.GetRequiredXpForLevel(DataObject.LV);
 		
 		DataObject.SaveConfig();
 		
@@ -1415,7 +1409,7 @@ function SetLevel(int NewLevel)
 	
 	DataObject.LV = NewLevel;
 	DataObject.PA = RPGMut.StartingStatPoints + RPGMut.PointsPerLevel * (NewLevel - 1);
-	DataObject.XN = RPGMut.Levels[NewLevel];
+	DataObject.XN = RPGMut.GetRequiredXpForLevel(NewLevel);
 	DataObject.XP = 0;
 	DataObject.AB.Length = 0;
 	DataObject.AL.Length = 0;

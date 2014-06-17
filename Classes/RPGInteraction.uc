@@ -450,18 +450,20 @@ function PostRender(Canvas Canvas)
 	Canvas.Style = 5; //STY_Alpha
 	
 	//Draw exp bar
-	if(!Settings.bHideExpBar && RPRI.NeededExp > 0)
+	if(!Settings.bHideExpBar)
 	{
 		//Progress
 		Canvas.DrawColor = EXPBarColor;
 		Canvas.SetPos(ExpBarRect.X, ExpBarRect.Y);
 		
-		XL = RPRI.Experience / RPRI.NeededExp;
-		Canvas.DrawTile(
-			Material'InterfaceContent.Hud.SkinA',
-			ExpBarRect.W * XL,
-			15.0f * Canvas.FontScaleY,
-			836, 454, -386 * XL, 36);
+        if(RPRI.NeededExp > 0) {
+            XL = RPRI.Experience / RPRI.NeededExp;
+            Canvas.DrawTile(
+                Material'InterfaceContent.Hud.SkinA',
+                ExpBarRect.W * XL,
+                15.0f * Canvas.FontScaleY,
+                836, 454, -386 * XL, 36);
+        }
 		
 		//Tint
 		Canvas.DrawColor = GetHUDTeamTint(HUD);
@@ -483,7 +485,12 @@ function PostRender(Canvas Canvas)
 		Canvas.FontScaleX *= 0.75;
 		Canvas.FontScaleY *= 0.75;
 		
-		Text = int(RPRI.Experience) $ "/" $ RPRI.NeededExp;
+        if(RPRI.NeededExp > 0) {
+            Text = int(RPRI.Experience) $ "/" $ RPRI.NeededExp;
+        } else {
+            Text = string(int(RPRI.Experience));
+        }
+        
 		Canvas.TextSize(Text, XL, YL);
 		Canvas.SetPos(ExpBarRect.X + 0.5 * (ExpBarRect.W - XL), ExpBarRect.Y + 0.5 * (ExpBarRect.H - YL) + 1);
 		Canvas.DrawText(Text);

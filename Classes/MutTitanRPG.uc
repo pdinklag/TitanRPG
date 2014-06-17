@@ -20,6 +20,7 @@ var config int PointsPerLevel;
 var config int MinHumanPlayersForExp;
 var config array<int> Levels;
 var config bool bLevelCap; //can't reach more levels than defined in the array above
+var config int MaxLevelReqExpPerLevel; //if bLevelCap is False, each level beyond the limit will require this much more experience in order to advance
 var config float LevelDiffExpGainDiv; //divisor to extra experience from defeating someone of higher level (a value of 1 results in level difference squared EXP)
 var config int MaxLevelupEffectStacking;
 var config array<class<RPGAbility> > Abilities;
@@ -744,6 +745,17 @@ function bool CanLeaveVehicle(Vehicle V, Pawn P)
 	return Super.CanLeaveVehicle(V, P);
 }
 
+function int GetRequiredXpForLevel(int Level) {
+    //Reminder: Levels[i] is the experience required to reach level i, not i-1 !
+    if(Level < Levels.Length) {
+        return Levels[Level];
+    } else if(bLevelCap) {
+        return 0;
+    } else {
+        return Levels[Levels.Length - 1] + MaxLevelReqExpPerLevel * (Level - Levels.Length + 1);
+    }
+}
+
 //Check the player data at the given index for errors (too many/not enough stat points, invalid abilities)
 //Converts the data by giving or taking the appropriate number of stat points and refunding points for abilities bought that are no longer allowed
 //This allows the server owner to change points per level settings and/or the abilities allowed and have it affect already created players properly
@@ -810,20 +822,25 @@ function ValidateData(RPGPlayerReplicationInfo RPRI) {
 	}
     
     //Validate XP scale
-    if(RPRI.RPGLevel < Levels.Length && RPRI.NeededExp != Levels[RPRI.RPGLevel]) {
-        Pct = RPRI.Experience / float(RPRI.NeededExp);
-        XP = Pct * float(Levels[RPRI.RPGLevel]);
+    ShouldBe = GetRequiredXpForLevel(RPRI.RPGLevel);
+    if(RPRI.NeededExp != ShouldBe) {
+        if(RPRI.NeededExp > 0 && ShouldBe > 0) {
+            Pct = RPRI.Experience / float(RPRI.NeededExp);
+            XP = Pct * float(ShouldBe);
+        } else {
+            XP = RPRI.Experience;
+        }
         
         Warn(RPRI.RPGName @ "needs" @ RPRI.NeededExp @ "XP to get to level" @ string(RPRI.RPGLevel + 1) $
-            ", should be" @ Levels[RPRI.RPGLevel] $ ", XP adjusted from" @ RPRI.Experience @ "to" @ XP @
+            ", should be" @ ShouldBe $ ", XP adjusted from" @ RPRI.Experience @ "to" @ XP @
             "to compensate.");
         
-        RPRI.NeededExp = Levels[RPRI.RPGLevel];
+        RPRI.NeededExp = ShouldBe;
         RPRI.Experience = XP;
         
         if(RPRI.PlayerLevel != None) {
             RPRI.PlayerLevel.Experience = XP;
-            RPRI.PlayerLevel.ExpNeeded = XP;
+            RPRI.PlayerLevel.ExpNeeded = ShouldBe;
         }
         
         bSave = true;
@@ -1443,6 +1460,7 @@ function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
 defaultproperties
 {
 	bLevelCap=True
+    MaxLevelReqExpPerLevel=0
 
 	MinHumanPlayersForExp=0
 	bAllowCheats=False
