@@ -24,6 +24,9 @@ replication {
     
 	reliable if(Role == ROLE_Authority)
 		ClientPrepareWeaponSwitch, ClientReceiveTurret;
+    
+    unreliable if(Role < ROLE_Authority)
+        ServerNotify;
 }
 
 static function string GetMessageString(int Msg, optional int Value, optional Object Obj)
@@ -99,6 +102,12 @@ function bool DoEffect() {
         ClientPrepareWeaponSwitch();
         OldWeapon.Destroy();
         
+        //Re-Modify vehicle (will only work server-side at this point)
+        if(InstigatorRPRI != None) {
+            InstigatorRPRI.DriverLeftVehicle(Scorp, Scorp.Driver);
+            InstigatorRPRI.DriverEnteredVehicle(Scorp, Scorp.Driver);
+        }
+        
         return true;
     } else {
         return false;
@@ -128,7 +137,23 @@ simulated event PostNetReceive() {
         PendingWeapon.CurrentAim = OldAim;
         Scorp.bShowChargingBar = PendingWeapon.bShowChargingBar;
         
-        Scorp.TeamChanged();
+        ServerNotify();
+    }
+}
+
+function ServerNotify() {
+    local ONSRV Scorp;
+
+    //Re-Modify vehicle (safe for clients now)
+    Scorp = ONSRV(Instigator);
+    if(Scorp != None) {
+        if(InstigatorRPRI != None) {
+            InstigatorRPRI.DriverLeftVehicle(Scorp, Scorp.Driver);
+            InstigatorRPRI.DriverEnteredVehicle(Scorp, Scorp.Driver);
+        }
+        
+        //Synchronize skin to all players
+        class'Sync_ScorpionTurret'.static.Sync(Scorp, PendingWeapon);
     }
 }
 
@@ -192,7 +217,7 @@ defaultproperties
 	ItemName="Scorpion Turret"
 	PickupClass=Class'ArtifactPickup_ScorpionTurret'
 	IconMaterial=Texture'TitanRPG.ArtifactIcons.ScorpTurret'
-	HudColor=(B=151,G=122,R=126)
+	HudColor=(B=181,G=152,R=156)
 	CostPerSec=0
 	Cooldown=0
 
