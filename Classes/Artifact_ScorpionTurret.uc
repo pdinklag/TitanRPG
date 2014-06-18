@@ -190,9 +190,9 @@ defaultproperties
 	ArtifactID="ScorpionTurret"
 	Description="Switches the turret of your Scorpion."
 	ItemName="Scorpion Turret"
-	PickupClass=Class'ArtifactPickup_MonsterSummon'
-	IconMaterial=Texture'TitanRPG.ArtifactIcons.MonsterSummon'
-	HudColor=(B=96,G=64,R=192)
+	PickupClass=Class'ArtifactPickup_ScorpionTurret'
+	IconMaterial=Texture'TitanRPG.ArtifactIcons.ScorpTurret'
+	HudColor=(B=151,G=122,R=126)
 	CostPerSec=0
 	Cooldown=0
 
