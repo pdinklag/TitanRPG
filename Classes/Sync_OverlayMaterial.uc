@@ -49,7 +49,7 @@ static function Sync_OverlayMaterial Sync(Actor Target, Material Mat, float Dura
 	Sync.bOverride = bOverride;
     
     //Net
-    Sync.LifeTime = Duration;
+    Sync.LifeSpan = 2.0 * Duration;
     if(Target.bOnlyRelevantToOwner) {
         Sync.bOnlyRelevantToOwner = true;
         Sync.bAlwaysRelevant = false;

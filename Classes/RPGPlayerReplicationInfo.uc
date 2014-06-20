@@ -1835,7 +1835,6 @@ defaultproperties
 
 	LevelUpSound=Sound'TitanRPG.SoundEffects.LevelUp'
 
-	bNetNotify=True
 	bAlwaysRelevant=False
 	bOnlyRelevantToOwner=True
 	NetUpdateFrequency=4.000000

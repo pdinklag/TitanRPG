@@ -198,7 +198,7 @@ function SpawnRandomPickup() {
         if (APickup != None) {
             if(PickupStatic != None) {
                 Sync = class'Sync_SpawnedPickup'.static.Sync(APickup, PickupStatic, PickupDrawScale);
-                Sync.Lifetime = PickupLifetime;
+                Sync.LifeSpan = PickupLifetime * 2.0;
             }
             
             APickup.RespawnEffect();

@@ -41,7 +41,7 @@ simulated function bool ClientFunction()
 	return true;
 }
 
-defaultproperties
-{
-	LifeTime=2.00
+defaultproperties {
+    bTryEachTick=True
+    LifeSpan=4.00
 }

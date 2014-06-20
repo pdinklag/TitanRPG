@@ -61,5 +61,5 @@ function bool ShouldDestroy() {
 }
 
 defaultproperties {
-    Lifetime=30 //pickups usually don't exist that long
+    LifeSpan=60
 }

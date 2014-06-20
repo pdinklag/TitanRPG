@@ -81,7 +81,6 @@ defaultproperties
     SoundRadius=7
     SoundVolume=250
     SoundPitch=128
-    bNetNotify=true
 	bOnlyDirtyReplication=true
 	bOwnerNoSee=true
 	

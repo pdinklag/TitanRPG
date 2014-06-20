@@ -3,30 +3,19 @@ class Sync_ONSWeaponRotSpeed extends Sync;
 var ONSWeapon Target;
 var float RotationsPerSecond;
 
-var bool bFirstTick;
-
-replication
-{
-	reliable if(Role == ROLE_Authority && bNetInitial)
-		Target, RotationsPerSecond;
+replication {
+    reliable if(Role == ROLE_Authority && bNetInitial)
+        Target, RotationsPerSecond;
 }
 
-simulated function bool ClientFunction()
-{
-	if(bFirstTick)
-	{
-		bFirstTick = false;
-		return false;
-	}
-	else
-	{
-		Target.RotationsPerSecond = RotationsPerSecond;
-		return true;
-	}
+simulated function bool ClientFunction() {
+    if(Target != None) {
+        Target.RotationsPerSecond = RotationsPerSecond;
+    } else {
+        return true;
+    }
 }
 
-defaultproperties
-{
-	bFirstTick=True
-	LifeTime=2.00
+defaultproperties {
+    LifeSpan=4.00
 }

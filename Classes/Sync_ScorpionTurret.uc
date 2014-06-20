@@ -5,6 +5,7 @@ class Sync_ScorpionTurret extends Sync;
 
 var ONSRV Scorp;
 var ONSWeapon NewWeapon;
+var Artifact_ScorpionTurret Artifact;
 
 replication {
 	reliable if(Role == ROLE_Authority && bNetInitial)
@@ -17,15 +18,16 @@ static function Sync_ScorpionTurret Sync(ONSRV Scorp, ONSWeapon NewWeapon) {
     Sync = Scorp.Spawn(class'Sync_ScorpionTurret');
     Sync.Scorp = Scorp;
     Sync.NewWeapon = NewWeapon;
-    
+
     return Sync;
 }
 
 simulated function bool ClientFunction() {
-    Log("Sync_ScorpionTurret.ClientFunction: Scorp =" @ Scorp $ ", NewWeapon =" @ NewWeapon);
 	if(Scorp == None || NewWeapon == None) {
 		return false;
 	} else {
+        Scorp.Weapons[0] = NewWeapon;
+        Scorp.AttachToBone(NewWeapon, 'ChainGunAttachment');
         Scorp.TeamChanged(); //force a skin re-load
 		return true;
 	}
@@ -40,5 +42,5 @@ function bool ShouldDestroy() {
 }
 
 defaultproperties {
-    Lifetime=3
+    LifeSpan=6.0
 }

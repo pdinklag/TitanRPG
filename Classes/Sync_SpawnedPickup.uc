@@ -47,5 +47,5 @@ function bool ShouldDestroy() {
 }
 
 defaultproperties {
-    Lifetime=30
+    LifeSpan=60
 }
