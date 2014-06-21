@@ -25,6 +25,7 @@ struct AbilityStruct
 	var class<RPGAbility> AbilityClass;
 	var int Level;
 };
+var config bool bDisjunctiveRequirements; //true = logical OR, false = logical AND
 var config array<AbilityStruct> RequiredAbilities;
 var config array<AbilityStruct> ForbiddenAbilities;
 
@@ -76,7 +77,7 @@ function ServerRequestConfig()
 {
 	local int i;
 	
-	ClientReceiveBasicSettings(StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost, BonusPerLevel);
+	ClientReceiveBasicSettings(StartingCost, CostAddPerLevel, MaxLevel, bUseLevelCost, BonusPerLevel, bDisjunctiveRequirements);
 
 	for(i = 0; i < RequiredAbilities.Length; i++)
 		ClientReceiveRequired(i, RequiredAbilities[i]);
@@ -98,13 +99,14 @@ function ServerRequestConfig()
 }
 
 simulated function ClientReceiveBasicSettings(
-	int xStartingCost, int xCostAddPerLevel, int xMaxLevel, bool xbUseLevelCost, float xBonusPerLevel)
+	int xStartingCost, int xCostAddPerLevel, int xMaxLevel, bool xbUseLevelCost, float xBonusPerLevel, bool xbDisjunctiveRequirements)
 {
 	StartingCost = xStartingCost;
 	CostAddPerLevel = xCostAddPerLevel;
 	MaxLevel = xMaxLevel;
 	bUseLevelCost = xbUseLevelCost;
 	BonusPerLevel = xBonusPerLevel;
+    bDisjunctiveRequirements = xbDisjunctiveRequirements;
 }
 
 simulated function ClientReceived()
@@ -318,10 +320,15 @@ simulated function string DescriptionText()
 		{
 			text @= list[x];
 			
-			if(x + 2 < list.Length)
-				text $= ",";
-			else if(x + 1 < list.Length)
-				text @= AndText;
+            if(x + 2 < list.Length) {
+                text $= ",";
+            } else if(x + 1 < list.Length) {
+                if(bDisjunctiveRequirements) {
+                    text @= OrText;
+                } else {
+                    text @= AndText;
+                }
+            }
 		}
 		
 		text @= ReqPostText;
@@ -403,6 +410,7 @@ simulated function int CostForNextLevel(int x)
 simulated function int Cost()
 {
 	local int x, lv;
+    local bool bDisjunctiveResult;
 
 	if(AbilityLevel >= MaxLevel)
 		return 0;
@@ -427,9 +435,17 @@ simulated function int Cost()
 		{
 			lv = RPRI.HasAbility(RequiredAbilities[x].AbilityClass, true);
 			
-			if(lv < RequiredAbilities[x].Level)
-				return 0;
+            if(lv < RequiredAbilities[x].Level) {
+                return 0;
+            } else if(bDisjunctiveRequirements) {
+                bDisjunctiveResult = true;
+                break;
+            }
 		}
+        
+        if(bDisjunctiveRequirements && !bDisjunctiveResult) {
+            return 0;
+        }
 	}
 
 	//return a cost
@@ -577,6 +593,8 @@ defaultproperties
 	StartingCost=0
 	CostAddPerLevel=0
 	bUseLevelCost=False
+    
+    bDisjunctiveRequirements=False;
 	
 	AndText="and"
 	OrText="or"
