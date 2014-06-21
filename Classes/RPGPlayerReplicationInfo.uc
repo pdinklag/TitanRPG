@@ -1343,6 +1343,10 @@ function ServerResetData()
 	local string OwnerID;
 
 	Log(PRI.PlayerName $ " - RESET!", 'TitanRPG');
+    
+    ServerKillMonsters();
+    ServerDestroyTurrets();
+    ServerDestroyTotems();
 
 	OwnerID = DataObject.ID;
 
@@ -1377,6 +1381,10 @@ function ServerRebuildData()
 	if(bAllowRebuild)
 	{
 		Log(PRI.PlayerName $ " - REBUILD!", 'TitanRPG');
+        
+        ServerKillMonsters();
+        ServerDestroyTurrets();
+        ServerDestroyTotems();
 		
 		DataObject.AB.Length = 0;
 		DataObject.AL.Length = 0;
