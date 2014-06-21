@@ -81,6 +81,8 @@ function AssistMessage(Controller C)
 		PlayerController(C).ReceiveLocalizedMessage(class'RPGAssistLocalMessage');
 }
 
+function Healed(Pawn P, int Amount);
+
 defaultproperties
 {
 }

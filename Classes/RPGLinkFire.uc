@@ -32,9 +32,10 @@ simulated function ModeTick(float dt)
 	local float Step, ls;
 	local bot B;
 	local bool bShouldStop, bIsHealingObjective;
-	local int AdjustedDamage;
+	local int AdjustedDamage, OldHealth;
 	local LinkBeamEffect LB;
 	local DestroyableObjective HealObjective;
+    local RPGGameObjectiveObserver Observer;
 	local Vehicle LinkedVehicle;
     local RPGWeaponModifier WM;
 
@@ -251,8 +252,24 @@ simulated function ModeTick(float dt)
 						{
 							SetLinkTo(None);
 							bIsHealingObjective = true;
-							if (!HealObjective.HealDamage(AdjustedDamage, Instigator.Controller, DamageType))
-								LinkGun.ConsumeAmmo(ThisModeNum, -AmmoPerFire);
+                            
+                            WM = class'WeaponModifier_Repair'.static.GetFor(Weapon);
+                            if(WM != None) {
+                                WM.Identify();
+                                AdjustedDamage *= 1.0 + WM.Modifier * WM.BonusPerLevel; //The actual Repair gun effect
+                            }
+                            
+                            OldHealth = HealObjective.Health;
+                            if(HealObjective.HealDamage(AdjustedDamage, Instigator.Controller, DamageType)) {
+                                if(HealObjective.Health - OldHealth > 0) {
+                                    Observer = class'RPGGameObjectiveObserver'.static.GetFor(HealObjective);
+                                    if(Observer != None) {
+                                        Observer.Healed(Instigator, HealObjective.Health - OldHealth);
+                                    }
+                                }
+                            } else {
+                                LinkGun.ConsumeAmmo(ThisModeNum, -AmmoPerFire);
+                            }
 						}
 						else
 							Other.TakeDamage(AdjustedDamage, Instigator, HitLocation, MomentumTransfer*X, DamageType);
