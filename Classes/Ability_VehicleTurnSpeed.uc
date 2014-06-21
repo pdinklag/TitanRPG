@@ -133,10 +133,14 @@ simulated function UnModifyVehicle(Vehicle V)
 		ClientUnModifyVehicle(V);
 }
 
+simulated function string DescriptionText() {
+    return repl(Super.DescriptionText(), "$1", class'Util'.static.FormatPercent(BonusPerLevel));
+}
+
 defaultproperties
 {
 	AbilityName="Vehicle Turn Speed"
-	Description="Increases your vehicle or vehicle turret turning speed by $1."
+	Description="Increases your vehicle or vehicle turret turning speed by $1 per level."
 	bUseLevelCost=True
 	LevelCost(0)=5
 	LevelCost(1)=5

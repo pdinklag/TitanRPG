@@ -76,26 +76,26 @@ function AdjustTargetDamage(out int Damage, int OriginalDamage, Pawn Injured, Pa
     }
 }
 
-simulated function string DescriptionText()
-{
-	local string Text;
+simulated function string DescriptionText(){
+    local string Text;
 
-	Text = repl(
-		repl(Super.DescriptionText(), "$1", class'Util'.static.FormatPercent(BonusPerLevel)),
-		"$2", class'Util'.static.FormatPercent(HealthBonusMax));
-		
-	if(HealthBonusAbsoluteCap > 0)
-		Text = repl(Text, "$3", repl(AbsoluteCapText, "$4", HealthBonusAbsoluteCap));
-	else
-		Text = repl(Text, "$3", "");
+    Text = repl(
+        repl(Super.DescriptionText(), "$1", class'Util'.static.FormatPercent(BonusPerLevel)),
+        "$2", class'Util'.static.FormatPercent(HealthBonusMax));
 
-    if(VehicleBonusPerLevel > 0) {
-        Text = repl(Text, "$5", repl(VehicleBonusPerLevel, "$6", class'Util'.static.FormatPercent(VehicleBonusPerLevel)));
+    if(HealthBonusAbsoluteCap > 0) {
+        Text = repl(Text, "$3", repl(AbsoluteCapText, "$4", HealthBonusAbsoluteCap));
+    } else {
+        Text = repl(Text, "$3", "");
+    }
+
+    if(VehicleBonusPerLevel > 0 && VehicleBonusPerLevel != BonusPerLevel) {
+        Text = repl(Text, "$5", repl(VehicleText, "$6", class'Util'.static.FormatPercent(VehicleBonusPerLevel)));
     } else {
         Text = repl(Text, "$5", "");
     }
 
-	return Text;
+    return Text;
 }
 
 defaultproperties

@@ -54,7 +54,7 @@ simulated function BuildDescription()
 {
 	Super.BuildDescription();
 	AddToDescription(Repl(
-        Repl(ShieldText, "$1", int(BonusPerLevel)),
+        Repl(ShieldText, "$1", int(BonusPerLevel) * Modifier),
         "$2", class'Util'.static.FormatFloat(RegenInterval)));
 }
 
