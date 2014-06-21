@@ -259,18 +259,16 @@ event PostBeginPlay()
 	Level.Game.GameRulesModifiers = Rules;
 	
 	//Game objective observers
-	foreach AllActors(class'GameObjective', Objective)
-	{
-		//hack to deal with Assault's stupid hardcoded scoring setup
-		if(Level.Game.IsA('ASGameInfo'))
-			Objective.Score = 0;
-	
-		if(Objective.IsA('CTFBase')) //CTF flag base
-			Spawn(class'RPGFlagObserver', Objective);
-		else if(Objective.IsA('xBombSpawn')) //BR ball spawn
-			Spawn(class'RPGBallObserver', Objective);
-		
-		//TODO: ONS, Assault, Domination
+	foreach AllActors(class'GameObjective', Objective) {
+        if(Objective.IsA('CTFBase')) { //CTF flag base
+            Spawn(class'RPGFlagObserver', Objective);
+        } else if(Objective.IsA('xBombSpawn')) { //BR ball spawn
+            Spawn(class'RPGBallObserver', Objective);
+        } else if(Objective.IsA('ONSPowerCore')) { //ONS power nodes and power cores
+            Spawn(class'RPGPowerCoreObserver', Objective);
+        }
+
+        //TODO: ONS, Assault, Domination
 	}
 	
 	//Healable damage rules

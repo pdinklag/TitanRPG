@@ -65,8 +65,9 @@ var config float EXP_BallThrownFinal, EXP_BallCapFinal, EXP_BallScoreAssist;
 var config float EXP_DOMScore;
 
 //ONS
-var config float EXP_HealPowernode, EXP_ConstructPowernode, EXP_DestroyPowernode, EXP_DestroyConstructingPowernode;
-var config float EXP_DamagePowercore;
+var config float EXP_HealPowernode, EXP_ConstructPowernode;
+var config float EXP_DestroyPowercore;
+var config float EXP_DestroyPowernode, EXP_DestroyConstructingPowernode;
 
 //AS
 var config float EXP_ObjectiveCompleted;
@@ -193,14 +194,10 @@ static function ShareExperience(RPGPlayerReplicationInfo InstigatorRPRI, float A
 	SCORE OBJECTIVE
 */
 function ScoreObjective(PlayerReplicationInfo Scorer, int Score) {
-	Super.ScoreObjective(Scorer, Score);
-	
-	if(Score > 0) {
-		Log("ScoreObjective" @ Scorer.PlayerName @ Score, 'DEBUG');
-	}
+    Super.ScoreObjective(Scorer, Score);
 }
 
-// calculate how much exp does a player get for killing another player of a certain level
+// calculate how much exp does a player get for killing another player 1of a certain level
 function float GetKillEXP(RPGPlayerReplicationInfo KillerRPRI, RPGPlayerReplicationInfo KilledRPRI, optional float Multiplier)
 {
 	local float XP;
@@ -541,6 +538,10 @@ function Weapon GetDamageWeapon(Pawn Other, class<DamageType> DamageType)
 		}
 	}
 	return None;
+}
+
+function bool CheckScore(PlayerReplicationInfo Scorer) {
+    return Super.CheckScore(Scorer);
 }
 
 /***************************************************
@@ -1286,12 +1287,11 @@ defaultproperties
 	//Game events
 	EXP_Win=30
 	
-	EXP_HealPowernode=1.00
-	EXP_ConstructPowernode=2.50
-	EXP_DestroyPowernode=5.00
-	EXP_DestroyConstructingPowernode=0.16
-	
-	EXP_DamagePowercore=0.50 //experience for 1% damage
+    EXP_DestroyPowercore=50
+    EXP_DestroyPowernode=5
+    EXP_DestroyConstructingPowernode=2.50
+    EXP_ConstructPowernode=2.50
+    EXP_HealPowernode=0.01
 
 	EXP_ReturnFriendlyFlag=3.00
 	EXP_ReturnEnemyFlag=5.00
