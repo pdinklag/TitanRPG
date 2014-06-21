@@ -66,9 +66,15 @@ var config bool bAllowSuperWeaponReplenish; //allow RPGWeapon::FillToInitialAmmo
 var config array<class<Ammunition> > SuperAmmoClasses;
 
 var config int MaxMonsters; //minimum MaxMonsters per player...
+var config bool bMonstersDie; //if True, all monsters summoned by a player die when the player dies
+
 var config int MaxTurrets; //minimum MaxTurrets per player...
-var config int MaxMines; //minimum MaxMines per player...
+var config bool bTurretsDie; //if True, all turrets built by a player die when the player dies
+
 var config int MaxTotems; //minimum MaxTotems per player...
+var config bool bTotemsDie; //if True, all totems built by a player die when the player dies
+
+var config int MaxMines; //minimum MaxMines per player...
 
 //admin commands
 var config array<String> AdminGUID;

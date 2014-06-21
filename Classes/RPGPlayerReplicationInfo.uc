@@ -82,6 +82,9 @@ var bool bDiscoMode;
 var int AmmoMax;
 var int MaxMines, MaxMonsters, MaxTurrets, MaxTotems;
 
+//determine if summons die on player death
+var bool bMonstersDie, bTurretsDie, bTotemsDie;
+
 var float HealingExpMultiplier;
 
 //replicated server->client
@@ -220,6 +223,10 @@ function ModifyStats()
 	MaxMonsters = RPGMut.MaxMonsters;
 	MaxTurrets = RPGMut.MaxTurrets;
 	MaxTotems = RPGMut.MaxTotems;
+    
+    bMonstersDie = RPGMut.bMonstersDie;
+    bTurretsDie = RPGMut.bTurretsDie;
+    bTotemsDie = RPGMut.bTotemsDie;
 	
 	AmmoMax = default.AmmoMax;
 	HealingExpMultiplier = class'RPGRules'.default.EXP_Healing;

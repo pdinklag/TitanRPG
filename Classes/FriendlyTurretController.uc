@@ -5,6 +5,7 @@ class FriendlyTurretController extends ASSentinelController
 	config(TitanRPG);
 
 var Controller Master; //player who spawned this turret
+var RPGPlayerReplicationInfo MasterRPRI;
 var int TeamNum;
 
 var config float SleepDelay;
@@ -23,6 +24,7 @@ event PostBeginPlay()
 
 function SetMaster(Controller NewMaster) {
 	Master = NewMaster;
+    MasterRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
 	FPRI.Master = Master.PlayerReplicationInfo;
     
 	if(Master.PlayerReplicationInfo != None && Master.PlayerReplicationInfo.Team != None) {
@@ -61,27 +63,26 @@ function InitializeSkill(int x) {
 }
 
 event Tick(float dt) {
-	//if I don't have a master or it switched teams, I should die
-	if(
-		Master == None ||
-		Master.Pawn == None || 
-		Master.Pawn.Health <= 0 ||
-		Master.PlayerReplicationInfo == None ||
-		Master.PlayerReplicationInfo.bOnlySpectator ||
-		!SameTeamAs(Master)
-	)
-	{
-        if(Pawn != None) {
-            Pawn.Suicide();
-        }
-        
-        Destroy();
-		return;
-	}
-	
+    Super.Tick(dt);
+    
     if(Pawn == None || Pawn.Controller != Self || Pawn.bPendingDelete) {
         Destroy();
         return;
+    }
+
+	//if I don't have a master or he switched teams, I should die
+    if(
+        Master == None ||
+        Master.PlayerReplicationInfo == None ||
+        Master.PlayerReplicationInfo.bOnlySpectator ||
+        !SameTeamAs(Master)
+    ) {
+        Pawn.Suicide();
+    } else if(MasterRPRI != None) {
+        //if my master died, test if I should as well
+        if(MasterRPRI.bTurretsDie && (Master.Pawn == None || Master.Pawn.Health <= 0)) {
+            Pawn.Suicide();
+        }
     }
 }
 
