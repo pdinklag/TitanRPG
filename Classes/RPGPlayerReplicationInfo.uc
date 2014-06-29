@@ -1906,7 +1906,7 @@ simulated function ProcessProjectileMods() {
 simulated function ClientSyncProjectile(vector Location, class<Projectile> Type, Pawn Instigator, float Vel, name Flag, class<Emitter> FXClass) {
     local ProjectileMod Mod;
     
-    Log("ClientSyncProjectile" @ Location @ Type @ Instigator);
+    //Log("ClientSyncProjectile" @ Location @ Type @ Instigator);
     
     if(Role < ROLE_Authority) {
         Mod.NumTicks = 0;
