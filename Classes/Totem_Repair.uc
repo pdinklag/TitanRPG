@@ -13,9 +13,10 @@ auto state Active {
         local FX_Beam Beam;
         local int Amount, n;
         
-        foreach VisibleCollidingActors(class'Vehicle', V, SightRadius, IconLocation) {
-            if(V == Self)
+        foreach CollidingActors(class'Vehicle', V, SightRadius, IconLocation) {
+            if(V == Self || !CheckLineOfSight(V)) {
                 continue;
+            }
         
             if(Team != 255 && V.Team == Team && (V.bAutoTurret || !V.IsVehicleEmpty()) && V.Health < V.HealthMax) {
                 n++;
@@ -36,6 +37,22 @@ auto state Active {
         if(n > 0) {
             PlaySound(Sound'WeaponSounds.LinkGun.LinkActivated', SLOT_Interact);
         }
+    }
+}
+
+function bool CheckLineOfSight(Vehicle V) {
+    local Actor X;
+    local vector HitLocation, HitNormal;
+    local RPGTotemWall Wall;
+    
+    X = Trace(HitLocation, HitNormal, V.Location, IconLocation, True);
+    if(X == V) {
+        return True;
+    } else if(V.IsA('RPGTotem')) {
+        Wall = RPGTotemWall(X);
+        return (Wall != None) && RPGTotem(V).ConnectedToWall(Wall);
+    } else {
+        return False;
     }
 }
 

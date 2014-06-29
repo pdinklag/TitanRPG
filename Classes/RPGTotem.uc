@@ -150,6 +150,18 @@ function CheckWalls() {
     }
 }
 
+function bool ConnectedToWall(RPGTotemWall W) {
+    local int x;
+    
+    for(x = 0; x < Walls.Length; x++) {
+        if(Walls[x] == W) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 simulated event Destroyed() {
     DestroyWalls();
     
