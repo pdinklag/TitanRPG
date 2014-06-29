@@ -41,6 +41,8 @@ simulated event PostBeginPlay() {
     }
 }
 
+function SetMaster(Controller Master);
+
 function SetTeamNum(byte TeamNum) {
     local int x;
     local RPGTotem T;

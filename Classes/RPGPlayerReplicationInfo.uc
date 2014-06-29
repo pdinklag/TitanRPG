@@ -1888,14 +1888,14 @@ simulated function ProcessProjectileMods() {
             ModifyProjectiles.Remove(i, 1);
             
             Multiplier = Mod.Vel / VSize(Closest.Velocity);
-            Log("Match (" $ (Mod.NumTicks + 1) $ ", " $ ClosestDist $ "):" @ Closest @ "*" @ Multiplier);
+            //Log("Match (" $ (Mod.NumTicks + 1) $ ", " $ ClosestDist $ "):" @ Closest @ "*" @ Multiplier);
             
             Closest.Tag = Mod.Flag;
             Closest.SetLocation(Mod.Location); //TODO: interpolate?
             class'Util'.static.ModifyProjectileSpeed(Closest, Multiplier, Mod.Flag, Mod.FXClass);
         } else if(Mod.NumTicks >= 3) {
             ModifyProjectiles.Remove(i, 1);
-            Log("No match for:" @ Mod.Location @ Mod.Type @ Mod.Instigator);
+            //Log("No match for:" @ Mod.Location @ Mod.Type @ Mod.Instigator);
         } else {
             ModifyProjectiles[i].NumTicks++;
             i++;

@@ -14,6 +14,10 @@ function SetMaster(Controller NewMaster) {
     Master = NewMaster;
     MasterRPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Master);
     FPRI.Master = Master.PlayerReplicationInfo;
+    
+    if(RPGTotem(Pawn) != None) {
+        RPGTotem(Pawn).SetMaster(NewMaster);
+    }
 }
 
 function Possess(Pawn aPawn) {

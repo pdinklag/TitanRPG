@@ -7,9 +7,7 @@ var RPGMatrixField Field;
 
 auto state Active {
     event BeginState() {
-        Log("Totem_Matrix BeginState: Controller =" @ Controller $ ", IconLocation =" @ IconLocation);
-    
-        Field = Spawn(class'RPGMatrixField', None,, Location);
+        Field = Spawn(class'RPGMatrixField',,, IconLocation);
         Field.Radius = SightRadius;
         Field.Multiplier = Multiplier;
         Field.Ignore = Ignore;
@@ -17,6 +15,12 @@ auto state Active {
     
     event EndState() {
         Field.Destroy();
+    }
+}
+
+function SetMaster(Controller Master) {
+    if(Field != None) {
+        Field.Creator = Master;
     }
 }
 

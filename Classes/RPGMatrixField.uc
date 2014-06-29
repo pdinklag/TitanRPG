@@ -41,7 +41,6 @@ event Tick(float dt) {
         
         if(Proj.Instigator != None) {
             if(!class'DevoidEffect_Matrix'.static.CanBeApplied(Proj.Instigator, Creator)) {
-                Log("Matrix: cannot affect" @ Proj @ "from" @ Proj.Instigator);
                 continue;
             }
         }
