@@ -95,17 +95,6 @@ var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied
 var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage;
 var config float EXP_Daredevil;
 
-/*
-*/
-
-//Data to allow custom weapon stat entries for "F3" (such as Lightning Rod, Ultima etc)
-struct CustomWeaponStatStruct
-{
-	var class<DamageType> DamageType; //if a kill is done with this damage type...
-	var class<Weapon> WeaponClass; //...a kill with this weapon will be tracked
-};
-var config array<CustomWeaponStatStruct> CustomWeaponStats;
-
 //Necromancy check queue
 var config array<string> ResurrectionCombos;
 
@@ -368,9 +357,8 @@ function ScoreKill(Controller Killer, Controller Killed)
 		}
 		else
 		{
-			if(Killer.PlayerReplicationInfo != None)
-			{
-				KillWeaponType = GetCustomStatWeapon(KillDamageType);
+			if(Killer.PlayerReplicationInfo != None && ClassIsChildOf(KillDamageType, class'RPGDamageType')) {
+				KillWeaponType = class<RPGDamageType>(KillDamageType).default.StatWeapon;
 				if(KillWeaponType != None)
 					RegisterWeaponKill(Killer.PlayerReplicationInfo, Killed.PlayerReplicationInfo, KillWeaponType);
 			}
@@ -1210,18 +1198,6 @@ static function bool IsResurrectionCombo(string ComboName)
 	return false;
 }
 
-function class<Weapon> GetCustomStatWeapon(class<DamageType> DamageType)
-{
-	local int i;
-	
-	for(i = 0; i < CustomWeaponStats.Length; i++)
-	{
-		if(CustomWeaponStats[i].DamageType == DamageType)
-			return CustomWeaponStats[i].WeaponClass;
-	}
-	return None;
-}
-
 defaultproperties
 {
 	bDamageLog=False
@@ -1234,22 +1210,6 @@ defaultproperties
 	DirectDamageTypes(3)=class'DamTypeFatality'
 	NoUDamageTypes(0)=class'DamTypeRetaliation'
 	
-	//former RPGGameStats
-	CustomWeaponStats(0)=(DamageType=Class'DamTypeTitanUltima',WeaponClass=Class'DummyWeapon_Ultima')
-	CustomWeaponStats(1)=(DamageType=Class'DamTypeUltima',WeaponClass=Class'DummyWeapon_Ultima')
-	CustomWeaponStats(2)=(DamageType=Class'DamTypeLightningRod',WeaponClass=Class'DummyWeapon_LightningRod')
-	CustomWeaponStats(3)=(DamageType=Class'DamTypeCounterShove',WeaponClass=Class'DummyWeapon_CounterShove')
-	CustomWeaponStats(4)=(DamageType=Class'DamTypePoison',WeaponClass=Class'DummyWeapon_Poison')
-	CustomWeaponStats(5)=(DamageType=Class'DamTypeRetaliation',WeaponClass=Class'DummyWeapon_Retaliation')
-	CustomWeaponStats(6)=(DamageType=Class'DamTypeSelfDestruct',WeaponClass=Class'DummyWeapon_SelfDestruct')
-	CustomWeaponStats(7)=(DamageType=Class'DamTypeEmo',WeaponClass=Class'DummyWeapon_Emo')
-	CustomWeaponStats(8)=(DamageType=Class'DamTypeMegaExplosion',WeaponClass=Class'DummyWeapon_MegaBlast')
-	CustomWeaponStats(9)=(DamageType=Class'DamTypeRepulsion',WeaponClass=Class'DummyWeapon_Repulsion')
-	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeapon_Vorpal')
-	CustomWeaponStats(11)=(DamageType=Class'DamTypeBioBomb',WeaponClass=Class'DummyWeapon_BioBomb')
-	CustomWeaponStats(12)=(DamageType=Class'DamTypeLightningTotem',WeaponClass=Class'DummyWeapon_Totem')
-	CustomWeaponStats(13)=(DamageType=Class'DamTypeFlakBomb',WeaponClass=Class'DummyWeapon_FlakBomb')
-
 	//Kills
 	EXP_Frag=1.00
 	EXP_SelfFrag=0.00 //-1.00 really, but we don't want to lose exp here

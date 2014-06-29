@@ -1,8 +1,8 @@
-class DamTypeCounterShove extends DamageType
-	abstract;
+class DamTypeCounterShove extends RPGDamageType
+    abstract;
 
-defaultproperties
-{
-	DeathString="%k went up up and away, courtesy of %o's Counter Shove."
-	KDamageImpulse=0.000000
+defaultproperties {
+    StatWeapon=class'DummyWeapon_CounterShove'
+    DeathString="%k went up up and away, courtesy of %o's Counter Shove."
+    KDamageImpulse=0.000000
 }
