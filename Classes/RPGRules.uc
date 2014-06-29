@@ -1248,6 +1248,7 @@ defaultproperties
 	CustomWeaponStats(10)=(DamageType=Class'DamTypeVorpal',WeaponClass=Class'DummyWeapon_Vorpal')
 	CustomWeaponStats(11)=(DamageType=Class'DamTypeBioBomb',WeaponClass=Class'DummyWeapon_BioBomb')
 	CustomWeaponStats(12)=(DamageType=Class'DamTypeLightningTotem',WeaponClass=Class'DummyWeapon_Totem')
+	CustomWeaponStats(13)=(DamageType=Class'DamTypeFlakBomb',WeaponClass=Class'DummyWeapon_FlakBomb')
 
 	//Kills
 	EXP_Frag=1.00
