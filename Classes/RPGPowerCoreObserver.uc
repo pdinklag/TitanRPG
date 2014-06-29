@@ -112,11 +112,11 @@ function NodeConstructed() {
     }
 }
 
-function Healed(Pawn P, int Amount) {
+function Healed(Controller By, int Amount) {
     local RPGPlayerReplicationInfo RPRI;
     
     if(Amount > 0) {
-        RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(P.Controller);
+        RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(By);
         if(RPRI != None) {
             Rules.ShareExperience(RPRI, Rules.EXP_HealPowernode * float(Amount));
         }

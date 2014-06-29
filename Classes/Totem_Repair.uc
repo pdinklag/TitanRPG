@@ -1,7 +1,7 @@
 class Totem_Repair extends RPGTotem CacheExempt;
 
 var config float Interval;
-var config int RepairAmount;
+var config int RepairAmount, PowerNodeRepairAmount;
 
 auto state Active {
     event BeginState() {
@@ -10,15 +10,17 @@ auto state Active {
     
     function Timer() {
         local Vehicle V;
+        local ONSPowerNode Node;
+        local RPGGameObjectiveObserver Observer;
         local FX_Beam Beam;
-        local int Amount, n;
+        local int Amount, n, OldHealth;
         
         foreach CollidingActors(class'Vehicle', V, SightRadius, IconLocation) {
             if(V == Self || !CheckLineOfSight(V)) {
                 continue;
             }
         
-            if(Team != 255 && V.Team == Team && (V.bAutoTurret || !V.IsVehicleEmpty()) && V.Health < V.HealthMax) {
+            if(class'Util'.static.SameTeamP(V, Instigator) && (V.bAutoTurret || !V.IsVehicleEmpty()) && V.Health < V.HealthMax) {
                 n++;
             
                 Amount = Min(RepairAmount, V.HealthMax - V.Health);
@@ -31,6 +33,25 @@ auto state Active {
                
                 Beam = Instigator.Spawn(class'FX_RepairBeam', Icon);
                 Beam.LinkedPawn = V;
+            }
+        }
+        
+        foreach VisibleCollidingActors(class'ONSPowerNode', Node, SightRadius, IconLocation) {
+            if(Team == Node.DefenderTeamIndex && Node.Health < Node.DamageCapacity) {
+                OldHealth = Node.Health;
+                if(Node.HealDamage(PowerNodeRepairAmount, Instigator.Controller, class'DamTypeLinkShaft')) {
+                    if(Node.Health > OldHealth) {
+                        n++;
+                        
+                        Observer = class'RPGGameObjectiveObserver'.static.GetFor(Node);
+                        if(Observer != None) {
+                            Observer.Healed(RPGTotemController(Controller).Master, Node.Health - OldHealth);
+                        }
+                        
+                        Beam = Instigator.Spawn(class'FX_RepairBeam', Icon);
+                        Beam.LinkedLocation = Node.EnergySphere.Location;
+                    }
+                }
             }
         }
         
@@ -59,6 +80,7 @@ function bool CheckLineOfSight(Vehicle V) {
 defaultproperties {
     Interval=3.0
     RepairAmount=35
+    PowerNodeRepairAmount=100
     
     IconClass=class'TotemIcon_Repair'
     VehicleNameString="Repair Totem"

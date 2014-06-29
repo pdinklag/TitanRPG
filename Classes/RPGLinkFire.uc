@@ -261,10 +261,10 @@ simulated function ModeTick(float dt)
                             
                             OldHealth = HealObjective.Health;
                             if(HealObjective.HealDamage(AdjustedDamage, Instigator.Controller, DamageType)) {
-                                if(HealObjective.Health - OldHealth > 0) {
+                                if(HealObjective.Health > OldHealth) {
                                     Observer = class'RPGGameObjectiveObserver'.static.GetFor(HealObjective);
                                     if(Observer != None) {
-                                        Observer.Healed(Instigator, HealObjective.Health - OldHealth);
+                                        Observer.Healed(Instigator.Controller, HealObjective.Health - OldHealth);
                                     }
                                 }
                             } else {
