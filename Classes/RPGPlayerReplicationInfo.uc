@@ -363,6 +363,12 @@ simulated event BeginPlay()
 	}
 }
 
+function Reset() {
+    ServerKillMonsters();
+    ServerDestroyTurrets();
+    ServerDestroyTotems();
+}
+
 simulated event Destroyed()
 {
 	local LinkedReplicationInfo LRI;
@@ -1365,9 +1371,7 @@ function ServerResetData()
 
 	Log(PRI.PlayerName $ " - RESET!", 'TitanRPG');
     
-    ServerKillMonsters();
-    ServerDestroyTurrets();
-    ServerDestroyTotems();
+    Reset();
 
 	OwnerID = DataObject.ID;
 
@@ -1403,9 +1407,7 @@ function ServerRebuildData()
 	{
 		Log(PRI.PlayerName $ " - REBUILD!", 'TitanRPG');
         
-        ServerKillMonsters();
-        ServerDestroyTurrets();
-        ServerDestroyTotems();
+        Reset();
 		
 		DataObject.AB.Length = 0;
 		DataObject.AL.Length = 0;
