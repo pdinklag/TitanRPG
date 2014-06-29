@@ -635,7 +635,7 @@ static function ModifyProjectileSpeed(Projectile Proj, float Multiplier, name Fl
     if(Proj.IsA('RocketProj')) {
         RocketProj(Proj).FlockMaxForce *= Multiplier;
     } else if(Proj.IsA('ONSMineProjectile')) {
-        ONSMineProjectile(Proj).ScurrySpeed *= Multiplier;
+        //ONSMineProjectile(Proj).ScurrySpeed *= Multiplier;
     }
 
     if(Proj.Role == ROLE_Authority) {
