@@ -87,6 +87,22 @@ var bool bMonstersDie, bTurretsDie, bTotemsDie;
 
 var float HealingExpMultiplier;
 
+//projectile handling
+const PROJ_SEARCH_RADIUS = 2048;
+
+struct ProjectileMod {
+    var int NumTicks;
+    
+    var vector Location;
+    var class<Projectile> Type;
+    var Pawn Instigator;
+    
+    var float Vel;
+    var name Flag;
+    var class<Emitter> FXClass;
+};
+var array<ProjectileMod> ModifyProjectiles;
+
 //replicated server->client
 var Controller Controller;
 var PlayerReplicationInfo PRI;
@@ -152,7 +168,8 @@ replication
 		ClientCheckArtifactClass,
 		ClientSwitchToWeapon, //moved from TitanPlayerController for better compatibility
 		ClientCreateStatusIcon, ClientRemoveStatusIcon,
-		ClientShowSelection, ClientCloseSelection; //artifact selection menu
+		ClientShowSelection, ClientCloseSelection, //artifact selection menu
+        ClientSyncProjectile;
 	reliable if(Role < ROLE_Authority)
 		ServerBuyAbility, ServerNoteActivity,
 		ServerSwitchBuild, ServerResetData, ServerRebuildData,
@@ -796,6 +813,10 @@ simulated event Tick(float dt)
 	}
 	
 	CheckPlayerViewShake();
+    
+    if(Role < ROLE_Authority) {
+        ProcessProjectileMods();
+    }
 	
 	if(Role == ROLE_Authority)
 	{
@@ -1841,6 +1862,64 @@ function bool IsFavorite(class<Weapon> WeaponClass, class<RPGWeaponModifier> Mod
 		}
 	}
 	return false;
+}
+
+simulated function ProcessProjectileMods() {
+    local Projectile Proj, Closest;
+    local float Dist, ClosestDist, Multiplier;
+    local ProjectileMod Mod;
+    local int i;
+
+    i = 0;
+    while(i < ModifyProjectiles.Length) {
+        Mod = ModifyProjectiles[i];
+
+        foreach CollidingActors(class'Projectile', Proj, PROJ_SEARCH_RADIUS, Mod.Location) {
+            if(Proj.Tag != Mod.Flag && Proj.class == Mod.Type && Proj.Instigator == Mod.Instigator) {
+                Dist = VSize(Proj.Location - Mod.Location);
+                if(Closest == None || Dist < ClosestDist) {
+                    Closest = Proj;
+                    ClosestDist = Dist;
+                }
+            }
+        }
+        
+        if(Closest != None) {
+            ModifyProjectiles.Remove(i, 1);
+            
+            Multiplier = Mod.Vel / VSize(Closest.Velocity);
+            Log("Match (" $ (Mod.NumTicks + 1) $ ", " $ ClosestDist $ "):" @ Closest @ "*" @ Multiplier);
+            
+            Closest.Tag = Mod.Flag;
+            Closest.SetLocation(Mod.Location); //TODO: interpolate?
+            class'Util'.static.ModifyProjectileSpeed(Closest, Multiplier, Mod.Flag, Mod.FXClass);
+        } else if(Mod.NumTicks >= 3) {
+            ModifyProjectiles.Remove(i, 1);
+            Log("No match for:" @ Mod.Location @ Mod.Type @ Mod.Instigator);
+        } else {
+            ModifyProjectiles[i].NumTicks++;
+            i++;
+        }
+    }
+}
+
+simulated function ClientSyncProjectile(vector Location, class<Projectile> Type, Pawn Instigator, float Vel, name Flag, class<Emitter> FXClass) {
+    local ProjectileMod Mod;
+    
+    Log("ClientSyncProjectile" @ Location @ Type @ Instigator);
+    
+    if(Role < ROLE_Authority) {
+        Mod.NumTicks = 0;
+        Mod.Location = Location;
+        Mod.Type = Type;
+        Mod.Instigator = Instigator;
+        
+        Mod.Vel = Vel;
+        Mod.Flag = Flag;
+        Mod.FXClass = FXClass;
+        
+        ModifyProjectiles[ModifyProjectiles.Length] = Mod;
+    }
 }
 
 defaultproperties

@@ -1,5 +1,7 @@
 class WeaponModifier_Force extends RPGWeaponModifier;
 
+const FORCE_RADIUS = 32768;
+
 var localized string ProjSpeedText;
 
 static function bool AllowedFor(class<Weapon> WeaponType, Pawn Other)
@@ -18,40 +20,28 @@ static function bool AllowedFor(class<Weapon> WeaponType, Pawn Other)
 	return false;
 }
 
-function RPGTick(float dt)
-{
-	local float Multiplier;
-	local Projectile Proj;
-	local Sync_ProjectileSpeed Sync;
+function RPGTick(float dt) {
+    local Projectile Proj;
+    local float Multiplier;
 
-	//Projectiles
-	foreach Instigator.VisibleCollidingActors(class'Projectile', Proj, 256)
-	{
-		if(Proj.Instigator == Instigator && Proj.Tag == Proj.class.Name)
-		{
-			Identify();
-			
-			Proj.Tag = default.class.Name; //process only once
+    Super.RPGTick(dt);
 
-			Multiplier = 1.0f + BonusPerLevel * float(Modifier);
-			if(Multiplier != 0)
-			{
-				Proj.Speed *= Multiplier;
-				Proj.MaxSpeed *= Multiplier;
-				Proj.Velocity *= Multiplier;
-				
-				//Tell clients
-				if(Level.NetMode == NM_DedicatedServer)
-				{
-					Sync = Instigator.Spawn(class'Sync_ProjectileSpeed');
-					Sync.Proj = Proj;
-					Sync.ProjClass = Proj.class;
-					Sync.ProcessedTag = default.class.Name;
-					Sync.SpeedMultiplier = Multiplier;
-				}
-			}
-		}
-	}
+    Multiplier = 1.0f + BonusPerLevel * float(Modifier);
+
+    foreach Instigator.CollidingActors(class'Projectile', Proj, FORCE_RADIUS) {
+        if(Proj.Tag == 'Force' || Proj.Tag == 'Matrix') {
+            continue;
+        }
+
+        if(Proj.Instigator != Instigator) {
+            continue;
+        }
+
+        Identify();
+
+        Proj.Tag = 'Force';
+        class'Util'.static.ModifyProjectileSpeed(Proj, Multiplier, 'Force');
+    }
 }
 
 simulated function BuildDescription()

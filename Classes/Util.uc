@@ -617,6 +617,43 @@ static function bool SameTeamP(Pawn A, Pawn B) {
     return (TeamA != 255 && TeamA == TeamB);
 }
 
+//
+static function ModifyProjectileSpeed(Projectile Proj, float Multiplier, name Flag, optional class<Emitter> FXClass) {
+    local Controller C;
+    local RPGPlayerReplicationInfo RPRI;
+    local vector ClientLocation;
+
+    Proj.Speed *= Multiplier;
+    Proj.MaxSpeed *= Multiplier;
+    Proj.Velocity *= Multiplier;
+    Proj.Acceleration *= Multiplier;
+    
+    if(Proj.IsA('RocketProj')) {
+        RocketProj(Proj).FlockMaxForce *= Multiplier;
+    } else if(Proj.IsA('ONSMineProjectile')) {
+        ONSMineProjectile(Proj).ScurrySpeed *= Multiplier;
+    }
+
+    if(Proj.Role == ROLE_Authority) {
+        ClientLocation = Proj.Location + Proj.Velocity * 0.05f;
+        if(Proj.Physics == PHYS_Falling) {
+            ClientLocation += vect(0, 0, -0.00125f) * Proj.Level.DefaultGravity;
+        }
+        
+        for(C = Proj.Level.ControllerList; C != None; C = C.NextController) {
+            if(C.IsA('PlayerController')) {
+                RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(C);
+                if(RPRI != None) {
+                    RPRI.ClientSyncProjectile(ClientLocation, Proj.class, Proj.Instigator,
+                        VSize(Proj.Velocity), Flag, FXClass);
+                }
+            }
+        }
+    } else if(Proj.Role < ROLE_Authority && FXClass != None) {
+        Proj.Spawn(FXClass, Proj,, Proj.Location, Proj.Rotation).SetBase(Proj);
+    }
+}
+
 defaultproperties {
 	HighlightColor=(R=255,G=255,B=255,A=255);
 }

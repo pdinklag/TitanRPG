@@ -1,59 +1,29 @@
 class WeaponModifier_Matrix extends RPGWeaponModifier;
 
 var config float MatrixRadius;
-var config bool bAffectsTranslocator;
+var config array<name> Ignore;
 
 var localized string MatrixText;
 
 const SLOWDOWN_CAP = 0.1;
 
-function RPGTick(float dt) {
-    local Projectile P;
-	local Sync_Matrix Sync;
-	local float Multiplier;
+var RPGMatrixField Field;
 
-	Super.RPGTick(dt);
+function StartEffect() {
+    Field = Spawn(class'RPGMatrixField', Instigator.Controller,, Instigator.Location, Instigator.Rotation);
+    Field.SetBase(Instigator);
+    Field.Radius = MatrixRadius;
+    Field.Multiplier = FMax(SLOWDOWN_CAP, 1.0f - BonusPerLevel * float(Modifier));
+    Field.OnMatrix = OnMatrix;
+    Field.Ignore = Ignore;
+}
 
-	if(Instigator.Controller != None) {
-		Multiplier = FMax(SLOWDOWN_CAP, 1.0f - BonusPerLevel * float(Modifier));
-	
-		foreach Instigator.VisibleCollidingActors(class'Projectile', P, MatrixRadius)
-		{
-			if(P.Tag == 'Matrix')
-				continue;
-		
-			if(P.IsA('TransBeacon') && !bAffectsTranslocator)
-				continue;
-			
-			if(P.Instigator != None)
-			{
-                if(!class'DevoidEffect_Matrix'.static.CanBeApplied(P.Instigator, Instigator.Controller))
-                    continue;
-			}
+function StopEffect() {
+    Field.Destroy();
+}
 
-			Identify();
-			
-			P.Tag = 'Matrix';
-			P.Speed *= Multiplier;
-			P.MaxSpeed *= Multiplier;
-			P.Velocity *= Multiplier;
-			
-			//Tell clients
-			if(Level.NetMode == NM_DedicatedServer)
-			{
-				Sync = P.Instigator.Spawn(class'Sync_Matrix');
-				if(Sync != None)
-				{
-					Sync.Proj = P;
-					Sync.ProjClass = P.class;
-					Sync.ProcessedTag = 'Matrix';
-					Sync.SpeedMultiplier = Multiplier;
-					Sync.ProjVelocity = P.Velocity;
-					Sync.ProjLocation = P.Location;
-				}
-			}
-		}
-	}
+function OnMatrix(RPGMatrixField Field, Projectile Proj, float Multiplier) {
+    Identify();
 }
 
 simulated function BuildDescription()
@@ -68,8 +38,6 @@ simulated function BuildDescription()
 
 defaultproperties
 {
-	bAffectsTranslocator=False
-
 	MatrixText="$1 enemy projectile slowdown"
 	DamageBonus=0.03
 	
