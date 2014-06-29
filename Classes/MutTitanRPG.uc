@@ -244,10 +244,19 @@ event PreBeginPlay() {
 
 event PostBeginPlay()
 {
+    local Mutator Mut;
 	local GameObjective Objective;
 	local HealableDamageGameRules HealRules;
 	local RPGReplicationInfo RRI;
 	local int x;
+    
+    //Disable ONS mutator as it disables adrenaline pickups
+    for(Mut = Level.Game.BaseMutator; Mut != None; Mut = Mut.NextMutator) {
+        if(Mut.IsA('ONSDefaultMut')) {
+            Mut.Destroy();
+            break;
+        }
+    }
 	
 	//RPG Rules
 	Rules = Spawn(class'RPGRules');
@@ -469,6 +478,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 	//Force adrenaline on
 	if(Other.IsA('Controller')) {
 		Controller(Other).bAdrenalineEnabled = true;
+        
+        if(Level.Game.IsA('ONSOnslaughtGame') && MessagingSpectator(Other) == None) {
+            //Mimic ONSDefaultMut, which has been removed
+            Controller(Other).PlayerReplicationInfoClass = class'ONSPlayerReplicationInfo';
+        }
 	}
 	
 	return true;
