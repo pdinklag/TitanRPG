@@ -628,6 +628,10 @@ static function ModifyProjectileSpeed(Projectile Proj, float Multiplier, name Fl
     Proj.Velocity *= Multiplier;
     Proj.Acceleration *= Multiplier;
     
+    if(Multiplier < 1) {
+        Proj.LifeSpan /= Multiplier;
+    }
+    
     if(Proj.IsA('RocketProj')) {
         RocketProj(Proj).FlockMaxForce *= Multiplier;
     } else if(Proj.IsA('ONSMineProjectile')) {
