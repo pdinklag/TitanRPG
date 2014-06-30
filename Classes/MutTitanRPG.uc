@@ -62,7 +62,6 @@ var config array<WeaponModifier> WeaponModifiers;
 var int TotalModifierChance;
 
 //Stuff
-var config bool bAllowSuperWeaponReplenish; //allow RPGWeapon::FillToInitialAmmo() on superweapons
 var config array<class<Ammunition> > SuperAmmoClasses;
 
 var config int MaxMonsters; //minimum MaxMonsters per player...
@@ -1494,7 +1493,6 @@ defaultproperties
 	PointsPerLevel=5
 	LevelDiffExpGainDiv=100.00
 	MaxLevelupEffectStacking=1
-	bAllowSuperWeaponReplenish=True
 	SuperAmmoClasses(0)=class'XWeapons.RedeemerAmmo'
 	SuperAmmoClasses(1)=class'XWeapons.BallAmmo'
 	SuperAmmoClasses(2)=class'XWeapons.TransAmmo'

@@ -75,7 +75,6 @@ var config float EXP_ObjectiveCompleted;
 //TODO: ONS events, AS events, DOM events
 
 //Misc
-var config float EXP_Resurrection; //resurrection using the Necromancy combo
 var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
 
 /*
@@ -94,18 +93,6 @@ var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied
 //Awards
 var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage;
 var config float EXP_Daredevil;
-
-//Necromancy check queue
-var config array<string> ResurrectionCombos;
-
-struct NecroCheckStruct
-{
-	var RPGPlayerReplicationInfo RPRI;
-	var int OldComboCount;
-	
-	var int WaitTicks;
-};
-var array<NecroCheckStruct> NecroCheck;
 
 static function RPGRules Instance(LevelInfo Level)
 {
@@ -1275,7 +1262,6 @@ defaultproperties
 	EXP_TeamBooster=0.10 //per second per healed player (excluding yourself)
 	
 	//Misc
-	EXP_Resurrection=50.00 //experience for resurrecting another player using the Necromancy combo
 	EXP_VehicleRepair=0.005 //experience for repairing one "health point"
 	EXP_Assist=15.00 //Score Assist
 	

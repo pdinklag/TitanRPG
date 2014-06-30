@@ -79,7 +79,6 @@ var int NumMonsters, NumTurrets, NumMines, NumTotems;
 var bool bDiscoMode;
 
 //stats
-var int AmmoMax;
 var int MaxMines, MaxMonsters, MaxTurrets, MaxTotems;
 
 //determine if summons die on player death
@@ -245,7 +244,6 @@ function ModifyStats()
     bTurretsDie = RPGMut.bTurretsDie;
     bTotemsDie = RPGMut.bTotemsDie;
 	
-	AmmoMax = default.AmmoMax;
 	HealingExpMultiplier = class'RPGRules'.default.EXP_Healing;
 	
 	for(x = 0; x < Abilities.Length; x++)
@@ -1926,7 +1924,6 @@ simulated function ClientSyncProjectile(vector Location, class<Projectile> Type,
 
 defaultproperties
 {
-	AmmoMax=0
 	HealingExpMultiplier=0 //gotten from RPGRules
 
 	LevelUpSound=Sound'TitanRPG.SoundEffects.LevelUp'
