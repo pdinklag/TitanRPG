@@ -22,7 +22,9 @@ In the `[MutTitanRPG]` section (the first in the ini), you can also define the `
 
 Documentation State
 -------------------
-The documentation is severely outdated, since the last public release was version 1.60 and there have been major changes since. The `TitanRPG.ini` file, however, is up to date and can be used as a documentation of sorts.
+There is currently no documentation for configuring TitanRPG and none is planned.
+
+The `TitanRPG.ini` file, however, is up to date and can be used as a documentation of sorts. It never hurts to experiment or ask!
 
 Credits
 -------
