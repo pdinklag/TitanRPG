@@ -1172,19 +1172,6 @@ static function RegisterWeaponKill(PlayerReplicationInfo Killer, PlayerReplicati
 	}
 }
 
-static function bool IsResurrectionCombo(string ComboName)
-{
-	local int i;
-	
-	for(i = 0; i < default.ResurrectionCombos.Length; i++)
-	{
-		if(InStr(ComboName, default.ResurrectionCombos[i]) >= 0)
-			return true;
-	}
-	
-	return false;
-}
-
 defaultproperties
 {
 	bDamageLog=False
@@ -1268,9 +1255,4 @@ defaultproperties
 	//Multipliers
 	EXPMul_DestroyVehicle=0.67
 	EXPMul_SummonKill=0.67
-	
-	//Resurrection
-	ResurrectionCombos(0)="ComboNecro"
-	ResurrectionCombos(1)="ComboRevival"
-	ResurrectionCombos(2)="NecroCombo"
 }
