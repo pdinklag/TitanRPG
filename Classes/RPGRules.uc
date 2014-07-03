@@ -867,6 +867,10 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 	return Super.OverridePickupQuery(Other, item, bAllowPickup);
 }
 
+function ComboSuccess(Controller Who, class<Combo> ComboClass) {
+    Log("ComboSuccess:" @ Who.GetHumanReadableName() @ ComboClass);
+}
+
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation)
 {
 	local Inventory Inv;

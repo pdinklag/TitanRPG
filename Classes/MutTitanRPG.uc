@@ -473,6 +473,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 
 		return true;
 	}
+    
+    //Observe combos
+    if(Other.IsA('Combo')) {
+        Spawn(class'RPGComboObserver', Other);
+    }
 	
 	//Force adrenaline on
 	if(Other.IsA('Controller')) {
