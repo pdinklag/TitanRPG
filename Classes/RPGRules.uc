@@ -72,7 +72,7 @@ var config float EXP_DestroyPowernode, EXP_DestroyConstructingPowernode;
 //AS
 var config float EXP_ObjectiveCompleted;
 
-//TODO: ONS events, AS events, DOM events
+//TODO: AS events, DOM events
 
 //Misc
 var config float EXP_VehicleRepair; //EXP for repairing 1 "HP"
@@ -93,6 +93,14 @@ var config float EXPMul_SummonKill; //you get the XP of a normal kill multiplied
 //Awards
 var config float EXP_HeadHunter, EXP_ComboWhore, EXP_FlakMonkey, EXP_RoadRampage;
 var config float EXP_Daredevil;
+
+//Combos
+struct ComboReward {
+    var string ComboClass;
+    var float Exp;
+};
+
+var config array<ComboReward> EXP_Combo;
 
 static function RPGRules Instance(LevelInfo Level)
 {
@@ -868,7 +876,18 @@ function bool OverridePickupQuery(Pawn Other, Pickup item, out byte bAllowPickup
 }
 
 function ComboSuccess(Controller Who, class<Combo> ComboClass) {
-    Log("ComboSuccess:" @ Who.GetHumanReadableName() @ ComboClass);
+    local RPGPlayerReplicationInfo RPRI;
+    local int i;
+    
+    RPRI = class'RPGPlayerReplicationInfo'.static.GetFor(Who);
+    if(RPRI != None) {
+        for(i = 0; i < EXP_Combo.Length; i++) {
+            if(string(ComboClass) ~= EXP_Combo[i].ComboClass) {
+                RPRI.AwardExperience(EXP_Combo[i].Exp);
+                break;
+            }
+        }
+    }
 }
 
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation)
@@ -1255,7 +1274,7 @@ defaultproperties
 	//Misc
 	EXP_VehicleRepair=0.005 //experience for repairing one "health point"
 	EXP_Assist=15.00 //Score Assist
-	
+    
 	//Multipliers
 	EXPMul_DestroyVehicle=0.67
 	EXPMul_SummonKill=0.67

@@ -1,5 +1,6 @@
 //Observer for combos
-class RPGComboObserver extends Info config;
+class RPGComboObserver extends Info
+    config(TitanRPG);
 
 var config float AdrenalineDrainThreshold;
 
